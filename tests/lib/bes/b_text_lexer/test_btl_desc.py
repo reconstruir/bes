@@ -123,7 +123,7 @@ taste=sour
       '10: t_equal:=:6,4',
       '11: t_value:sour:7,4',
       '12: t_line_break:\\n:11,4',
-      '13: t_done::0,0',
+      '13: t_done::',
     ]
     actual = [ f'{i}: {str(token)}' for i, token in enumerate(hacked_tokens) ]
     self.assertEqual( expected, actual )

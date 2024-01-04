@@ -154,8 +154,8 @@ class btl_lexer_base(object):
         token_position = point(self._last_position.x + 1, self._last_position.y)
         buffer_value = os.linesep
       elif type_hint == 'done':
-        token_position = point(0, 0)
-        buffer_value = '' #None
+        token_position = None
+        buffer_value = None
     token = btl_lexer_token(name, buffer_value, token_position)
     return token
 

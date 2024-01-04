@@ -13,19 +13,21 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
 
   def __new__(clazz, name = None, value = None, position = point(1, 1)):
     check.check_string(name)
-    check.check_string(value)
-    position = check.check_point(position)
+    check.check_string(value, allow_none = True)
+    position = check.check_point(position, allow_none = True)
     
     return clazz.__bases__[0].__new__(clazz, name, value, position)
 
   def __str__(self):
-    return f'{self.name}:{self.value}:{self.position}'
+    value = self.value or ''
+    position = self.position or ''
+    return f'{self.name}:{value}:{position}'
 
   def to_dict(self):
     return {
       'name': self.name,
       'value': self.value,
-      'position': str(self.position),
+      'position': str(self.position or ''),
     }
 
   def to_json(self):
@@ -35,7 +37,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
     mutations = mutations or {}
     if 'position' in mutations:
       position = mutations['position']
-      check.check_point(position)
+      position = check.check_point(position)
     else:
       position = self.position
     copied_mutations = copy.deepcopy(mutations)

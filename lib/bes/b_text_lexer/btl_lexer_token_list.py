@@ -18,7 +18,7 @@ class btl_lexer_token_list(type_checked_list):
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:
-      buf.write(token.value)
+      buf.write(token.value or '')
     return buf.getvalue()
   
   def to_dict_list(self):

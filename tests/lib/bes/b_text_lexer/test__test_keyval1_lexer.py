@@ -13,7 +13,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
   def test_empty_string(self):
     t = self._test_tokenize(_test_keyval1_lexer, '',
       [
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -22,7 +22,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
     t = self._test_tokenize(_test_keyval1_lexer, 'a',
       [
         ( 't_key', 'a', ( 1, 1 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -33,7 +33,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
         ( 't_key', 'ab', ( 1, 1 ) ),
         ( 't_equal', '=', ( 3, 1 ) ),
         ( 't_value', '', ( 3, 1 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -44,7 +44,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
         ( 't_key', 'a', ( 1, 1 ) ),
         ( 't_equal', '=', ( 2, 1 ) ),
         ( 't_value', 'k', ( 3, 1 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -55,7 +55,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
         ( 't_key', 'fruit', ( 1, 1 ) ),
         ( 't_equal', '=', ( 6, 1 ) ),
         ( 't_value', 'kiwi', ( 7, 1 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -68,7 +68,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
         ( 't_equal', '=', ( 7, 1 ) ),
         ( 't_value', 'kiwi', ( 8, 1 ) ),
         ( 't_space', ' ', ( 12, 1 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -81,7 +81,7 @@ class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
         ( 't_equal', '=', ( 8, 1 ) ),
         ( 't_value', 'kiwi', ( 9, 1 ) ),
         ( 't_space', '  ', ( 13, 1 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
@@ -101,7 +101,7 @@ color=green
         ( 't_equal', '=', ( 6, 3 ) ),
         ( 't_value', 'green', ( 7, 3 ) ),
         ( 't_line_break', os.linesep, ( 12, 3 ) ),
-        ( 't_done', '', ( 0, 0 ) ),
+        ( 't_done', None, None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
