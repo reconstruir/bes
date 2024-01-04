@@ -34,12 +34,22 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
       [
         ( 't_key', 'ab', ( 1, 1 ) ),
         ( 't_equal', '=', ( 3, 1 ) ),
-        ( 't_value', '', ( 3, 1 ) ),
         ( 't_done', '', ( 0, 0 ) ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
+  def xtest_just_key_and_equal_with_trailing_white_space(self):
+    t = self._test_tokenize(_test_keyval2_lexer, 'ab= ',
+      [
+        ( 't_key', 'ab', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 3, 1 ) ),
+        ( 't_space', ' ', ( 4, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+    
   def test_key_and_value_short(self):
     t = self._test_tokenize(_test_keyval2_lexer, 'a=k',
       [
@@ -146,6 +156,19 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_one_space_before_value(self):
+    t = self._test_tokenize(_test_keyval2_lexer, 'k= v',
+      [
+        ( 't_key', 'k', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 2, 1 ) ),
+        ( 't_space', ' ', ( 3, 1 ) ),
+        ( 't_value', 'v', ( 4, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
     
   def test_multi_line(self):
     t = self._test_tokenize(_test_keyval2_lexer, '''

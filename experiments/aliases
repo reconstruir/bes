@@ -4,7 +4,12 @@ function go()
   local _suite=${1}
   local _test=${2}
   make -C tests/lib/bes/b_text_lexer all >& /dev/null
-  DEBUG=1 BES_LOG=_test_keyval2_lexer=debug t tests/lib/bes/b_text_lexer/${_suite} :${_test} >& log
+  if [ -z "${_test}" ]; then
+     local _test_arg=""
+  else
+     local _test_arg=":${_test}"
+  fi
+  DEBUG=1 BES_LOG="_test_keyval2_lexer=debug format=brief" t tests/lib/bes/b_text_lexer/${_suite} ${_test_arg} >& log
   less log
   return 0
 }

@@ -232,7 +232,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         new_state = 's_key'
         self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
-        new_state = 's_value'
+        new_state = 's_expecting_value'
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
@@ -423,7 +423,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_value
+    c_equal: s_expecting_value
       yield t_key
       buffer reset
       buffer write
