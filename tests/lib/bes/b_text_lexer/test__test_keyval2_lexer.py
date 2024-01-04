@@ -72,6 +72,28 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
+  def test_key_and_value_with_trailing_space(self):
+    t = self._test_tokenize(_test_keyval2_lexer, 'fruit=kiwi ',
+      [
+        ( 't_key', 'fruit', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 6, 1 ) ),
+        ( 't_value', 'kiwi ', ( 7, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_key_and_value_with_multiple_trailing_space(self):
+    t = self._test_tokenize(_test_keyval2_lexer, 'fruit=kiwi   ',
+      [
+        ( 't_key', 'fruit', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 6, 1 ) ),
+        ( 't_value', 'kiwi   ', ( 7, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+    
   def test_one_space_before_key(self):
     t = self._test_tokenize(_test_keyval2_lexer, ' k=v',
       [
