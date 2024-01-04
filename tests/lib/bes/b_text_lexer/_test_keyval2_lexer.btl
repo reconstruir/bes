@@ -57,7 +57,7 @@ states
   s_after_key_space
     c_ws: s_after_key_space
       buffer write
-    c_equal: s_value
+    c_equal: s_expecting_value
       yield t_space
       buffer reset
       buffer write
@@ -68,10 +68,40 @@ states
     default: s_expecting_equal_error
       raise unexpected_char
 
+  s_before_value_space
+    c_ws: s_value_key_space
+      buffer write
+    c_nl: s_expecting_key
+      yield t_space
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      yield t_space
+      buffer reset
+      buffer write
+    default: s_expecting_value_error
+      raise unexpected_char
+
+  s_expecting_value
+    c_ws: s_before_value_space
+      buffer write
+    c_eos: s_done
+      yield t_done
+    c_nl: s_expecting_key
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      buffer write
+    default: s_value
+      raise unexpected_char
+
   s_expecting_key_error
     default: s_done
 
   s_expecting_equal_error
+    default: s_done
+
+  s_expecting_value_error
     default: s_done
 
   s_key

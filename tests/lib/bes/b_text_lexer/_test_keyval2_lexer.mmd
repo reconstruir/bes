@@ -17,15 +17,31 @@ stateDiagram-v2
 
   %% s_after_key_space state
   s_after_key_space --> s_after_key_space: c_ws
-  s_after_key_space --> s_value: c_equal
+  s_after_key_space --> s_expecting_value: c_equal
   s_after_key_space --> s_done: c_eos
   s_after_key_space --> s_expecting_equal_error: default
+
+  %% s_before_value_space state
+  s_before_value_space --> s_value_key_space: c_ws
+  s_before_value_space --> s_expecting_key: c_nl
+  s_before_value_space --> s_value: c_keyval_key_first
+  s_before_value_space --> s_expecting_value_error: default
+
+  %% s_expecting_value state
+  s_expecting_value --> s_before_value_space: c_ws
+  s_expecting_value --> s_done: c_eos
+  s_expecting_value --> s_expecting_key: c_nl
+  s_expecting_value --> s_value: c_keyval_key_first
+  s_expecting_value --> s_value: default
 
   %% s_expecting_key_error state
   s_expecting_key_error --> s_done: default
 
   %% s_expecting_equal_error state
   s_expecting_equal_error --> s_done: default
+
+  %% s_expecting_value_error state
+  s_expecting_value_error --> s_done: default
 
   %% s_key state
   s_key --> s_key: c_keyval_key

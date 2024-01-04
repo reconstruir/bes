@@ -1,1 +1,10 @@
-alias go='make -C tests/lib/bes/b_text_lexer/ all >& /dev/null ; DEBUG=1 BES_LOG=_test_keyval2_lexer=debug t tests/lib/bes/b_text_lexer/test__test_keyval2_lexer.py :test_one_space_before_key  >& log ; more log' 
+
+function go()
+{
+  local _suite=${1}
+  local _test=${2}
+  make -C tests/lib/bes/b_text_lexer all >& /dev/null
+  DEBUG=1 BES_LOG=_test_keyval2_lexer=debug t tests/lib/bes/b_text_lexer/${_suite} :${_test} >& log
+  less log
+  return 0
+}

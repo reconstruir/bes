@@ -91,7 +91,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         new_state = 's_after_key_space'
         self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
-        new_state = 's_value'
+        new_state = 's_expecting_value'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
@@ -102,6 +102,66 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_expecting_equal_error'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_before_value_space(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_before_value_space'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_value_key_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_expecting_key'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_keyval_key_first'):
+        new_state = 's_value'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      else:
+        new_state = 's_expecting_value_error'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_expecting_value(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_value'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_before_value_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_done', args = {}))
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_expecting_key'
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_keyval_key_first'):
+        new_state = 's_value'
+        self.buffer_write(c)
+      else:
+        new_state = 's_value'
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -126,6 +186,23 @@ class _test_keyval2_lexer(btl_lexer_base):
   class _state_s_expecting_equal_error(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_expecting_equal_error'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if True:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_expecting_value_error(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_value_error'
       super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
@@ -226,8 +303,11 @@ class _test_keyval2_lexer(btl_lexer_base):
       's_expecting_key': self._state_s_expecting_key(self, log_tag),
       's_before_key_space': self._state_s_before_key_space(self, log_tag),
       's_after_key_space': self._state_s_after_key_space(self, log_tag),
+      's_before_value_space': self._state_s_before_value_space(self, log_tag),
+      's_expecting_value': self._state_s_expecting_value(self, log_tag),
       's_expecting_key_error': self._state_s_expecting_key_error(self, log_tag),
       's_expecting_equal_error': self._state_s_expecting_equal_error(self, log_tag),
+      's_expecting_value_error': self._state_s_expecting_value_error(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
@@ -293,7 +373,7 @@ states
   s_after_key_space
     c_ws: s_after_key_space
       buffer write
-    c_equal: s_value
+    c_equal: s_expecting_value
       yield t_space
       buffer reset
       buffer write
@@ -304,10 +384,40 @@ states
     default: s_expecting_equal_error
       raise unexpected_char
 
+  s_before_value_space
+    c_ws: s_value_key_space
+      buffer write
+    c_nl: s_expecting_key
+      yield t_space
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      yield t_space
+      buffer reset
+      buffer write
+    default: s_expecting_value_error
+      raise unexpected_char
+
+  s_expecting_value
+    c_ws: s_before_value_space
+      buffer write
+    c_eos: s_done
+      yield t_done
+    c_nl: s_expecting_key
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      buffer write
+    default: s_value
+      raise unexpected_char
+
   s_expecting_key_error
     default: s_done
 
   s_expecting_equal_error
+    default: s_done
+
+  s_expecting_value_error
     default: s_done
 
   s_key

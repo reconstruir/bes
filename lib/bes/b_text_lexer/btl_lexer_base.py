@@ -111,7 +111,7 @@ class btl_lexer_base(object):
     for c in self._chars_plus_eos(text):
       self._position = self._update_position(self._position, c)
       attrs = self._state._make_log_attributes(c)
-      self.log_d(f'lexer: position={self._position} {attrs}')
+      self.log_d(f'lexer: loop: {attrs} position={self._position}')
       tokens = self._state.handle_char(c)
       for token in tokens:
         self.log_d(f'lexer: run: new token: {token}')
