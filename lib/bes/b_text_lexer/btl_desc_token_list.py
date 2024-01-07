@@ -33,10 +33,12 @@ class btl_desc_token_list(type_checked_list):
   
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
-    check.check_node(n)
+    check.check_node(n, allow_none = True)
     check.check_string(source)
     
     result = btl_desc_token_list()
+    if not n:
+      return result
     existing = set()
     for child in n.children:
       next_desc_token = btl_desc_token.parse_node(child, source)

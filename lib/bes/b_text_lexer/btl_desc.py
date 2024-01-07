@@ -67,15 +67,15 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     header = btl_desc_header.parse_node(lexer_node, source)
     #print(header)
 
-    tokens_node = clazz._find_section(root, 'tokens', source)
+    tokens_node = clazz._find_section(root, 'tokens', source, raise_error = False)
     tokens = btl_desc_token_list.parse_node(tokens_node, source)
     #print(tokens)
 
-    errors_node = clazz._find_section(root, 'errors', source)
+    errors_node = clazz._find_section(root, 'errors', source, raise_error = False)
     errors = btl_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
-    states_node = clazz._find_section(root, 'states', source)
+    states_node = clazz._find_section(root, 'states', source, raise_error = False)
     states = btl_desc_state_list.parse_node(states_node, source, header.end_state)
     #print(states)
 
@@ -86,13 +86,13 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     return btl_desc(header, tokens, errors, char_map, states, source_text = text)
 
   @classmethod
-  def _find_section(clazz, root, name, source):
+  def _find_section(clazz, root, name, source, raise_error = True):
     assert root
     assert name
     assert source
     section_node = root.find_child_by_text(name)
-    if not section_node:
-      raise btl_error(f'Missing section "{section_node}" from "{source}"')
+    if raise_error and not section_node:
+      raise btl_error(f'Missing section "{name}" from "{source}"')
     return section_node
   
   @classmethod

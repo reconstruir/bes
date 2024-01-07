@@ -44,7 +44,7 @@ stateDiagram-v2
   space --> expecting_value: EQUAL
   
   %% cr state
-  cr --> start: NL]
+  cr --> start: NL
   cr --> cr_error: ANY EOS
   note right of cr_error
     Expecting "NL" instead of "."

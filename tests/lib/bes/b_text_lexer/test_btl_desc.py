@@ -687,6 +687,23 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   ]
 }
 '''
-  
+
+  def test_chars(self):
+    desc_text = '''#BTL
+lexer
+  name: test_lexer
+  description: A test lexer
+  version: 1.0
+  start_state: start
+  end_state: end
+
+chars
+  test_world: 🌍
+  test_minus: -
+  test_plus: +
+  test_operator: test_plus | test_minus
+'''
+    desc = btl_desc.parse_text(desc_text)
+    
 if __name__ == '__main__':
   unit_test.main()

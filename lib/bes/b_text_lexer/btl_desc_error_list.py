@@ -24,10 +24,12 @@ class btl_desc_error_list(type_checked_list):
     
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
-    check.check_node(n)
+    check.check_node(n, allow_none = True)
     check.check_string(source)
 
     result = btl_desc_error_list()
+    if not n:
+      return result
     for child in n.children:
       next_desc_error = btl_desc_error.parse_node(child, source)
       result.append(next_desc_error)

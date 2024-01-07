@@ -48,10 +48,15 @@ class btl_desc_char_map(object):
     parts = [ part for part in parts if part ]
     result = set()
     for part in parts:
-      if not part in self._map:
-        raise btl_error(f'Unknown char: "{part}"')
-      cd = self._map[part]
-      result = result | cd.chars
+      if part in self._map:
+        cd = self._map[part]
+        result = result | cd.chars
+      else:
+        if len(part) == 1:
+          v = ord(part)
+          result.add(v)
+        else:
+          raise btl_error(f'Unknown char: "{part}"')
     return result
 
   def parse_and_add(self, name, chars):

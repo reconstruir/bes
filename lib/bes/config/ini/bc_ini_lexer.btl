@@ -1,0 +1,185 @@
+#BTL
+#
+lexer
+  name: bc_ini_lexer
+  description: A ini style config file lexer
+  version: 1.0
+  start_state: s_expecting_key
+  end_state: s_done
+  import:
+    btl_string_lexer
+
+tokens
+  t_comment
+  t_done
+    type_hint: done
+  t_equal
+  t_key
+  t_line_break
+    type_hint: line_break
+  t_section_begin
+  t_section_end
+  t_space
+  t_value
+
+errors
+  e_unexpected_char: In state {state} unexpected character {char} instead of key
+
+chars
+  c_keyval_key_first: c_underscore | c_alpha
+  c_keyval_key: c_keyval_key_first | c_numeric
+  c_section_name: c_underscore | c_alpha | c_numeric | c_period
+  c_caca: +
+
+states
+
+####  %% start state
+####  [*] --> start
+####  start --> end: EOS
+####  start --> comment: SEMICOLON
+####  start --> space: TAB SPACE
+####  start --> cr: CR
+####  start --> start: NL
+####  start --> section_name: OPEN_BRACKET
+####  start --> key: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT
+####  start --> expecting_value: EQUAL
+####  start --> start_error: ANY
+####  note right of start_error
+####    Unexpected "."
+####  end note
+  s_start
+    c_eos: s_done
+      yield t_done
+    c_semicolon: s_comment
+      buffer write
+    c_ws: s_before_key_space
+      buffer write
+    c_cr: s_cr
+      buffer write
+    c_nl: s_start
+      buffer write
+    c_open_bracket: s_section_name
+      buffer write
+    default: s_unexpected_char
+      raise e_unexpected_char
+
+####  %% cr state
+####  cr --> start: NL
+####  cr --> cr_error: ANY EOS
+####  note right of cr_error
+####    Expecting "NL" instead of "."
+####  end note
+  s_cr
+    c_nl: s_start
+      buffer write
+      yield t_line_break
+    default: s_unexpected_char
+      raise e_unexpected_char
+
+####  %% comment state
+####  comment --> comment: ANY
+####  comment --> cr: CR
+####  comment --> start: NL
+####  comment --> end: EOS
+
+  s_comment
+    c_cr: s_cr
+      yield t_comment
+      buffer reset
+      buffer write
+    c_eos: s_done
+      yield t_comment
+      buffer reset 
+      yield t_done
+    default: s_comment
+      buffer write
+
+####  %% section_name state
+####  section_name --> section_name: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD
+####  section_name --> start: ]
+####  section_name --> section_name_error: TAB SPACE CR NL EOS
+####  note left of section_name_error
+####    Unexpected char in section name
+####  end note
+  s_section_name
+    c_section_name      
+      buffer write
+    c_close_bracket: s_start
+      buffer write
+      yield t_section_name
+      buffer reset
+    c_eos: s_unexpected_char
+      raise e_unexpected_char
+    default: s_unexpected_char
+      raise e_unexpected_char
+    
+  s_before_value_space
+    c_ws: s_value_key_space
+      buffer write
+    c_nl: s_expecting_key
+      yield t_space
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      yield t_space
+      buffer reset
+      buffer write
+    c_eos: s_done
+      yield t_space
+      yield t_done
+    default: s_unexpected_char
+      raise e_unexpected_char
+
+  s_expecting_value
+    c_ws: s_before_value_space
+      buffer write
+    c_eos: s_done
+      yield t_done
+    c_nl: s_expecting_key
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      buffer write
+    default: s_value
+      raise e_unexpected_char
+
+  s_expecting_key_error
+    default: s_done
+
+  s_expecting_equal_error
+    default: s_done
+
+  s_expecting_value_error
+    default: s_done
+
+  s_key
+    c_keyval_key: s_key
+      buffer write
+    c_equal: s_expecting_value
+      yield t_key
+      buffer reset
+      buffer write
+      yield t_equal
+      buffer reset
+    c_eos: s_done
+      yield t_key
+      buffer reset
+      yield t_done
+    c_ws: s_after_key_space
+      yield t_key
+      buffer reset
+      buffer write
+      
+  s_value
+    c_nl: s_expecting_key
+      yield t_value
+      buffer reset
+      yield t_line_break
+    c_eos: s_done
+      yield t_value
+      buffer reset
+      yield t_done
+    default: s_value
+      buffer write
+      
+  s_done

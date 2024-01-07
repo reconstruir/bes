@@ -24,11 +24,13 @@ class btl_desc_state_list(type_checked_list):
 
   @classmethod
   def parse_node(clazz, n, end_state, source = '<unknown>'):
-    check.check_node(n)
+    check.check_node(n, allow_none = True)
     check.check_string(source)
     check.check_string(end_state)
 
     result = btl_desc_state_list()
+    if not n:
+      return result
     for child in n.children:
       next_desc_state = btl_desc_state.parse_node(child, end_state, source = source)
       result.append(next_desc_state)
