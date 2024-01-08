@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.b_text_lexer.btl_lexer_token_list import btl_lexer_token_list
+from bes.btl.btl_lexer_token_list import btl_lexer_token_list
 
 class _test_lexer_mixin:
 

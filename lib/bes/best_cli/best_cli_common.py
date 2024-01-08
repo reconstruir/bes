@@ -41,7 +41,7 @@ from bes.vmware.vmware_preferences_cli_args import vmware_preferences_cli_args
 from bes.vmware.vmware_server_cli_args import vmware_server_cli_args
 from bes.vmware.vmware_session_cli_args import vmware_session_cli_args
 
-from ..b_text_lexer.btl_cli_args import btl_cli_args
+from ..btl.btl_cli_args import btl_cli_args
 
 from .system_cli_args import system_cli_args
   

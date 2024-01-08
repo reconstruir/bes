@@ -1,10 +1,10 @@
  #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
-from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
-from bes.b_text_lexer.btl_error import btl_error
-from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
+from bes.btl.btl_desc_state_command import btl_desc_state_command
+from bes.btl.btl_desc_state_transition import btl_desc_state_transition
+from bes.btl.btl_error import btl_error
+from bes.btl.btl_desc_char_map import btl_desc_char_map
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
 

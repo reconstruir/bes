@@ -109,9 +109,9 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     buf.write_line(f'''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
-from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
-from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
+from bes.btl.btl_lexer_base import btl_lexer_base
+from bes.btl.btl_lexer_state_base import btl_lexer_state_base
+from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 ''')
 

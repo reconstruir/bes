@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.b_text_lexer.btl_desc_char import btl_desc_char
-from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
-from bes.b_text_lexer.btl_error import btl_error
+from bes.btl.btl_desc_char import btl_desc_char
+from bes.btl.btl_desc_char_map import btl_desc_char_map
+from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
 class test_test_btl_desc_char_map(unit_test):

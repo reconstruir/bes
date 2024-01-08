@@ -3,7 +3,7 @@
 
 import os
 
-from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
+from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.testing.unit_test import unit_test
 
 class test_btl_code_gen_buffer(unit_test):

@@ -10,14 +10,14 @@ from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.text.text_line_parser import text_line_parser
 
-from bes.b_text_lexer.btl_desc import btl_desc
-from bes.b_text_lexer.btl_desc_char import btl_desc_char
-from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
-from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
-from bes.b_text_lexer.btl_desc_state import btl_desc_state
-from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
-from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
-from bes.b_text_lexer.btl_error import btl_error
+from bes.btl.btl_desc import btl_desc
+from bes.btl.btl_desc_char import btl_desc_char
+from bes.btl.btl_desc_char_map import btl_desc_char_map
+from bes.btl.btl_desc_char_map import btl_desc_char_map
+from bes.btl.btl_desc_state import btl_desc_state
+from bes.btl.btl_desc_state_command import btl_desc_state_command
+from bes.btl.btl_desc_state_transition import btl_desc_state_transition
+from bes.btl.btl_error import btl_error
 
 from _test_desc_mixin import _test_desc_mixin
 
@@ -152,9 +152,9 @@ if __name__ == '__main__':
   _EXPECTED_CODE_TEMPLATE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
-from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
-from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
+from bes.btl.btl_lexer_base import btl_lexer_base
+from bes.btl.btl_lexer_state_base import btl_lexer_state_base
+from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 
 class _fruit_kiwi_lexer(btl_lexer_base):

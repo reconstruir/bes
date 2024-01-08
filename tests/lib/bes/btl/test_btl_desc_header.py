@@ -3,8 +3,8 @@
 
 import os.path as path
 
-from bes.b_text_lexer.btl_desc_header import btl_desc_header
-from bes.b_text_lexer.btl_error import btl_error
+from bes.btl.btl_desc_header import btl_desc_header
+from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
 

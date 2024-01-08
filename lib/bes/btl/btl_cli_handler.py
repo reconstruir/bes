@@ -13,7 +13,7 @@ from ..script.blurber import blurber
 from ..system.check import check
 from ..files.bf_filename import bf_filename
 
-from ..b_text_lexer.btl_desc import btl_desc
+from ..btl.btl_desc import btl_desc
 from ..mermaid.mermaid_ink import mermaid_ink
 
 from .btl_cli_options import btl_cli_options

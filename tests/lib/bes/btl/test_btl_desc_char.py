@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.b_text_lexer.btl_desc_char import btl_desc_char
+from bes.btl.btl_desc_char import btl_desc_char
 from bes.testing.unit_test import unit_test
 
 class test_test_btl_desc_char(unit_test):

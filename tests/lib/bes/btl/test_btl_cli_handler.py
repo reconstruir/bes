@@ -4,7 +4,7 @@
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
-from bes.b_text_lexer.btl_cli_handler import btl_cli_handler
+from bes.btl.btl_cli_handler import btl_cli_handler
 
 class test_btl_cli_handler(unit_test):
 
