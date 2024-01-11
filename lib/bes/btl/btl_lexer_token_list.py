@@ -5,16 +5,12 @@ from collections import deque
 import io
 
 from ..common.json_util import json_util
-#from ..common.type_checked_list import type_checked_list
 from ..system.check import check
 
 from .btl_lexer_token import btl_lexer_token
 
-#deque
 class btl_lexer_token_list(object):
 
-#  __value_type__ = btl_lexer_token
-  
   def __init__(self, values = None):
     self._values = deque()
     for value in (values or []):

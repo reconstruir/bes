@@ -21,8 +21,7 @@ class btl_parser_item(namedtuple('btl_parser_item', 'name, value, tokens')):
   def __str__(self):
     return f'{self.name}:{self.value}'
 
-  @cached_property
-  def tokens_as_string(self):
+  def to_source_string(self):
     return str(self.tokens)
 
   def to_dict(self):
