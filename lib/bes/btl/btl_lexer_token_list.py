@@ -26,7 +26,15 @@ class btl_lexer_token_list(object):
     token = check.check_btl_lexer_token(token)
 
     self._values.append(token)
-  
+
+  def prepend(self, token):
+    token = check.check_btl_lexer_token(token)
+
+    self._values.appendLeft(token)
+    
+  def insert(self):
+    pass
+    
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:
@@ -35,9 +43,6 @@ class btl_lexer_token_list(object):
   
   def to_dict_list(self):
     return [ item.to_dict() for item in self ]
-
-  def to_json(self):
-    return json_util.to_json(self.to_dict_list(), indent = 2, sort_keys = False)
 
   def to_json(self):
     return json_util.to_json(self.to_dict_list(), indent = 2, sort_keys = False)
