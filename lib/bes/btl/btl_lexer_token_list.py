@@ -30,7 +30,7 @@ class btl_lexer_token_list(object):
   def prepend(self, token):
     token = check.check_btl_lexer_token(token)
 
-    self._values.appendLeft(token)
+    self._values.appendleft(token)
     
   def insert(self):
     pass

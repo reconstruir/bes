@@ -13,8 +13,33 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
   def test_append(self):
     l = btl_lexer_token_list()
     l.append(( 'fruit', 'kiwi', ( 1, 1 )))
+    l.append(( 'color', 'red', ( 10, 1 )))
     self.assert_json_equal( '''
 [
+  {
+    "name": "fruit",
+    "value": "kiwi",
+    "position": "1,1"
+   },
+   {
+     "name": "color",
+     "value": "red",
+     "position": "10,1"
+   }
+]    
+''', l.to_json() )
+
+  def test_prepend(self):
+    l = btl_lexer_token_list()
+    l.append(( 'fruit', 'kiwi', ( 1, 1 )))
+    l.prepend(( 'color', 'red', ( 10, 1 )))
+    self.assert_json_equal( '''
+[
+  {
+    "name": "color",
+    "value": "red",
+    "position": "10,1"
+  },
   {
     "name": "fruit",
     "value": "kiwi",
