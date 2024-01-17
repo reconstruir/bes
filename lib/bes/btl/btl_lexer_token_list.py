@@ -44,6 +44,7 @@ class btl_lexer_token_list(object):
     if not self._values:
       return OrderedDict()
     result = OrderedDict()
+
     for token in self:
       if token.type_hint == 'h_done':
         continue
@@ -51,7 +52,8 @@ class btl_lexer_token_list(object):
       line_number = token.position.y
       if not line_number in result:
         result[line_number] = btl_lexer_token_list()
-      result[line_number].append(token)
+      if token.type_hint != 'h_line_break':
+        result[line_number].append(token)
     for line_number, line_list in result.items():
       line_list.sort_by_x()
     return result

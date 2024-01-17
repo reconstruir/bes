@@ -53,7 +53,72 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
 ''', l.to_json() )
 
   def test_parse_json(self):
-    expected = '''
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
+    self.assert_json_equal( self._JSON_TEXT, tokens.to_json() )
+
+  def test_to_ordered_dict(self):
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
+    d = tokens.to_ordered_dict()
+    self.assertEqual( 3, len(d) )
+
+    if self.DEBUG:
+      for line_number, tokens in d.items():
+        print(f'{line_number}:')
+        for token in tokens:
+          print(f'  {token}')
+
+    self.assert_json_equal( '''
+[
+]
+''', d[1].to_json() )
+
+    self.assert_json_equal( '''
+[
+  {
+    "name": "t_key",
+    "value": "fruit",
+    "position": "1,2",
+    "type_hint": null
+  },
+  {
+    "name": "t_equal",
+    "value": "=",
+    "position": "6,2",
+    "type_hint": null
+  },
+  {
+    "name": "t_value",
+    "value": "kiwi",
+    "position": "7,2",
+    "type_hint": null
+  }
+]
+''', d[2].to_json() )
+
+    self.assert_json_equal( '''
+[
+  {
+    "name": "t_key",
+    "value": "color",
+    "position": "1,3",
+    "type_hint": null
+  },
+  {
+    "name": "t_equal",
+    "value": "=",
+    "position": "6,3",
+    "type_hint": null
+  },
+  {
+    "name": "t_value",
+    "value": "green",
+    "position": "7,3",
+    "type_hint": null
+  }
+]
+''', d[3].to_json() )
+    
+  _JSON_TEXT = '''
 [
   {
     "name": "t_line_break", 
@@ -117,21 +182,6 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
   }
 ]
 '''
-    self.assert_json_equal( expected, btl_lexer_token_list.parse_json(expected).to_json() )
-
-    '''
-    j = t.actual_tokens.to_json()
-    print(j)
     
-    d = t.actual_tokens.to_ordered_dict()
-    for line_number, tokens in d.items():
-      print(f'{line_number}:')
-      for token in tokens:
-        if token.type_hint != 'h_line_break':
-          print(f'  {token}')
-#    import pprint
-#    print(pprint.pformat(d))
-'''
-
 if __name__ == '__main__':
   unit_test.main()
