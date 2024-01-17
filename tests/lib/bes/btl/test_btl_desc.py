@@ -318,7 +318,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
     [
       "t_done", 
       {
-        "type_hint": "done"
+        "type_hint": "h_done"
       }
     ], 
     [

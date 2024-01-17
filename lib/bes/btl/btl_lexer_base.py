@@ -153,7 +153,7 @@ class btl_lexer_base(object):
       if type_hint == 'h_line_break':
         token_position = point(self._last_position.x + 1, self._last_position.y)
         buffer_value = os.linesep
-      elif type_hint == 'done':
+      elif type_hint == 'h_done':
         token_position = None
         buffer_value = None
     token = btl_lexer_token(name, buffer_value, token_position)

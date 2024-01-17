@@ -162,7 +162,7 @@ lexer
 
 tokens
   t_done
-    type_hint: done
+    type_hint: h_done
   t_equal
   t_key
   t_line_break
