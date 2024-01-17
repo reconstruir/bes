@@ -51,6 +51,87 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
   }
 ]
 ''', l.to_json() )
+
+  def test_parse_json(self):
+    expected = '''
+[
+  {
+    "name": "t_line_break", 
+    "value": "\\n", 
+    "position": "1,1", 
+    "type_hint": "h_line_break"
+  }, 
+  {
+    "name": "t_key", 
+    "value": "fruit", 
+    "position": "1,2", 
+    "type_hint": null
+  }, 
+  {
+    "name": "t_equal", 
+    "value": "=", 
+    "position": "6,2", 
+    "type_hint": null
+  }, 
+  {
+    "name": "t_value", 
+    "value": "kiwi", 
+    "position": "7,2", 
+    "type_hint": null
+  }, 
+  {
+    "name": "t_line_break", 
+    "value": "\\n", 
+    "position": "11,2", 
+    "type_hint": "h_line_break"
+  }, 
+  {
+    "name": "t_key", 
+    "value": "color", 
+    "position": "1,3", 
+    "type_hint": null
+  }, 
+  {
+    "name": "t_equal", 
+    "value": "=", 
+    "position": "6,3", 
+    "type_hint": null
+  }, 
+  {
+    "name": "t_value", 
+    "value": "green", 
+    "position": "7,3", 
+    "type_hint": null
+  }, 
+  {
+    "name": "t_line_break", 
+    "value": "\\n", 
+    "position": "12,3", 
+    "type_hint": "h_line_break"
+  }, 
+  {
+    "name": "t_done", 
+    "value": null, 
+    "position": "", 
+    "type_hint": "h_done"
+  }
+]
+'''
+    self.assert_json_equal( expected, btl_lexer_token_list.parse_json(expected).to_json() )
+
+    '''
+    j = t.actual_tokens.to_json()
+    print(j)
     
+    d = t.actual_tokens.to_ordered_dict()
+    for line_number, tokens in d.items():
+      print(f'{line_number}:')
+      for token in tokens:
+        if token.type_hint != 'h_line_break':
+          print(f'  {token}')
+#    import pprint
+#    print(pprint.pformat(d))
+'''
+
 if __name__ == '__main__':
   unit_test.main()

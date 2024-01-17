@@ -6,7 +6,7 @@ from bes.btl.btl_lexer_token_list import btl_lexer_token_list
 
 class _test_lexer_mixin:
 
-  _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string')
+  _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string, expected_tokens, actual_tokens')
   def _test_tokenize(self, lexer_class, text, expected):
     lexer = lexer_class()
     actual_tokens = lexer.tokenize(text)
@@ -21,6 +21,9 @@ class _test_lexer_mixin:
       for i, token in enumerate(actual_tokens, start = 1):
         print(f'{i}: {token}', flush = True)
 
-    return self._test_result(expected_string, actual_string,
+    return self._test_result(expected_string,
+                             actual_string,
                              text,
-                             actual_tokens.to_source_string())
+                             actual_tokens.to_source_string(),
+                             expected_tokens,
+                             actual_tokens)

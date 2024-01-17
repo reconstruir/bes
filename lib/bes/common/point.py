@@ -28,6 +28,13 @@ class point(namedtuple('point', 'x, y')):
     return tuple_util.clone(self, mutations = mutations)
 
   @classmethod
+  def parse_str(clazz, s):
+    xs, delim, ys = s.partition(',')
+    x = int(xs.strip())
+    y = int(ys.strip())
+    return point(x, y)
+  
+  @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   

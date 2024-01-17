@@ -36,6 +36,25 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
       'type_hint': self.type_hint,
     }
 
+  @classmethod
+  def parse_dict(clazz, d):
+    assert 'name' in d
+    assert 'value' in d
+    assert 'position' in d
+    assert 'type_hint' in d
+
+    name = d['name']
+    value = d['value']
+    position = d['position']
+    type_hint = d['type_hint']
+    return btl_lexer_token(name,
+                           value,
+                           point.parse_str(position) if position else None,
+                           type_hint)
+  
+  def has_position(self):
+    return self.position != None
+  
   def to_json(self):
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
   
