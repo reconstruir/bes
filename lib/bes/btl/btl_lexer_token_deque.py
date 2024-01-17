@@ -52,15 +52,36 @@ class btl_lexer_token_deque(object):
       line_number = token.position.y
       if not line_number in result:
         result[line_number] = btl_lexer_token_deque()
-#      if token.type_hint != 'h_line_break':
       result[line_number].append(token)
     for line_number, line_list in result.items():
       line_list.sort_by_x()
+      
     return result
 
-  def insert(self):
-    pass
-    
+  def modify_value(self, token_name, new_value):
+    check.check_string(token_name)
+    check.check_string(new_value, allow_none = True)
+
+    found = False
+    x_shift = None
+    STATE_BEFORE_FOUND = 1
+    STATE_AFTER_FOUND = 2
+    state = STATE_BEFORE_FOUND
+    for i, token in enumerate(self):
+      if state == STATE_BEFORE_FOUND:
+        if token.name == token_name:
+          found = True
+          new_token, x_shift = token.clone_replace_value(new_value)
+          assert x_shift != None
+          self._tokens[i] = new_token
+          state = STATE_AFTER_FOUND
+      elif state == STATE_AFTER_FOUND:
+        assert x_shift != None
+        new_token = token.clone_with_x_shift(x_shift)
+        self._tokens[i] = new_token
+      else:
+        assert False, f'unexpected state {state}'
+        
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:
@@ -74,9 +95,9 @@ class btl_lexer_token_deque(object):
     return [ token for token in self ]
 
   def sort_by_x(self):
-    sorted_values = sorted(self.to_list(), key = lambda token: token.position.x)
+    sorted_tokens = sorted(self.to_list(), key = lambda token: token.position.x)
     self.clear()
-    self.extend(sorted_values)
+    self.extend(sorted_tokens)
   
   def to_json(self):
     return json_util.to_json(self.to_dict_list(), indent = 2, sort_keys = False)

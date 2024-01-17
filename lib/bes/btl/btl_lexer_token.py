@@ -69,6 +69,21 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     copied_mutations['position'] = position.clone()
     return tuple_util.clone(self, mutations = copied_mutations)
 
+  def clone_replace_value(self, new_value):
+    check.check_string(new_value)
+    
+    old_length = len(self.value)
+    new_length = len(new_value)
+    x_shift = new_length - old_length
+    new_token = self.clone(mutations = { 'value': new_value })
+    return new_token, x_shift
+
+  def clone_with_x_shift(self, x_shift):
+    check.check_int(x_shift)
+
+    new_position = point(self.position.x + x_shift, self.position.y)
+    return self.clone(mutations = { 'position': new_position })
+  
   @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
