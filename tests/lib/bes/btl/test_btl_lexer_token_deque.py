@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.btl.btl_lexer_token_list import btl_lexer_token_list
+from bes.btl.btl_lexer_token_deque import btl_lexer_token_deque
 from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
 from _test_desc_mixin import _test_desc_mixin
 
-class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
+class test_btl_lexer_token_deque(_test_desc_mixin, unit_test):
 
   def test_append(self):
-    l = btl_lexer_token_list()
+    l = btl_lexer_token_deque()
     l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
     l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
     self.assert_json_equal( '''
@@ -32,7 +32,7 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
 ''', l.to_json() )
 
   def test_prepend(self):
-    l = btl_lexer_token_list()
+    l = btl_lexer_token_deque()
     l.append(( 'fruit', 'kiwi', ( 1, 1 ), None))
     l.prepend(( 'color', 'red', ( 10, 1 ), 'h_color'))
     self.assert_json_equal( '''
@@ -53,11 +53,11 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
 ''', l.to_json() )
 
   def test_parse_json(self):
-    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     self.assert_json_equal( self._JSON_TEXT, tokens.to_json() )
 
   def test_to_ordered_dict(self):
-    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     d = tokens.to_ordered_dict()
     self.assertEqual( 3, len(d) )
 

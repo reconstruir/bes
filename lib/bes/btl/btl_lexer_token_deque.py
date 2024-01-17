@@ -11,7 +11,7 @@ from ..system.check import check
 
 from .btl_lexer_token import btl_lexer_token
 
-class btl_lexer_token_list(object):
+class btl_lexer_token_deque(object):
 
   def __init__(self, values = None):
     self._values = deque()
@@ -51,7 +51,7 @@ class btl_lexer_token_list(object):
       assert token.has_position()
       line_number = token.position.y
       if not line_number in result:
-        result[line_number] = btl_lexer_token_list()
+        result[line_number] = btl_lexer_token_deque()
       if token.type_hint != 'h_line_break':
         result[line_number].append(token)
     for line_number, line_list in result.items():
@@ -83,7 +83,7 @@ class btl_lexer_token_list(object):
 
   @classmethod
   def parse_dict_list(clazz, l):
-    result = btl_lexer_token_list()
+    result = btl_lexer_token_deque()
     for token_dict in l:
       token = btl_lexer_token.parse_dict(token_dict)
       result.append(token)
@@ -96,4 +96,4 @@ class btl_lexer_token_list(object):
     dict_list = json.loads(s)
     return clazz.parse_dict_list(dict_list)
   
-check.register_class(btl_lexer_token_list, include_seq = False)
+check.register_class(btl_lexer_token_deque, include_seq = False)

@@ -6,13 +6,13 @@ from collections import namedtuple
 from ..common.tuple_util import tuple_util
 from ..system.check import check
 
-from .btl_lexer_token_list import btl_lexer_token_list
+from .btl_lexer_token_deque import btl_lexer_token_deque
 
 class bkv_key(namedtuple('bkv_key', 'key, tokens')):
 
   def __new__(clazz, key, tokens):
     check.check_string(key)
-    tokens = check.check.btl_lexer_token_list(tokens)
+    tokens = check.check.btl_lexer_token_deque(tokens)
     
     return clazz.__bases__[0].__new__(clazz, key, tokens)
 

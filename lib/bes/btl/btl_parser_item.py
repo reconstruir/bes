@@ -14,7 +14,7 @@ class btl_parser_item(namedtuple('btl_parser_item', 'name, value, tokens')):
   def __new__(clazz, name, value, tokens):
     check.check_string(name)
     check.check_string(value)
-    tokens = check.check.btl_lexer_token_list(tokens)
+    tokens = check.check.btl_lexer_token_deque(tokens)
     
     return clazz.__bases__[0].__new__(clazz, name, value, tokens)
 

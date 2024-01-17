@@ -10,7 +10,7 @@ from ..common.point import point
 from .btl_desc import btl_desc
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_token import btl_lexer_token
-from .btl_lexer_token_list import btl_lexer_token_list
+from .btl_lexer_token_deque import btl_lexer_token_deque
 
 class btl_lexer_base(object):
 
@@ -131,7 +131,7 @@ class btl_lexer_base(object):
     return new_position
     
   def tokenize(self, text):
-    return btl_lexer_token_list([ token for token in self.run(text) ])
+    return btl_lexer_token_deque([ token for token in self.run(text) ])
     
   @classmethod
   def _chars_plus_eos(self, text):
