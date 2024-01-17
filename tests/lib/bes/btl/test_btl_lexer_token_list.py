@@ -13,18 +13,20 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
   def test_append(self):
     l = btl_lexer_token_list()
     l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
-    l.append(( 'color', 'red', ( 10, 1 ), None))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
     self.assert_json_equal( '''
 [
   {
     "name": "fruit",
     "value": "kiwi",
-    "position": "1,1"
+    "position": "1,1",
+    "type_hint": null
    },
    {
      "name": "color",
      "value": "red",
-     "position": "10,1"
+     "position": "10,1", 
+     "type_hint": "h_color"
    }
 ]    
 ''', l.to_json() )
@@ -32,18 +34,20 @@ class test_btl_lexer_token_list(_test_desc_mixin, unit_test):
   def test_prepend(self):
     l = btl_lexer_token_list()
     l.append(( 'fruit', 'kiwi', ( 1, 1 ), None))
-    l.prepend(( 'color', 'red', ( 10, 1 ), None))
+    l.prepend(( 'color', 'red', ( 10, 1 ), 'h_color'))
     self.assert_json_equal( '''
 [
   {
     "name": "color",
     "value": "red",
-    "position": "10,1"
+    "position": "10,1",
+    "type_hint": "h_color"
   },
   {
     "name": "fruit",
     "value": "kiwi",
-    "position": "1,1"
+    "position": "1,1", 
+    "type_hint": null
   }
 ]
 ''', l.to_json() )

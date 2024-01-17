@@ -33,6 +33,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
       'name': self.name,
       'value': self.value,
       'position': str(self.position or ''),
+      'type_hint': self.type_hint,
     }
 
   def to_json(self):
