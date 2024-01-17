@@ -45,10 +45,11 @@ class btl_lexer_token_lines(object):
   def modify_value(self, line_number, token_name, new_value):
     check.check_int(line_number)
     check.check_string(token_name)
-    check.check_string(new_value, allow_none == True)
+    check.check_string(new_value, allow_none = True)
 
     assert line_number in self._indeces
-    #self._indeces[line_number] = line
+    line = self._indeces[line_number]
+    line.tokens.modify_value(token_name, new_value)
     
   def to_source_string(self):
     buf = io.StringIO()

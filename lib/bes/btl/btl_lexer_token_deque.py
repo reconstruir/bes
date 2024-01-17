@@ -75,6 +75,7 @@ class btl_lexer_token_deque(object):
           assert x_shift != None
           self._tokens[i] = new_token
           state = STATE_AFTER_FOUND
+          print(f'{i}: changed {token} to {new_token}')
       elif state == STATE_AFTER_FOUND:
         assert x_shift != None
         new_token = token.clone_with_x_shift(x_shift)
