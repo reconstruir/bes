@@ -24,7 +24,13 @@ class _lexer_token_line(object):
     new_line = _lexer_token_line(new_line_number, self.tokens)
     new_line.tokens.set_y(new_line_number)
     return new_line
-        
+
+  def to_dict(self):
+    return {
+      'line_number': self.line_number,
+      'tokens': self.tokens.to_dict_list(),
+    }
+  
 class btl_lexer_token_lines(object):
 
   def __init__(self, tokens):
@@ -47,6 +53,12 @@ class btl_lexer_token_lines(object):
       for token in line.tokens:
         yield token
 
+  def to_dict_list(self):
+    return [ line.to_dict() for line in self._lines ]
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict_list(), indent = 2, sort_keys = False)
+  
   def clear(self):
     self._lines = deque()
 
@@ -98,6 +110,12 @@ class btl_lexer_token_lines(object):
       assert line.line_number not in self._indeces
       self._indeces[line.line_number] = line
     
+  def to_source_string(self):
+    buf = io.StringIO()
+    for token in self:
+      buf.write(token.value or '')
+    return buf.getvalue()
+
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:
