@@ -332,7 +332,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
     [
       "t_line_break", 
       {
-        "type_hint": "line_break"
+        "type_hint": "h_line_break"
       }
     ], 
     [

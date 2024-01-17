@@ -15,7 +15,7 @@ tokens
   t_equal
   t_key
   t_line_break
-    type_hint: line_break
+    type_hint: h_line_break
   t_space
   t_value
 
