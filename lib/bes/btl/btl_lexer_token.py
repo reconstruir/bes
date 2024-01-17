@@ -83,6 +83,18 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
 
     new_position = point(self.position.x + x_shift, self.position.y)
     return self.clone(mutations = { 'position': new_position })
+
+  def clone_with_y_shift(self, y_shift):
+    check.check_int(y_shift)
+
+    new_position = point(self.position.x, self.position.y + y_shift)
+    return self.clone(mutations = { 'position': new_position })
+
+  def clone_with_y(self, y):
+    check.check_int(y)
+
+    new_position = point(self.position.x, y)
+    return self.clone(mutations = { 'position': new_position })
   
   @classmethod
   def _check_cast_func(clazz, obj):

@@ -24,6 +24,12 @@ class btl_lexer_token_deque(object):
   def __iter__(self):
     return iter(self._tokens)
 
+#  def __getitem__(self, subscript):
+#    result = self._tokens[subscript]
+#    if isinstance(result, btl_lexer_token):
+#      return result
+#    print(type(result))
+    
   def clear(self):
     self._tokens = deque()
   
@@ -75,14 +81,31 @@ class btl_lexer_token_deque(object):
           assert x_shift != None
           self._tokens[i] = new_token
           state = STATE_AFTER_FOUND
-          print(f'{i}: changed {token} to {new_token}')
       elif state == STATE_AFTER_FOUND:
         assert x_shift != None
         new_token = token.clone_with_x_shift(x_shift)
         self._tokens[i] = new_token
       else:
         assert False, f'unexpected state {state}'
-        
+
+  def shift_y(self, y_shift):
+    check.check_int(y_shift)
+
+    new_tokens = deque()
+    for token in self:
+      new_token = token.clone_with_y_shift(y_shift)
+      new_tokens.append(new_token)
+    self._tokens = new_tokens
+
+  def set_y(self, y):
+    check.check_int(y)
+
+    new_tokens = deque()
+    for token in self:
+      new_token = token.clone_with_y(y)
+      new_tokens.append(new_token)
+    self._tokens = new_tokens
+    
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:

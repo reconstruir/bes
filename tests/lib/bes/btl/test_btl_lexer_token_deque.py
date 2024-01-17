@@ -179,6 +179,40 @@ class test_btl_lexer_token_deque(_test_desc_mixin, unit_test):
    }
 ]    
 ''', l.to_json() )
+
+  def test_shift_y(self):
+    l = btl_lexer_token_deque()
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
+    l.shift_y(1)
+    self.assert_json_equal( '''
+[
+  {
+    "name": "fruit",
+    "value": "kiwi",
+    "position": "1,2",
+    "type_hint": null
+   },
+   {
+     "name": "color",
+     "value": "red",
+     "position": "10,2", 
+     "type_hint": "h_color"
+   }
+]    
+''', l.to_json() )
+
+  def xtest___getitem__(self):
+    l = btl_lexer_token_deque()
+    t0 = ( 'fruit', 'kiwi', ( 1, 1 ), None )
+    t1 = ( 'color', 'red', ( 10, 1 ), 'h_color' )
+    t2 = ( 'flavor', 'tart', ( 20, 1 ), None )
+    l.append(t0)
+    l.append(t1)
+    l.append(t2)
+    self.assertEqual( t0, l[0] )
+    self.assertEqual( t1, l[1] )
+    self.assertEqual( btl_lexer_token_deque([ t0, t1 ]), l[0:2] )
     
   _JSON_TEXT = '''
 [

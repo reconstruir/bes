@@ -31,6 +31,60 @@ fruit=watermelon
 color=green
 '''
     self.assertMultiLineEqual( expected, actual )
+
+  def test_insert_line_top(self):
+    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    lines = btl_lexer_token_lines(tokens)
+    new_tokens = btl_lexer_token_deque([
+      ( 't_key', 'flavor', ( 1, -1 ), None ),
+      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_value', 'tart', ( 8, -1 ), None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+    ])
+    lines.insert_line(1, new_tokens)
+    actual = lines.to_source_string()
+    expected = '''flavor=tart
+
+fruit=kiwi
+color=green
+'''
+    self.assertMultiLineEqual( expected, actual )
+
+  def test_insert_line_middle(self):
+    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    lines = btl_lexer_token_lines(tokens)
+    new_tokens = btl_lexer_token_deque([
+      ( 't_key', 'flavor', ( 1, -1 ), None ),
+      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_value', 'tart', ( 8, -1 ), None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+    ])
+    lines.insert_line(3, new_tokens)
+    actual = lines.to_source_string()
+    expected = '''
+fruit=kiwi
+flavor=tart
+color=green
+'''
+    self.assertMultiLineEqual( expected, actual )
+
+  def test_insert_line_end(self):
+    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    lines = btl_lexer_token_lines(tokens)
+    new_tokens = btl_lexer_token_deque([
+      ( 't_key', 'flavor', ( 1, -1 ), None ),
+      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_value', 'tart', ( 8, -1 ), None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+    ])
+    lines.insert_line(5, new_tokens)
+    actual = lines.to_source_string()
+    expected = '''
+fruit=kiwi
+color=green
+flavor=tart
+'''
+    self.assertMultiLineEqual( expected, actual )
     
   _JSON_TEXT = '''
 [
