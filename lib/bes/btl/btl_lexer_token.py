@@ -9,19 +9,24 @@ from ..common.point import point
 from ..common.tuple_util import tuple_util
 from ..system.check import check
 
-class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
+class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type_hint')):
 
-  def __new__(clazz, name = None, value = None, position = point(1, 1)):
+  def __new__(clazz, name = None, value = None, position = point(1, 1), type_hint = None):
     check.check_string(name)
     check.check_string(value, allow_none = True)
     position = check.check_point(position, allow_none = True)
+    check.check_string(type_hint, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, name, value, position)
+    return clazz.__bases__[0].__new__(clazz, name, value, position, type_hint)
 
   def __str__(self):
-    value = self.value or ''
-    position = self.position or ''
-    return f'{self.name}:{value}:{position}'
+    parts = [
+      self.name, 
+      self.value or '', 
+      self.position or '', 
+      self.type_hint or None,
+    ]
+    return ':'.join([ str(part) for part in parts if part != None ])
 
   def to_dict(self):
     return {

@@ -156,7 +156,10 @@ class btl_lexer_base(object):
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None
-    token = btl_lexer_token(name, buffer_value, token_position)
+    token = btl_lexer_token(name,
+                            value = buffer_value,
+                            position = token_position,
+                            type_hint = type_hint)
     return token
 
   def _make_token_args(self, name, args):
