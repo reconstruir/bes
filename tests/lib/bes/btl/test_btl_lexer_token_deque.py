@@ -56,9 +56,9 @@ class test_btl_lexer_token_deque(_test_desc_mixin, unit_test):
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     self.assert_json_equal( self._JSON_TEXT, tokens.to_json() )
 
-  def test_to_ordered_dict(self):
+  def test_to_line_break_ordered_dict(self):
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
-    d = tokens.to_ordered_dict()
+    d = tokens.to_line_break_ordered_dict()
     self.assertEqual( 3, len(d) )
 
     if self.DEBUG:
@@ -69,6 +69,12 @@ class test_btl_lexer_token_deque(_test_desc_mixin, unit_test):
 
     self.assert_json_equal( '''
 [
+  {
+    "name": "t_line_break",
+    "value": "\\n",
+    "position": "1,1",
+    "type_hint": "h_line_break"
+  }
 ]
 ''', d[1].to_json() )
 
@@ -91,6 +97,12 @@ class test_btl_lexer_token_deque(_test_desc_mixin, unit_test):
     "value": "kiwi",
     "position": "7,2",
     "type_hint": null
+  },
+  {
+    "name": "t_line_break",
+    "value": "\\n",
+    "position": "11,2",
+    "type_hint": "h_line_break"
   }
 ]
 ''', d[2].to_json() )
@@ -114,6 +126,12 @@ class test_btl_lexer_token_deque(_test_desc_mixin, unit_test):
     "value": "green",
     "position": "7,3",
     "type_hint": null
+  },
+  {
+    "name": "t_line_break",
+    "value": "\\n",
+    "position": "12,3",
+    "type_hint": "h_line_break"
   }
 ]
 ''', d[3].to_json() )

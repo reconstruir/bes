@@ -13,35 +13,35 @@ from .btl_lexer_token import btl_lexer_token
 
 class btl_lexer_token_deque(object):
 
-  def __init__(self, values = None):
-    self._values = deque()
-    for value in (values or []):
-      self.append(value)
+  def __init__(self, tokens = None):
+    self._tokens = deque()
+    for token in (tokens or []):
+      self.append(token)
 
   def __len__(self):
-    return len(self._values)
+    return len(self._tokens)
 
   def __iter__(self):
-    return iter(self._values)
+    return iter(self._tokens)
 
   def clear(self):
-    self._values = deque()
+    self._tokens = deque()
   
   def append(self, token):
     token = check.check_btl_lexer_token(token)
 
-    self._values.append(token)
+    self._tokens.append(token)
 
   def extend(self, tokens):
-    self._values.extend(tokens)
+    self._tokens.extend(tokens)
 
   def prepend(self, token):
     token = check.check_btl_lexer_token(token)
 
-    self._values.appendleft(token)
+    self._tokens.appendleft(token)
 
-  def to_ordered_dict(self):
-    if not self._values:
+  def to_line_break_ordered_dict(self):
+    if not self._tokens:
       return OrderedDict()
     result = OrderedDict()
 
@@ -52,8 +52,8 @@ class btl_lexer_token_deque(object):
       line_number = token.position.y
       if not line_number in result:
         result[line_number] = btl_lexer_token_deque()
-      if token.type_hint != 'h_line_break':
-        result[line_number].append(token)
+#      if token.type_hint != 'h_line_break':
+      result[line_number].append(token)
     for line_number, line_list in result.items():
       line_list.sort_by_x()
     return result
