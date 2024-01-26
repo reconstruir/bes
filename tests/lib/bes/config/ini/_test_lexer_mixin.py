@@ -14,8 +14,8 @@ class _test_lexer_mixin:
     expected_tokens = btl_lexer_token_deque(expected)
     expected_json = btl_lexer_token_deque(expected).to_json()
 
-    expected_string = '\n'.join([ str(token) for token in expected_tokens ])
-    actual_string = '\n'.join([ str(token) for token in actual_tokens ])
+    expected_string = '\n'.join([ self._token_to_str(token) for token in expected_tokens ])
+    actual_string = '\n'.join([ self._token_to_str(token) for token in actual_tokens ])
 
     if self.DEBUG:
       for i, token in enumerate(actual_tokens, start = 1):
@@ -27,3 +27,20 @@ class _test_lexer_mixin:
                              actual_tokens.to_source_string(),
                              expected_tokens,
                              actual_tokens)
+  
+  @classmethod
+  def _token_to_str(clazz, token):
+    if token.type_hint == 'h_line_break':
+      new_value = clazz._escape_line_break(token.value)
+      #print(f'value="{token.value}" new_value="{new_value}"')
+      token = token.clone(mutations = { 'value': new_value })
+    return str(token)
+  
+  @classmethod
+  def _escape_line_break(clazz, s):
+    if s == '\n':
+      return '\\n'
+    elif s == '\r\n':
+      return '\\r\\n'
+    else:
+      assert False, f'Unexpected line break: "{s}"'

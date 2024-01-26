@@ -199,7 +199,7 @@ fruit=kiwi
 color=green
 ''', 
       [
-        ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
+        ( 't_line_break', '\r\n', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
         ( 't_equal', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),

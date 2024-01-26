@@ -49,6 +49,8 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_nl'):
         new_state = 's_start'
         self.buffer_write(c)
+        tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_open_bracket'):
         new_state = 's_section_name'
         self.buffer_write(c)
@@ -434,7 +436,7 @@ tokens
   t_equal
   t_key
   t_line_break
-    type_hint: line_break
+    type_hint: h_line_break
   t_section_begin
   t_section_end
   t_space
@@ -479,6 +481,8 @@ states
       buffer write
     c_nl: s_start
       buffer write
+      yield t_line_break
+      buffer reset
     c_open_bracket: s_section_name
       buffer write
     default: s_done

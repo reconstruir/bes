@@ -51,12 +51,16 @@ class btl_lexer_state_base(object):
       attributes.append('buffer=None')
     return ' '.join(attributes)
 
+  _char_map = {
+    EOS: 'EOS',
+    '\n': '\\n',
+    '\c': '\\c',
+    '\r': '\\r',
+    '\t': '\\t',
+  }
   @classmethod
   def char_to_string(clazz, c):
-    if c == clazz.EOS:
-      return 'EOS'
-    else:
-      return c
+    return clazz._char_map.get(c, c)
 
   def make_token(self, name, args = None):
     return self._lexer.make_token(name, args = args)
