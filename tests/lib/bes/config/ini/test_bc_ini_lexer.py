@@ -1,191 +1,217 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.testing.unit_test import unit_test
-from bes.config.ini.bc_ini_lexer_token import bc_ini_lexer_token
-from bes.config.ini.bc_ini_lexer import bc_ini_lexer as L
-from bes.config.ini.bc_ini_lexer_options import bc_ini_lexer_options
-from helpers.token_test_helper import *
+import os
 
-class test_bc_ini_lexer(unit_test):
+from collections import namedtuple
+
+from bes.testing.unit_test import unit_test
+
+from bes.config.ini.bc_ini_lexer import bc_ini_lexer
+
+from _test_lexer_mixin import _test_lexer_mixin
+
+class test_bc_ini_lexer(_test_lexer_mixin, unit_test):
 
   def test_empty_string(self):
-    self.assertEqual( [],
-                      self._tokenize(r'') )
+    t = self._test_tokenize(bc_ini_lexer, '',
+      [
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def test_single_char(self):
-    self.assertEqual( [ TSTRING('a') ],
-                      self._tokenize(r'a') )
+  def test_just_key(self):
+    t = self._test_tokenize(bc_ini_lexer, 'a',
+      [
+        ( 't_key', 'a', ( 1, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
-  def test_one_escape(self):
-    self.assertEqual( [ TSTRING('a') ],
-                      self._tokenize(r'\a') )
+  def test_just_key_and_equal(self):
+    t = self._test_tokenize(bc_ini_lexer, 'ab=',
+      [
+        ( 't_key', 'ab', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_just_key_and_equal_with_trailing_white_space(self):
+    t = self._test_tokenize(bc_ini_lexer, 'ab= ',
+      [
+        ( 't_key', 'ab', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_space', ' ', ( 4, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
-  def test_escape_backslash(self):
-    self.assertEqual( [ TSTRING(r'\a') ],
-                      self._tokenize(r'\\a') )
+  def test_key_and_value_short(self):
+    t = self._test_tokenize(bc_ini_lexer, 'a=k',
+      [
+        ( 't_key', 'a', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 2, 1 ), None ),
+        ( 't_value', 'k', ( 3, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def test_eos_when_escaping(self):
-    self.assertEqual( [ TSTRING('a') ],
-                      self._tokenize('a\\') )
+  def test_key_and_value(self):
+    t = self._test_tokenize(bc_ini_lexer, 'fruit=kiwi',
+      [
+        ( 't_key', 'fruit', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_value', 'kiwi', ( 7, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_key_and_value_with_trailing_space(self):
+    t = self._test_tokenize(bc_ini_lexer, 'fruit=kiwi ',
+      [
+        ( 't_key', 'fruit', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_value', 'kiwi ', ( 7, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_key_and_value_with_multiple_trailing_space(self):
+    t = self._test_tokenize(bc_ini_lexer, 'fruit=kiwi   ',
+      [
+        ( 't_key', 'fruit', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_value', 'kiwi   ', ( 7, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
-  def test_simple(self):
-    self.maxDiff = None
-    self.assertEqual( [ TSPACE(), TSTRING('foo'), TSPACE() ],
-                      self._tokenize(r' foo ') )
+  def test_one_space_before_key(self):
+    t = self._test_tokenize(bc_ini_lexer, ' k=v',
+      [
+        ( 't_space', ' ', ( 1, 1 ), None ),
+        ( 't_key', 'k', ( 2, 1 ), None ),
+        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_value', 'v', ( 4, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_two_space_before_key(self):
+    t = self._test_tokenize(bc_ini_lexer, '  k=v',
+      [
+        ( 't_space', '  ', ( 1, 1 ), None ),
+        ( 't_key', 'k', ( 3, 1 ), None ),
+        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_value', 'v', ( 5, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_two_tab_before_key(self):
+    t = self._test_tokenize(bc_ini_lexer, '\t\tk=v',
+      [
+        ( 't_space', '\t\t', ( 1, 1 ), None ),
+        ( 't_key', 'k', ( 3, 1 ), None ),
+        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_value', 'v', ( 5, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_mixed_space_before_key(self):
+    t = self._test_tokenize(bc_ini_lexer, '\t k=v',
+      [
+        ( 't_space', '\t ', ( 1, 1 ), None ),
+        ( 't_key', 'k', ( 3, 1 ), None ),
+        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_value', 'v', ( 5, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_one_space_after_key(self):
+    t = self._test_tokenize(bc_ini_lexer, 'k =v',
+      [
+        ( 't_key', 'k', ( 1, 1 ), None ),
+        ( 't_space', ' ', ( 2, 1 ), None ),
+        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_value', 'v', ( 4, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
-    self.assertEqual( [ TSPACE(), TSTRING('foo'), TSPACE(), TSTRING('='), TSPACE(), TSTRING('123'), TSPACE('  ') ],
-                      self._tokenize(r' foo = 123  ') )
+  def test_two_space_after_key(self):
+    t = self._test_tokenize(bc_ini_lexer, 'k  =v',
+      [
+        ( 't_key', 'k', ( 1, 1 ), None ),
+        ( 't_space', '  ', ( 2, 1 ), None ),
+        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_value', 'v', ( 5, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-    self.assertEqual( [ TSPACE(), TSTRING('foo='), TSPACE(), TSTRING('123'), TSPACE('  ') ],
-                      self._tokenize(r' foo= 123  ') )
+  def test_space_before_and_after_key(self):
+    t = self._test_tokenize(bc_ini_lexer, '\t k \t=v',
+      [
+        ( 't_space', '\t ', ( 1, 1 ), None ),
+        ( 't_key', 'k', ( 3, 1 ), None ),
+        ( 't_space', ' \t', ( 4, 1 ), None ),
+        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_value', 'v', ( 7, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-    self.assertEqual( [ TSPACE(), TSTRING('foo=123'), TSPACE('  ') ],
-                      self._tokenize(r' foo=123  ') )
+  def test_one_space_before_value(self):
+    t = self._test_tokenize(bc_ini_lexer, 'k= v',
+      [
+        ( 't_key', 'k', ( 1, 1 ), None ),
+        ( 't_equal', '=', ( 2, 1 ), None ),
+        ( 't_space', ' ', ( 3, 1 ), None ),
+        ( 't_value', 'v', ( 4, 1 ), None ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-    self.assertEqual( [ TSPACE(), TSTRING('foo=123') ],
-                      self._tokenize(r' foo=123') )
-
-    self.assertEqual( [ TSTRING('foo=123') ],
-                      self._tokenize(r'foo=123') )
-    self.assertEqual( [ TSTRING('a'), TSPACE(), TSTRING('b') ],
-                      self._tokenize(r'a b') )
-
-  def test_quote(self):
-    self.assertEqual( [ TSTRING('a b') ],
-                      self._tokenize(r'"a b"') )
-    self.assertEqual( [ TSPACE(), TSTRING('foo bar'), TSPACE(), TSTRING('a b c'), TSPACE() ],
-                      self._tokenize(r' "foo bar" "a b c" ') )
-    self.assertEqual( [ TSPACE(), TSTRING('foo bar'), TSTRING('a b c'), TSPACE() ],
-                      self._tokenize(r' "foo bar""a b c" ') )
-    self.assertEqual( [ TSTRING('foo bar'), TSTRING('a b c'), TSPACE() ],
-                      self._tokenize(r'"foo bar""a b c" ') )
-    self.assertEqual( [ TSTRING('foo bar'), TSTRING('a b c') ],
-                      self._tokenize(r'"foo bar""a b c"') )
     
-  def test_single_quote_escaped_within_quotes(self):
-    self.assertEqual( [ TSTRING('a " b') ],
-                      self._tokenize(r'"a \" b"') )
-    self.assertEqual( [ TSTRING('a \' b') ],
-                      self._tokenize(r'"a \' b"') )
-    self.assertEqual( [ TSTRING('a " b') ],
-                      self._tokenize(r"'a \" b'") )
-    self.assertEqual( [ TSTRING('a \' b') ],
-                      self._tokenize(r"'a \' b'") )
-
-  def test_escaped_spaces(self):
-    self.assertEqual( [ TSTRING('a b') ],
-                      self._tokenize(r'a\ b') )
-    self.assertEqual( [ TSTRING('foo=a b') ],
-                      self._tokenize(r'foo=a\ b') )
-    self.assertEqual( [ TSTRING('fo o=a b') ],
-                      self._tokenize(r'fo\ o=a\ b') )
-
-  def test_comment(self):
-    self.assertEqual( [ TSTRING('a=1'), TSPACE(), TCOMMENT('; hi') ],
-                      self._tokenize(r'a=1 ; hi') )
-    self.assertEqual( [ TSTRING('a=1'), TCOMMENT('; hi') ],
-                      self._tokenize(r'a=1; hi') )
-    self.assertEqual( [ TCOMMENT('; hi') ],
-                      self._tokenize(r'; hi') )
-    self.assertEqual( [ TSPACE(), TCOMMENT('; hi') ],
-                      self._tokenize(r' ; hi') )
-    self.assertEqual( [ TSTRING('a='), TSPACE(), TCOMMENT('; hi') ],
-                      self._tokenize(r'a= ; hi') )
-    self.assertEqual( [ TSTRING('a='), TCOMMENT('; hi') ],
-                      self._tokenize(r'a=; hi') )
-  def test_quoted_string_inside_string(self):
-    self.assertEqual( [ TSTRING('af o o') ],
-                      self._tokenize(r'a"f o o"') )
-
-  def test_escaped_quote_string_inside_string(self):
-    self.assertEqual( [ TSTRING(r"a='foo'") ],
-                      self._tokenize(r'a=\'foo\'') )
-    self.assertEqual( [ TSTRING('a='), TSPACE(), TSTRING(r"'foo'") ],
-                      self._tokenize(r'a= \'foo\'') )
-
-  def test_escaped_equal_inside_string(self):
-    self.assertEqual( [ TSTRING('a==b') ],
-                      self._tokenize(r'a\==b') )
-    self.assertEqual( [ TSTRING('=a=b') ],
-                      self._tokenize(r'\=a=b') )
-    self.assertEqual( [ TSTRING('a=b=') ],
-                      self._tokenize(r'a=b\=') )
-
-  def test_escaped_space_inside_string(self):
-    self.assertEqual( [ TSTRING('a =b') ],
-                      self._tokenize(r'a\ =b') )
-    self.assertEqual( [ TSTRING(' a=b') ],
-                      self._tokenize(r'\ a=b') )
-    self.assertEqual( [ TSTRING('a=b ') ],
-                      self._tokenize(r'a=b\ ') )
-
-  def xtest_delimiter_is_none(self):
-    self.assertEqual( [ TSTRING('a =b') ],
-                      self._tokenize(r'a\ =b', delimiter = None) )
-    self.assertEqual( [ TSTRING('a=b') ],
-                      self._tokenize(r'a=b', delimiter = None) )
-    self.assertEqual( [ TSTRING('a'), TSPACE(), TSTRING('=b') ],
-                      self._tokenize(r'a =b', delimiter = None) )
-    self.assertEqual( [ TSTRING('a'), TSPACE(), TSTRING('='), TSPACE(), TSTRING('b') ],
-                      self._tokenize(r'a = b', delimiter = None) )
-
-  def test_new_line(self):
-    self.assertEqual( [ TSTRING('a=foo'), TSPACE(' \n ', y = 2), TSTRING('b=bar', y = 2) ],
-                      self._tokenize('a=foo \n b=bar') )
-
-  def test_escaped_new_line(self):
-    self.assertEqual( [ TSTRING('a=f\no', y = 2) ],
-                      self._tokenize('a=f\\\no') )
-
-  def test_keep_quotes(self):
-    self.assertEqual( [ TSTRING('a=foo bar baz') ],
-                      self._tokenize(r'a="foo bar baz"') )
-    self.assertEqual( [ TSTRING('a="foo bar baz"') ],
-                      self._tokenize(r'a="foo bar baz"', keep_quotes = True) )
-
-  def test_keep_quotes_escaped(self):
-    self.assertEqual( [ TSTRING('a=foo bar baz') ],
-                      self._tokenize(r'a="foo bar baz"') )
-    self.assertEqual( [ TSTRING('a=\\"foo bar baz\\"') ],
-                      self._tokenize(r'a="foo bar baz"', keep_quotes = True, escape_quotes = True) )
-
-  def test_line_numbers(self):
-    '''
-    1: a=5
-    2: b=6
-    3: 
-    4: c=7
-    5:
-    '''
-    self.assertEqual( [ TSTRING('a=5'), TSPACE('\n', y = 2), 
-                        TSTRING('b=6', y = 2), TSPACE('\n\n', y = 4),
-                        TSTRING('c=7', y = 4), TSPACE('\n', y = 5)
-                       ],
-                      self._tokenize('a=5\nb=6\n\nc=7\n') )
-
-  def test_ignore_comments(self):
-    self.assertEqual( [ TSTRING('foo'), TSPACE(), TSTRING(';bar') ],
-                      self._tokenize('foo ;bar', ignore_comments = True) )
+  def test_multi_line(self):
+    t = self._test_tokenize(bc_ini_lexer, '''
+fruit=kiwi
+color=green
+''', 
+      [
+        ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
+        ( 't_key', 'fruit', ( 1, 2 ), None ),
+        ( 't_equal', '=', ( 6, 2 ), None ),
+        ( 't_value', 'kiwi', ( 7, 2 ), None ),
+        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 3 ), None ),
+        ( 't_equal', '=', ( 6, 3 ), None ),
+        ( 't_value', 'green', ( 7, 3 ), None ),
+        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break' ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
-  @classmethod
-  def _tokenize(self, text, delimiter = '=',
-                 keep_quotes = False,
-                 escape_quotes = False,
-                 ignore_comments = False):
-    options = 0
-    if keep_quotes:
-      options |= bc_ini_lexer_options.KEEP_QUOTES
-    if escape_quotes:
-      options |= bc_ini_lexer_options.ESCAPE_QUOTES
-    if ignore_comments:
-      options |= bc_ini_lexer_options.IGNORE_COMMENTS
-    return [ token for token in L.tokenize(text, delimiter, options = options) ]
-
-  def assertEqual(self, expected, actual):
-    assert isinstance(expected, list)
-    expected = [ bc_ini_lexer_token(*t) for t in expected ]
-    super().assertEqual(expected, actual)
-
 if __name__ == '__main__':
   unit_test.main()

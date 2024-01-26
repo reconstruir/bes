@@ -1,165 +1,643 @@
+
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import string
-from enum import IntFlag
+from bes.btl.btl_lexer_base import btl_lexer_base
+from bes.btl.btl_lexer_state_base import btl_lexer_state_base
+from bes.btl.btl_lexer_token import btl_lexer_token
+from bes.system.check import check
 
-from bes.compat.StringIO import StringIO
-from bes.common.string_util import string_util
-from bes.common.point import point
-from bes.system.log import log
-from bes.text.line_break import line_break
+class bc_ini_lexer(btl_lexer_base):
 
-from .bc_ini_lexer_token import bc_ini_lexer_token
-from .bc_ini_lexer_options import bc_ini_lexer_options
-from .bc_ini_error import bc_ini_error
+  class _token:
 
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_begin
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_comment
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_done
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_double_quoted_string
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_single_quoted_string
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_space
-from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_string
-
-class bc_ini_lexer(object):
-  TOKEN_COMMENT = 'comment'
-  TOKEN_DONE = 'done'
-  TOKEN_SPACE = 'space'
-  TOKEN_STRING = 'string'
-  TOKEN_SECTION_BEGIN = 'section_begin'
-  TOKEN_SECTION_END = 'section_end'
-  TOKEN_LINE_BREAK = 'line_break'
-
-  EOS = '\0'
-
-  SINGLE_QUOTE_CHAR = '\''
-  DOUBLE_QUOTE_CHAR = "\""
-  COMMENT_CHAR = ';'
-
-  def __init__(self, log_tag, options, source = None):
-    log.add_logging(self, tag = log_tag)
-
-    self._options = options or bc_ini_lexer_options.DEFAULT_OPTIONS
-    self._source = source or ''
-    self._keep_quotes = (self._options & bc_ini_lexer_options.KEEP_QUOTES) != 0
-    self._escape_quotes = (self._options & bc_ini_lexer_options.ESCAPE_QUOTES) != 0
-    self._ignore_comments = (self._options & bc_ini_lexer_options.IGNORE_COMMENTS) != 0
-    self._buffer = None
-    self._is_escaping = False
-    self._last_char = None
-    
-    self.STATE_BEGIN = _bc_ini_lexer_state_begin(self)
-    self.STATE_DONE = _bc_ini_lexer_state_done(self)
-    self.STATE_STRING = _bc_ini_lexer_state_string(self)
-    self.STATE_SPACE = _bc_ini_lexer_state_space(self)
-    self.STATE_SINGLE_QUOTED_STRING = _bc_ini_lexer_state_single_quoted_string(self)
-    self.STATE_DOUBLE_QUOTED_STRING = _bc_ini_lexer_state_double_quoted_string(self)
-    self.STATE_COMMENT = _bc_ini_lexer_state_comment(self)
-    self.STATE_SECTION_NAME = _bc_ini_lexer_state_section_name(self)
-    self.STATE_LINE_BREAK = _bc_ini_lexer_state_line_break(self)
-
-    self.state = self.STATE_BEGIN
-
-  @property
-  def ignore_comments(self):
-    return self._ignore_comments
-    
-  @property
-  def is_escaping(self):
-    return self._is_escaping
-
-  def _run(self, text):
-    self.log_d(f'_run() text=\"{test}\" source={self._source} options={options}')
-    assert self.EOS not in text
-    self.position = point(1, 1)
-    for c in self._chars_plus_eos(text):
-      self._is_escaping = self._last_char == '\\'
-      should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
-      if should_handle_char:
-        tokens = self.state.handle_char(c)
-        for token in tokens:
-          self.log_d('tokenize: new token: %s' % (str(token)))
-          yield token
-      self._last_char = c
-              
-      if c == '\n':
-        self.position = point(1, self.position.y + 1)
-      else:
-        self.position = point(self.position.x + 0, self.position.y)
-        
-    assert self.state == self.STATE_DONE
-#    yield bc_ini_lexer_token(self.TOKEN_DONE, None, self.position)
-      
-  @classmethod
-  def tokenize(clazz, text, log_tag, options = None):
-    return clazz(log_tag, options)._run(text)
-
-  @classmethod
-  def char_to_string(clazz, c):
-    if c == clazz.EOS:
-      return 'EOS'
-    else:
-      return c
-      
-  def change_state(self, new_state, c):
-    assert new_state
-    if new_state == self.state:
-      return
-    self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__,
-                                                   new_state.__class__.__name__,
-                                                   new_state._make_log_attributes(c, include_state = False)))
-    self.state = new_state
-
-  @classmethod
-  def _chars_plus_eos(self, text):
-    for c in text:
-      yield c
-    yield self.EOS
-
-  def make_token_string(self):
-    return bc_ini_lexer_token(self.TOKEN_STRING, self.buffer_value(), self.position)
-
-  def make_token_space(self):
-    return bc_ini_lexer_token(self.TOKEN_SPACE, self.buffer_value(), self.position)
-      
-  def make_token_comment(self):
-    return bc_ini_lexer_token(self.TOKEN_COMMENT, self.buffer_value(), self.position)
-
-#  TOKEN_LINE_BREAK = 'line_break'
+    T_COMMENT = 't_comment'
+    T_DONE = 't_done'
+    T_EQUAL = 't_equal'
+    T_KEY = 't_key'
+    T_LINE_BREAK = 't_line_break'
+    T_SECTION_BEGIN = 't_section_begin'
+    T_SECTION_END = 't_section_end'
+    T_SPACE = 't_space'
+    T_VALUE = 't_value'
   
-  def make_token_section_begin(self):
-    return bc_ini_lexer_token(self.TOKEN_SECTION_BEGIN, '[', self.position)
-
-  def make_token_section_end(self):
-    return bc_ini_lexer_token(self.TOKEN_SECTION_END, ']', self.position)
-
-  def make_token_section_line_break(self, lb):
-    return bc_ini_lexer_token(self.TOKEN_SECTION_END, lb, self.position)
-
-  def buffer_reset(self, c = None):
-    self._buffer = StringIO()
-    if c:
-      self.buffer_write(c)
+  class _state_s_start(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_start'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_keyval_key_first'):
+        new_state = 's_key'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_done', args = {}))
+      elif self.char_in(c, 'c_semicolon'):
+        new_state = 's_comment'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_ws'):
+        new_state = 's_before_key_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_cr'):
+        new_state = 's_crlf_line_break'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_open_bracket'):
+        new_state = 's_section_name'
+        self.buffer_write(c)
+      else:
+        new_state = 's_done'
       
-  def buffer_reset_with_quote(self, c):
-    assert c in [ self.SINGLE_QUOTE_CHAR, self.DOUBLE_QUOTE_CHAR ]
-    self.buffer_reset()
-    self.buffer_write_quote(c)
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_crlf_line_break(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_crlf_line_break'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
+      else:
+        new_state = 's_done'
       
-  def buffer_write(self, c):
-    assert c != self.EOS
-    self._buffer.write(c)
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_comment(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_comment'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_cr'):
+        new_state = 's_crlf_line_break'
+        tokens.append(self.make_token('t_comment', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        tokens.append(self.make_token('t_comment', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_comment', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_done', args = {}))
+      else:
+        new_state = 's_comment'
+        self.buffer_write(c)
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_section_name(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_section_name'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_section_name'):
+        new_state = 'c_section_name'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_close_bracket'):
+        new_state = 's_start'
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_section_name', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+      else:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_before_key_space(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_before_key_space'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_before_key_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_expecting_key'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_keyval_key_first'):
+        new_state = 's_key'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      else:
+        new_state = 's_expecting_key_error'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_after_key_space(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_after_key_space'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_after_key_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_equal'):
+        new_state = 's_expecting_value'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_equal', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_done', args = {}))
+      else:
+        new_state = 's_expecting_equal_error'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_before_value_space(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_before_value_space'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_value_key_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_keyval_key_first'):
+        new_state = 's_value'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_space', args = {}))
+        tokens.append(self.make_token('t_done', args = {}))
+      else:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_expecting_value(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_value'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_before_value_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_done', args = {}))
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_keyval_key_first'):
+        new_state = 's_value'
+        self.buffer_write(c)
+      else:
+        new_state = 's_value'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_start_error(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_start_error'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if True:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_expecting_equal_error(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_equal_error'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if True:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_expecting_value_error(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_value_error'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if True:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_key(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_key'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_keyval_key'):
+        new_state = 's_key'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_equal'):
+        new_state = 's_expecting_value'
+        tokens.append(self.make_token('t_key', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_equal', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_key', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_done', args = {}))
+      elif self.char_in(c, 'c_ws'):
+        new_state = 's_after_key_space'
+        tokens.append(self.make_token('t_key', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_value(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_value'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        tokens.append(self.make_token('t_value', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', args = {}))
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_value', args = {}))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_done', args = {}))
+      else:
+        new_state = 's_value'
+        self.buffer_write(c)
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_done(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_done'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
 
-  def buffer_value(self):
-    return self._buffer.getvalue()
-    
-  def buffer_write_quote(self, c):
-    assert c in [ self.SINGLE_QUOTE_CHAR, self.DOUBLE_QUOTE_CHAR ]
-    if self._keep_quotes:
-      if self._escape_quotes:
-        self.buffer_write('\\')
-      self.buffer_write(c)
+  def __init__(self, source = None):
+    log_tag = f'bc_ini_lexer'
+    desc_text = self._DESC_TEXT
+    token = self._token
+    states = {
+      's_start': self._state_s_start(self, log_tag),
+      's_crlf_line_break': self._state_s_crlf_line_break(self, log_tag),
+      's_comment': self._state_s_comment(self, log_tag),
+      's_section_name': self._state_s_section_name(self, log_tag),
+      's_before_key_space': self._state_s_before_key_space(self, log_tag),
+      's_after_key_space': self._state_s_after_key_space(self, log_tag),
+      's_before_value_space': self._state_s_before_value_space(self, log_tag),
+      's_expecting_value': self._state_s_expecting_value(self, log_tag),
+      's_start_error': self._state_s_start_error(self, log_tag),
+      's_expecting_equal_error': self._state_s_expecting_equal_error(self, log_tag),
+      's_expecting_value_error': self._state_s_expecting_value_error(self, log_tag),
+      's_key': self._state_s_key(self, log_tag),
+      's_value': self._state_s_value(self, log_tag),
+      's_done': self._state_s_done(self, log_tag),
+    }
+    super().__init__(log_tag, desc_text, token, states, source = source)
+  _DESC_TEXT = """
+#BTL
+#
+lexer
+  name: bc_ini_lexer
+  description: A ini style config file lexer
+  version: 1.0
+  start_state: s_start
+  end_state: s_done
+#  import:
+#    btl_string_lexer
 
-  def raise_error(self, message):
-    source_blurb = f'{self._source}:line={self.position.y}:col={self.position.x}'
-    raise bc_ini_error(f'{message} - {source_blurb}')
+tokens
+  t_comment
+  t_done
+    type_hint: h_done
+  t_equal
+  t_key
+  t_line_break
+    type_hint: line_break
+  t_section_begin
+  t_section_end
+  t_space
+  t_value
+
+errors
+  e_unexpected_char: In state {state} unexpected character {char}
+  e_unexpected_eos: In state {state} unexpected end-of-string
+
+chars
+  c_keyval_key_first: c_underscore | c_alpha
+  c_keyval_key: c_keyval_key_first | c_numeric
+  c_section_name: c_underscore | c_alpha | c_numeric | c_period
+#  c_caca: +
+
+states
+
+####  %% start state
+####  [*] --> start
+####  start --> end: EOS
+####  start --> comment: SEMICOLON
+####  start --> space: TAB SPACE
+####  start --> cr: CR
+####  start --> start: NL
+####  start --> section_name: OPEN_BRACKET
+####  start --> key: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT
+####  start --> expecting_value: EQUAL
+####  start --> start_error: ANY
+####  note right of start_error
+####    Unexpected "."
+####  end note
+  s_start
+    c_keyval_key_first: s_key
+      buffer write
+    c_eos: s_done
+      yield t_done
+    c_semicolon: s_comment
+      buffer write
+    c_ws: s_before_key_space
+      buffer write
+    c_cr: s_crlf_line_break
+      buffer write
+    c_nl: s_start
+      buffer write
+    c_open_bracket: s_section_name
+      buffer write
+    default: s_done
+      raise e_unexpected_char
+
+####  %% cr state
+####  cr --> start: NL
+####  cr --> cr_error: ANY EOS
+####  note right of cr_error
+####    Expecting "NL" instead of "."
+####  end note
+  s_crlf_line_break
+    c_nl: s_start
+      buffer write
+      yield t_line_break
+      buffer reset
+    default: s_done
+      raise e_unexpected_char
+
+####  %% comment state
+####  comment --> comment: ANY
+####  comment --> cr: CR
+####  comment --> start: NL
+####  comment --> end: EOS
+
+  s_comment
+    c_cr: s_crlf_line_break
+      yield t_comment
+      buffer reset
+      buffer write
+    c_nl: s_start
+      yield t_comment
+      buffer reset
+      buffer write
+      yield t_line_break
+    c_eos: s_done
+      yield t_comment
+      buffer reset 
+      yield t_done
+    default: s_comment
+      buffer write
+
+####  %% section_name state
+####  section_name --> section_name: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD
+####  section_name --> start: ]
+####  section_name --> section_name_error: TAB SPACE CR NL EOS
+####  note left of section_name_error
+####    Unexpected char in section name
+####  end note
+  s_section_name
+    c_section_name: c_section_name
+      buffer write
+    c_close_bracket: s_start
+      buffer write
+      yield t_section_name
+      buffer reset
+    c_eos: s_done
+      raise e_unexpected_char
+    default: s_done
+      raise e_unexpected_char
+
+  s_before_key_space
+    c_ws: s_before_key_space
+      buffer write
+    c_nl: s_expecting_key
+      yield t_space
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_key
+      yield t_space
+      buffer reset
+      buffer write
+    default: s_expecting_key_error
+      raise unexpected_char
+
+  s_after_key_space
+    c_ws: s_after_key_space
+      buffer write
+    c_equal: s_expecting_value
+      yield t_space
+      buffer reset
+      buffer write
+      yield t_equal
+      buffer reset
+    c_eos: s_done
+      yield t_done
+    default: s_expecting_equal_error
+      raise unexpected_char
+
+  s_before_value_space
+    c_ws: s_value_key_space
+      buffer write
+    c_nl: s_start
+      yield t_space
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      yield t_space
+      buffer reset
+      buffer write
+    c_eos: s_done
+      yield t_space
+      yield t_done
+    default: s_done
+      raise e_unexpected_char
+
+  s_expecting_value
+    c_ws: s_before_value_space
+      buffer write
+    c_eos: s_done
+      yield t_done
+    c_nl: s_start
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_value
+      buffer write
+    default: s_value
+      raise e_unexpected_char
+
+  s_start_error
+    default: s_done
+
+  s_expecting_equal_error
+    default: s_done
+
+  s_expecting_value_error
+    default: s_done
+
+  s_key
+    c_keyval_key: s_key
+      buffer write
+    c_equal: s_expecting_value
+      yield t_key
+      buffer reset
+      buffer write
+      yield t_equal
+      buffer reset
+    c_eos: s_done
+      yield t_key
+      buffer reset
+      yield t_done
+    c_ws: s_after_key_space
+      yield t_key
+      buffer reset
+      buffer write
+      
+  s_value
+    c_nl: s_start
+      yield t_value
+      buffer reset
+      yield t_line_break
+    c_eos: s_done
+      yield t_value
+      buffer reset
+      yield t_done
+    default: s_value
+      buffer write
+
+  s_done
+
+"""
+check.register_class(bc_ini_lexer, include_seq = False)

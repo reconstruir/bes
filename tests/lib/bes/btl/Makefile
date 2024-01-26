@@ -1,4 +1,6 @@
-include $(CURDIR)/../../../../make/mmd.mak
+DEPTH=../../../..
+
+include $(CURDIR)/$(DEPTH)/make/mmd.mak
 
 TARGETS := \
   _test_keyval1_lexer.mmd \

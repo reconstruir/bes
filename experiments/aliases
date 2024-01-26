@@ -1,15 +1,3 @@
 
-function go()
-{
-  local _suite=${1}
-  local _test=${2}
-  make -C tests/lib/bes/b_text_lexer all >& /dev/null
-  if [ -z "${_test}" ]; then
-     local _test_arg=""
-  else
-     local _test_arg=":${_test}"
-  fi
-  DEBUG=1 BES_LOG="_test_keyval2_lexer=debug format=brief" t tests/lib/bes/b_text_lexer/${_suite} ${_test_arg} >& log
-  less log
-  return 0
-}
+#alias go="./scripts/test_btl.sh _test_keyval2_lexer.btl test__test_keyval2_lexer.py"
+alias go="./scripts/test_btl.sh bc_ini_lexer.btl test_bc_ini_lexer.py"

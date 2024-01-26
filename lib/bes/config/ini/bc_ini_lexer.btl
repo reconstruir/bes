@@ -4,10 +4,10 @@ lexer
   name: bc_ini_lexer
   description: A ini style config file lexer
   version: 1.0
-  start_state: s_expecting_key
+  start_state: s_start
   end_state: s_done
-  import:
-    btl_string_lexer
+#  import:
+#    btl_string_lexer
 
 tokens
   t_comment
@@ -23,13 +23,14 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state {state} unexpected character {char}
+  e_unexpected_eos: In state {state} unexpected end-of-string
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
-  c_caca: +
+#  c_caca: +
 
 states
 
@@ -48,19 +49,21 @@ states
 ####    Unexpected "."
 ####  end note
   s_start
+    c_keyval_key_first: s_key
+      buffer write
     c_eos: s_done
       yield t_done
     c_semicolon: s_comment
       buffer write
     c_ws: s_before_key_space
       buffer write
-    c_cr: s_cr
+    c_cr: s_crlf_line_break
       buffer write
     c_nl: s_start
       buffer write
     c_open_bracket: s_section_name
       buffer write
-    default: s_unexpected_char
+    default: s_done
       raise e_unexpected_char
 
 ####  %% cr state
@@ -69,11 +72,12 @@ states
 ####  note right of cr_error
 ####    Expecting "NL" instead of "."
 ####  end note
-  s_cr
+  s_crlf_line_break
     c_nl: s_start
       buffer write
       yield t_line_break
-    default: s_unexpected_char
+      buffer reset
+    default: s_done
       raise e_unexpected_char
 
 ####  %% comment state
@@ -83,10 +87,15 @@ states
 ####  comment --> end: EOS
 
   s_comment
-    c_cr: s_cr
+    c_cr: s_crlf_line_break
       yield t_comment
       buffer reset
       buffer write
+    c_nl: s_start
+      yield t_comment
+      buffer reset
+      buffer write
+      yield t_line_break
     c_eos: s_done
       yield t_comment
       buffer reset 
@@ -102,21 +111,49 @@ states
 ####    Unexpected char in section name
 ####  end note
   s_section_name
-    c_section_name      
+    c_section_name: c_section_name
       buffer write
     c_close_bracket: s_start
       buffer write
       yield t_section_name
       buffer reset
-    c_eos: s_unexpected_char
+    c_eos: s_done
       raise e_unexpected_char
-    default: s_unexpected_char
+    default: s_done
       raise e_unexpected_char
-    
+
+  s_before_key_space
+    c_ws: s_before_key_space
+      buffer write
+    c_nl: s_expecting_key
+      yield t_space
+      buffer reset
+      yield t_line_break
+    c_keyval_key_first: s_key
+      yield t_space
+      buffer reset
+      buffer write
+    default: s_expecting_key_error
+      raise unexpected_char
+
+  s_after_key_space
+    c_ws: s_after_key_space
+      buffer write
+    c_equal: s_expecting_value
+      yield t_space
+      buffer reset
+      buffer write
+      yield t_equal
+      buffer reset
+    c_eos: s_done
+      yield t_done
+    default: s_expecting_equal_error
+      raise unexpected_char
+
   s_before_value_space
     c_ws: s_value_key_space
       buffer write
-    c_nl: s_expecting_key
+    c_nl: s_start
       yield t_space
       buffer reset
       yield t_line_break
@@ -127,7 +164,7 @@ states
     c_eos: s_done
       yield t_space
       yield t_done
-    default: s_unexpected_char
+    default: s_done
       raise e_unexpected_char
 
   s_expecting_value
@@ -135,7 +172,7 @@ states
       buffer write
     c_eos: s_done
       yield t_done
-    c_nl: s_expecting_key
+    c_nl: s_start
       buffer reset
       yield t_line_break
     c_keyval_key_first: s_value
@@ -143,7 +180,7 @@ states
     default: s_value
       raise e_unexpected_char
 
-  s_expecting_key_error
+  s_start_error
     default: s_done
 
   s_expecting_equal_error
@@ -171,7 +208,7 @@ states
       buffer write
       
   s_value
-    c_nl: s_expecting_key
+    c_nl: s_start
       yield t_value
       buffer reset
       yield t_line_break
@@ -181,5 +218,5 @@ states
       yield t_done
     default: s_value
       buffer write
-      
+
   s_done

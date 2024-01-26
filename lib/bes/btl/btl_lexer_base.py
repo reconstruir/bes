@@ -63,9 +63,9 @@ class btl_lexer_base(object):
     check.check_string(new_state_name, allow_none = True)
     check.check_string(c)
 
-    assert new_state_name
-    #import pprint
-    #print(pprint.pformat(self._states))
+    if new_state_name == None:
+      cs = self._state.char_to_string(c)
+      raise btl_lexer_error(f'Cannot transition from state "{self._state.name}" to "None" for char "{cs}"')
     
     new_state = self._find_state(new_state_name)
     if new_state == self._state:
