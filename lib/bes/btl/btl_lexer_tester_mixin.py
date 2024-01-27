@@ -35,9 +35,9 @@ class btl_lexer_tester_mixin:
     return str(escaped_token)
 
   _char_map = {
-    '\n': '▒NL▒',
-    '\r': '▒CR▒',
-    '\t': '▒TAB▒',
+    '\n': '｢NL｣',
+    '\r': '｢CR｣',
+    '\t': '｢TAB｣',
   }
   @classmethod
   def _escape_value(clazz, s):
@@ -46,5 +46,4 @@ class btl_lexer_tester_mixin:
     for c in s:
       for key, value in clazz._char_map.items():
         s = s.replace(key, value)
-    print(f'result={s}')
     return s

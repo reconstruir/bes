@@ -121,7 +121,7 @@ class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
   def test_two_tab_before_key(self):
     t = self.call_tokenize(_test_keyval2_lexer, '\t\tk=v',
       [
-        ( 't_space', '▒TAB▒▒TAB▒', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣｢TAB｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
@@ -133,7 +133,7 @@ class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
   def test_mixed_space_before_key(self):
     t = self.call_tokenize(_test_keyval2_lexer, '\t k=v',
       [
-        ( 't_space', '▒TAB▒ ', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣ ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
@@ -169,9 +169,9 @@ class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
   def test_space_before_and_after_key(self):
     t = self.call_tokenize(_test_keyval2_lexer, '\t k \t=v',
       [
-        ( 't_space', '▒TAB▒ ', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣ ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
-        ( 't_space', ' ▒TAB▒', ( 4, 1 ), None ),
+        ( 't_space', ' ｢TAB｣', ( 4, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
         ( 't_value', 'v', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),

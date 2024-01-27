@@ -121,7 +121,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_two_tab_before_key(self):
     t = self.call_tokenize(bc_ini_lexer, '\t\tk=v',
       [
-        ( 't_space', '▒TAB▒▒TAB▒', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣｢TAB｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
@@ -133,7 +133,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_mixed_space_before_key(self):
     t = self.call_tokenize(bc_ini_lexer, '\t k=v',
       [
-        ( 't_space', '▒TAB▒ ', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣ ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
@@ -169,9 +169,9 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_space_before_and_after_key(self):
     t = self.call_tokenize(bc_ini_lexer, '\t k \t=v',
       [
-        ( 't_space', '▒TAB▒ ', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣ ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
-        ( 't_space', ' ▒TAB▒', ( 4, 1 ), None ),
+        ( 't_space', ' ｢TAB｣', ( 4, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
         ( 't_value', 'v', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
@@ -198,7 +198,7 @@ fruit=kiwi
 color=green
 ''', 
       [
-        ( 't_line_break', '▒NL▒', ( 1, 1 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
         ( 't_equal', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
