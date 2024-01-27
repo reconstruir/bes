@@ -44,7 +44,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_key', 'ab', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 3, 1 ), None ),
-        ( 't_space', ' ', ( 4, 1 ), None ),
+        ( 't_space', '｢SP｣', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -88,7 +88,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
-        ( 't_value', 'kiwi   ', ( 7, 1 ), None ),
+        ( 't_value', 'kiwi｢SP｣｢SP｣｢SP｣', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -97,7 +97,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_one_space_before_key(self):
     t = self.call_tokenize(bc_ini_lexer, ' k=v',
       [
-        ( 't_space', ' ', ( 1, 1 ), None ),
+        ( 't_space', '｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 2, 1 ), None ),
         ( 't_equal', '=', ( 3, 1 ), None ),
         ( 't_value', 'v', ( 4, 1 ), None ),
@@ -109,7 +109,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_two_space_before_key(self):
     t = self.call_tokenize(bc_ini_lexer, '  k=v',
       [
-        ( 't_space', '  ', ( 1, 1 ), None ),
+        ( 't_space', '｢SP｣｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
@@ -133,7 +133,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_mixed_space_before_key(self):
     t = self.call_tokenize(bc_ini_lexer, '\t k=v',
       [
-        ( 't_space', '｢TAB｣ ', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
@@ -146,7 +146,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'k =v',
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
-        ( 't_space', ' ', ( 2, 1 ), None ),
+        ( 't_space', '｢SP｣', ( 2, 1 ), None ),
         ( 't_equal', '=', ( 3, 1 ), None ),
         ( 't_value', 'v', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
@@ -158,7 +158,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'k  =v',
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
-        ( 't_space', '  ', ( 2, 1 ), None ),
+        ( 't_space', '｢SP｣｢SP｣', ( 2, 1 ), None ),
         ( 't_equal', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
@@ -169,7 +169,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_space_before_and_after_key(self):
     t = self.call_tokenize(bc_ini_lexer, '\t k \t=v',
       [
-        ( 't_space', '｢TAB｣ ', ( 1, 1 ), None ),
+        ( 't_space', '｢TAB｣｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_space', ' ｢TAB｣', ( 4, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
@@ -184,7 +184,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 2, 1 ), None ),
-        ( 't_space', ' ', ( 3, 1 ), None ),
+        ( 't_space', '｢SP｣', ( 3, 1 ), None ),
         ( 't_value', 'v', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])

@@ -38,6 +38,7 @@ class btl_lexer_tester_mixin:
     '\n': '｢NL｣',
     '\r': '｢CR｣',
     '\t': '｢TAB｣',
+    ' ': '｢SP｣',
   }
   @classmethod
   def _escape_value(clazz, s):
