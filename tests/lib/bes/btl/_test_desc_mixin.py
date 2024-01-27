@@ -7,6 +7,7 @@ from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser
 from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.text.text_replace import text_replace
+from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
 class _test_desc_mixin:
 

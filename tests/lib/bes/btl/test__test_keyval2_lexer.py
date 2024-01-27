@@ -6,14 +6,14 @@ import os
 from collections import namedtuple
 
 from bes.testing.unit_test import unit_test
+from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
 from _test_keyval2_lexer import _test_keyval2_lexer
-from _test_lexer_mixin import _test_lexer_mixin
 
-class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
+class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
 
   def test_empty_string(self):
-    t = self._test_tokenize(_test_keyval2_lexer, '',
+    t = self.call_tokenize(_test_keyval2_lexer, '',
       [
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -21,7 +21,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_just_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'a',
+    t = self.call_tokenize(_test_keyval2_lexer, 'a',
       [
         ( 't_key', 'a', ( 1, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
@@ -30,7 +30,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
   def test_just_key_and_equal(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'ab=',
+    t = self.call_tokenize(_test_keyval2_lexer, 'ab=',
       [
         ( 't_key', 'ab', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 3, 1 ), None ),
@@ -40,7 +40,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_just_key_and_equal_with_trailing_white_space(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'ab= ',
+    t = self.call_tokenize(_test_keyval2_lexer, 'ab= ',
       [
         ( 't_key', 'ab', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 3, 1 ), None ),
@@ -51,7 +51,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
   def test_key_and_value_short(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'a=k',
+    t = self.call_tokenize(_test_keyval2_lexer, 'a=k',
       [
         ( 't_key', 'a', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 2, 1 ), None ),
@@ -62,7 +62,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_key_and_value(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'fruit=kiwi',
+    t = self.call_tokenize(_test_keyval2_lexer, 'fruit=kiwi',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
@@ -73,7 +73,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_key_and_value_with_trailing_space(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'fruit=kiwi ',
+    t = self.call_tokenize(_test_keyval2_lexer, 'fruit=kiwi ',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
@@ -84,7 +84,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_key_and_value_with_multiple_trailing_space(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'fruit=kiwi   ',
+    t = self.call_tokenize(_test_keyval2_lexer, 'fruit=kiwi   ',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 6, 1 ), None ),
@@ -95,7 +95,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
   def test_one_space_before_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, ' k=v',
+    t = self.call_tokenize(_test_keyval2_lexer, ' k=v',
       [
         ( 't_space', ' ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 2, 1 ), None ),
@@ -107,7 +107,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_two_space_before_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, '  k=v',
+    t = self.call_tokenize(_test_keyval2_lexer, '  k=v',
       [
         ( 't_space', '  ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
@@ -119,7 +119,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_two_tab_before_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, '\t\tk=v',
+    t = self.call_tokenize(_test_keyval2_lexer, '\t\tk=v',
       [
         ( 't_space', '\t\t', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
@@ -131,7 +131,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_mixed_space_before_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, '\t k=v',
+    t = self.call_tokenize(_test_keyval2_lexer, '\t k=v',
       [
         ( 't_space', '\t ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
@@ -143,7 +143,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_one_space_after_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'k =v',
+    t = self.call_tokenize(_test_keyval2_lexer, 'k =v',
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
         ( 't_space', ' ', ( 2, 1 ), None ),
@@ -155,7 +155,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
   def test_two_space_after_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'k  =v',
+    t = self.call_tokenize(_test_keyval2_lexer, 'k  =v',
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
         ( 't_space', '  ', ( 2, 1 ), None ),
@@ -167,7 +167,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_space_before_and_after_key(self):
-    t = self._test_tokenize(_test_keyval2_lexer, '\t k \t=v',
+    t = self.call_tokenize(_test_keyval2_lexer, '\t k \t=v',
       [
         ( 't_space', '\t ', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
@@ -180,7 +180,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_one_space_before_value(self):
-    t = self._test_tokenize(_test_keyval2_lexer, 'k= v',
+    t = self.call_tokenize(_test_keyval2_lexer, 'k= v',
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
         ( 't_equal', '=', ( 2, 1 ), None ),
@@ -193,7 +193,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
 
     
   def test_multi_line(self):
-    t = self._test_tokenize(_test_keyval2_lexer, '''
+    t = self.call_tokenize(_test_keyval2_lexer, '''
 fruit=kiwi
 color=green
 ''', 
