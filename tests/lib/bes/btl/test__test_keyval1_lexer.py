@@ -60,32 +60,6 @@ class test__test_keyval1_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def xtest_one_space(self):
-    t = self.call_tokenize(_test_keyval1_lexer, ' fruit=kiwi ',
-      [
-        ( 't_space', ' ', ( 1, 1 ), None ),
-        ( 't_key', 'fruit', ( 2, 1 ), None ),
-        ( 't_equal', '=', ( 7, 1 ), None ),
-        ( 't_value', 'kiwi', ( 8, 1 ), None ),
-        ( 't_space', ' ', ( 12, 1 ), None ),
-        ( 't_done', None, None, 'h_done' ),
-      ])
-    self.assertMultiLineEqual( t.expected, t.actual )
-    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
-
-  def xtest_two_spaces(self):
-    t = self.call_tokenize(_test_keyval1_lexer, '  fruit=kiwi  ',
-      [
-        ( 't_space', '  ', ( 1, 1 ), None ),
-        ( 't_key', 'fruit', ( 3, 1 ), None ),
-        ( 't_equal', '=', ( 8, 1 ), None ),
-        ( 't_value', 'kiwi', ( 9, 1 ), None ),
-        ( 't_space', '  ', ( 13, 1 ), None ),
-        ( 't_done', None, None, 'h_done' ),
-      ])
-    self.assertMultiLineEqual( t.expected, t.actual )
-    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
-    
   def test_multi_line(self):
     t = self.call_tokenize(_test_keyval1_lexer, '''
 fruit=kiwi

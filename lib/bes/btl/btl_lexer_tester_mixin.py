@@ -30,17 +30,21 @@ class btl_lexer_tester_mixin:
   
   @classmethod
   def _token_to_str(clazz, token):
-    if token.type_hint == 'h_line_break':
-      new_value = clazz._escape_line_break(token.value)
-      #print(f'value="{token.value}" new_value="{new_value}"')
-      token = token.clone(mutations = { 'value': new_value })
-    return str(token)
-  
+    escaped_value = clazz._escape_value(token.value)
+    escaped_token = token.clone(mutations = { 'value': escaped_value })
+    return str(escaped_token)
+
+  _char_map = {
+    '\n': '▒NL▒',
+    '\r': '▒CR▒',
+    '\t': '▒TAB▒',
+  }
   @classmethod
-  def _escape_line_break(clazz, s):
-    if s == '\n':
-      return '\\n'
-    elif s == '\r\n':
-      return '\\r\\n'
-    else:
-      assert False, f'Unexpected line break: "{s}"'
+  def _escape_value(clazz, s):
+    if s == None:
+      return None
+    for c in s:
+      for key, value in clazz._char_map.items():
+        s = s.replace(key, value)
+    print(f'result={s}')
+    return s

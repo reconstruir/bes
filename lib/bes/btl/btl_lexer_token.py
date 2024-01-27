@@ -62,11 +62,15 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     mutations = mutations or {}
     if 'position' in mutations:
       position = mutations['position']
-      position = check.check_point(position)
+      position = check.check_point(position, allow_none = True)
     else:
       position = self.position
     copied_mutations = copy.deepcopy(mutations)
-    copied_mutations['position'] = position.clone()
+    if position == None:
+      cloned_position = None
+    else:
+      cloned_position = position.clone()
+    copied_mutations['position'] = cloned_position
     return tuple_util.clone(self, mutations = copied_mutations)
 
   def clone_replace_value(self, new_value):
