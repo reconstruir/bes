@@ -197,15 +197,15 @@ fruit=kiwi
 color=green
 ''', 
       [
-        ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
         ( 't_equal', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
-        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
         ( 't_equal', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
-        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )

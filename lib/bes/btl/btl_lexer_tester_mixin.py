@@ -19,7 +19,8 @@ class btl_lexer_tester_mixin:
 
     if self.DEBUG:
       for i, token in enumerate(actual_tokens, start = 1):
-        print(f'{i}: {token}', flush = True)
+        ts = self._token_to_str(token)
+        print(f'{i}: {ts}', flush = True)
 
     return self._test_result(expected_string,
                              actual_string,

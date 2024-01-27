@@ -202,11 +202,36 @@ color=green
         ( 't_key', 'fruit', ( 1, 2 ), None ),
         ( 't_equal', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
-        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
         ( 't_equal', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
-        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 12, 3 ), 'h_line_break' ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_section_name(self):
+    t = self.call_tokenize(bc_ini_lexer, '''
+[fruit.1]
+name=kiwi
+color=green
+''', 
+      [
+        ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),
+        ( 't_section_name_begin', '[', ( 1, 2 ), None ),
+        ( 't_section_name', 'fruit.1', ( 2, 2 ), None ),
+        ( 't_section_name_end', ']', ( 9, 2 ), None ),
+        ( 't_line_break', '｢NL｣', ( 10, 2 ), 'h_line_break' ),
+        ( 't_key', 'name', ( 1, 3 ), None ),
+        ( 't_equal', '=', ( 5, 3 ), None ),
+        ( 't_value', 'kiwi', ( 6, 3 ), None ),
+        ( 't_line_break', '｢NL｣', ( 10, 3 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 4 ), None ),
+        ( 't_equal', '=', ( 6, 4 ), None ),
+        ( 't_value', 'green', ( 7, 4 ), None ),
+        ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )

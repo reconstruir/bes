@@ -23,7 +23,7 @@ stateDiagram-v2
   s_comment --> s_comment: default
 
   %% s_section_name state
-  s_section_name --> c_section_name: c_section_name
+  s_section_name --> s_section_name: c_section_name
   s_section_name --> s_start: c_close_bracket
   s_section_name --> s_done: c_eos
   s_section_name --> s_done: default

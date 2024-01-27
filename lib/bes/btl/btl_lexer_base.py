@@ -168,7 +168,10 @@ class btl_lexer_base(object):
 
     result = {}
     token_args = args or {}
-    desc_args = self._desc.tokens.find_token(name).args or {}
+    token_desc = self._desc.tokens.find_token(name)
+    if not token_desc:
+      raise btl_lexer_error(f'No token description found: "{name}"')
+    desc_args = token_desc.args or {}
     result.update(desc_args)
     result.update(token_args)
     return result

@@ -15,8 +15,9 @@ class bc_ini_lexer(btl_lexer_base):
     T_EQUAL = 't_equal'
     T_KEY = 't_key'
     T_LINE_BREAK = 't_line_break'
-    T_SECTION_BEGIN = 't_section_begin'
-    T_SECTION_END = 't_section_end'
+    T_SECTION_NAME = 't_section_name'
+    T_SECTION_NAME_BEGIN = 't_section_name_begin'
+    T_SECTION_NAME_END = 't_section_name_end'
     T_SPACE = 't_space'
     T_VALUE = 't_value'
   
@@ -54,6 +55,8 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_open_bracket'):
         new_state = 's_section_name'
         self.buffer_write(c)
+        tokens.append(self.make_token('t_section_name_begin', args = {}))
+        self.buffer_reset()
       else:
         new_state = 's_done'
       
@@ -128,12 +131,14 @@ class bc_ini_lexer(btl_lexer_base):
       tokens = []
   
       if self.char_in(c, 'c_section_name'):
-        new_state = 'c_section_name'
+        new_state = 's_section_name'
         self.buffer_write(c)
       elif self.char_in(c, 'c_close_bracket'):
         new_state = 's_start'
-        self.buffer_write(c)
         tokens.append(self.make_token('t_section_name', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_section_name_end', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
@@ -426,8 +431,6 @@ lexer
   version: 1.0
   start_state: s_start
   end_state: s_done
-#  import:
-#    btl_string_lexer
 
 tokens
   t_comment
@@ -437,8 +440,9 @@ tokens
   t_key
   t_line_break
     type_hint: h_line_break
-  t_section_begin
-  t_section_end
+  t_section_name
+  t_section_name_begin
+  t_section_name_end
   t_space
   t_value
 
@@ -450,24 +454,9 @@ chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
-#  c_caca: +
 
 states
 
-####  %% start state
-####  [*] --> start
-####  start --> end: EOS
-####  start --> comment: SEMICOLON
-####  start --> space: TAB SPACE
-####  start --> cr: CR
-####  start --> start: NL
-####  start --> section_name: OPEN_BRACKET
-####  start --> key: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT
-####  start --> expecting_value: EQUAL
-####  start --> start_error: ANY
-####  note right of start_error
-####    Unexpected "."
-####  end note
   s_start
     c_keyval_key_first: s_key
       buffer write
@@ -485,15 +474,11 @@ states
       buffer reset
     c_open_bracket: s_section_name
       buffer write
+      yield t_section_name_begin
+      buffer reset
     default: s_done
       raise e_unexpected_char
 
-####  %% cr state
-####  cr --> start: NL
-####  cr --> cr_error: ANY EOS
-####  note right of cr_error
-####    Expecting "NL" instead of "."
-####  end note
   s_crlf_line_break
     c_nl: s_start
       buffer write
@@ -501,12 +486,6 @@ states
       buffer reset
     default: s_done
       raise e_unexpected_char
-
-####  %% comment state
-####  comment --> comment: ANY
-####  comment --> cr: CR
-####  comment --> start: NL
-####  comment --> end: EOS
 
   s_comment
     c_cr: s_crlf_line_break
@@ -525,19 +504,14 @@ states
     default: s_comment
       buffer write
 
-####  %% section_name state
-####  section_name --> section_name: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD
-####  section_name --> start: ]
-####  section_name --> section_name_error: TAB SPACE CR NL EOS
-####  note left of section_name_error
-####    Unexpected char in section name
-####  end note
   s_section_name
-    c_section_name: c_section_name
+    c_section_name: s_section_name
       buffer write
     c_close_bracket: s_start
-      buffer write
       yield t_section_name
+      buffer reset
+      buffer write
+      yield t_section_name_end
       buffer reset
     c_eos: s_done
       raise e_unexpected_char

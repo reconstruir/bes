@@ -43,10 +43,10 @@ class btl_lexer_state_base(object):
   def _make_log_attributes(self, c):
     attributes = []
     cs = self.char_to_string(c)
-    attributes.append(f'c=▒{cs}▒')
+    attributes.append(f'c=｢{cs}｣')
     try:
       bs = self._lexer.buffer_value()
-      attributes.append(f'buffer=▒{bs}▒')
+      attributes.append(f'buffer=｢{bs}｣')
     except AttributeError as ex:
       attributes.append('buffer=None')
     return ' '.join(attributes)
