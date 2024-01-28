@@ -12,6 +12,7 @@ tokens
   t_done
     type_hint: h_done
   t_equal
+  t_comment_begin
   t_key
   t_line_break
     type_hint: h_line_break
@@ -39,6 +40,8 @@ states
       yield t_done
     c_semicolon: s_comment
       buffer write
+      yield t_comment_begin
+      buffer reset
     c_ws: s_before_key_space
       buffer write
     c_cr: s_crlf_line_break
@@ -118,7 +121,7 @@ states
       buffer reset
     c_eos: s_done
       yield t_done
-    default: s_expecting_equal_error
+    default: s_done
       raise e_unexpected_char
 
   s_before_value_space
@@ -150,15 +153,6 @@ states
       buffer write
     default: s_value
       raise e_unexpected_char
-
-  s_start_error
-    default: s_done
-
-  s_expecting_equal_error
-    default: s_done
-
-  s_expecting_value_error
-    default: s_done
 
   s_key
     c_keyval_key: s_key

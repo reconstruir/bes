@@ -11,6 +11,7 @@ class bc_ini_lexer(btl_lexer_base):
   class _token:
 
     T_COMMENT = 't_comment'
+    T_COMMENT_BEGIN = 't_comment_begin'
     T_DONE = 't_done'
     T_EQUAL = 't_equal'
     T_KEY = 't_key'
@@ -41,6 +42,8 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_semicolon'):
         new_state = 's_comment'
         self.buffer_write(c)
+        tokens.append(self.make_token('t_comment_begin', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_ws'):
         new_state = 's_before_key_space'
         self.buffer_write(c)
@@ -203,7 +206,7 @@ class bc_ini_lexer(btl_lexer_base):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
       else:
-        new_state = 's_expecting_equal_error'
+        new_state = 's_done'
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -268,57 +271,6 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_value'
-      
-      self.lexer.change_state(new_state, c)
-      return tokens
-  
-  class _state_s_start_error(btl_lexer_state_base):
-    def __init__(self, lexer, log_tag):
-      name = 's_start_error'
-      super().__init__(lexer, name, log_tag)
-  
-    def handle_char(self, c):
-      self.log_handle_char(c)
-  
-      new_state = None
-      tokens = []
-  
-      if True:
-        new_state = 's_done'
-      
-      self.lexer.change_state(new_state, c)
-      return tokens
-  
-  class _state_s_expecting_equal_error(btl_lexer_state_base):
-    def __init__(self, lexer, log_tag):
-      name = 's_expecting_equal_error'
-      super().__init__(lexer, name, log_tag)
-  
-    def handle_char(self, c):
-      self.log_handle_char(c)
-  
-      new_state = None
-      tokens = []
-  
-      if True:
-        new_state = 's_done'
-      
-      self.lexer.change_state(new_state, c)
-      return tokens
-  
-  class _state_s_expecting_value_error(btl_lexer_state_base):
-    def __init__(self, lexer, log_tag):
-      name = 's_expecting_value_error'
-      super().__init__(lexer, name, log_tag)
-  
-    def handle_char(self, c):
-      self.log_handle_char(c)
-  
-      new_state = None
-      tokens = []
-  
-      if True:
-        new_state = 's_done'
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -414,9 +366,6 @@ class bc_ini_lexer(btl_lexer_base):
       's_after_key_space': self._state_s_after_key_space(self, log_tag),
       's_before_value_space': self._state_s_before_value_space(self, log_tag),
       's_expecting_value': self._state_s_expecting_value(self, log_tag),
-      's_start_error': self._state_s_start_error(self, log_tag),
-      's_expecting_equal_error': self._state_s_expecting_equal_error(self, log_tag),
-      's_expecting_value_error': self._state_s_expecting_value_error(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
@@ -437,6 +386,7 @@ tokens
   t_done
     type_hint: h_done
   t_equal
+  t_comment_begin
   t_key
   t_line_break
     type_hint: h_line_break
@@ -464,6 +414,8 @@ states
       yield t_done
     c_semicolon: s_comment
       buffer write
+      yield t_comment_begin
+      buffer reset
     c_ws: s_before_key_space
       buffer write
     c_cr: s_crlf_line_break
@@ -543,7 +495,7 @@ states
       buffer reset
     c_eos: s_done
       yield t_done
-    default: s_expecting_equal_error
+    default: s_done
       raise e_unexpected_char
 
   s_before_value_space
@@ -575,15 +527,6 @@ states
       buffer write
     default: s_value
       raise e_unexpected_char
-
-  s_start_error
-    default: s_done
-
-  s_expecting_equal_error
-    default: s_done
-
-  s_expecting_value_error
-    default: s_done
 
   s_key
     c_keyval_key: s_key

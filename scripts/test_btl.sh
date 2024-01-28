@@ -61,6 +61,7 @@ function main()
     less ${_log}
     return ${_test_rv}
   fi
+  cat ${_log}
   return 0
 }
 
