@@ -350,9 +350,9 @@ states
 
   s_expecting_key
     c_eos: s_done
-      yield t_done
+      emit t_done
     c_nl: s_expecting_key
-      yield t_line_break
+      emit t_line_break
     c_ws: s_before_key_space
       buffer write
     c_keyval_key_first: s_key
@@ -364,11 +364,11 @@ states
     c_ws: s_before_key_space
       buffer write
     c_nl: s_expecting_key
-      yield t_space
+      emit t_space
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_keyval_key_first: s_key
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
     default: s_expecting_key_error
@@ -378,13 +378,13 @@ states
     c_ws: s_after_key_space
       buffer write
     c_equal: s_expecting_value
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
-      yield t_equal
+      emit t_equal
       buffer reset
     c_eos: s_done
-      yield t_done
+      emit t_done
     default: s_expecting_equal_error
       raise unexpected_char
 
@@ -392,16 +392,16 @@ states
     c_ws: s_value_key_space
       buffer write
     c_nl: s_expecting_key
-      yield t_space
+      emit t_space
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_keyval_key_first: s_value
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
     c_eos: s_done
-      yield t_space
-      yield t_done
+      emit t_space
+      emit t_done
     default: s_expecting_value_error
       raise unexpected_char
 
@@ -409,10 +409,10 @@ states
     c_ws: s_before_value_space
       buffer write
     c_eos: s_done
-      yield t_done
+      emit t_done
     c_nl: s_expecting_key
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_keyval_key_first: s_value
       buffer write
     default: s_value
@@ -431,29 +431,29 @@ states
     c_keyval_key: s_key
       buffer write
     c_equal: s_expecting_value
-      yield t_key
+      emit t_key
       buffer reset
       buffer write
-      yield t_equal
+      emit t_equal
       buffer reset
     c_eos: s_done
-      yield t_key
+      emit t_key
       buffer reset
-      yield t_done
+      emit t_done
     c_ws: s_after_key_space
-      yield t_key
+      emit t_key
       buffer reset
       buffer write
       
   s_value
     c_nl: s_expecting_key
-      yield t_value
+      emit t_value
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_eos: s_done
-      yield t_value
+      emit t_value
       buffer reset
-      yield t_done
+      emit t_done
     default: s_value
       buffer write
       

@@ -12,8 +12,8 @@ from _test_desc_mixin import _test_desc_mixin
 
 class test_btl_desc_state_command(_test_desc_mixin, unit_test):
 
-  def test_generate_code_with_yield(self):
-    cmd = btl_desc_state_command('yield', 't_cheese', {})
+  def test_generate_code_with_emit(self):
+    cmd = btl_desc_state_command('emit', 't_cheese', {})
     self.assert_code_equal( '''
 tokens.append(self.make_token('t_cheese', args = {}))
 ''', self.call_buf_func(cmd, 'generate_code') )

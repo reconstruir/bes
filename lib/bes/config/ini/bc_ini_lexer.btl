@@ -37,10 +37,10 @@ states
     c_keyval_key_first: s_key
       buffer write
     c_eos: s_done
-      yield t_done
+      emit t_done
     c_semicolon: s_comment
       buffer write
-      yield t_comment_begin
+      emit t_comment_begin
       buffer reset
     c_ws: s_before_key_space
       buffer write
@@ -48,11 +48,11 @@ states
       buffer write
     c_nl: s_start
       buffer write
-      yield t_line_break
+      emit t_line_break
       buffer reset
     c_open_bracket: s_section_name
       buffer write
-      yield t_section_name_begin
+      emit t_section_name_begin
       buffer reset
     default: s_done
       raise e_unexpected_char
@@ -60,26 +60,26 @@ states
   s_crlf_line_break
     c_nl: s_start
       buffer write
-      yield t_line_break
+      emit t_line_break
       buffer reset
     default: s_done
       raise e_unexpected_char
 
   s_comment
     c_cr: s_crlf_line_break
-      yield t_comment
+      emit t_comment
       buffer reset
       buffer write
     c_nl: s_start
-      yield t_comment
+      emit t_comment
       buffer reset
       buffer write
-      yield t_line_break
+      emit t_line_break
       buffer reset
     c_eos: s_done
-      yield t_comment
+      emit t_comment
       buffer reset 
-      yield t_done
+      emit t_done
     default: s_comment
       buffer write
 
@@ -87,10 +87,10 @@ states
     c_section_name: s_section_name
       buffer write
     c_close_bracket: s_after_section_name
-      yield t_section_name
+      emit t_section_name
       buffer reset
       buffer write
-      yield t_section_name_end
+      emit t_section_name_end
       buffer reset
     c_eos: s_done
       raise e_unexpected_char
@@ -102,16 +102,16 @@ states
       buffer write
     c_semicolon: s_comment
       buffer write
-      yield t_comment_begin
+      emit t_comment_begin
       buffer reset
     c_cr: s_crlf_line_break
       buffer write
     c_nl: s_start
       buffer write
-      yield t_line_break
+      emit t_line_break
       buffer reset
     c_eos: s_done
-      yield t_done
+      emit t_done
     default: s_done
       raise e_unexpected_char
 
@@ -119,23 +119,23 @@ states
     c_ws: s_after_section_name_space
       buffer write
     c_semicolon: s_comment
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
-      yield t_comment_begin
+      emit t_comment_begin
       buffer reset
     c_cr: s_crlf_line_break
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
     c_nl: s_start
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
-      yield t_line_break
+      emit t_line_break
       buffer reset
     c_eos: s_done
-      yield t_done
+      emit t_done
     default: s_done
       raise e_unexpected_char
 
@@ -143,11 +143,11 @@ states
     c_ws: s_before_key_space
       buffer write
     c_nl: s_start
-      yield t_space
+      emit t_space
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_keyval_key_first: s_key
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
     default: s_done
@@ -157,13 +157,13 @@ states
     c_ws: s_after_key_space
       buffer write
     c_equal: s_expecting_value
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
-      yield t_equal
+      emit t_equal
       buffer reset
     c_eos: s_done
-      yield t_done
+      emit t_done
     default: s_done
       raise e_unexpected_char
 
@@ -171,16 +171,16 @@ states
     c_ws: s_value_key_space
       buffer write
     c_nl: s_start
-      yield t_space
+      emit t_space
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_keyval_key_first: s_value
-      yield t_space
+      emit t_space
       buffer reset
       buffer write
     c_eos: s_done
-      yield t_space
-      yield t_done
+      emit t_space
+      emit t_done
     default: s_done
       raise e_unexpected_char
 
@@ -188,10 +188,10 @@ states
     c_ws: s_before_value_space
       buffer write
     c_eos: s_done
-      yield t_done
+      emit t_done
     c_nl: s_start
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_keyval_key_first: s_value
       buffer write
     default: s_value
@@ -201,29 +201,29 @@ states
     c_keyval_key: s_key
       buffer write
     c_equal: s_expecting_value
-      yield t_key
+      emit t_key
       buffer reset
       buffer write
-      yield t_equal
+      emit t_equal
       buffer reset
     c_eos: s_done
-      yield t_key
+      emit t_key
       buffer reset
-      yield t_done
+      emit t_done
     c_ws: s_after_key_space
-      yield t_key
+      emit t_key
       buffer reset
       buffer write
       
   s_value
     c_nl: s_start
-      yield t_value
+      emit t_value
       buffer reset
-      yield t_line_break
+      emit t_line_break
     c_eos: s_done
-      yield t_value
+      emit t_value
       buffer reset
-      yield t_done
+      emit t_done
     default: s_value
       buffer write
 

@@ -487,7 +487,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_eos", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_done", 
               "args": {}
             }
@@ -498,7 +498,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_nl", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_line_break", 
               "args": {}
             }
@@ -509,7 +509,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_ws", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_space", 
               "args": {}
             }
@@ -570,7 +570,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_equal", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_key", 
               "args": {}
             }, 
@@ -585,7 +585,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
               "args": {}
             }, 
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_equal", 
               "args": {}
             }, 
@@ -601,7 +601,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_eos", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_key", 
               "args": {}
             }, 
@@ -611,7 +611,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
               "args": {}
             }, 
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_done", 
               "args": {}
             }
@@ -628,7 +628,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_nl", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_value", 
               "args": {}
             }, 
@@ -638,7 +638,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
               "args": {}
             }, 
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_line_break", 
               "args": {}
             }
@@ -649,7 +649,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_eos", 
           "commands": [
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_value", 
               "args": {}
             }, 
@@ -659,7 +659,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
               "args": {}
             }, 
             {
-              "name": "yield", 
+              "name": "emit", 
               "command": "t_done", 
               "args": {}
             }

@@ -33,7 +33,7 @@ class btl_desc_state_command(namedtuple('btl_desc_state_command', 'name, command
   def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
 
-    if self.name == 'yield':
+    if self.name == 'emit':
       buf.write_line(f'tokens.append(self.make_token(\'{self.command}\', args = {self.args}))')
     elif self.name == 'buffer':
       if self.command == 'write':

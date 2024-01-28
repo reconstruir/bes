@@ -14,7 +14,7 @@ class test_btl_desc_state_transition(_test_desc_mixin, unit_test):
 
   def test_generate_code(self):
     char_map = btl_desc_char_map()
-    cmd = btl_desc_state_command('yield', 't_cheese', {})
+    cmd = btl_desc_state_command('emit', 't_cheese', {})
     transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
     
     self.assert_code_equal('''
@@ -25,7 +25,7 @@ if self.char_in(c, 'c_equal'):
 
   def test_generate_code_with_index_non_zero(self):
     char_map = btl_desc_char_map()
-    cmd = btl_desc_state_command('yield', 't_cheese', {})
+    cmd = btl_desc_state_command('emit', 't_cheese', {})
     transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
     
     self.assert_code_equal('''
