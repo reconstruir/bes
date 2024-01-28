@@ -110,6 +110,7 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_reset()
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_comment', args = {}))
@@ -137,7 +138,7 @@ class bc_ini_lexer(btl_lexer_base):
         new_state = 's_section_name'
         self.buffer_write(c)
       elif self.char_in(c, 'c_close_bracket'):
-        new_state = 's_start'
+        new_state = 's_after_section_name'
         tokens.append(self.make_token('t_section_name', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
@@ -145,6 +146,84 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
+      else:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_after_section_name(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_after_section_name'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_after_section_name_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_semicolon'):
+        new_state = 's_comment'
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_comment_begin', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_cr'):
+        new_state = 's_crlf_line_break'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_done', args = {}))
+      else:
+        new_state = 's_done'
+      
+      self.lexer.change_state(new_state, c)
+      return tokens
+  
+  class _state_s_after_section_name_space(btl_lexer_state_base):
+    def __init__(self, lexer, log_tag):
+      name = 's_after_section_name_space'
+      super().__init__(lexer, name, log_tag)
+  
+    def handle_char(self, c):
+      self.log_handle_char(c)
+  
+      new_state = None
+      tokens = []
+  
+      if self.char_in(c, 'c_ws'):
+        new_state = 's_after_section_name_space'
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_semicolon'):
+        new_state = 's_comment'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_comment_begin', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_cr'):
+        new_state = 's_crlf_line_break'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
+        new_state = 's_start'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+        tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
       
@@ -362,6 +441,8 @@ class bc_ini_lexer(btl_lexer_base):
       's_crlf_line_break': self._state_s_crlf_line_break(self, log_tag),
       's_comment': self._state_s_comment(self, log_tag),
       's_section_name': self._state_s_section_name(self, log_tag),
+      's_after_section_name': self._state_s_after_section_name(self, log_tag),
+      's_after_section_name_space': self._state_s_after_section_name_space(self, log_tag),
       's_before_key_space': self._state_s_before_key_space(self, log_tag),
       's_after_key_space': self._state_s_after_key_space(self, log_tag),
       's_before_value_space': self._state_s_before_value_space(self, log_tag),
@@ -449,6 +530,7 @@ states
       buffer reset
       buffer write
       yield t_line_break
+      buffer reset
     c_eos: s_done
       yield t_comment
       buffer reset 
@@ -459,7 +541,7 @@ states
   s_section_name
     c_section_name: s_section_name
       buffer write
-    c_close_bracket: s_start
+    c_close_bracket: s_after_section_name
       yield t_section_name
       buffer reset
       buffer write
@@ -467,6 +549,48 @@ states
       buffer reset
     c_eos: s_done
       raise e_unexpected_char
+    default: s_done
+      raise e_unexpected_char
+
+  s_after_section_name
+    c_ws: s_after_section_name_space
+      buffer write
+    c_semicolon: s_comment
+      buffer write
+      yield t_comment_begin
+      buffer reset
+    c_cr: s_crlf_line_break
+      buffer write
+    c_nl: s_start
+      buffer write
+      yield t_line_break
+      buffer reset
+    c_eos: s_done
+      yield t_done
+    default: s_done
+      raise e_unexpected_char
+
+  s_after_section_name_space
+    c_ws: s_after_section_name_space
+      buffer write
+    c_semicolon: s_comment
+      yield t_space
+      buffer reset
+      buffer write
+      yield t_comment_begin
+      buffer reset
+    c_cr: s_crlf_line_break
+      yield t_space
+      buffer reset
+      buffer write
+    c_nl: s_start
+      yield t_space
+      buffer reset
+      buffer write
+      yield t_line_break
+      buffer reset
+    c_eos: s_done
+      yield t_done
     default: s_done
       raise e_unexpected_char
 

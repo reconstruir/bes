@@ -75,6 +75,7 @@ states
       buffer reset
       buffer write
       yield t_line_break
+      buffer reset
     c_eos: s_done
       yield t_comment
       buffer reset 
@@ -85,7 +86,7 @@ states
   s_section_name
     c_section_name: s_section_name
       buffer write
-    c_close_bracket: s_start
+    c_close_bracket: s_after_section_name
       yield t_section_name
       buffer reset
       buffer write
@@ -93,6 +94,48 @@ states
       buffer reset
     c_eos: s_done
       raise e_unexpected_char
+    default: s_done
+      raise e_unexpected_char
+
+  s_after_section_name
+    c_ws: s_after_section_name_space
+      buffer write
+    c_semicolon: s_comment
+      buffer write
+      yield t_comment_begin
+      buffer reset
+    c_cr: s_crlf_line_break
+      buffer write
+    c_nl: s_start
+      buffer write
+      yield t_line_break
+      buffer reset
+    c_eos: s_done
+      yield t_done
+    default: s_done
+      raise e_unexpected_char
+
+  s_after_section_name_space
+    c_ws: s_after_section_name_space
+      buffer write
+    c_semicolon: s_comment
+      yield t_space
+      buffer reset
+      buffer write
+      yield t_comment_begin
+      buffer reset
+    c_cr: s_crlf_line_break
+      yield t_space
+      buffer reset
+      buffer write
+    c_nl: s_start
+      yield t_space
+      buffer reset
+      buffer write
+      yield t_line_break
+      buffer reset
+    c_eos: s_done
+      yield t_done
     default: s_done
       raise e_unexpected_char
 

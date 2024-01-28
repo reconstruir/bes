@@ -237,7 +237,7 @@ color=green
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def xtest_section_with_comment(self):
+  def test_section_with_comment(self):
     t = self.call_tokenize(bc_ini_lexer, '''
 [fruit.1] ; this is fruit 1
 name=kiwi
@@ -250,8 +250,8 @@ color=green
         ( 't_section_name_end', ']', ( 9, 2 ), None ),
         ( 't_space', '｢SP｣', ( 10, 2 ), None ),
         ( 't_comment_begin', ';', ( 11, 2 ), None ),
-        ( 't_comment', ' this is fruit 1', ( 11, 2 ), None ),
-        ( 't_line_break', '｢NL｣', ( 10, 2 ), 'h_line_break' ),
+        ( 't_comment', ' this is fruit 1', ( 12, 2 ), None ),
+        ( 't_line_break', '｢NL｣', ( 28, 2 ), 'h_line_break' ),
         ( 't_key', 'name', ( 1, 3 ), None ),
         ( 't_equal', '=', ( 5, 3 ), None ),
         ( 't_value', 'kiwi', ( 6, 3 ), None ),
