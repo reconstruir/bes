@@ -307,7 +307,7 @@ color=yellow
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def test_comment(self):
+  def test_comment_line(self):
     t = self.call_tokenize(bc_ini_lexer, '''
 ; fruit
 name=kiwi
@@ -330,6 +330,6 @@ color=green
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
-    
+
 if __name__ == '__main__':
   unit_test.main()
