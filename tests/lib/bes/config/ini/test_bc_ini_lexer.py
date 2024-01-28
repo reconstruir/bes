@@ -212,7 +212,7 @@ color=green
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def test_section_name(self):
+  def test_section_one_section(self):
     t = self.call_tokenize(bc_ini_lexer, '''
 [fruit.1]
 name=kiwi
@@ -232,6 +232,48 @@ color=green
         ( 't_equal', '=', ( 6, 4 ), None ),
         ( 't_value', 'green', ( 7, 4 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_section_two_sections(self):
+    t = self.call_tokenize(bc_ini_lexer, '''
+[fruit.1]
+name=kiwi
+color=green
+
+[fruit.2]
+name=lemon
+color=yellow
+''', 
+      [
+        ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),
+        ( 't_section_name_begin', '[', ( 1, 2 ), None ),
+        ( 't_section_name', 'fruit.1', ( 2, 2 ), None ),
+        ( 't_section_name_end', ']', ( 9, 2 ), None ),
+        ( 't_line_break', '｢NL｣', ( 10, 2 ), 'h_line_break' ),
+        ( 't_key', 'name', ( 1, 3 ), None ),
+        ( 't_equal', '=', ( 5, 3 ), None ),
+        ( 't_value', 'kiwi', ( 6, 3 ), None ),
+        ( 't_line_break', '｢NL｣', ( 10, 3 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 4 ), None ),
+        ( 't_equal', '=', ( 6, 4 ), None ),
+        ( 't_value', 'green', ( 7, 4 ), None ),
+        ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
+        ( 't_line_break', '｢NL｣', ( 1, 5 ), 'h_line_break' ),
+        ( 't_section_name_begin', '[', ( 1, 6 ), None ),
+        ( 't_section_name', 'fruit.2', ( 2, 6 ), None ),
+        ( 't_section_name_end', ']', ( 9, 6 ), None ),
+        ( 't_line_break', '｢NL｣', ( 10, 6 ), 'h_line_break' ),
+        ( 't_key', 'name', ( 1, 7 ), None ),
+        ( 't_equal', '=', ( 5, 7 ), None ),
+        ( 't_value', 'lemon', ( 6, 7 ), None ),
+        ( 't_line_break', '｢NL｣', ( 11, 7 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 8 ), None ),
+        ( 't_equal', '=', ( 6, 8 ), None ),
+        ( 't_value', 'yellow', ( 7, 8 ), None ),
+        ( 't_line_break', '｢NL｣', ( 13, 8 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )

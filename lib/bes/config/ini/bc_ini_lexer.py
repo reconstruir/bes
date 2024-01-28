@@ -163,7 +163,7 @@ class bc_ini_lexer(btl_lexer_base):
         new_state = 's_before_key_space'
         self.buffer_write(c)
       elif self.char_in(c, 'c_nl'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -173,7 +173,7 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_reset()
         self.buffer_write(c)
       else:
-        new_state = 's_expecting_key_error'
+        new_state = 's_done'
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -521,7 +521,7 @@ states
   s_before_key_space
     c_ws: s_before_key_space
       buffer write
-    c_nl: s_expecting_key
+    c_nl: s_start
       yield t_space
       buffer reset
       yield t_line_break
@@ -529,8 +529,8 @@ states
       yield t_space
       buffer reset
       buffer write
-    default: s_expecting_key_error
-      raise unexpected_char
+    default: s_done
+      raise e_unexpected_char
 
   s_after_key_space
     c_ws: s_after_key_space
@@ -544,7 +544,7 @@ states
     c_eos: s_done
       yield t_done
     default: s_expecting_equal_error
-      raise unexpected_char
+      raise e_unexpected_char
 
   s_before_value_space
     c_ws: s_value_key_space
