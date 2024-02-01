@@ -3,9 +3,9 @@
 
 from bes.testing.program_unit_test import program_unit_test
 
-from _test_desc_mixin import _test_desc_mixin
+from _test_lexer_desc_mixin import _test_lexer_desc_mixin
 
-class test_btl_cli_args(_test_desc_mixin, program_unit_test):
+class test_btl_cli_args(_test_lexer_desc_mixin, program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 

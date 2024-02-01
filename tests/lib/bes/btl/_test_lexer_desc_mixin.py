@@ -9,7 +9,7 @@ from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.text.text_replace import text_replace
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
-class _test_desc_mixin:
+class _test_lexer_desc_mixin:
 
   def assert_code_equal(self, expected, actual, replacements = {}):
     expected2 = text_replace.replace(expected, replacements)
