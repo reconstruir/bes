@@ -212,18 +212,18 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_multi_line_crlf(self):
     t = self.call_tokenize(bc_ini_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n;comment\r\n''', 
       [
-        ( 't_line_break', '｢CR｣｢NL｣', ( 2, 1 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
         ( 't_equal', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
-        ( 't_line_break', '｢CR｣｢NL｣', ( 12, 2 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
         ( 't_equal', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
-        ( 't_line_break', '｢CR｣｢NL｣', ( 13, 3 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_comment_begin', ';', ( 1, 4 ), None ),
         ( 't_comment', 'comment', ( 2, 4 ), None ),
-        ( 't_line_break', '｢CR｣｢NL｣', ( 10, 4 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 9, 4 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -232,7 +232,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
   def test_multi_line_crlf_mixed_with_lf(self):
     t = self.call_tokenize(bc_ini_lexer, '''\r\nfruit=kiwi\ncolor=green\r\n;comment\r\n''', 
       [
-        ( 't_line_break', '｢CR｣｢NL｣', ( 2, 1 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
         ( 't_equal', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
@@ -240,10 +240,10 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
         ( 't_key', 'color', ( 1, 3 ), None ),
         ( 't_equal', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
-        ( 't_line_break', '｢CR｣｢NL｣', ( 13, 3 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_comment_begin', ';', ( 1, 4 ), None ),
         ( 't_comment', 'comment', ( 2, 4 ), None ),
-        ( 't_line_break', '｢CR｣｢NL｣', ( 10, 4 ), 'h_line_break' ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 9, 4 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )

@@ -101,7 +101,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     return self.clone(mutations = { 'position': new_position })
 
   def to_debug_str(self):
-    debug_value = self._escape_value(self.value)
+    debug_value = self.make_debug_str(self.value)
     debug_token = self.clone(mutations = { 'value': debug_value })
     return str(debug_token)
 
@@ -110,15 +110,16 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     '\r': '｢CR｣',
     '\t': '｢TAB｣',
     ' ': '｢SP｣',
+    '\0': '｢EOS｣',
   }
   @classmethod
-  def _escape_value(clazz, s):
+  def make_debug_str(clazz, s):
     if s == None:
       return None
+    result = []
     for c in s:
-      for key, value in clazz._debug_char_map.items():
-        s = s.replace(key, value)
-    return s
+      result.append(clazz._debug_char_map.get(c, c))
+    return ''.join(result)
   
   @classmethod
   def _check_cast_func(clazz, obj):

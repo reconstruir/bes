@@ -44,9 +44,7 @@ states
       buffer reset
     c_ws: s_before_key_space
       buffer write
-    c_cr: s_crlf_line_break
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
       buffer reset
@@ -57,20 +55,8 @@ states
     default: s_done
       raise e_unexpected_char
 
-  s_crlf_line_break
-    c_nl: s_start
-      buffer write
-      emit t_line_break
-      buffer reset
-    default: s_done
-      raise e_unexpected_char
-
   s_comment
-    c_cr: s_crlf_line_break
-      emit t_comment
-      buffer reset
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_comment
       buffer reset
       buffer write
@@ -104,9 +90,7 @@ states
       buffer write
       emit t_comment_begin
       buffer reset
-    c_cr: s_crlf_line_break
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       buffer reset
       buffer write
       emit t_line_break
@@ -125,11 +109,7 @@ states
       buffer write
       emit t_comment_begin
       buffer reset
-    c_cr: s_crlf_line_break
-      emit t_space
-      buffer reset
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
@@ -219,11 +199,7 @@ states
       buffer write
       
   s_value
-    c_cr: s_crlf_line_break
-      emit t_value
-      buffer reset
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_value
       buffer reset
       buffer write

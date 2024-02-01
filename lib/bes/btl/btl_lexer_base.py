@@ -93,7 +93,8 @@ class btl_lexer_base(object):
     self._buffer.write(c)
     if len(old_value) == 0:
       self._buffer_start_position = point(*self._position)
-    self.log_d(f'lexer: buffer_write: old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
+    cs = self._state.char_to_string(c)
+    self.log_d(f'lexer: buffer_write: c=▒{cs}▒ old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 
   def buffer_value(self):
     if self._buffer == None:
@@ -127,30 +128,34 @@ class btl_lexer_base(object):
     if c in ( '\n', '\r\n' ):
       new_position = point(0, old_position.y + 1)
     else:
-      new_position = point(old_position.x + 1, old_position.y)
+      new_position = point(old_position.x + len(c), old_position.y)
     return new_position
     
   def tokenize(self, text):
     return btl_lexer_token_deque([ token for token in self.run(text) ])
     
   @classmethod
-  def _chars_plus_eos(self, text):
+  def OLD_chars_plus_eos(self, text):
     for c in text:
       yield c
     yield self.EOS
 
   @classmethod
-  def NEW_chars_plus_eos(self, text):
+  def _chars_plus_eos(self, text):
     n = len(text)
+    skip_next_char = False
     for i, c in enumerate(text):
+      if skip_next_char:
+        skip_next_char = False
+        continue
       next_c = None
       if n >= 2 and i < (n - 1):
         next_c = text[i + 1]
       yielded = False
       if next_c != None:
         if c == '\r' and next_c == '\n':
-          #assert False, f'text="{text}"'
           yield '\r\n'
+          skip_next_char = True
           yielded = True
       if not yielded:
         yield c

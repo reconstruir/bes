@@ -5,6 +5,7 @@ from ..system.log import log
 from ..system.check import check
 
 from .btl_lexer_error import btl_lexer_error
+from .btl_lexer_token import btl_lexer_token
 
 class btl_lexer_state_base(object):
 
@@ -30,11 +31,15 @@ class btl_lexer_state_base(object):
     check.check_string(c)
     check.check_string(char_name)
 
+    chars = self._lexer.desc.char_map[char_name].chars
+    r = c in chars
+    cs = self.char_to_string(c)
+    #print(f'checking if char "{cs}" is in "{chars}" => {r}')
     return c in self._lexer.desc.char_map[char_name].chars
   
   def handle_char(self, c):
     cs = self.char_to_string(c)
-    raise RuntimeError(f'unhandled handle_char |{cs}| in state {self.name}')
+    raise RuntimeError(f'unhandled handle_char ▒{cs}▒ in state {self.name}')
 
   def log_handle_char(self, c):
     attrs = self._make_log_attributes(c)
@@ -43,24 +48,24 @@ class btl_lexer_state_base(object):
   def _make_log_attributes(self, c):
     attributes = []
     cs = self.char_to_string(c)
-    attributes.append(f'c=｢{cs}｣')
+    attributes.append(f'c=▒{cs}▒')
     try:
-      bs = self._lexer.buffer_value()
-      attributes.append(f'buffer=｢{bs}｣')
+      bs = self.char_to_string(self._lexer.buffer_value())
+      attributes.append(f'buffer=▒{bs}▒')
     except AttributeError as ex:
       attributes.append('buffer=None')
     return ' '.join(attributes)
 
   _char_map = {
-    EOS: 'EOS',
-    '\n': '\\n',
-    '\c': '\\c',
-    '\r': '\\r',
-    '\t': '\\t',
+    EOS: '｢EOS｣',
+    '\n': '｢NL｣',
+    '\r': '｢CR｣',
+    '\t': '｢TAB｣',
+    ' ': '｢SP｣',
   }
   @classmethod
   def char_to_string(clazz, c):
-    return clazz._char_map.get(c, c)
+    return btl_lexer_token.make_debug_str(c)
 
   def make_token(self, name, args = None):
     return self._lexer.make_token(name, args = args)

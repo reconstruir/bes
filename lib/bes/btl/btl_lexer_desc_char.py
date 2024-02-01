@@ -17,9 +17,9 @@ class btl_lexer_desc_char(namedtuple('btl_lexer_desc_char', 'name, chars')):
     assert isinstance(chars, set)
     check.check_set(chars, check.STRING_TYPES)
 
-    for c in chars:
-      if len(c) != 1:
-        raise btl_error(f'Invalid length {len(c)} for char "{c}" instead of 1')
+#    for c in chars:
+#      if len(c) != 1:
+#        raise btl_error(f'Invalid length {len(c)} for char "{c}" instead of 1')
     
     return clazz.__bases__[0].__new__(clazz, name, chars)
 

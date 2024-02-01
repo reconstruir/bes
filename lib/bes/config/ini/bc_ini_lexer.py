@@ -47,10 +47,7 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_ws'):
         new_state = 's_before_key_space'
         self.buffer_write(c)
-      elif self.char_in(c, 'c_cr'):
-        new_state = 's_crlf_line_break'
-        self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -59,28 +56,6 @@ class bc_ini_lexer(btl_lexer_base):
         new_state = 's_section_name'
         self.buffer_write(c)
         tokens.append(self.make_token('t_section_name_begin', args = {}))
-        self.buffer_reset()
-      else:
-        new_state = 's_done'
-      
-      self.lexer.change_state(new_state, c)
-      return tokens
-  
-  class _state_s_crlf_line_break(btl_lexer_state_base):
-    def __init__(self, lexer, log_tag):
-      name = 's_crlf_line_break'
-      super().__init__(lexer, name, log_tag)
-  
-    def handle_char(self, c):
-      self.log_handle_char(c)
-  
-      new_state = None
-      tokens = []
-  
-      if self.char_in(c, 'c_nl'):
-        new_state = 's_start'
-        self.buffer_write(c)
-        tokens.append(self.make_token('t_line_break', args = {}))
         self.buffer_reset()
       else:
         new_state = 's_done'
@@ -99,12 +74,7 @@ class bc_ini_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if self.char_in(c, 'c_cr'):
-        new_state = 's_crlf_line_break'
-        tokens.append(self.make_token('t_comment', args = {}))
-        self.buffer_reset()
-        self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      if self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_comment', args = {}))
         self.buffer_reset()
@@ -171,10 +141,7 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_write(c)
         tokens.append(self.make_token('t_comment_begin', args = {}))
         self.buffer_reset()
-      elif self.char_in(c, 'c_cr'):
-        new_state = 's_crlf_line_break'
-        self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         self.buffer_reset()
         self.buffer_write(c)
@@ -210,12 +177,7 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_write(c)
         tokens.append(self.make_token('t_comment_begin', args = {}))
         self.buffer_reset()
-      elif self.char_in(c, 'c_cr'):
-        new_state = 's_crlf_line_break'
-        tokens.append(self.make_token('t_space', args = {}))
-        self.buffer_reset()
-        self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
@@ -403,12 +365,7 @@ class bc_ini_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if self.char_in(c, 'c_cr'):
-        new_state = 's_crlf_line_break'
-        tokens.append(self.make_token('t_value', args = {}))
-        self.buffer_reset()
-        self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      if self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
@@ -448,7 +405,6 @@ class bc_ini_lexer(btl_lexer_base):
     token = self._token
     states = {
       's_start': self._state_s_start(self, log_tag),
-      's_crlf_line_break': self._state_s_crlf_line_break(self, log_tag),
       's_comment': self._state_s_comment(self, log_tag),
       's_section_name': self._state_s_section_name(self, log_tag),
       's_after_section_name': self._state_s_after_section_name(self, log_tag),
@@ -509,9 +465,7 @@ states
       buffer reset
     c_ws: s_before_key_space
       buffer write
-    c_cr: s_crlf_line_break
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
       buffer reset
@@ -522,20 +476,8 @@ states
     default: s_done
       raise e_unexpected_char
 
-  s_crlf_line_break
-    c_nl: s_start
-      buffer write
-      emit t_line_break
-      buffer reset
-    default: s_done
-      raise e_unexpected_char
-
   s_comment
-    c_cr: s_crlf_line_break
-      emit t_comment
-      buffer reset
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_comment
       buffer reset
       buffer write
@@ -569,9 +511,7 @@ states
       buffer write
       emit t_comment_begin
       buffer reset
-    c_cr: s_crlf_line_break
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       buffer reset
       buffer write
       emit t_line_break
@@ -590,11 +530,7 @@ states
       buffer write
       emit t_comment_begin
       buffer reset
-    c_cr: s_crlf_line_break
-      emit t_space
-      buffer reset
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
@@ -684,11 +620,7 @@ states
       buffer write
       
   s_value
-    c_cr: s_crlf_line_break
-      emit t_value
-      buffer reset
-      buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_value
       buffer reset
       buffer write
