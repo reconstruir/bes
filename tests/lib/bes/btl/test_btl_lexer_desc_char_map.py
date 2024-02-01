@@ -8,22 +8,26 @@ from bes.testing.unit_test import unit_test
 
 class test_test_btl_lexer_desc_char_map(unit_test):
 
-  _NUMERIC = set([ ord(c) for c in '0123456789' ])
-  _ALPHA_LOWER = set([ ord(c) for c in 'abcdefghijklmnopqrstuvwxyz' ])
-  _ALPHA_UPPER = set([ ord(c) for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ])
+  _NUMERIC = set([ c for c in '0123456789' ])
+  _ALPHA_LOWER = set([ c for c in 'abcdefghijklmnopqrstuvwxyz' ])
+  _ALPHA_UPPER = set([ c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ])
   _ALPHA = _ALPHA_LOWER | _ALPHA_UPPER
   _ALPHA_NUMERIC = _ALPHA | _NUMERIC
   
   def test___getitem__(self):
     m = btl_lexer_desc_char_map()
-    self.assertEqual( ( 'c_amp', { ord('&') } ), m['c_amp'] )
+    self.assertEqual( ( 'c_amp', { '&' } ), m['c_amp'] )
     self.assertEqual( ( 'c_numeric', self._NUMERIC ), m['c_numeric'] )
 
   def test_parse_union(self):
     m = btl_lexer_desc_char_map()
     self.assertEqual( self._NUMERIC, m.parse_union('c_numeric') )
-    self.assertEqual( self._NUMERIC | { ord('_') }, m.parse_union('c_numeric|c_underscore') )
-    self.assertEqual( self._NUMERIC | { ord('_') }, m.parse_union('c_numeric|_') )
+    self.assertEqual( self._NUMERIC | { '_' }, m.parse_union('c_numeric|c_underscore') )
+    self.assertEqual( self._NUMERIC | { '_' }, m.parse_union('c_numeric|_') )
+    self.assertEqual( { '&' }, m.parse_union('&') )
+    self.assertEqual( { '^' }, m.parse_union('^') )
+    self.assertEqual( { '&', '^' }, m.parse_union('&|^') )
+    self.assertEqual( { '&', '^' }, m.parse_union('^|&') )
 
   def test_parse_union_unknown_char(self):
     m = btl_lexer_desc_char_map()
@@ -32,23 +36,23 @@ class test_test_btl_lexer_desc_char_map(unit_test):
 
   def test_add(self):
     m = btl_lexer_desc_char_map()
-    m.add(btl_lexer_desc_char('kiwi', [ 65, 66 ]))
-    m.add(btl_lexer_desc_char('lemon', [ 67, 68 ]))
-    print(m.to_json())
+    m.add(btl_lexer_desc_char('kiwi', { 'A', 'B' }))
+    m.add(btl_lexer_desc_char('lemon', { 'C', 'D' }))
+    #print(m.to_json())
     self.assert_json_equal('''
 {
   "kiwi": {
     "name": "kiwi", 
     "chars": [
-      65, 
-      66
+      "A", 
+      "B" 
     ]
   }, 
   "lemon": {
     "name": "lemon", 
     "chars": [
-      67, 
-      68
+      "C", 
+      "D" 
     ]
   }
 }
@@ -60,15 +64,15 @@ class test_test_btl_lexer_desc_char_map(unit_test):
   "kiwi": {
     "name": "kiwi", 
     "chars": [
-      65, 
-      66
+      "A", 
+      "B"
     ]
   }, 
   "lemon": {
     "name": "lemon", 
     "chars": [
-      67, 
-      68
+      "C", 
+      "D"
     ]
   }
 }

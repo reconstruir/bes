@@ -140,7 +140,7 @@ class btl_lexer_base(object):
     yield self.EOS
 
   @classmethod
-  def XX_chars_plus_eos(self, text):
+  def NEW_chars_plus_eos(self, text):
     n = len(text)
     for i, c in enumerate(text):
       next_c = None
@@ -149,7 +149,7 @@ class btl_lexer_base(object):
       yielded = False
       if next_c != None:
         if c == '\r' and next_c == '\n':
-          assert False, f'text="{text}"'
+          #assert False, f'text="{text}"'
           yield '\r\n'
           yielded = True
       if not yielded:

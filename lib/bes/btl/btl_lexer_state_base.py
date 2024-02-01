@@ -29,8 +29,8 @@ class btl_lexer_state_base(object):
   def char_in(self, c, char_name):
     check.check_string(c)
     check.check_string(char_name)
-    
-    return ord(c) in self._lexer.desc.char_map[char_name].chars
+
+    return c in self._lexer.desc.char_map[char_name].chars
   
   def handle_char(self, c):
     cs = self.char_to_string(c)

@@ -14,7 +14,8 @@ class btl_lexer_desc_char_map(object):
   def __init__(self):
     self._map = {}
     for name, chars in self._BASIC_CHARS.items():
-      desc_char = btl_lexer_desc_char(name, chars)
+      chars_set = set([ c for c in chars ])
+      desc_char = btl_lexer_desc_char(name, chars_set)
       self.add(desc_char)
 
   def __str__(self):
@@ -53,8 +54,7 @@ class btl_lexer_desc_char_map(object):
         result = result | cd.chars
       else:
         if len(part) == 1:
-          v = ord(part)
-          result.add(v)
+          result.add(part)
         else:
           raise btl_error(f'Unknown char: "{part}"')
     return result
@@ -85,14 +85,12 @@ class btl_lexer_desc_char_map(object):
       assert 'chars' in char_dict
       name = char_dict['name']
       chars = char_dict['chars']
-      desc_char = btl_lexer_desc_char(name, chars)
+      chars_set = set(chars)
+      desc_char = btl_lexer_desc_char(name, chars_set)
       result.add(desc_char)
     return result
     
   _BASIC_CHARS = {
-    '&': '&',
-    '_': '_',
-    # FIXME add the rest
     'c_alpha': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
     'c_alpha_numeric': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     'c_amp': '&',

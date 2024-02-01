@@ -14,16 +14,19 @@ class btl_lexer_desc_char(namedtuple('btl_lexer_desc_char', 'name, chars')):
   
   def __new__(clazz, name, chars):
     check.check_string(name)
+    assert isinstance(chars, set)
+    check.check_set(chars, check.STRING_TYPES)
 
-    parsed_chars = clazz._parse_chars(chars)
-    if not parsed_chars:
-      raise btl_error(f'Invalid chars: {chars} - {type(chars)}')
-    return clazz.__bases__[0].__new__(clazz, name, parsed_chars)
+    for c in chars:
+      if len(c) != 1:
+        raise btl_error(f'Invalid length {len(c)} for char "{c}" instead of 1')
+    
+    return clazz.__bases__[0].__new__(clazz, name, chars)
 
   def to_dict(self):
     return {
       'name': self.name,
-      'chars': [ char for char in self.chars ],
+      'chars': sorted([ char for char in self.chars ]),
     }
   
   @classmethod
@@ -31,31 +34,14 @@ class btl_lexer_desc_char(namedtuple('btl_lexer_desc_char', 'name, chars')):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
   def __str__(self):
-    return f'{self.name}: {self.chars_as_string}'
+    return f'{self.name}: {self.chars_to_string()}'
 
   @cached_property
   def as_dict(self):
-    return {
-      'name': self.name,
-      'chars': self.chars,
-    }
+    return self.to_dict()
   
-  @cached_property
-  def chars_as_string(self):
-    x = [ chr(c) for c in self.chars ]
-    return ' '.join([ chr(c) for c in self.chars ])
-  
-  @classmethod
-  def _parse_chars(clazz, chars):
-    if check.is_string(chars):
-      return set([ ord(c) for c in chars ])
-    elif check.is_int_set(chars):
-      return chars.copy()
-    elif check.is_int_seq(chars):
-      return set(chars[:])
-    elif check.is_int(chars):
-      return set([ chars ])
-    else:
-      return None
+  def chars_to_string(self, delimiter = ''):
+    sorted_chars = sorted([ c for c in self.chars ])
+    return delimiter.join(sorted_chars)
   
 check.register_class(btl_lexer_desc_char, include_seq = False, cast_func = btl_lexer_desc_char._check_cast_func)
