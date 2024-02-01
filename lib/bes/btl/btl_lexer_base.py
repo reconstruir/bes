@@ -1,7 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import io
-import os
 
 from ..system.log import log
 from ..system.check import check
@@ -170,7 +169,6 @@ class btl_lexer_base(object):
     if type_hint:
       if type_hint == 'h_line_break':
         token_position = point(self._last_position.x + 1, self._last_position.y)
-        #buffer_value = os.linesep
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None
