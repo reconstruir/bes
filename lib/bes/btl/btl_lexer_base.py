@@ -124,7 +124,7 @@ class btl_lexer_base(object):
 
   @classmethod
   def _update_position(clazz, old_position, c):
-    if c == '\n':
+    if c in ( '\n', '\r\n' ):
       new_position = point(0, old_position.y + 1)
     else:
       new_position = point(old_position.x + 1, old_position.y)
@@ -139,6 +139,23 @@ class btl_lexer_base(object):
       yield c
     yield self.EOS
 
+  @classmethod
+  def XX_chars_plus_eos(self, text):
+    n = len(text)
+    for i, c in enumerate(text):
+      next_c = None
+      if n >= 2 and i < (n - 1):
+        next_c = text[i + 1]
+      yielded = False
+      if next_c != None:
+        if c == '\r' and next_c == '\n':
+          assert False, f'text="{text}"'
+          yield '\r\n'
+          yielded = True
+      if not yielded:
+        yield c
+    yield self.EOS
+    
   def make_token(self, name, args = None):
     check.check_string(name)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
