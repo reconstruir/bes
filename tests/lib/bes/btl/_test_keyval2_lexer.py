@@ -31,7 +31,7 @@ class _test_keyval2_lexer(btl_lexer_base):
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_expecting_key'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -62,7 +62,7 @@ class _test_keyval2_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state = 's_before_key_space'
         self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
@@ -124,7 +124,7 @@ class _test_keyval2_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state = 's_value_key_space'
         self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
@@ -162,7 +162,7 @@ class _test_keyval2_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_expecting_key'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -273,7 +273,7 @@ class _test_keyval2_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if self.char_in(c, 'c_nl'):
+      if self.char_in(c, 'c_line_break'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
@@ -359,7 +359,7 @@ states
   s_expecting_key
     c_eos: s_done
       emit t_done
-    c_nl: s_expecting_key
+    c_line_break: s_expecting_key
       buffer write
       emit t_line_break
       buffer reset
@@ -373,7 +373,7 @@ states
   s_before_key_space
     c_ws: s_before_key_space
       buffer write
-    c_nl: s_expecting_key
+    c_line_break: s_expecting_key
       emit t_space
       buffer reset
       buffer write
@@ -403,7 +403,7 @@ states
   s_before_value_space
     c_ws: s_value_key_space
       buffer write
-    c_nl: s_expecting_key
+    c_line_break: s_expecting_key
       emit t_space
       buffer reset
       emit t_line_break
@@ -423,7 +423,7 @@ states
       buffer write
     c_eos: s_done
       emit t_done
-    c_nl: s_expecting_key
+    c_line_break: s_expecting_key
       buffer write
       emit t_line_break
       buffer reset
@@ -460,7 +460,7 @@ states
       buffer write
       
   s_value
-    c_nl: s_expecting_key
+    c_line_break: s_expecting_key
       emit t_value
       buffer reset
       buffer write

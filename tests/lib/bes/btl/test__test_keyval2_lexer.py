@@ -192,10 +192,7 @@ class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_multi_line(self):
-    t = self.call_tokenize(_test_keyval2_lexer, '''
-fruit=kiwi
-color=green
-''', 
+    t = self.call_tokenize(_test_keyval2_lexer, '''\nfruit=kiwi\ncolor=green\n''', 
       [
         ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
@@ -206,6 +203,23 @@ color=green
         ( 't_equal', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 3 ), 'h_line_break' ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def test_multi_line_crlf(self):
+    t = self.call_tokenize(_test_keyval2_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n''', 
+      [
+        ( 't_line_break', '｢CR｣｢NL｣', ( 1, 1 ), 'h_line_break' ),
+        ( 't_key', 'fruit', ( 1, 2 ), None ),
+        ( 't_equal', '=', ( 6, 2 ), None ),
+        ( 't_value', 'kiwi', ( 7, 2 ), None ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 11, 2 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 3 ), None ),
+        ( 't_equal', '=', ( 6, 3 ), None ),
+        ( 't_value', 'green', ( 7, 3 ), None ),
+        ( 't_line_break', '｢CR｣｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
