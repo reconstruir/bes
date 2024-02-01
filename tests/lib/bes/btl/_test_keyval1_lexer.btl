@@ -32,7 +32,9 @@ states
     c_eos: s_done
       emit t_done
     c_nl: s_expecting_key
+      buffer write
       emit t_line_break
+      buffer reset
     c_ws: s_expecting_key
       emit t_space 
     c_keyval_key_first: s_key
@@ -61,7 +63,9 @@ states
     c_nl: s_expecting_key
       emit t_value
       buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_eos: s_done
       emit t_value
       buffer reset

@@ -112,9 +112,10 @@ class btl_lexer_base(object):
       self._position = self._update_position(self._position, c)
       attrs = self._state._make_log_attributes(c)
       self.log_d(f'lexer: loop: {attrs} position={self._position}')
+      old_state_name = self._state.name
       tokens = self._state.handle_char(c)
       for token in tokens:
-        self.log_d(f'lexer: run: new token: {token}')
+        self.log_d(f'lexer: run: new token in state {old_state_name}: {token.to_debug_str()}')
         yield token
       self._last_char = c
       self._last_position = self._position
@@ -169,7 +170,7 @@ class btl_lexer_base(object):
     if type_hint:
       if type_hint == 'h_line_break':
         token_position = point(self._last_position.x + 1, self._last_position.y)
-        buffer_value = os.linesep
+        #buffer_value = os.linesep
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None

@@ -107,6 +107,7 @@ states
     c_cr: s_crlf_line_break
       buffer write
     c_nl: s_start
+      buffer reset
       buffer write
       emit t_line_break
       buffer reset
@@ -145,6 +146,7 @@ states
     c_nl: s_start
       emit t_space
       buffer reset
+      buffer write
       emit t_line_break
     c_keyval_key_first: s_key
       emit t_space
@@ -173,6 +175,7 @@ states
     c_nl: s_start
       emit t_space
       buffer reset
+      buffer write
       emit t_line_break
     c_keyval_key_first: s_value
       emit t_space
@@ -190,7 +193,7 @@ states
     c_eos: s_done
       emit t_done
     c_nl: s_start
-      buffer reset
+      buffer write
       emit t_line_break
     c_keyval_key_first: s_value
       buffer write
@@ -216,10 +219,16 @@ states
       buffer write
       
   s_value
+    c_cr: s_crlf_line_break
+      emit t_value
+      buffer reset
+      buffer write
     c_nl: s_start
       emit t_value
       buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_eos: s_done
       emit t_value
       buffer reset

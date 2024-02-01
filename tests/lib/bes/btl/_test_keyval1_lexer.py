@@ -33,7 +33,9 @@ class _test_keyval1_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', args = {}))
@@ -108,7 +110,9 @@ class _test_keyval1_lexer(btl_lexer_base):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_value', args = {}))
@@ -183,7 +187,9 @@ states
     c_eos: s_done
       emit t_done
     c_nl: s_expecting_key
+      buffer write
       emit t_line_break
+      buffer reset
     c_ws: s_expecting_key
       emit t_space 
     c_keyval_key_first: s_key
@@ -212,7 +218,9 @@ states
     c_nl: s_expecting_key
       emit t_value
       buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_eos: s_done
       emit t_value
       buffer reset

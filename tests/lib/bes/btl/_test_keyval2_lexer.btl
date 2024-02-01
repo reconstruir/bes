@@ -32,7 +32,9 @@ states
     c_eos: s_done
       emit t_done
     c_nl: s_expecting_key
+      buffer write
       emit t_line_break
+      buffer reset
     c_ws: s_before_key_space
       buffer write
     c_keyval_key_first: s_key
@@ -46,7 +48,9 @@ states
     c_nl: s_expecting_key
       emit t_space
       buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_keyval_key_first: s_key
       emit t_space
       buffer reset
@@ -75,6 +79,7 @@ states
       emit t_space
       buffer reset
       emit t_line_break
+      buffer reset
     c_keyval_key_first: s_value
       emit t_space
       buffer reset
@@ -91,8 +96,9 @@ states
     c_eos: s_done
       emit t_done
     c_nl: s_expecting_key
-      buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_keyval_key_first: s_value
       buffer write
     default: s_value
@@ -129,7 +135,9 @@ states
     c_nl: s_expecting_key
       emit t_value
       buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_eos: s_done
       emit t_value
       buffer reset

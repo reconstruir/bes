@@ -14,12 +14,12 @@ class btl_lexer_tester_mixin:
     expected_tokens = btl_lexer_token_deque(expected)
     expected_json = btl_lexer_token_deque(expected).to_json()
 
-    expected_string = '\n'.join([ self._token_to_str(token) for token in expected_tokens ])
-    actual_string = '\n'.join([ self._token_to_str(token) for token in actual_tokens ])
+    expected_string = '\n'.join([ token.to_debug_str() for token in expected_tokens ])
+    actual_string = '\n'.join([ token.to_debug_str() for token in actual_tokens ])
 
     if self.DEBUG:
       for i, token in enumerate(actual_tokens, start = 1):
-        ts = self._token_to_str(token)
+        ts = token.to_debug_str()
         print(f'{i}: {ts}', flush = True)
 
     return self._test_result(expected_string,
@@ -28,24 +28,3 @@ class btl_lexer_tester_mixin:
                              actual_tokens.to_source_string(),
                              expected_tokens,
                              actual_tokens)
-  
-  @classmethod
-  def _token_to_str(clazz, token):
-    escaped_value = clazz._escape_value(token.value)
-    escaped_token = token.clone(mutations = { 'value': escaped_value })
-    return str(escaped_token)
-
-  _char_map = {
-    '\n': '｢NL｣',
-    '\r': '｢CR｣',
-    '\t': '｢TAB｣',
-    ' ': '｢SP｣',
-  }
-  @classmethod
-  def _escape_value(clazz, s):
-    if s == None:
-      return None
-    for c in s:
-      for key, value in clazz._char_map.items():
-        s = s.replace(key, value)
-    return s

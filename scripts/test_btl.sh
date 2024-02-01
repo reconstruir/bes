@@ -54,7 +54,7 @@ function main()
   local _bes_log="${_log_tag}=debug format=brief"
   local _bes_test=$(bes_path_abs_file $(_test_btl_this_dir)/../bin/bes_test.py)
   #echo _bes_log=${_bes_log}
-  
+
   DEBUG=1 BES_LOG="${_bes_log}" ${_bes_test} --dont-hack-env ${_test_filename} ${_test_function_arg} >& ${_log}
   local _test_rv=$?
   if [[ ${_test_rv} != 0 ]]; then

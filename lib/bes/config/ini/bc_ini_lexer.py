@@ -176,6 +176,7 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_write(c)
       elif self.char_in(c, 'c_nl'):
         new_state = 's_start'
+        self.buffer_reset()
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
         self.buffer_reset()
@@ -248,6 +249,7 @@ class bc_ini_lexer(btl_lexer_base):
         new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
@@ -308,6 +310,7 @@ class bc_ini_lexer(btl_lexer_base):
         new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_value'
@@ -343,7 +346,7 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_start'
-        self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_value'
@@ -400,11 +403,18 @@ class bc_ini_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if self.char_in(c, 'c_nl'):
+      if self.char_in(c, 'c_cr'):
+        new_state = 's_crlf_line_break'
+        tokens.append(self.make_token('t_value', args = {}))
+        self.buffer_reset()
+        self.buffer_write(c)
+      elif self.char_in(c, 'c_nl'):
         new_state = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_value', args = {}))
@@ -562,6 +572,7 @@ states
     c_cr: s_crlf_line_break
       buffer write
     c_nl: s_start
+      buffer reset
       buffer write
       emit t_line_break
       buffer reset
@@ -600,6 +611,7 @@ states
     c_nl: s_start
       emit t_space
       buffer reset
+      buffer write
       emit t_line_break
     c_keyval_key_first: s_key
       emit t_space
@@ -628,6 +640,7 @@ states
     c_nl: s_start
       emit t_space
       buffer reset
+      buffer write
       emit t_line_break
     c_keyval_key_first: s_value
       emit t_space
@@ -645,7 +658,7 @@ states
     c_eos: s_done
       emit t_done
     c_nl: s_start
-      buffer reset
+      buffer write
       emit t_line_break
     c_keyval_key_first: s_value
       buffer write
@@ -671,10 +684,16 @@ states
       buffer write
       
   s_value
+    c_cr: s_crlf_line_break
+      emit t_value
+      buffer reset
+      buffer write
     c_nl: s_start
       emit t_value
       buffer reset
+      buffer write
       emit t_line_break
+      buffer reset
     c_eos: s_done
       emit t_value
       buffer reset

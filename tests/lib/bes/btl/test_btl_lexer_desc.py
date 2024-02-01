@@ -143,7 +143,10 @@ if __name__ == '__main__':
 
   def test_to_json(self):
     desc = btl_lexer_desc.parse_text(self._keyval1_desc_text)
-    self.assert_json_equal( self._DESC_JSON, desc.to_json() )
+    actual = desc.to_json()
+    #print(actual)
+    #return
+    self.assert_json_equal( self._DESC_JSON, actual )
 
   @cached_class_property
   def _EXPECTED_CODE(clazz):
@@ -184,7 +187,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', args = {}))
@@ -259,7 +264,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_value', args = {}))
@@ -300,7 +307,83 @@ class _fruit_kiwi_lexer(btl_lexer_base):
     }
     super().__init__(log_tag, desc_text, token, states, source = source)
   _DESC_TEXT = """
-@@@_DESC_TEXT@@@
+#BTL
+#
+# Key Value pair lexer
+#
+lexer
+  name: keyval
+  description: A Key Value pair lexer
+  version: 1.0
+  start_state: s_expecting_key
+  end_state: s_done
+
+tokens
+  t_done
+    type_hint: h_done
+  t_equal
+  t_key
+  t_line_break
+    type_hint: h_line_break
+  t_space
+  t_value
+
+errors
+  unexpected_char: In state {state} unexpected character {char} instead of key
+
+chars
+  c_keyval_key_first: c_underscore | c_alpha
+  c_keyval_key: c_keyval_key_first | c_numeric
+
+states
+
+  s_expecting_key
+    c_eos: s_done
+      emit t_done
+    c_nl: s_expecting_key
+      buffer write
+      emit t_line_break
+      buffer reset
+    c_ws: s_expecting_key
+      emit t_space 
+    c_keyval_key_first: s_key
+      buffer write
+    default: s_expecting_key_error
+      raise unexpected_char
+      
+  s_expecting_key_error
+    default: s_done
+    
+  s_key
+    c_keyval_key: s_key
+      buffer write
+    c_equal: s_value
+      emit t_key
+      buffer reset
+      buffer write
+      emit t_equal
+      buffer reset
+    c_eos: s_done
+      emit t_key
+      buffer reset
+      emit t_done
+      
+  s_value
+    c_nl: s_expecting_key
+      emit t_value
+      buffer reset
+      buffer write
+      emit t_line_break
+      buffer reset
+    c_eos: s_done
+      emit t_value
+      buffer reset
+      emit t_done
+    default: s_value
+      buffer write
+      
+  s_done
+
 """
 check.register_class(_fruit_kiwi_lexer, include_seq = False)
 '''
@@ -498,8 +581,18 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_nl", 
           "commands": [
             {
+              "name": "buffer", 
+              "command": "write", 
+              "args": {}
+            }, 
+            {
               "name": "emit", 
               "command": "t_line_break", 
+              "args": {}
+            }, 
+            {
+              "name": "buffer", 
+              "command": "reset", 
               "args": {}
             }
           ]
@@ -638,8 +731,18 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
               "args": {}
             }, 
             {
+              "name": "buffer", 
+              "command": "write", 
+              "args": {}
+            }, 
+            {
               "name": "emit", 
               "command": "t_line_break", 
+              "args": {}
+            }, 
+            {
+              "name": "buffer", 
+              "command": "reset", 
               "args": {}
             }
           ]
