@@ -5,12 +5,12 @@ from os import path
 from ..system.check import check
 from ..common.type_checked_list import type_checked_list
 
-from .btl_desc_state import btl_desc_state
+from .btl_lexer_desc_state import btl_lexer_desc_state
 from .btl_parsing import btl_parsing
 
-class btl_desc_state_list(type_checked_list):
+class btl_lexer_desc_state_list(type_checked_list):
 
-  __value_type__ = btl_desc_state
+  __value_type__ = btl_lexer_desc_state
   
   def __init__(self, values = None):
     super().__init__(values = values)
@@ -28,19 +28,19 @@ class btl_desc_state_list(type_checked_list):
     check.check_string(source)
     check.check_string(end_state)
 
-    result = btl_desc_state_list()
+    result = btl_lexer_desc_state_list()
     if not n:
       return result
     for child in n.children:
-      next_desc_state = btl_desc_state.parse_node(child, end_state, source = source)
+      next_desc_state = btl_lexer_desc_state.parse_node(child, end_state, source = source)
       result.append(next_desc_state)
     return result
 
   def generate_code(self, buf, char_map):
     check.check_btl_code_gen_buffer(buf)
-    check.check_btl_desc_char_map(char_map)
+    check.check_btl_lexer_desc_char_map(char_map)
 
     for state in self:
       state.generate_code(buf, char_map)
   
-btl_desc_state_list.register_check_class()  
+btl_lexer_desc_state_list.register_check_class()  

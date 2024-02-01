@@ -10,29 +10,29 @@ from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.text.text_line_parser import text_line_parser
 
-from bes.btl.btl_desc import btl_desc
-from bes.btl.btl_desc_char import btl_desc_char
-from bes.btl.btl_desc_char_map import btl_desc_char_map
-from bes.btl.btl_desc_char_map import btl_desc_char_map
-from bes.btl.btl_desc_state import btl_desc_state
-from bes.btl.btl_desc_state_command import btl_desc_state_command
-from bes.btl.btl_desc_state_transition import btl_desc_state_transition
+from bes.btl.btl_lexer_desc import btl_lexer_desc
+from bes.btl.btl_lexer_desc_char import btl_lexer_desc_char
+from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
+from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
+from bes.btl.btl_lexer_desc_state import btl_lexer_desc_state
+from bes.btl.btl_lexer_desc_state_command import btl_lexer_desc_state_command
+from bes.btl.btl_lexer_desc_state_transition import btl_lexer_desc_state_transition
 from bes.btl.btl_error import btl_error
 
 from _test_desc_mixin import _test_desc_mixin
 
-class test_btl_desc(_test_desc_mixin, unit_test):
+class test_btl_lexer_desc(_test_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    #print(btl_desc.parse_text(self._keyval1_desc_text).to_json())
+    #print(btl_lexer_desc.parse_text(self._keyval1_desc_text).to_json())
     #return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
-      btl_desc.parse_text(self._keyval1_desc_text).to_json()
+      btl_lexer_desc.parse_text(self._keyval1_desc_text).to_json()
     )
 
   def test_to_mermaid_diagram(self):
-    #print(btl_desc.parse_text(self._keyval1_desc_text).to_mermaid_diagram())
+    #print(btl_lexer_desc.parse_text(self._keyval1_desc_text).to_mermaid_diagram())
     #return
     self.assertEqual( '''\
 stateDiagram-v2
@@ -61,10 +61,10 @@ stateDiagram-v2
 
   %% s_done state
   s_done --> [*]
-''', btl_desc.parse_text(self._keyval1_desc_text).to_mermaid_diagram() )
+''', btl_lexer_desc.parse_text(self._keyval1_desc_text).to_mermaid_diagram() )
 
   def test_generate_code(self):
-    desc = btl_desc.parse_text(self._keyval1_desc_text)
+    desc = btl_lexer_desc.parse_text(self._keyval1_desc_text)
     actual = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     #print(actual)
     #return
@@ -72,7 +72,7 @@ stateDiagram-v2
 
   def test_write_code(self):
     tmp = self.make_temp_file(suffix = '.py')
-    desc = btl_desc.parse_text(self._keyval1_desc_text)
+    desc = btl_lexer_desc.parse_text(self._keyval1_desc_text)
     desc.write_code(tmp, '_fruit', 'kiwi_lexer')
 
     self.assert_code_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
@@ -84,7 +84,7 @@ stateDiagram-v2
     return str(p)
       
   def test_use_code(self):
-    desc = btl_desc.parse_text(self._keyval1_desc_text)
+    desc = btl_lexer_desc.parse_text(self._keyval1_desc_text)
     lexer_code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     use_code = '''
 import unittest
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     self.assertEqual( 0, rv.exit_code )
 
   def test_to_json(self):
-    desc = btl_desc.parse_text(self._keyval1_desc_text)
+    desc = btl_lexer_desc.parse_text(self._keyval1_desc_text)
     self.assert_json_equal( self._DESC_JSON, desc.to_json() )
 
   @cached_class_property
@@ -703,7 +703,7 @@ chars
   test_plus: +
   test_operator: test_plus | test_minus
 '''
-    desc = btl_desc.parse_text(desc_text)
+    desc = btl_lexer_desc.parse_text(desc_text)
     
 if __name__ == '__main__':
   unit_test.main()

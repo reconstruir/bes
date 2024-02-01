@@ -8,7 +8,7 @@ from ..property.cached_property import cached_property
 
 from .btl_parsing import btl_parsing
 
-class btl_desc_token(namedtuple('btl_desc_token', 'name, args')):
+class btl_lexer_desc_token(namedtuple('btl_lexer_desc_token', 'name, args')):
   
   def __new__(clazz, name, args):
     check.check_string(name)
@@ -33,11 +33,11 @@ class btl_desc_token(namedtuple('btl_desc_token', 'name, args')):
     for child in n.children:
       key, value = btl_parsing.parse_key_value(child, source)
       args[key] = value
-    return btl_desc_token(name, args)
+    return btl_lexer_desc_token(name, args)
 
   def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
 
     buf.write_line(f'{self.name_upper} = \'{self.name}\'')
     
-check.register_class(btl_desc_token, include_seq = False)
+check.register_class(btl_lexer_desc_token, include_seq = False)

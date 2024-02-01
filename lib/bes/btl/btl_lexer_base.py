@@ -7,7 +7,7 @@ from ..system.log import log
 from ..system.check import check
 from ..common.point import point
 
-from .btl_desc import btl_desc
+from .btl_lexer_desc import btl_lexer_desc
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
@@ -24,7 +24,7 @@ class btl_lexer_base(object):
     self._log_tag = log_tag
     log.add_logging(self, tag = self._log_tag)
     self._source = source or '<unknown>'
-    self._desc = btl_desc.parse_text(desc_text, source = self._source)
+    self._desc = btl_lexer_desc.parse_text(desc_text, source = self._source)
     self._token = token
     self._states = states
     self._buffer = None

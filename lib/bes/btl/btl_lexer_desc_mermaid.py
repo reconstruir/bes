@@ -6,11 +6,11 @@ import os
 from ..system.check import check
 from ..text.bindent import bindent
 
-class btl_desc_mermaid(object):
+class btl_lexer_desc_mermaid(object):
 
   @classmethod
   def desc_to_mermain_diagram(clazz, desc):
-    check.check_btl_desc(desc)
+    check.check_btl_lexer_desc(desc)
     
     b = io.StringIO()
     b.write('stateDiagram-v2' + os.linesep)

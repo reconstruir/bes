@@ -10,7 +10,7 @@ from ..version.semantic_version import semantic_version
 
 from .btl_error import btl_error
 
-class btl_desc_char(namedtuple('btl_desc_char', 'name, chars')):
+class btl_lexer_desc_char(namedtuple('btl_lexer_desc_char', 'name, chars')):
   
   def __new__(clazz, name, chars):
     check.check_string(name)
@@ -58,4 +58,4 @@ class btl_desc_char(namedtuple('btl_desc_char', 'name, chars')):
     else:
       return None
   
-check.register_class(btl_desc_char, include_seq = False, cast_func = btl_desc_char._check_cast_func)
+check.register_class(btl_lexer_desc_char, include_seq = False, cast_func = btl_lexer_desc_char._check_cast_func)

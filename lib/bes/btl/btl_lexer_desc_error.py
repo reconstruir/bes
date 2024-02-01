@@ -7,7 +7,7 @@ from ..version.semantic_version import semantic_version
 
 from .btl_parsing import btl_parsing
 
-class btl_desc_error(namedtuple('btl_desc_error', 'name, message')):
+class btl_lexer_desc_error(namedtuple('btl_lexer_desc_error', 'name, message')):
   
   def __new__(clazz, name, message):
     check.check_string(name)
@@ -24,6 +24,6 @@ class btl_desc_error(namedtuple('btl_desc_error', 'name, message')):
 
     return btl_parsing.parse_key_value(n,
                                        source,
-                                       result_class = btl_desc_error)
+                                       result_class = btl_lexer_desc_error)
   
-check.register_class(btl_desc_error)
+check.register_class(btl_lexer_desc_error)

@@ -5,11 +5,11 @@ from os import path
 from ..system.check import check
 from ..common.type_checked_list import type_checked_list
 
-from .btl_desc_char import btl_desc_char
+from .btl_lexer_desc_char import btl_lexer_desc_char
 
-class btl_desc_char_list(type_checked_list):
+class btl_lexer_desc_char_list(type_checked_list):
 
-  __value_type__ = btl_desc_char
+  __value_type__ = btl_lexer_desc_char
   
   def __init__(self, values = None):
     super().__init__(values = values)
@@ -21,4 +21,4 @@ class btl_desc_char_list(type_checked_list):
       result.append(char_dict)
     return result
     
-check.register_class(btl_desc_char_list, include_seq = False)
+check.register_class(btl_lexer_desc_char_list, include_seq = False)

@@ -9,14 +9,14 @@ from ..version.semantic_version import semantic_version
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-from .btl_desc_state_command_list import btl_desc_state_command_list
+from .btl_lexer_desc_state_command_list import btl_lexer_desc_state_command_list
 
-class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_state, char_name, commands')):
+class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transition', 'to_state, char_name, commands')):
   
   def __new__(clazz, to_state, char_name, commands):
     check.check_string(to_state)
     check.check_string(char_name)
-    commands = check.check_btl_desc_state_command_list(commands)
+    commands = check.check_btl_lexer_desc_state_command_list(commands)
     return clazz.__bases__[0].__new__(clazz, to_state, char_name, commands)
 
   def to_dict(self):
@@ -31,12 +31,12 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
     check.check_node(n)
 
     char_name, to_state = btl_parsing.parse_key_value(n, source, delimiter = ':')
-    commands = btl_desc_state_command_list.parse_node(n, source = source)
-    return btl_desc_state_transition(to_state, char_name, commands)
+    commands = btl_lexer_desc_state_command_list.parse_node(n, source = source)
+    return btl_lexer_desc_state_transition(to_state, char_name, commands)
 
   def generate_code(self, buf, char_map, index, total):
     check.check_btl_code_gen_buffer(buf)
-    check.check_btl_desc_char_map(char_map)
+    check.check_btl_lexer_desc_char_map(char_map)
     check.check_int(index)
     check.check_int(total)
 
@@ -57,4 +57,4 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
       buf.write_line(f'new_state = \'{self.to_state}\'')
       self.commands.generate_code(buf)
   
-check.register_class(btl_desc_state_transition, include_seq = False)
+check.register_class(btl_lexer_desc_state_transition, include_seq = False)

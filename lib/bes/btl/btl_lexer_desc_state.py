@@ -8,15 +8,15 @@ from ..version.semantic_version import semantic_version
 
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
-from .btl_desc_state_transition_list import btl_desc_state_transition_list
+from .btl_lexer_desc_state_transition_list import btl_lexer_desc_state_transition_list
 
-class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions, is_end_state')):
+class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions, is_end_state')):
   
   def __new__(clazz, name, transitions, is_end_state):
     check.check_string(name)
     check.check_bool(is_end_state)
     
-    transitions = check.check_btl_desc_state_transition_list(transitions)
+    transitions = check.check_btl_lexer_desc_state_transition_list(transitions)
     return clazz.__bases__[0].__new__(clazz, name, transitions, is_end_state)
 
   def to_dict(self):
@@ -32,12 +32,12 @@ class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions, is_end_sta
     check.check_string(end_state)
 
     name = n.data.text.strip()
-    transitions = btl_desc_state_transition_list.parse_node(n, source = source)
-    return btl_desc_state(name, transitions, name == end_state)
+    transitions = btl_lexer_desc_state_transition_list.parse_node(n, source = source)
+    return btl_lexer_desc_state(name, transitions, name == end_state)
 
   def generate_code(self, buf, char_map):
     check.check_btl_code_gen_buffer(buf)
-    check.check_btl_desc_char_map(char_map)
+    check.check_btl_lexer_desc_char_map(char_map)
 
     buf.write_lines(f'''
 class _state_{self.name}(btl_lexer_state_base):
@@ -60,4 +60,4 @@ self.lexer.change_state(new_state, c)
 return tokens
 ''')
   
-check.register_class(btl_desc_state, include_seq = False)
+check.register_class(btl_lexer_desc_state, include_seq = False)

@@ -34,7 +34,7 @@ class _test_desc_mixin:
   def _keyval1_desc_tree(clazz):
     return tree_text_parser.parse(clazz._keyval1_desc_text,
                                   strip_comments = True,
-                                  root_name = 'btl_desc')
+                                  root_name = 'btl_lexer_desc')
 
   @classmethod
   def _keyval1_desc_tree_section(clazz, section_name):

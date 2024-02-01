@@ -9,7 +9,7 @@ from ..version.semantic_version import semantic_version
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-class btl_desc_header(namedtuple('btl_desc_header', 'name, description, version, start_state, end_state')):
+class btl_lexer_desc_header(namedtuple('btl_lexer_desc_header', 'name, description, version, start_state, end_state')):
   
   def __new__(clazz, name, description, version, start_state, end_state):
     check.check_string(name)
@@ -43,6 +43,6 @@ class btl_desc_header(namedtuple('btl_desc_header', 'name, description, version,
     for key, value in d.items():
       if value == None:
         raise btl_error(f'Missing key "{key}" at {source}:{n.data.line_number}')
-    return btl_desc_header(*[ item[1] for item in d.items() ])
+    return btl_lexer_desc_header(*[ item[1] for item in d.items() ])
 
-check.register_class(btl_desc_header)
+check.register_class(btl_lexer_desc_header)

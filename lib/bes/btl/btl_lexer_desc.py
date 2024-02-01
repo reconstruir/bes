@@ -10,24 +10,24 @@ from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
 
 from .btl_code_gen_buffer import btl_code_gen_buffer
-from .btl_desc_char import btl_desc_char
-from .btl_desc_char_map import btl_desc_char_map
-from .btl_desc_error_list import btl_desc_error_list
-from .btl_desc_header import btl_desc_header
-from .btl_desc_mermaid import btl_desc_mermaid
-from .btl_desc_state_list import btl_desc_state_list
-from .btl_desc_token_list import btl_desc_token_list
+from .btl_lexer_desc_char import btl_lexer_desc_char
+from .btl_lexer_desc_char_map import btl_lexer_desc_char_map
+from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
+from .btl_lexer_desc_header import btl_lexer_desc_header
+from .btl_lexer_desc_mermaid import btl_lexer_desc_mermaid
+from .btl_lexer_desc_state_list import btl_lexer_desc_state_list
+from .btl_lexer_desc_token_list import btl_lexer_desc_token_list
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states, source_text')):
+class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_map, states, source_text')):
   
   def __new__(clazz, header, tokens, errors, char_map, states, source_text = None):
-    header = check.check_btl_desc_header(header)
-    tokens = check.check_btl_desc_token_list(tokens)
-    errors = check.check_btl_desc_error_list(errors)
-    check.check_btl_desc_char_map(char_map)
-    states = check.check_btl_desc_state_list(states)
+    header = check.check_btl_lexer_desc_header(header)
+    tokens = check.check_btl_lexer_desc_token_list(tokens)
+    errors = check.check_btl_lexer_desc_error_list(errors)
+    check.check_btl_lexer_desc_char_map(char_map)
+    states = check.check_btl_lexer_desc_state_list(states)
     check.check_string(source_text, allow_none = True)
 
     source_text = source_text or ''
@@ -46,11 +46,11 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
 
   def to_mermaid_diagram(self):
-    return btl_desc_mermaid.desc_to_mermain_diagram(self)
+    return btl_lexer_desc_mermaid.desc_to_mermain_diagram(self)
   
   @classmethod
   def _parse_char_map(clazz, n, source):
-    result = btl_desc_char_map()
+    result = btl_lexer_desc_char_map()
     for child in n.children:
       name, chars = btl_parsing.parse_key_value(child, source)
       result.parse_and_add(name, chars)
@@ -61,29 +61,29 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     check.check_string(text)
     check.check_string(source)
 
-    root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_desc')
+    root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_lexer_desc')
 
     lexer_node = clazz._find_section(root, 'lexer', source)
-    header = btl_desc_header.parse_node(lexer_node, source)
+    header = btl_lexer_desc_header.parse_node(lexer_node, source)
     #print(header)
 
     tokens_node = clazz._find_section(root, 'tokens', source, raise_error = False)
-    tokens = btl_desc_token_list.parse_node(tokens_node, source)
+    tokens = btl_lexer_desc_token_list.parse_node(tokens_node, source)
     #print(tokens)
 
     errors_node = clazz._find_section(root, 'errors', source, raise_error = False)
-    errors = btl_desc_error_list.parse_node(errors_node, source)
+    errors = btl_lexer_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
     states_node = clazz._find_section(root, 'states', source, raise_error = False)
-    states = btl_desc_state_list.parse_node(states_node, source, header.end_state)
+    states = btl_lexer_desc_state_list.parse_node(states_node, source, header.end_state)
     #print(states)
 
     chars_node = clazz._find_section(root, 'chars', source)
     char_map = clazz._parse_char_map(chars_node, source)
     #print(char_map)
     
-    return btl_desc(header, tokens, errors, char_map, states, source_text = text)
+    return btl_lexer_desc(header, tokens, errors, char_map, states, source_text = text)
 
   @classmethod
   def _find_section(clazz, root, name, source, raise_error = True):
@@ -154,4 +154,4 @@ from bes.system.check import check
     self.generate_code(buf, namespace, name)
     file_util.save(output_filename, content = buf.get_value())
 
-check.register_class(btl_desc, include_seq = False)
+check.register_class(btl_lexer_desc, include_seq = False)

@@ -7,14 +7,14 @@ from ..common.json_util import json_util
 from ..system.check import check
 
 from .btl_error import btl_error
-from .btl_desc_char import btl_desc_char
+from .btl_lexer_desc_char import btl_lexer_desc_char
 
-class btl_desc_char_map(object):
+class btl_lexer_desc_char_map(object):
   
   def __init__(self):
     self._map = {}
     for name, chars in self._BASIC_CHARS.items():
-      desc_char = btl_desc_char(name, chars)
+      desc_char = btl_lexer_desc_char(name, chars)
       self.add(desc_char)
 
   def __str__(self):
@@ -64,11 +64,11 @@ class btl_desc_char_map(object):
     check.check_string(chars)
 
     parsed_chars = self.parse_union(chars)
-    desc_char = btl_desc_char(name, parsed_chars)
+    desc_char = btl_lexer_desc_char(name, parsed_chars)
     self.add(desc_char)
 
   def add(self, desc_char):
-    check.check_btl_desc_char(desc_char)
+    check.check_btl_lexer_desc_char(desc_char)
 
     if desc_char.name in self._map:
       raise btl_error(f'Already in map: "{desc_char.name}"')
@@ -78,14 +78,14 @@ class btl_desc_char_map(object):
   def from_json(clazz, text):
     check.check_string(text)
 
-    result = btl_desc_char_map()
+    result = btl_lexer_desc_char_map()
     d = json.loads(text)
     for name, char_dict in d.items():
       assert 'name' in char_dict
       assert 'chars' in char_dict
       name = char_dict['name']
       chars = char_dict['chars']
-      desc_char = btl_desc_char(name, chars)
+      desc_char = btl_lexer_desc_char(name, chars)
       result.add(desc_char)
     return result
     
@@ -137,4 +137,4 @@ class btl_desc_char_map(object):
     'c_upper_letter': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     'c_ws': ' \t',
 }
-check.register_class(btl_desc_char_map)
+check.register_class(btl_lexer_desc_char_map)

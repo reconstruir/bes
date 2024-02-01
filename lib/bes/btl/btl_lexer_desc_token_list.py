@@ -8,13 +8,13 @@ from ..system.check import check
 from ..common.type_checked_list import type_checked_list
 from ..property.cached_property import cached_property
 
-from .btl_desc_token import btl_desc_token
+from .btl_lexer_desc_token import btl_lexer_desc_token
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-class btl_desc_token_list(type_checked_list):
+class btl_lexer_desc_token_list(type_checked_list):
 
-  __value_type__ = btl_desc_token
+  __value_type__ = btl_lexer_desc_token
   
   def __init__(self, values = None):
     super().__init__(values = values)
@@ -36,12 +36,12 @@ class btl_desc_token_list(type_checked_list):
     check.check_node(n, allow_none = True)
     check.check_string(source)
     
-    result = btl_desc_token_list()
+    result = btl_lexer_desc_token_list()
     if not n:
       return result
     existing = set()
     for child in n.children:
-      next_desc_token = btl_desc_token.parse_node(child, source)
+      next_desc_token = btl_lexer_desc_token.parse_node(child, source)
       if next_desc_token.name in existing:
         raise btl_error(f'Duplicate token "{next_desc_token.name}" at {source}:{child.data.line_number}')
       result.append(next_desc_token)
@@ -56,4 +56,4 @@ class btl_desc_token_list(type_checked_list):
       for token in self:
         token.generate_code(buf)
     
-btl_desc_token_list.register_check_class()
+btl_lexer_desc_token_list.register_check_class()

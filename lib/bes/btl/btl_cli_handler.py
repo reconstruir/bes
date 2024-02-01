@@ -13,7 +13,7 @@ from ..script.blurber import blurber
 from ..system.check import check
 from ..files.bf_filename import bf_filename
 
-from ..btl.btl_desc import btl_desc
+from ..btl.btl_lexer_desc import btl_lexer_desc
 from ..mermaid.mermaid_ink import mermaid_ink
 
 from .btl_cli_options import btl_cli_options
@@ -42,7 +42,7 @@ class btl_cli_handler(cli_command_handler):
     check.check_string(output_filename)
     check.check_string(output_format)
 
-    desc = btl_desc.parse_file(filename)
+    desc = btl_lexer_desc.parse_file(filename)
     mmd_content = desc.to_mermaid_diagram()
     output_bytes = mermaid_ink.img_request(mmd_content, output_format)
     with open(output_filename, 'wb') as f:
@@ -53,7 +53,7 @@ class btl_cli_handler(cli_command_handler):
     filename = file_check.check_file(filename)
     check.check_string(output_filename)
 
-    desc = btl_desc.parse_file(filename)
+    desc = btl_lexer_desc.parse_file(filename)
     with open(output_filename, 'w') as f:
       f.write(desc.to_mermaid_diagram())
     return 0
@@ -67,7 +67,7 @@ class btl_cli_handler(cli_command_handler):
     parsed_namespace, parsed_name = self._parse_code_filename(output_filename)
     namespace = namespace or parsed_namespace
     name = name or parsed_name
-    desc = btl_desc.parse_file(filename)
+    desc = btl_lexer_desc.parse_file(filename)
     desc.write_code(output_filename, namespace, name)
     return 0
 
