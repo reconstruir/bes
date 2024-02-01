@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.btl.btl_parser_token_deque import btl_parser_token_deque
-from bes.btl.btl_parser_token_lines import btl_parser_token_lines
-from bes.btl.btl_parser_token import btl_parser_token
+from bes.btl.btl_parser_node_deque import btl_parser_node_deque
+from bes.btl.btl_parser_node_lines import btl_parser_node_lines
+from bes.btl.btl_parser_node import btl_parser_node
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
 from _test_lexer_desc_mixin import _test_lexer_desc_mixin
 
-class test_btl_parser_token_lines(_test_lexer_desc_mixin, unit_test):
+class test_btl_parser_node_lines(_test_lexer_desc_mixin, unit_test):
 
   def test_to_source_string(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
     actual = lines.to_source_string()
     expected = '''
 fruit=kiwi
@@ -22,8 +22,8 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_modiy_value(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
     lines.modify_value(2, 't_value', 'watermelon')
     actual = lines.to_source_string()
     expected = '''
@@ -33,9 +33,9 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_top(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
-    new_tokens = btl_parser_token_deque([
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
+    new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
       ( 't_equal', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
@@ -51,9 +51,9 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_middle(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
-    new_tokens = btl_parser_token_deque([
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
+    new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
       ( 't_equal', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
@@ -69,9 +69,9 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_end(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
-    new_tokens = btl_parser_token_deque([
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
+    new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
       ( 't_equal', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
@@ -87,9 +87,9 @@ flavor=tart
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_end_negative_one(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
-    new_tokens = btl_parser_token_deque([
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
+    new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
       ( 't_equal', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
@@ -105,8 +105,8 @@ flavor=tart
     self.assertMultiLineEqual( expected, actual )
 
   def test_to_json(self):
-    tokens = btl_parser_token_deque.parse_json(self._JSON_TEXT)
-    lines = btl_parser_token_lines(tokens)
+    tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)
+    lines = btl_parser_node_lines(tokens)
     self.assert_json_equal( '''
 [
   {

@@ -8,8 +8,8 @@ import json
 from ..common.json_util import json_util
 from ..system.check import check
 
-from .btl_parser_token import btl_parser_token
-from .btl_parser_token_deque import btl_parser_token_deque
+from .btl_parser_node import btl_parser_node
+from .btl_parser_node_deque import btl_parser_node_deque
 
 class _lexer_token_line(object):
 
@@ -31,10 +31,10 @@ class _lexer_token_line(object):
       'tokens': self.tokens.to_dict_list(),
     }
   
-class btl_parser_token_lines(object):
+class btl_parser_node_lines(object):
 
   def __init__(self, tokens):
-    check.check_btl_parser_token_deque(tokens)
+    check.check_btl_parser_node_deque(tokens)
     
     self._lines = deque()
     self._indeces = {}
@@ -81,7 +81,7 @@ class btl_parser_token_lines(object):
     
   def insert_line(self, line_number, tokens):
     check.check_int(line_number)
-    check.check_btl_parser_token_deque(tokens)
+    check.check_btl_parser_node_deque(tokens)
     
     STATE_BEFORE_FOUND = 1
     STATE_AFTER_FOUND = 2
@@ -145,4 +145,4 @@ class btl_parser_token_lines(object):
       buf.write(token.value or '')
     return buf.getvalue()
   
-check.register_class(btl_parser_token_lines, include_seq = False)
+check.register_class(btl_parser_node_lines, include_seq = False)

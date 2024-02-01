@@ -8,8 +8,8 @@ from ..common.point import point
 
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
-from .btl_parser_token import btl_parser_token
-from .btl_parser_token_deque import btl_parser_token_deque
+from .btl_parser_node import btl_parser_node
+from .btl_parser_node_deque import btl_parser_node_deque
 
 class btl_parser_base(object):
 
@@ -132,7 +132,7 @@ class btl_parser_base(object):
     return new_position
     
   def tokenize(self, text):
-    return btl_parser_token_deque([ token for token in self.run(text) ])
+    return btl_parser_node_deque([ token for token in self.run(text) ])
     
   @classmethod
   def OLD_chars_plus_eos(self, text):
@@ -177,7 +177,7 @@ class btl_parser_base(object):
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None
-    token = btl_parser_token(name,
+    token = btl_parser_node(name,
                             value = buffer_value,
                             position = token_position,
                             type_hint = type_hint)

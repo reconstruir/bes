@@ -5,7 +5,7 @@ from ..system.log import log
 from ..system.check import check
 
 from .btl_parser_error import btl_parser_error
-from .btl_parser_token import btl_parser_token
+from .btl_parser_node import btl_parser_node
 
 class btl_parser_state_base(object):
 
@@ -65,7 +65,7 @@ class btl_parser_state_base(object):
   }
   @classmethod
   def char_to_string(clazz, c):
-    return btl_parser_token.make_debug_str(c)
+    return btl_parser_node.make_debug_str(c)
 
   def make_token(self, name, args = None):
     return self._lexer.make_token(name, args = args)

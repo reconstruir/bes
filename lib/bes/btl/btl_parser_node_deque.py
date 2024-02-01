@@ -9,9 +9,9 @@ import json
 from ..common.json_util import json_util
 from ..system.check import check
 
-from .btl_parser_token import btl_parser_token
+from .btl_parser_node import btl_parser_node
 
-class btl_parser_token_deque(object):
+class btl_parser_node_deque(object):
 
   def __init__(self, tokens = None):
     self._tokens = deque()
@@ -26,7 +26,7 @@ class btl_parser_token_deque(object):
 
 #  def __getitem__(self, subscript):
 #    result = self._tokens[subscript]
-#    if isinstance(result, btl_parser_token):
+#    if isinstance(result, btl_parser_node):
 #      return result
 #    print(type(result))
     
@@ -34,7 +34,7 @@ class btl_parser_token_deque(object):
     self._tokens = deque()
   
   def append(self, token):
-    token = check.check_btl_parser_token(token)
+    token = check.check_btl_parser_node(token)
 
     self._tokens.append(token)
 
@@ -42,7 +42,7 @@ class btl_parser_token_deque(object):
     self._tokens.extend(tokens)
 
   def prepend(self, token):
-    token = check.check_btl_parser_token(token)
+    token = check.check_btl_parser_node(token)
 
     self._tokens.appendleft(token)
 
@@ -57,7 +57,7 @@ class btl_parser_token_deque(object):
       assert token.has_position()
       line_number = token.position.y
       if not line_number in result:
-        result[line_number] = btl_parser_token_deque()
+        result[line_number] = btl_parser_node_deque()
       result[line_number].append(token)
     for line_number, line_list in result.items():
       line_list.sort_by_x()
@@ -128,9 +128,9 @@ class btl_parser_token_deque(object):
 
   @classmethod
   def parse_dict_list(clazz, l):
-    result = btl_parser_token_deque()
+    result = btl_parser_node_deque()
     for token_dict in l:
-      token = btl_parser_token.parse_dict(token_dict)
+      token = btl_parser_node.parse_dict(token_dict)
       result.append(token)
     return result
 
@@ -141,4 +141,4 @@ class btl_parser_token_deque(object):
     dict_list = json.loads(s)
     return clazz.parse_dict_list(dict_list)
   
-check.register_class(btl_parser_token_deque, include_seq = False)
+check.register_class(btl_parser_node_deque, include_seq = False)

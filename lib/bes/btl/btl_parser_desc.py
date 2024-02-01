@@ -111,7 +111,7 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, tokens, errors, cha
 
 from bes.btl.btl_parser_base import btl_parser_base
 from bes.btl.btl_parser_state_base import btl_parser_state_base
-from bes.btl.btl_parser_token import btl_parser_token
+from bes.btl.btl_parser_node import btl_parser_node
 from bes.system.check import check
 ''')
 

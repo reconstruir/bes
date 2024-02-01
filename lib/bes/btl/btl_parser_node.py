@@ -9,7 +9,7 @@ from ..common.point import point
 from ..common.tuple_util import tuple_util
 from ..system.check import check
 
-class btl_parser_token(namedtuple('btl_parser_token', 'name, value, position, type_hint')):
+class btl_parser_node(namedtuple('btl_parser_node', 'name, value, position, type_hint')):
 
   def __new__(clazz, name = None, value = None, position = point(1, 1), type_hint = None):
     check.check_string(name)
@@ -47,7 +47,7 @@ class btl_parser_token(namedtuple('btl_parser_token', 'name, value, position, ty
     value = d['value']
     position = d['position']
     type_hint = d['type_hint']
-    return btl_parser_token(name,
+    return btl_parser_node(name,
                            value,
                            point.parse_str(position) if position else None,
                            type_hint)
@@ -125,5 +125,5 @@ class btl_parser_token(namedtuple('btl_parser_token', 'name, value, position, ty
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
-check.register_class(btl_parser_token, include_seq = False, cast_func = btl_parser_token._check_cast_func)
+check.register_class(btl_parser_node, include_seq = False, cast_func = btl_parser_node._check_cast_func)
   
