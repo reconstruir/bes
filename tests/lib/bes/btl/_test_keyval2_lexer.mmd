@@ -1,48 +1,39 @@
 stateDiagram-v2
   direction LR
 
-  %% s_expecting_key state
-  [*] --> s_expecting_key
-  s_expecting_key --> s_done: c_eos
-  s_expecting_key --> s_expecting_key: c_line_break
-  s_expecting_key --> s_before_key_space: c_ws
-  s_expecting_key --> s_key: c_keyval_key_first
-  s_expecting_key --> s_expecting_key_error: default
+  %% s_start state
+  [*] --> s_start
+  s_start --> s_done: c_eos
+  s_start --> s_start: c_line_break
+  s_start --> s_before_key_space: c_ws
+  s_start --> s_key: c_keyval_key_first
+  s_start --> s_done: default
 
   %% s_before_key_space state
   s_before_key_space --> s_before_key_space: c_ws
-  s_before_key_space --> s_expecting_key: c_line_break
+  s_before_key_space --> s_start: c_line_break
   s_before_key_space --> s_key: c_keyval_key_first
-  s_before_key_space --> s_expecting_key_error: default
+  s_before_key_space --> s_done: default
 
   %% s_after_key_space state
   s_after_key_space --> s_after_key_space: c_ws
   s_after_key_space --> s_expecting_value: c_equal
   s_after_key_space --> s_done: c_eos
-  s_after_key_space --> s_expecting_equal_error: default
+  s_after_key_space --> s_done: default
 
   %% s_before_value_space state
   s_before_value_space --> s_value_key_space: c_ws
-  s_before_value_space --> s_expecting_key: c_line_break
+  s_before_value_space --> s_start: c_line_break
   s_before_value_space --> s_value: c_keyval_key_first
   s_before_value_space --> s_done: c_eos
-  s_before_value_space --> s_expecting_value_error: default
+  s_before_value_space --> s_done: default
 
   %% s_expecting_value state
   s_expecting_value --> s_before_value_space: c_ws
   s_expecting_value --> s_done: c_eos
-  s_expecting_value --> s_expecting_key: c_line_break
+  s_expecting_value --> s_start: c_line_break
   s_expecting_value --> s_value: c_keyval_key_first
-  s_expecting_value --> s_value: default
-
-  %% s_expecting_key_error state
-  s_expecting_key_error --> s_done: default
-
-  %% s_expecting_equal_error state
-  s_expecting_equal_error --> s_done: default
-
-  %% s_expecting_value_error state
-  s_expecting_value_error --> s_done: default
+  s_expecting_value --> s_done: default
 
   %% s_key state
   s_key --> s_key: c_keyval_key
@@ -51,7 +42,7 @@ stateDiagram-v2
   s_key --> s_after_key_space: c_ws
 
   %% s_value state
-  s_value --> s_expecting_key: c_line_break
+  s_value --> s_start: c_line_break
   s_value --> s_done: c_eos
   s_value --> s_value: default
 
