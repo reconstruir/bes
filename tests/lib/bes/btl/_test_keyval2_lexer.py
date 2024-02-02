@@ -314,7 +314,7 @@ states
     c_keyval_key_first: s_key
       buffer write
     default: s_done
-      raise e_unexpected_char
+      error e_unexpected_char
 
   s_before_key_space
     c_ws: s_before_key_space
@@ -330,7 +330,7 @@ states
       buffer reset
       buffer write
     default: s_done
-      raise e_unexpected_char
+      error e_unexpected_char
 
   s_after_key_space
     c_ws: s_after_key_space
@@ -344,7 +344,7 @@ states
     c_eos: s_done
       emit t_done
     default: s_done
-      raise e_unexpected_char
+      error e_unexpected_char
 
   s_before_value_space
     c_ws: s_value_key_space
@@ -362,7 +362,7 @@ states
       emit t_space
       emit t_done
     default: s_done
-      raise e_unexpected_char
+      error e_unexpected_char
 
   s_expecting_value
     c_ws: s_before_value_space
@@ -376,7 +376,7 @@ states
     c_keyval_key_first: s_value
       buffer write
     default: s_done
-      raise e_unexpected_char
+      error e_unexpected_char
 
   s_key
     c_keyval_key: s_key

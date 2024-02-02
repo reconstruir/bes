@@ -10,6 +10,9 @@ from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.text.text_line_parser import text_line_parser
 
+from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
+from bes.btl.btl_error import btl_error
+from bes.btl.btl_lexer_error import btl_lexer_error
 from bes.btl.btl_lexer_desc import btl_lexer_desc
 from bes.btl.btl_lexer_desc_char import btl_lexer_desc_char
 from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
@@ -17,7 +20,6 @@ from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from bes.btl.btl_lexer_desc_state import btl_lexer_desc_state
 from bes.btl.btl_lexer_desc_state_command import btl_lexer_desc_state_command
 from bes.btl.btl_lexer_desc_state_transition import btl_lexer_desc_state_transition
-from bes.btl.btl_error import btl_error
 
 from _test_lexer_desc_mixin import _test_lexer_desc_mixin
 
@@ -807,6 +809,29 @@ chars
   test_operator: test_plus | test_minus
 '''
     desc = btl_lexer_desc.parse_text(desc_text)
+
+  def test_invalild_command_name(self):
+    desc_text = '''#BTL
+lexer
+  name: test_lexer
+  description: A test lexer
+  version: 1.0
+  start_state: start
+  end_state: end
+
+states
+
+  s_start
+    c_eos: s_done
+      buffer notgood
+    default: s_done
+      error e_unexpected_char
+'''
+    desc = btl_lexer_desc.parse_text(desc_text)
+    buf = btl_code_gen_buffer()
+    with self.assertRaises(btl_lexer_error) as ctx:
+      desc.generate_code(buf, 'fruit', 'kiwi')
+    self.assertEqual( 'Unknown command action: "notgood"', ctx.exception.message )
     
 if __name__ == '__main__':
   unit_test.main()

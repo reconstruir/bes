@@ -6,15 +6,16 @@ from ..system.check import check
 from ..common.string_util import string_util
 
 from .btl_parsing import btl_parsing
+from .btl_lexer_error import btl_lexer_error
 
-class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'name, command, args')):
+class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'name, action, args')):
   
-  def __new__(clazz, name, command, args):
+  def __new__(clazz, name, action, args):
     check.check_string(name)
-    check.check_string(command)
+    check.check_string(action)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, name, command, args)
+    return clazz.__bases__[0].__new__(clazz, name, action, args)
 
   def to_dict(self):
     return dict(self._asdict())
@@ -26,22 +27,24 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
 
     parts = string_util.split_by_white_space(n.data.text, strip = True)
     name = parts.pop(0)
-    command = parts.pop(0)
+    action = parts.pop(0)
     args = clazz._parse_key_values(parts)
-    return btl_lexer_desc_state_command(name, command, args)
+    return btl_lexer_desc_state_command(name, action, args)
 
   def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
 
     if self.name == 'emit':
-      buf.write_line(f'tokens.append(self.make_token(\'{self.command}\', args = {self.args}))')
+      buf.write_line(f'tokens.append(self.make_token(\'{self.action}\', args = {self.args}))')
     elif self.name == 'buffer':
-      if self.command == 'write':
+      if self.action == 'write':
         buf.write_line(f'self.buffer_write(c)')
-      elif self.command == 'reset':
+      elif self.action == 'reset':
         buf.write_line(f'self.buffer_reset()')
       else:
-        buf.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{self.command}"')''')
+        raise btl_lexer_error(f'Unknown command action: "{self.action}"')
+    else:
+        raise btl_lexer_error(f'Unknown command: {self.name}')
 
   @classmethod
   def _parse_key_value(clazz, s):

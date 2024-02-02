@@ -51,9 +51,10 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
   @classmethod
   def _parse_char_map(clazz, n, source):
     result = btl_lexer_desc_char_map()
-    for child in n.children:
-      name, chars = btl_parsing.parse_key_value(child, source)
-      result.parse_and_add(name, chars)
+    if n:
+      for child in n.children:
+        name, chars = btl_parsing.parse_key_value(child, source)
+        result.parse_and_add(name, chars)
     return result
   
   @classmethod
@@ -79,7 +80,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
     states = btl_lexer_desc_state_list.parse_node(states_node, source, header.end_state)
     #print(states)
 
-    chars_node = clazz._find_section(root, 'chars', source)
+    chars_node = clazz._find_section(root, 'chars', source, raise_error = False)
     char_map = clazz._parse_char_map(chars_node, source)
     #print(char_map)
     
