@@ -13,7 +13,7 @@ class _test_lexer_desc_mixin:
   @cached_class_property
   def _keyval1_desc_filename(clazz):
     here = path.dirname(__file__)
-    filename = path.join(here, '_test_keyval1_lexer.btl')
+    filename = path.join(here, '_test_simple_lexer.btl')
     return path.abspath(filename)
   
   @cached_class_property

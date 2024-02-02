@@ -7,7 +7,7 @@ from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
 from bes.btl.btl_lexer_token import btl_lexer_token
 
-class _test_keyval1_lexer(btl_lexer_base):
+class _test_simple_lexer(btl_lexer_base):
 
   class _token:
 
@@ -134,7 +134,7 @@ class _test_keyval1_lexer(btl_lexer_base):
       return tokens
 
   def __init__(self, source = None):
-    log_tag = f'_test_keyval1_lexer'
+    log_tag = f'_test_simple_lexer'
     desc_text = self._DESC_TEXT
     token = self._token
     states = {
@@ -220,4 +220,4 @@ states
   s_done
 
 """
-check.register_class(_test_keyval1_lexer, include_seq = False)
+check.register_class(_test_simple_lexer, include_seq = False)

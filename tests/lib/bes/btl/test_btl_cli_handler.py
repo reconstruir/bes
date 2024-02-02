@@ -10,8 +10,8 @@ class test_btl_cli_handler(unit_test):
 
   def test__parse_code_filename(self):
     self.assertEqual(
-      ( '_test', 'keyval1_lexer' ),
-      btl_cli_handler._parse_code_filename('_test_keyval1_lexer.py')
+      ( '_test', 'simple_lexer' ),
+      btl_cli_handler._parse_code_filename('_test_simple_lexer.py')
     )
 
 if __name__ == '__main__':
