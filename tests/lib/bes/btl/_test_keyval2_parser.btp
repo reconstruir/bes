@@ -1,0 +1,49 @@
+#BTP
+#
+# Key Value pair parser
+#
+parser
+  name: keyval
+  description: A Key Value pair parser
+  version: 2.0
+  start_state: s_start
+  end_state: s_done
+
+errors
+  e_unexpected_token: In state {state} unexpected token {token} instead of something
+
+states
+
+  s_start
+    t_done: s_done
+    t_line_break: s_start
+    t_space: s_start
+    t_key: s_expecting_delimiter
+      node new
+      node push key
+    t_comment: s_start
+    default: s_done
+      raise e_unexpected_token
+
+  s_expecting_delimiter
+    t_key_value_delimiter: s_expecting_value
+    default: s_done
+      raise e_unexpected_token
+
+  s_expecting_value
+    t_value: s_after_value
+      node push value
+      emit node
+      node reset
+    default: s_done
+      raise e_unexpected_token
+
+  s_after_value
+    t_done: s_done
+    t_space: s_after_value
+    t_comment: s_after_value
+    t_line_break: s_start
+    default: s_done
+      raise e_unexpected_token
+
+  s_done
