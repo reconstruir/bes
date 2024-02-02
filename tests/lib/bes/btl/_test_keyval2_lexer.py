@@ -11,8 +11,8 @@ class _test_keyval2_lexer(btl_lexer_base):
   class _token:
 
     T_DONE = 't_done'
-    T_EQUAL = 't_equal'
     T_KEY = 't_key'
+    T_KEY_VALUE_DELIMITER = 't_key_value_delimiter'
     T_LINE_BREAK = 't_line_break'
     T_SPACE = 't_space'
     T_VALUE = 't_value'
@@ -99,7 +99,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
-        tokens.append(self.make_token('t_equal', args = {}))
+        tokens.append(self.make_token('t_key_value_delimiter', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
@@ -246,7 +246,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
-        tokens.append(self.make_token('t_equal', args = {}))
+        tokens.append(self.make_token('t_key_value_delimiter', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
@@ -340,7 +340,7 @@ lexer
 tokens
   t_done
     type_hint: h_done
-  t_equal
+  t_key_value_delimiter
   t_key
   t_line_break
     type_hint: h_line_break
@@ -393,7 +393,7 @@ states
       emit t_space
       buffer reset
       buffer write
-      emit t_equal
+      emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
       emit t_done
@@ -448,7 +448,7 @@ states
       emit t_key
       buffer reset
       buffer write
-      emit t_equal
+      emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
       emit t_key
