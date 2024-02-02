@@ -789,6 +789,27 @@ states
 
   s_start
     c_eos: s_done
+      notgood
+'''
+    desc = btl_lexer_desc.parse_text(desc_text)
+    buf = btl_code_gen_buffer()
+    with self.assertRaises(btl_lexer_error) as ctx:
+      desc.generate_code(buf, 'fruit', 'kiwi')
+    self.assertEqual( 'Missing arguments for command: "notgood" - line 13', ctx.exception.message )
+
+  def test_invalild_command_action(self):
+    desc_text = '''#BTL
+lexer
+  name: test_lexer
+  description: A test lexer
+  version: 1.0
+  start_state: start
+  end_state: end
+
+states
+
+  s_start
+    c_eos: s_done
       buffer notgood
     default: s_done
       error e_unexpected_char

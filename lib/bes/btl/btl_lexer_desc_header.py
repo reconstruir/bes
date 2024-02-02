@@ -15,8 +15,8 @@ class btl_lexer_desc_header(namedtuple('btl_lexer_desc_header', 'name, descripti
     check.check_string(name)
     check.check_string(description)
     version = check.check_semantic_version(version)
-    check.check_string(start_state)
-    check.check_string(end_state)
+    check.check_string(start_state, allow_none = True)
+    check.check_string(end_state, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, name, description, version, start_state, end_state)
 
   def to_dict(self):
@@ -40,6 +40,8 @@ class btl_lexer_desc_header(namedtuple('btl_lexer_desc_header', 'name, descripti
       if key not in d:
         raise btl_error(f'Invalid header key "{key}" at {source}:{child.data.line_number}')
       d[key] = value
+#    for key in ( 'name', 'description', 'version' ):
+#      value = d[key]
     for key, value in d.items():
       if value == None:
         raise btl_error(f'Missing key "{key}" at {source}:{n.data.line_number}')

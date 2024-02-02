@@ -27,6 +27,8 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
 
     parts = string_util.split_by_white_space(n.data.text, strip = True)
     name = parts.pop(0)
+    if not parts:
+      raise btl_lexer_error(f'Missing arguments for command: "{name}" - line {n.data.line_number}')
     action = parts.pop(0)
     args = clazz._parse_key_values(parts)
     return btl_lexer_desc_state_command(name, action, args)
