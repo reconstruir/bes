@@ -14,7 +14,7 @@ class test_btl_parser_desc_token(_test_lexer_desc_mixin, unit_test):
 
   def test_generate_code_with_yield(self):
     token = btl_parser_desc_token('kiwi', {})
-    self.assert_code_equal( '''
+    self.assert_python_code_text_equal( '''
 KIWI = 'kiwi'
 ''', self.call_buf_func(token, 'generate_code') )
 

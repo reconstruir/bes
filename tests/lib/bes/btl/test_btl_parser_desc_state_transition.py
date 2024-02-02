@@ -17,7 +17,7 @@ class test_btl_parser_desc_state_transition(_test_lexer_desc_mixin, unit_test):
     cmd = btl_parser_desc_state_command('emit', 't_cheese', {})
     transition = btl_parser_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
     
-    self.assert_code_equal('''
+    self.assert_python_code_text_equal('''
 if self.char_in(c, 'c_equal'):
   new_state = 's_kiwi'
   tokens.append(self.make_token('t_cheese', args = {}))
@@ -28,7 +28,7 @@ if self.char_in(c, 'c_equal'):
     cmd = btl_parser_desc_state_command('emit', 't_cheese', {})
     transition = btl_parser_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
     
-    self.assert_code_equal('''
+    self.assert_python_code_text_equal('''
 elif self.char_in(c, 'c_equal'):
   new_state = 's_kiwi'
   tokens.append(self.make_token('t_cheese', args = {}))

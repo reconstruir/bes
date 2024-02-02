@@ -6,20 +6,10 @@ from bes.property.cached_class_property import cached_class_property
 from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser
 from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
-from bes.text.text_replace import text_replace
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
 class _test_lexer_desc_mixin:
 
-  def assert_code_equal(self, expected, actual, replacements = {}):
-    expected2 = text_replace.replace(expected, replacements)
-    actual2 = text_replace.replace(actual, replacements)
-    return self.assert_string_equal(expected2, actual2,
-                                    strip = True,
-                                    multi_line = True,
-                                    ignore_white_space = False,
-                                    native_line_breaks = True)
-  
   @cached_class_property
   def _keyval1_desc_filename(clazz):
     here = path.dirname(__file__)

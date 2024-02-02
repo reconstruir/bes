@@ -65,14 +65,14 @@ stateDiagram-v2
     actual = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     #print(actual)
     #return
-    self.assert_code_equal( self._EXPECTED_CODE, actual )
+    self.assert_python_code_text_equal( self._EXPECTED_CODE, actual )
 
   def test_write_code(self):
     tmp = self.make_temp_file(suffix = '.py')
     desc = btl_parser_desc.parse_text(self._keyval1_desc_text)
     desc.write_code(tmp, '_fruit', 'kiwi_lexer')
 
-    self.assert_code_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_python_code_text_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
 
   @classmethod
   def _add_line_numbers(clazz, code):

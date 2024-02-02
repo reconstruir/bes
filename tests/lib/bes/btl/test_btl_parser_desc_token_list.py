@@ -24,7 +24,7 @@ class test_btl_parser_desc_token_list(_test_lexer_desc_mixin, unit_test):
     #print(s)
     #return
     
-    self.assert_code_equal('''class _token:
+    self.assert_python_code_text_equal('''class _token:
 
   KIWI = 'kiwi'
   LEMON = 'lemon'

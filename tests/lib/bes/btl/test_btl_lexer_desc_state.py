@@ -21,7 +21,7 @@ class test_btl_lexer_desc_state(_test_lexer_desc_mixin, unit_test):
     transition = btl_lexer_desc_state_transition('s_juice', 'c_equal', [ cmd ])
     state = btl_lexer_desc_state('s_juice', [ transition ], False)
 
-    self.assert_code_equal('''
+    self.assert_python_code_text_equal('''
 class _state_s_juice(btl_lexer_state_base):
   def __init__(self, lexer, log_tag):
     name = 's_juice'

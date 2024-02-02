@@ -30,7 +30,7 @@ class btl_cli_handler(cli_command_handler):
     check.check_string(output_filename)
 
     desc = btl_lexer_desc.parse_file(filename)
-    bf_file_ops.save(output_filename, content = output_bytes)
+    bf_file_ops.save(output_filename, content = desc.to_mermaid_diagram())
     return 0
   
   def lexer_make_diagram(self, filename, output_filename, output_format):

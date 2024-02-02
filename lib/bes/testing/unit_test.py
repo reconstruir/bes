@@ -528,3 +528,17 @@ class unit_test(unittest.TestCase):
     if 'unittest.util' in __import__('sys').modules:
       # Show full diff in self.assertEqual.
       __import__('sys').modules['unittest.util']._MAX_LENGTH = 999999999
+
+  def assert_python_code_text_equal(self, expected, actual, replacements = {}):
+    expected2 = expected
+    actual2 = actual
+    if replacements:
+      for key, value in replacements.items():
+        expected2 = expected2.replace(key, value)
+        actual2 = actual2.replace(key, value)
+    return self.assert_string_equal(expected2, actual2,
+                                    strip = True,
+                                    multi_line = True,
+                                    ignore_white_space = False,
+                                    native_line_breaks = True)
+      

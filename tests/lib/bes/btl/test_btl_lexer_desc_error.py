@@ -16,7 +16,7 @@ class test_btl_lexer_desc_state(_test_lexer_desc_mixin, unit_test):
   def test_generate_code(self):
     error = btl_lexer_desc_error('e_bad', 'kiwi is bad')
 
-    self.assert_code_equal('''\
+    self.assert_python_code_text_equal('''\
 class e_bad(btl_lexer_runtime_error):
   def __init__(self, message = None):
     super().__init__(message = message)
