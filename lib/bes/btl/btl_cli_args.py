@@ -7,16 +7,16 @@ class btl_cli_args(object):
   
   def btl_add_args(self, subparser):
 
-    # make_mmd
-    p = subparser.add_parser('make_mmd', help = 'Generate the mermaid mmd state diagram.')
+    # lexer_make_mmd
+    p = subparser.add_parser('lexer_make_mmd', help = 'Generate the mermaid mmd state diagram.')
     self.__btl_cli_add_add_common_args(p)
     p.add_argument('filename', action = 'store', default = None,
                    help = 'The btl filename')
     p.add_argument('output_filename', action = 'store', default = None,
                    help = 'The output mmd filename')
 
-    # make_diagram
-    p = subparser.add_parser('make_diagram', help = 'Make a diagram jpeg/svg from an mmd file.')
+    # lexer_make_diagram
+    p = subparser.add_parser('lexer_make_diagram', help = 'Make a diagram jpeg/svg from an mmd file.')
     self.__btl_cli_add_add_common_args(p)
     p.add_argument('-f', '--format', action = 'store', default = 'svg',
                    dest = 'output_format', choices = ( 'svg', 'jpg' ),
@@ -26,8 +26,8 @@ class btl_cli_args(object):
     p.add_argument('output_filename', action = 'store', default = None,
                    help = 'The output jpeg filename')
 
-    # make_code
-    p = subparser.add_parser('make_code', help = 'Make python state machine code for a btl file.')
+    # lexer_make_code
+    p = subparser.add_parser('lexer_make_code', help = 'Make python state machine code for a btl file.')
     self.__btl_cli_add_add_common_args(p)
     p.add_argument('filename', action = 'store', default = None,
                    help = 'The btl filename')

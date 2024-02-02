@@ -27,17 +27,16 @@ class btl_cli_handler(cli_command_handler):
     check.check_btl_cli_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
 
-  def generate(self, filename, namespace, name, output_directory):
+  def lexer_make_mmd(self, filename, output_filename):
     filename = file_check.check_file(filename)
-    check.check_string(namespace)
-    check.check_string(name)
-    check.check_string(output_directory)
+    check.check_string(output_filename)
 
-    mermaid.state_diagram_generate_code(filename, namespace, name, output_directory)
-    
+    desc = btl_lexer_desc.parse_file(filename)
+    with open(output_filename, 'w') as f:
+      f.write(desc.to_mermaid_diagram())
     return 0
-
-  def make_diagram(self, filename, output_filename, output_format):
+  
+  def lexer_make_diagram(self, filename, output_filename, output_format):
     filename = file_check.check_file(filename)
     check.check_string(output_filename)
     check.check_string(output_format)
@@ -49,16 +48,7 @@ class btl_cli_handler(cli_command_handler):
       f.write(output_bytes)
     return 0
     
-  def make_mmd(self, filename, output_filename):
-    filename = file_check.check_file(filename)
-    check.check_string(output_filename)
-
-    desc = btl_lexer_desc.parse_file(filename)
-    with open(output_filename, 'w') as f:
-      f.write(desc.to_mermaid_diagram())
-    return 0
-  
-  def make_code(self, filename, output_filename, namespace, name):
+  def lexer_make_code(self, filename, output_filename, namespace, name):
     filename = file_check.check_file(filename)
     check.check_string(output_filename)
     check.check_string(namespace, allow_none = True)
