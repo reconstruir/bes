@@ -23,12 +23,12 @@ states
       node push key
     t_comment: s_start
     default: s_done
-      raise e_unexpected_token
+      error e_unexpected_token
 
   s_expecting_delimiter
     t_key_value_delimiter: s_expecting_value
     default: s_done
-      raise e_unexpected_token
+      error e_unexpected_token
 
   s_expecting_value
     t_value: s_after_value
@@ -36,7 +36,7 @@ states
       emit node
       node reset
     default: s_done
-      raise e_unexpected_token
+      error e_unexpected_token
 
   s_after_value
     t_done: s_done
@@ -44,6 +44,6 @@ states
     t_comment: s_after_value
     t_line_break: s_start
     default: s_done
-      raise e_unexpected_token
+      error e_unexpected_token
 
   s_done

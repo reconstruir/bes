@@ -11,8 +11,8 @@ class _test_keyval1_lexer(btl_lexer_base):
   class _token:
 
     T_DONE = 't_done'
-    T_KEY_VALUE_DELIMITER = 't_key_value_delimiter'
     T_KEY = 't_key'
+    T_KEY_VALUE_DELIMITER = 't_key_value_delimiter'
     T_LINE_BREAK = 't_line_break'
     T_SPACE = 't_space'
     T_VALUE = 't_value'
@@ -43,24 +43,8 @@ class _test_keyval1_lexer(btl_lexer_base):
         new_state = 's_key'
         self.buffer_write(c)
       else:
-        new_state = 's_expecting_key_error'
-      
-      self.lexer.change_state(new_state, c)
-      return tokens
-  
-  class _state_s_expecting_key_error(btl_lexer_state_base):
-    def __init__(self, lexer, log_tag):
-      name = 's_expecting_key_error'
-      super().__init__(lexer, name, log_tag)
-  
-    def handle_char(self, c):
-      self.log_handle_char(c)
-  
-      new_state = None
-      tokens = []
-  
-      if True:
         new_state = 's_done'
+        raise RuntimeError("fuck you again: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -146,7 +130,6 @@ class _test_keyval1_lexer(btl_lexer_base):
     token = self._token
     states = {
       's_expecting_key': self._state_s_expecting_key(self, log_tag),
-      's_expecting_key_error': self._state_s_expecting_key_error(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
@@ -175,7 +158,7 @@ tokens
   t_value
 
 errors
-  unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state {state} unexpected character {char} instead of key
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -194,12 +177,9 @@ states
       emit t_space 
     c_keyval_key_first: s_key
       buffer write
-    default: s_expecting_key_error
-      raise unexpected_char
-      
-  s_expecting_key_error
     default: s_done
-    
+      error e_unexpected_char
+      
   s_key
     c_keyval_key: s_key
       buffer write

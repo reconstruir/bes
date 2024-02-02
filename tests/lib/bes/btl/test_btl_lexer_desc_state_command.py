@@ -5,6 +5,7 @@ import os.path as path
 
 from bes.btl.btl_lexer_desc_state_command import btl_lexer_desc_state_command
 from bes.btl.btl_error import btl_error
+from bes.btl.btl_lexer_error import btl_lexer_error
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
 
@@ -30,11 +31,12 @@ self.buffer_write(c)
 self.buffer_reset()
 ''', self.call_buf_func(cmd, 'generate_code') )
 
-  def test_generate_code_with_buffer_error(self):
+  def test_generate_code_with_buffer_unknown_action(self):
     cmd = btl_lexer_desc_state_command('buffer', 'notthere', {})
-    self.assert_code_equal( '''
-raise btl_lexer_error('Unknown buffer command: "notthere"')
-''', self.call_buf_func(cmd, 'generate_code') )
+
+    with self.assertRaises(btl_lexer_error) as ctx:
+      self.call_buf_func(cmd, 'generate_code')
+    self.assertEqual( 'Unknown command action: "notthere"', ctx.exception.message )
     
 if __name__ == '__main__':
   unit_test.main()

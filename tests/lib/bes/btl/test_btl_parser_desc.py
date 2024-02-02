@@ -44,10 +44,7 @@ stateDiagram-v2
   s_expecting_key --> s_expecting_key: c_nl
   s_expecting_key --> s_expecting_key: c_ws
   s_expecting_key --> s_key: c_keyval_key_first
-  s_expecting_key --> s_expecting_key_error: default
-
-  %% s_expecting_key_error state
-  s_expecting_key_error --> s_done: default
+  s_expecting_key --> s_done: default
 
   %% s_key state
   s_key --> s_key: c_keyval_key
@@ -197,23 +194,6 @@ class _fruit_kiwi_lexer(btl_parser_base):
         new_state = 's_key'
         self.buffer_write(c)
       else:
-        new_state = 's_expecting_key_error'
-      
-      self.lexer.change_state(new_state, c)
-      return tokens
-  
-  class _state_s_expecting_key_error(btl_parser_state_base):
-    def __init__(self, lexer, log_tag):
-      name = 's_expecting_key_error'
-      super().__init__(lexer, name, log_tag)
-  
-    def handle_char(self, c):
-      self.log_handle_char(c)
-  
-      new_state = None
-      tokens = []
-  
-      if True:
         new_state = 's_done'
       
       self.lexer.change_state(new_state, c)
@@ -300,7 +280,6 @@ class _fruit_kiwi_lexer(btl_parser_base):
     token = self._token
     states = {
       's_expecting_key': self._state_s_expecting_key(self, log_tag),
-      's_expecting_key_error': self._state_s_expecting_key_error(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
@@ -329,7 +308,7 @@ tokens
   t_value
 
 errors
-  unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state {state} unexpected character {char} instead of key
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -348,12 +327,9 @@ states
       emit t_space 
     c_keyval_key_first: s_key
       buffer write
-    default: s_expecting_key_error
-      raise unexpected_char
-      
-  s_expecting_key_error
     default: s_done
-    
+      error e_unexpected_char
+      
   s_key
     c_keyval_key: s_key
       buffer write
@@ -429,7 +405,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   ], 
   "errors": [
     {
-      "name": "unexpected_char", 
+      "name": "e_unexpected_char", 
       "message": "In state {state} unexpected character {char} instead of key"
     }
   ], 
@@ -620,26 +596,15 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           ]
         }, 
         {
-          "to_state": "s_expecting_key_error", 
+          "to_state": "s_done", 
           "char_name": "default", 
           "commands": [
             {
-              "name": "raise", 
-              "command": "unexpected_char", 
+              "name": "error", 
+              "command": "e_unexpected_char", 
               "args": {}
             }
           ]
-        }
-      ], 
-      "is_end_state": false
-    }, 
-    {
-      "name": "s_expecting_key_error", 
-      "transitions": [
-        {
-          "to_state": "s_done", 
-          "char_name": "default", 
-          "commands": []
         }
       ], 
       "is_end_state": false
