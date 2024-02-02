@@ -13,7 +13,7 @@ class test_btl_cli_args(_test_lexer_desc_mixin, program_unit_test):
     tmp = self.make_temp_file(suffix = '.mmd')
     args = [
       'btl',
-      'make_mmd',
+      'lexer_make_mmd',
       self._keyval1_desc_filename,
       tmp,
     ]
@@ -49,7 +49,7 @@ stateDiagram-v2
     tmp = self.make_temp_file(suffix = '.svg')
     args = [
       'btl',
-      'make_diagram',
+      'lexer_make_diagram',
       '--format', 'svg',
       self._keyval1_desc_filename,
       tmp,

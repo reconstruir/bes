@@ -12,6 +12,7 @@ from ..fs.temp_file import temp_file
 from ..script.blurber import blurber
 from ..system.check import check
 from ..files.bf_filename import bf_filename
+from ..files.bf_file_ops import bf_file_ops
 
 from ..btl.btl_lexer_desc import btl_lexer_desc
 from ..mermaid.mermaid_ink import mermaid_ink
