@@ -10,7 +10,7 @@ parser
   end_state: s_done
 
 errors
-  e_unexpected_token: In state {state} unexpected token {token} instead of something
+  e_unexpected_token: In state "{state}" unexpected token "{token}"
 
 states
 
@@ -19,8 +19,8 @@ states
     t_line_break: s_start
     t_space: s_start
     t_key: s_expecting_delimiter
-      node new
-      node push key
+      node new key_value
+      node add key
     t_comment: s_start
     default: s_done
       error e_unexpected_token
@@ -32,7 +32,7 @@ states
 
   s_expecting_value
     t_value: s_after_value
-      node push value
+      node add value
       emit node
       node reset
     default: s_done
