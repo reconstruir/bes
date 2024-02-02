@@ -34,5 +34,17 @@ class btl_lexer_desc_error_list(type_checked_list):
       next_desc_error = btl_lexer_desc_error.parse_node(child, source)
       result.append(next_desc_error)
     return result
-    
+
+  def find_error(self, name):
+    for error in self:
+      if error.name == name:
+        return error
+    return None
+
+  def generate_code(self, buf):
+    check.check_btl_code_gen_buffer(buf)
+
+    for error in self:
+      error.generate_code(buf)
+  
 btl_lexer_desc_error_list.register_check_class()

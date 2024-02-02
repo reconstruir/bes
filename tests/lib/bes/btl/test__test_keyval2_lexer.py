@@ -226,8 +226,9 @@ class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_error_no_key(self):
-    with self.assertRaises(RuntimeError) as ctx:
+    with self.assertRaises(_test_keyval2_lexer.e_unexpected_char) as ctx:
       self.call_tokenize(_test_keyval2_lexer, '=', [])
+    self.assertEqual( 'In state "s_start" unexpected character: "="', ctx.exception.message )
     
 if __name__ == '__main__':
   unit_test.main()

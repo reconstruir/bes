@@ -27,6 +27,18 @@ class btl_lexer_desc_error(namedtuple('btl_lexer_desc_error', 'name, message')):
                                        source,
                                        result_class = btl_lexer_desc_error)
 
+  @property
+  def error_class_name(self):
+    return f'{self.name}'
+  
+  def generate_code(self, buf):
+    check.check_btl_code_gen_buffer(buf)
+
+    code = f'''class {self.error_class_name}(btl_lexer_runtime_error):
+  def __init__(self, message = None):
+    super().__init__(message = message)'''
+    buf.write_lines(code)
+    
   @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)

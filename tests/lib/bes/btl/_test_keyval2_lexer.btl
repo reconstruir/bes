@@ -20,7 +20,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state "{name}" unexpected character: "{char}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha

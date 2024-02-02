@@ -1,10 +1,11 @@
 
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.system.check import check
 from bes.btl.btl_lexer_base import btl_lexer_base
+from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
 from bes.btl.btl_lexer_token import btl_lexer_token
-from bes.system.check import check
 
 class _test_keyval2_lexer(btl_lexer_base):
 
@@ -16,6 +17,11 @@ class _test_keyval2_lexer(btl_lexer_base):
     T_LINE_BREAK = 't_line_break'
     T_SPACE = 't_space'
     T_VALUE = 't_value'
+
+  class e_unexpected_char(btl_lexer_runtime_error):
+    def __init__(self, message = None):
+      super().__init__(message = message)
+
   
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
@@ -44,7 +50,10 @@ class _test_keyval2_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        raise RuntimeError("fuck you again: e_unexpected_char")
+        name = self.name
+        char = c
+        msg = f'In state "{name}" unexpected character: "{char}"'
+        raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -77,7 +86,10 @@ class _test_keyval2_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        raise RuntimeError("fuck you again: e_unexpected_char")
+        name = self.name
+        char = c
+        msg = f'In state "{name}" unexpected character: "{char}"'
+        raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -108,7 +120,10 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        raise RuntimeError("fuck you again: e_unexpected_char")
+        name = self.name
+        char = c
+        msg = f'In state "{name}" unexpected character: "{char}"'
+        raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -144,7 +159,10 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        raise RuntimeError("fuck you again: e_unexpected_char")
+        name = self.name
+        char = c
+        msg = f'In state "{name}" unexpected character: "{char}"'
+        raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -176,7 +194,10 @@ class _test_keyval2_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        raise RuntimeError("fuck you again: e_unexpected_char")
+        name = self.name
+        char = c
+        msg = f'In state "{name}" unexpected character: "{char}"'
+        raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -299,7 +320,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state "{name}" unexpected character: "{char}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha

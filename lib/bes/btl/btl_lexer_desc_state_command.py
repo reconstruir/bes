@@ -48,9 +48,15 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
       else:
         raise btl_lexer_error(f'Unknown command action: "{self.action}"')
     elif self.name == 'error':
-      buf.write_line(f'''raise RuntimeError("error: {self.action}")''')
+      error = errors.find_error(self.action)
+      if not error:
+        raise btl_lexer_error(f'Unknown error: {self.action}')
+      buf.write_line(f'name = self.name')
+      buf.write_line(f'char = c')
+      buf.write_line(f"""msg = f'{error.message}'""")
+      buf.write_line(f'raise self.lexer.{error.error_class_name}(message = msg)')
     else:
-        raise btl_lexer_error(f'Unknown command: {self.name}')
+      raise btl_lexer_error(f'Unknown command: {self.name}')
 
   @classmethod
   def _parse_key_value(clazz, s):
