@@ -35,8 +35,9 @@ class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions
     transitions = btl_lexer_desc_state_transition_list.parse_node(n, source = source)
     return btl_lexer_desc_state(name, transitions, name == end_state)
 
-  def generate_code(self, buf, char_map):
+  def generate_code(self, buf, errors, char_map):
     check.check_btl_code_gen_buffer(buf)
+    errors = check.check_btl_lexer_desc_error_list(errors)
     check.check_btl_lexer_desc_char_map(char_map)
 
     buf.write_lines(f'''
@@ -54,7 +55,7 @@ class _state_{self.name}(btl_lexer_state_base):
 ''')
 
     with buf.indent_pusher(depth = 2) as _:
-      self.transitions.generate_code(buf, char_map)
+      self.transitions.generate_code(buf, errors, char_map)
       buf.write_lines(f'''
 self.lexer.change_state(new_state, c)
 return tokens

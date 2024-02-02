@@ -44,6 +44,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
+        raise RuntimeError("fuck you again: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -76,6 +77,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
+        raise RuntimeError("fuck you again: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -106,6 +108,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
+        raise RuntimeError("fuck you again: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -141,6 +144,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
+        raise RuntimeError("fuck you again: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -172,6 +176,7 @@ class _test_keyval2_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
+        raise RuntimeError("fuck you again: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens

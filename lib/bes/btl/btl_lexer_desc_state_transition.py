@@ -34,8 +34,9 @@ class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transitio
     commands = btl_lexer_desc_state_command_list.parse_node(n, source = source)
     return btl_lexer_desc_state_transition(to_state, char_name, commands)
 
-  def generate_code(self, buf, char_map, index, total):
+  def generate_code(self, buf, errors, char_map, index, total):
     check.check_btl_code_gen_buffer(buf)
+    errors = check.check_btl_lexer_desc_error_list(errors)
     check.check_btl_lexer_desc_char_map(char_map)
     check.check_int(index)
     check.check_int(total)
@@ -55,6 +56,6 @@ class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transitio
       buf.write_line(f'{if_statement} self.char_in(c, \'{char_name}\'):')
     with buf.indent_pusher() as _1:
       buf.write_line(f'new_state = \'{self.to_state}\'')
-      self.commands.generate_code(buf)
+      self.commands.generate_code(buf, errors)
   
 check.register_class(btl_lexer_desc_state_transition, include_seq = False)

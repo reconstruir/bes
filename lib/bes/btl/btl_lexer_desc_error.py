@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from ..system.check import check
 from ..version.semantic_version import semantic_version
+from ..common.tuple_util import tuple_util
 
 from .btl_parsing import btl_parsing
 
@@ -25,5 +26,9 @@ class btl_lexer_desc_error(namedtuple('btl_lexer_desc_error', 'name, message')):
     return btl_parsing.parse_key_value(n,
                                        source,
                                        result_class = btl_lexer_desc_error)
+
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
-check.register_class(btl_lexer_desc_error)
+check.register_class(btl_lexer_desc_error, include_seq = False, cast_func = btl_lexer_desc_error._check_cast_func)

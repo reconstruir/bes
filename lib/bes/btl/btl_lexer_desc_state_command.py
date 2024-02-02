@@ -7,6 +7,7 @@ from ..common.string_util import string_util
 
 from .btl_parsing import btl_parsing
 from .btl_lexer_error import btl_lexer_error
+from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
 class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'name, action, args')):
   
@@ -33,8 +34,9 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
     args = clazz._parse_key_values(parts)
     return btl_lexer_desc_state_command(name, action, args)
 
-  def generate_code(self, buf):
+  def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
+    errors = check.check_btl_lexer_desc_error_list(errors)
 
     if self.name == 'emit':
       buf.write_line(f'tokens.append(self.make_token(\'{self.action}\', args = {self.args}))')
@@ -46,8 +48,7 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
       else:
         raise btl_lexer_error(f'Unknown command action: "{self.action}"')
     elif self.name == 'error':
-      #assert False
-      buf.write_line(f'''raise RuntimeError("fuck you again: {self.action}")''')
+      buf.write_line(f'''raise RuntimeError("error: {self.action}")''')
     else:
         raise btl_lexer_error(f'Unknown command: {self.name}')
 

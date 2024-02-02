@@ -7,6 +7,7 @@ from ..common.type_checked_list import type_checked_list
 
 from .btl_lexer_desc_state_command import btl_lexer_desc_state_command
 from .btl_parsing import btl_parsing
+from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
 class btl_lexer_desc_state_command_list(type_checked_list):
 
@@ -33,10 +34,11 @@ class btl_lexer_desc_state_command_list(type_checked_list):
       result.append(next_desc_error)
     return result
 
-  def generate_code(self, buf):
+  def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
+    errors = check.check_btl_lexer_desc_error_list(errors)
 
     for command in self:
-      command.generate_code(buf)
+      command.generate_code(buf, errors)
     
 btl_lexer_desc_state_command_list.register_check_class()

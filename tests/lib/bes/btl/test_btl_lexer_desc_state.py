@@ -39,7 +39,7 @@ class _state_s_juice(btl_lexer_state_base):
     
     self.lexer.change_state(new_state, c)
     return tokens
-''', self.call_buf_func(state, 'generate_code', char_map) )
+''', self.call_buf_func(state, 'generate_code', [], char_map) )
   
 if __name__ == '__main__':
   unit_test.main()

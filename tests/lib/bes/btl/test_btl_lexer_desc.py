@@ -197,7 +197,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        raise RuntimeError("fuck you again: e_unexpected_char")
+        raise RuntimeError("error: e_unexpected_char")
       
       self.lexer.change_state(new_state, c)
       return tokens

@@ -35,4 +35,4 @@ class btl_lexer_desc_error_list(type_checked_list):
       result.append(next_desc_error)
     return result
     
-check.register_class(btl_lexer_desc_error_list, include_seq = False)
+btl_lexer_desc_error_list.register_check_class()

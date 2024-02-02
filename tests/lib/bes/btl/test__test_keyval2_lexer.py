@@ -225,8 +225,9 @@ class test__test_keyval2_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def xtest_error_no_key(self):
-    self.call_tokenize(_test_keyval2_lexer, '=', [])
+  def test_error_no_key(self):
+    with self.assertRaises(RuntimeError) as ctx:
+      self.call_tokenize(_test_keyval2_lexer, '=', [])
     
 if __name__ == '__main__':
   unit_test.main()
