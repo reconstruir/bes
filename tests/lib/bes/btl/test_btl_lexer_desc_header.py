@@ -18,7 +18,7 @@ class test_btl_lexer_desc_header(_test_lexer_desc_mixin, unit_test):
       'keyval',
       'A Key Value pair lexer',
       '1.0',
-      's_expecting_key',
+      's_start',
       's_done',
     ), btl_lexer_desc_header.parse_node(lexer_node) )
 

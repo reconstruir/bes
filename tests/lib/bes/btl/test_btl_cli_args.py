@@ -23,13 +23,13 @@ class test_btl_cli_args(_test_lexer_desc_mixin, program_unit_test):
 stateDiagram-v2
   direction LR
     
-  %% s_expecting_key state
-  [*] --> s_expecting_key
-  s_expecting_key --> s_done: c_eos
-  s_expecting_key --> s_expecting_key: c_nl
-  s_expecting_key --> s_expecting_key: c_ws
-  s_expecting_key --> s_key: c_keyval_key_first
-  s_expecting_key --> s_done: default
+  %% s_start state
+  [*] --> s_start
+  s_start --> s_done: c_eos
+  s_start --> s_start: c_nl
+  s_start --> s_start: c_ws
+  s_start --> s_key: c_keyval_key_first
+  s_start --> s_done: default
 
   %% s_key state
   s_key --> s_key: c_keyval_key
@@ -37,7 +37,7 @@ stateDiagram-v2
   s_key --> s_done: c_eos
     
   %% s_value state
-  s_value --> s_expecting_key: c_nl
+  s_value --> s_start: c_nl
   s_value --> s_done: c_eos
   s_value --> s_value: default
     
@@ -222,13 +222,13 @@ stateDiagram-v2
         <g class="node default" id="state-root_start-0" transform="translate(15, 111.5)">
           <circle class="state-start" r="7" width="14" height="14"/>
         </g>
-        <g class="node  statediagram-state undefined" id="state-s_expecting_key-9" transform="translate(138.46875, 111.5)">
+        <g class="node  statediagram-state undefined" id="state-s_start-9" transform="translate(138.46875, 111.5)">
           <rect class="basic label-container" style="" x="-66.46875" y="-17" width="132.9375" height="34"/>
           <g class="label" style="" transform="translate(-58.96875, -9.5)">
             <rect/>
             <foreignObject width="117.9375" height="19">
               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
-                <span class="nodeLabel">s_expecting_key</span>
+                <span class="nodeLabel">s_start</span>
               </div>
             </foreignObject>
           </g>
@@ -255,13 +255,13 @@ stateDiagram-v2
             </foreignObject>
           </g>
         </g>
-        <g class="node  statediagram-state undefined" id="state-s_expecting_key_error-5" transform="translate(476.5390625, 69.5)">
+        <g class="node  statediagram-state undefined" id="state-s_start_error-5" transform="translate(476.5390625, 69.5)">
           <rect class="basic label-container" style="" x="-88.6484375" y="-17" width="177.296875" height="34"/>
           <g class="label" style="" transform="translate(-81.1484375, -9.5)">
             <rect/>
             <foreignObject width="162.296875" height="19">
               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
-                <span class="nodeLabel">s_expecting_key_error</span>
+                <span class="nodeLabel">s_start_error</span>
               </div>
             </foreignObject>
           </g>

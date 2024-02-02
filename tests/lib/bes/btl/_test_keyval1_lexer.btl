@@ -6,7 +6,7 @@ lexer
   name: keyval
   description: A Key Value pair lexer
   version: 1.0
-  start_state: s_expecting_key
+  start_state: s_start
   end_state: s_done
 
 tokens
@@ -28,14 +28,14 @@ chars
 
 states
 
-  s_expecting_key
+  s_start
     c_eos: s_done
       emit t_done
-    c_nl: s_expecting_key
+    c_nl: s_start
       buffer write
       emit t_line_break
       buffer reset
-    c_ws: s_expecting_key
+    c_ws: s_start
       emit t_space 
     c_keyval_key_first: s_key
       buffer write
@@ -57,7 +57,7 @@ states
       emit t_done
       
   s_value
-    c_nl: s_expecting_key
+    c_nl: s_start
       emit t_value
       buffer reset
       buffer write

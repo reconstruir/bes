@@ -46,6 +46,7 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
       else:
         raise btl_lexer_error(f'Unknown command action: "{self.action}"')
     elif self.name == 'error':
+      #assert False
       buf.write_line(f'''raise RuntimeError("fuck you again: {self.action}")''')
     else:
         raise btl_lexer_error(f'Unknown command: {self.name}')

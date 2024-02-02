@@ -17,9 +17,9 @@ class _test_keyval1_lexer(btl_lexer_base):
     T_SPACE = 't_space'
     T_VALUE = 't_value'
   
-  class _state_s_expecting_key(btl_lexer_state_base):
+  class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
-      name = 's_expecting_key'
+      name = 's_start'
       super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
@@ -32,12 +32,12 @@ class _test_keyval1_lexer(btl_lexer_base):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_ws'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
@@ -91,7 +91,7 @@ class _test_keyval1_lexer(btl_lexer_base):
       tokens = []
   
       if self.char_in(c, 'c_nl'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
@@ -129,7 +129,7 @@ class _test_keyval1_lexer(btl_lexer_base):
     desc_text = self._DESC_TEXT
     token = self._token
     states = {
-      's_expecting_key': self._state_s_expecting_key(self, log_tag),
+      's_start': self._state_s_start(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
@@ -144,7 +144,7 @@ lexer
   name: keyval
   description: A Key Value pair lexer
   version: 1.0
-  start_state: s_expecting_key
+  start_state: s_start
   end_state: s_done
 
 tokens
@@ -166,14 +166,14 @@ chars
 
 states
 
-  s_expecting_key
+  s_start
     c_eos: s_done
       emit t_done
-    c_nl: s_expecting_key
+    c_nl: s_start
       buffer write
       emit t_line_break
       buffer reset
-    c_ws: s_expecting_key
+    c_ws: s_start
       emit t_space 
     c_keyval_key_first: s_key
       buffer write
@@ -195,7 +195,7 @@ states
       emit t_done
       
   s_value
-    c_nl: s_expecting_key
+    c_nl: s_start
       emit t_value
       buffer reset
       buffer write

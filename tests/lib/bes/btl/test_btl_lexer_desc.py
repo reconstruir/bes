@@ -40,13 +40,13 @@ class test_btl_lexer_desc(_test_lexer_desc_mixin, unit_test):
 stateDiagram-v2
   direction LR
 
-  %% s_expecting_key state
-  [*] --> s_expecting_key
-  s_expecting_key --> s_done: c_eos
-  s_expecting_key --> s_expecting_key: c_nl
-  s_expecting_key --> s_expecting_key: c_ws
-  s_expecting_key --> s_key: c_keyval_key_first
-  s_expecting_key --> s_done: default
+  %% s_start state
+  [*] --> s_start
+  s_start --> s_done: c_eos
+  s_start --> s_start: c_nl
+  s_start --> s_start: c_ws
+  s_start --> s_key: c_keyval_key_first
+  s_start --> s_done: default
 
   %% s_key state
   s_key --> s_key: c_keyval_key
@@ -54,7 +54,7 @@ stateDiagram-v2
   s_key --> s_done: c_eos
 
   %% s_value state
-  s_value --> s_expecting_key: c_nl
+  s_value --> s_start: c_nl
   s_value --> s_done: c_eos
   s_value --> s_value: default
 
@@ -98,9 +98,9 @@ fruit=kiwi
 color=green
 taste=sour
 """
-    self.assertEqual( 's_expecting_key', l.desc.header.start_state )
+    self.assertEqual( 's_start', l.desc.header.start_state )
     self.assertEqual( 's_done', l.desc.header.end_state )
-    self.assertEqual( 's_expecting_key', l._states['s_expecting_key'].name )
+    self.assertEqual( 's_start', l._states['s_start'].name )
 
     tokens = l.run(text)
     def _hack_token(token_):
@@ -170,9 +170,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
     T_SPACE = 't_space'
     T_VALUE = 't_value'
   
-  class _state_s_expecting_key(btl_lexer_state_base):
+  class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
-      name = 's_expecting_key'
+      name = 's_start'
       super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
@@ -185,12 +185,12 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_ws'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
@@ -244,7 +244,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       tokens = []
   
       if self.char_in(c, 'c_nl'):
-        new_state = 's_expecting_key'
+        new_state = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
@@ -282,7 +282,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
     desc_text = self._DESC_TEXT
     token = self._token
     states = {
-      's_expecting_key': self._state_s_expecting_key(self, log_tag),
+      's_start': self._state_s_start(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
@@ -297,7 +297,7 @@ lexer
   name: keyval
   description: A Key Value pair lexer
   version: 1.0
-  start_state: s_expecting_key
+  start_state: s_start
   end_state: s_done
 
 tokens
@@ -319,14 +319,14 @@ chars
 
 states
 
-  s_expecting_key
+  s_start
     c_eos: s_done
       emit t_done
-    c_nl: s_expecting_key
+    c_nl: s_start
       buffer write
       emit t_line_break
       buffer reset
-    c_ws: s_expecting_key
+    c_ws: s_start
       emit t_space 
     c_keyval_key_first: s_key
       buffer write
@@ -348,7 +348,7 @@ states
       emit t_done
       
   s_value
-    c_nl: s_expecting_key
+    c_nl: s_start
       emit t_value
       buffer reset
       buffer write
@@ -373,7 +373,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
     "name": "keyval", 
     "description": "A Key Value pair lexer", 
     "version": "1.0", 
-    "start_state": "s_expecting_key", 
+    "start_state": "s_start", 
     "end_state": "s_done"
   }, 
   "tokens": [
@@ -542,7 +542,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   }, 
   "states": [
     {
-      "name": "s_expecting_key", 
+      "name": "s_start", 
       "transitions": [
         {
           "to_state": "s_done", 
@@ -556,7 +556,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           ]
         }, 
         {
-          "to_state": "s_expecting_key", 
+          "to_state": "s_start", 
           "char_name": "c_nl", 
           "commands": [
             {
@@ -577,7 +577,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           ]
         }, 
         {
-          "to_state": "s_expecting_key", 
+          "to_state": "s_start", 
           "char_name": "c_ws", 
           "commands": [
             {
@@ -685,7 +685,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "name": "s_value", 
       "transitions": [
         {
-          "to_state": "s_expecting_key", 
+          "to_state": "s_start", 
           "char_name": "c_nl", 
           "commands": [
             {
@@ -791,10 +791,8 @@ states
     c_eos: s_done
       notgood
 '''
-    desc = btl_lexer_desc.parse_text(desc_text)
-    buf = btl_code_gen_buffer()
     with self.assertRaises(btl_lexer_error) as ctx:
-      desc.generate_code(buf, 'fruit', 'kiwi')
+      desc = btl_lexer_desc.parse_text(desc_text)
     self.assertEqual( 'Missing arguments for command: "notgood" - line 13', ctx.exception.message )
 
   def test_invalild_command_action(self):
