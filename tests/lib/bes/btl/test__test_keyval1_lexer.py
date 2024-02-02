@@ -31,7 +31,7 @@ class test__test_keyval1_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(_test_keyval1_lexer, 'ab=',
       [
         ( 't_key', 'ab', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 3, 1 ), None ),
         ( 't_value', '', ( 3, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -42,7 +42,7 @@ class test__test_keyval1_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(_test_keyval1_lexer, 'a=k',
       [
         ( 't_key', 'a', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 2, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 2, 1 ), None ),
         ( 't_value', 'k', ( 3, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -53,7 +53,7 @@ class test__test_keyval1_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(_test_keyval1_lexer, 'fruit=kiwi',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 1 ), None ),
         ( 't_value', 'kiwi', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -68,11 +68,11 @@ color=green
       [
         ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
-        ( 't_equal', '=', ( 6, 2 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
         ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 6, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
         ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),

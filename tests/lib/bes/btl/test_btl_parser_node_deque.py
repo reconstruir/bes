@@ -87,7 +87,7 @@ class test_btl_parser_node_deque(_test_lexer_desc_mixin, unit_test):
     "type_hint": null
   },
   {
-    "name": "t_equal",
+    "name": "t_key_value_delimiter",
     "value": "=",
     "position": "6,2",
     "type_hint": null
@@ -116,7 +116,7 @@ class test_btl_parser_node_deque(_test_lexer_desc_mixin, unit_test):
     "type_hint": null
   },
   {
-    "name": "t_equal",
+    "name": "t_key_value_delimiter",
     "value": "=",
     "position": "6,3",
     "type_hint": null
@@ -229,7 +229,7 @@ class test_btl_parser_node_deque(_test_lexer_desc_mixin, unit_test):
     "type_hint": null
   }, 
   {
-    "name": "t_equal", 
+    "name": "t_key_value_delimiter", 
     "value": "=", 
     "position": "6,2", 
     "type_hint": null
@@ -253,7 +253,7 @@ class test_btl_parser_node_deque(_test_lexer_desc_mixin, unit_test):
     "type_hint": null
   }, 
   {
-    "name": "t_equal", 
+    "name": "t_key_value_delimiter", 
     "value": "=", 
     "position": "6,3", 
     "type_hint": null

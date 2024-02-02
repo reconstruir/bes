@@ -12,7 +12,7 @@ lexer
 tokens
   t_done
     type_hint: h_done
-  t_equal
+  t_key_value_delimiter
   t_key
   t_line_break
     type_hint: h_line_break
@@ -52,7 +52,7 @@ states
       emit t_key
       buffer reset
       buffer write
-      emit t_equal
+      emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
       emit t_key

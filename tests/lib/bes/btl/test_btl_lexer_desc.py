@@ -112,15 +112,15 @@ taste=sour
     expected = [
       '0: t_line_break:\\n:1,1:h_line_break',
       '1: t_key:fruit:1,2',
-      '2: t_equal:=:6,2',
+      '2: t_key_value_delimiter:=:6,2',
       '3: t_value:kiwi:7,2',
       '4: t_line_break:\\n:11,2:h_line_break',
       '5: t_key:color:1,3',
-      '6: t_equal:=:6,3',
+      '6: t_key_value_delimiter:=:6,3',
       '7: t_value:green:7,3',
       '8: t_line_break:\\n:12,3:h_line_break',
       '9: t_key:taste:1,4',
-      '10: t_equal:=:6,4',
+      '10: t_key_value_delimiter:=:6,4',
       '11: t_value:sour:7,4',
       '12: t_line_break:\\n:11,4:h_line_break',
       '13: t_done:::h_done',
@@ -165,8 +165,8 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   class _token:
 
     T_DONE = 't_done'
-    T_EQUAL = 't_equal'
     T_KEY = 't_key'
+    T_KEY_VALUE_DELIMITER = 't_key_value_delimiter'
     T_LINE_BREAK = 't_line_break'
     T_SPACE = 't_space'
     T_VALUE = 't_value'
@@ -238,7 +238,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
-        tokens.append(self.make_token('t_equal', args = {}))
+        tokens.append(self.make_token('t_key_value_delimiter', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
@@ -321,7 +321,7 @@ lexer
 tokens
   t_done
     type_hint: h_done
-  t_equal
+  t_key_value_delimiter
   t_key
   t_line_break
     type_hint: h_line_break
@@ -361,7 +361,7 @@ states
       emit t_key
       buffer reset
       buffer write
-      emit t_equal
+      emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
       emit t_key
@@ -405,11 +405,11 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       }
     ], 
     [
-      "t_equal", 
+      "t_key", 
       {}
     ], 
     [
-      "t_key", 
+      "t_key_value_delimiter", 
       {}
     ], 
     [
@@ -679,7 +679,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             }, 
             {
               "name": "emit", 
-              "command": "t_equal", 
+              "command": "t_key_value_delimiter", 
               "args": {}
             }, 
             {

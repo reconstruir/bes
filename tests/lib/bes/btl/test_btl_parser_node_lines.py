@@ -37,7 +37,7 @@ color=green
     lines = btl_parser_node_lines(tokens)
     new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
       ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
     ])
@@ -55,7 +55,7 @@ color=green
     lines = btl_parser_node_lines(tokens)
     new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
       ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
     ])
@@ -73,7 +73,7 @@ color=green
     lines = btl_parser_node_lines(tokens)
     new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
       ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
     ])
@@ -91,7 +91,7 @@ flavor=tart
     lines = btl_parser_node_lines(tokens)
     new_tokens = btl_parser_node_deque([
       ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_equal', '=', ( 7, -1 ), None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
       ( 't_value', 'tart', ( 8, -1 ), None ),
       ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
     ])
@@ -130,7 +130,7 @@ flavor=tart
         "type_hint": null
       },
       {
-        "name": "t_equal",
+        "name": "t_key_value_delimiter",
         "value": "=",
         "position": "6,2",
         "type_hint": null
@@ -159,7 +159,7 @@ flavor=tart
         "type_hint": null
       },
       {
-        "name": "t_equal",
+        "name": "t_key_value_delimiter",
         "value": "=",
         "position": "6,3",
         "type_hint": null
@@ -196,7 +196,7 @@ flavor=tart
     "type_hint": null
   }, 
   {
-    "name": "t_equal", 
+    "name": "t_key_value_delimiter", 
     "value": "=", 
     "position": "6,2", 
     "type_hint": null
@@ -220,7 +220,7 @@ flavor=tart
     "type_hint": null
   }, 
   {
-    "name": "t_equal", 
+    "name": "t_key_value_delimiter", 
     "value": "=", 
     "position": "6,3", 
     "type_hint": null

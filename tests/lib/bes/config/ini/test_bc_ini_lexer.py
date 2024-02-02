@@ -33,7 +33,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'ab=',
       [
         ( 't_key', 'ab', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 3, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -43,7 +43,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'ab= ',
       [
         ( 't_key', 'ab', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 3, 1 ), None ),
         ( 't_space', '｢SP｣', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -54,7 +54,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'a=k',
       [
         ( 't_key', 'a', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 2, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 2, 1 ), None ),
         ( 't_value', 'k', ( 3, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -65,7 +65,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'fruit=kiwi',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 1 ), None ),
         ( 't_value', 'kiwi', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -76,7 +76,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'fruit=kiwi ',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 1 ), None ),
         ( 't_value', 'kiwi ', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -87,7 +87,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'fruit=kiwi   ',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 1 ), None ),
         ( 't_value', 'kiwi｢SP｣｢SP｣｢SP｣', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -99,7 +99,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_space', '｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 2, 1 ), None ),
-        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 3, 1 ), None ),
         ( 't_value', 'v', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -111,7 +111,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_space', '｢SP｣｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
-        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -123,7 +123,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_space', '｢TAB｣｢TAB｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
-        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -135,7 +135,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_space', '｢TAB｣｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
-        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -147,7 +147,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
         ( 't_space', '｢SP｣', ( 2, 1 ), None ),
-        ( 't_equal', '=', ( 3, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 3, 1 ), None ),
         ( 't_value', 'v', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -159,7 +159,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
         ( 't_space', '｢SP｣｢SP｣', ( 2, 1 ), None ),
-        ( 't_equal', '=', ( 4, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 4, 1 ), None ),
         ( 't_value', 'v', ( 5, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -172,7 +172,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
         ( 't_space', '｢TAB｣｢SP｣', ( 1, 1 ), None ),
         ( 't_key', 'k', ( 3, 1 ), None ),
         ( 't_space', ' ｢TAB｣', ( 4, 1 ), None ),
-        ( 't_equal', '=', ( 6, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 1 ), None ),
         ( 't_value', 'v', ( 7, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
       ])
@@ -183,7 +183,7 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
     t = self.call_tokenize(bc_ini_lexer, 'k= v',
       [
         ( 't_key', 'k', ( 1, 1 ), None ),
-        ( 't_equal', '=', ( 2, 1 ), None ),
+        ( 't_key_value_delimiter', '=', ( 2, 1 ), None ),
         ( 't_space', '｢SP｣', ( 3, 1 ), None ),
         ( 't_value', 'v', ( 4, 1 ), None ),
         ( 't_done', None, None, 'h_done' ),
@@ -197,11 +197,11 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
-        ( 't_equal', '=', ( 6, 2 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
         ( 't_line_break', '｢NL｣', ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 6, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
@@ -214,11 +214,11 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_line_break', '｢CR｣｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
-        ( 't_equal', '=', ( 6, 2 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
         ( 't_line_break', '｢CR｣｢NL｣', ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 6, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
         ( 't_line_break', '｢CR｣｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_comment_begin', ';', ( 1, 4 ), None ),
@@ -234,11 +234,11 @@ class test_bc_ini_lexer(btl_lexer_tester_mixin, unit_test):
       [
         ( 't_line_break', '｢CR｣｢NL｣', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
-        ( 't_equal', '=', ( 6, 2 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 2 ), None ),
         ( 't_value', 'kiwi', ( 7, 2 ), None ),
         ( 't_line_break', '｢NL｣', ( 11, 2 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 6, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 3 ), None ),
         ( 't_value', 'green', ( 7, 3 ), None ),
         ( 't_line_break', '｢CR｣｢NL｣', ( 12, 3 ), 'h_line_break' ),
         ( 't_comment_begin', ';', ( 1, 4 ), None ),
@@ -262,11 +262,11 @@ color=green
         ( 't_section_name_end', ']', ( 9, 2 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 2 ), 'h_line_break' ),
         ( 't_key', 'name', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 5, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 5, 3 ), None ),
         ( 't_value', 'kiwi', ( 6, 3 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 3 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 4 ), None ),
-        ( 't_equal', '=', ( 6, 4 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 4 ), None ),
         ( 't_value', 'green', ( 7, 4 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
@@ -290,11 +290,11 @@ color=green
         ( 't_comment', ' this is fruit 1', ( 12, 2 ), None ),
         ( 't_line_break', '｢NL｣', ( 28, 2 ), 'h_line_break' ),
         ( 't_key', 'name', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 5, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 5, 3 ), None ),
         ( 't_value', 'kiwi', ( 6, 3 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 3 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 4 ), None ),
-        ( 't_equal', '=', ( 6, 4 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 4 ), None ),
         ( 't_value', 'green', ( 7, 4 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
@@ -319,11 +319,11 @@ color=yellow
         ( 't_section_name_end', ']', ( 9, 2 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 2 ), 'h_line_break' ),
         ( 't_key', 'name', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 5, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 5, 3 ), None ),
         ( 't_value', 'kiwi', ( 6, 3 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 3 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 4 ), None ),
-        ( 't_equal', '=', ( 6, 4 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 4 ), None ),
         ( 't_value', 'green', ( 7, 4 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
         ( 't_line_break', '｢NL｣', ( 1, 5 ), 'h_line_break' ),
@@ -332,11 +332,11 @@ color=yellow
         ( 't_section_name_end', ']', ( 9, 6 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 6 ), 'h_line_break' ),
         ( 't_key', 'name', ( 1, 7 ), None ),
-        ( 't_equal', '=', ( 5, 7 ), None ),
+        ( 't_key_value_delimiter', '=', ( 5, 7 ), None ),
         ( 't_value', 'lemon', ( 6, 7 ), None ),
         ( 't_line_break', '｢NL｣', ( 11, 7 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 8 ), None ),
-        ( 't_equal', '=', ( 6, 8 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 8 ), None ),
         ( 't_value', 'yellow', ( 7, 8 ), None ),
         ( 't_line_break', '｢NL｣', ( 13, 8 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),
@@ -356,11 +356,11 @@ color=green
         ( 't_comment', ' fruit', ( 2, 2 ), None ),
         ( 't_line_break', '｢NL｣', ( 8, 2 ), 'h_line_break' ),
         ( 't_key', 'name', ( 1, 3 ), None ),
-        ( 't_equal', '=', ( 5, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 5, 3 ), None ),
         ( 't_value', 'kiwi', ( 6, 3 ), None ),
         ( 't_line_break', '｢NL｣', ( 10, 3 ), 'h_line_break' ),
         ( 't_key', 'color', ( 1, 4 ), None ),
-        ( 't_equal', '=', ( 6, 4 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 4 ), None ),
         ( 't_value', 'green', ( 7, 4 ), None ),
         ( 't_line_break', '｢NL｣', ( 12, 4 ), 'h_line_break' ),
         ( 't_done', None, None, 'h_done' ),

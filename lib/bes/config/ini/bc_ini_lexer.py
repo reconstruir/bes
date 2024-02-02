@@ -13,7 +13,7 @@ class bc_ini_lexer(btl_lexer_base):
     T_COMMENT = 't_comment'
     T_COMMENT_BEGIN = 't_comment_begin'
     T_DONE = 't_done'
-    T_EQUAL = 't_equal'
+    T_KEY_VALUE_DELIMITER = 't_key_value_delimiter'
     T_KEY = 't_key'
     T_LINE_BREAK = 't_line_break'
     T_SECTION_NAME = 't_section_name'
@@ -243,7 +243,7 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
-        tokens.append(self.make_token('t_equal', args = {}))
+        tokens.append(self.make_token('t_key_value_delimiter', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
@@ -338,7 +338,7 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
-        tokens.append(self.make_token('t_equal', args = {}))
+        tokens.append(self.make_token('t_key_value_delimiter', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
@@ -432,7 +432,7 @@ tokens
   t_comment
   t_done
     type_hint: h_done
-  t_equal
+  t_key_value_delimiter
   t_comment_begin
   t_key
   t_line_break
@@ -563,7 +563,7 @@ states
       emit t_space
       buffer reset
       buffer write
-      emit t_equal
+      emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
       emit t_done
@@ -608,7 +608,7 @@ states
       emit t_key
       buffer reset
       buffer write
-      emit t_equal
+      emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
       emit t_key
