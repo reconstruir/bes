@@ -6,13 +6,10 @@ import os.path as path
 
 from ..cli.cli_command_handler import cli_command_handler
 from ..common.Script import Script
-from ..fs.file_check import file_check
-from ..fs.file_util import file_util
-from ..fs.temp_file import temp_file
-from ..script.blurber import blurber
 from ..system.check import check
 from ..files.bf_filename import bf_filename
 from ..files.bf_file_ops import bf_file_ops
+from ..files.bf_file_ops import bf_check
 
 from ..btl.btl_lexer_desc import btl_lexer_desc
 from ..mermaid.mermaid_ink import mermaid_ink
@@ -29,28 +26,26 @@ class btl_cli_handler(cli_command_handler):
     self.options.blurber.set_verbose(self.options.verbose)
 
   def lexer_make_mmd(self, filename, output_filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(output_filename)
 
     desc = btl_lexer_desc.parse_file(filename)
-    with open(output_filename, 'w') as f:
-      f.write(desc.to_mermaid_diagram())
+    bf_file_ops.save(output_filename, content = output_bytes)
     return 0
   
   def lexer_make_diagram(self, filename, output_filename, output_format):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(output_filename)
     check.check_string(output_format)
 
     desc = btl_lexer_desc.parse_file(filename)
     mmd_content = desc.to_mermaid_diagram()
     output_bytes = mermaid_ink.img_request(mmd_content, output_format)
-    with open(output_filename, 'wb') as f:
-      f.write(output_bytes)
+    bf_file_ops.save(output_filename, content = output_bytes)
     return 0
     
   def lexer_make_code(self, filename, output_filename, namespace, name):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(output_filename)
     check.check_string(namespace, allow_none = True)
     check.check_string(name, allow_none = True)
