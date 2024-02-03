@@ -16,7 +16,7 @@ class test_btl_lexer_desc_token(_test_simple_lexer_mixin, unit_test):
     token = btl_lexer_desc_token('kiwi', {})
     self.assert_python_code_text_equal( '''
 KIWI = 'kiwi'
-''', self.call_buf_func(token, 'generate_code') )
+''', self.call_function_with_buf(token, 'generate_code') )
 
 if __name__ == '__main__':
   unit_test.main()

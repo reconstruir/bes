@@ -62,7 +62,7 @@ stateDiagram-v2
 
   def test_generate_code(self):
     desc = btl_parser_desc.parse_text(self._simple_lexer_desc_text)
-    actual = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi_lexer')
+    actual = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     #print(actual)
     #return
     self.assert_python_code_text_equal( self._EXPECTED_CODE, actual )
@@ -82,7 +82,7 @@ stateDiagram-v2
       
   def test_use_code(self):
     desc = btl_parser_desc.parse_text(self._simple_lexer_desc_text)
-    lexer_code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi_lexer')
+    lexer_code = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     use_code = '''
 import unittest
 

@@ -20,7 +20,7 @@ class test_btl_lexer_desc_state(_test_simple_lexer_mixin, unit_test):
 class e_bad(btl_lexer_runtime_error):
   def __init__(self, message = None):
     super().__init__(message = message)
-''', self.call_buf_func(error, 'generate_code') )
+''', self.call_function_with_buf(error, 'generate_code') )
   
 if __name__ == '__main__':
   unit_test.main()

@@ -6,7 +6,6 @@ from bes.property.cached_class_property import cached_class_property
 from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser
 from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
-from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
 class _test_simple_lexer_mixin:
 
@@ -35,7 +34,7 @@ class _test_simple_lexer_mixin:
     return None
 
   @classmethod
-  def call_buf_func(clazz, o, func_name, *args, **kwargs):
+  def call_function_with_buf(clazz, o, func_name, *args, **kwargs):
     buf = btl_code_gen_buffer()
     func = getattr(o, func_name)
     func(buf, *args, **kwargs)

@@ -20,7 +20,7 @@ class test_btl_lexer_desc_token_list(_test_simple_lexer_mixin, unit_test):
     ])
     token = btl_lexer_desc_token('kiwi', {})
 
-    #s = self.call_buf_func(tokens, 'generate_code')
+    #s = self.call_function_with_buf(tokens, 'generate_code')
     #print(s)
     #return
     
@@ -29,7 +29,7 @@ class test_btl_lexer_desc_token_list(_test_simple_lexer_mixin, unit_test):
   KIWI = 'kiwi'
   LEMON = 'lemon'
   MELON = 'melon'
-''', self.call_buf_func(tokens, 'generate_code') )
+''', self.call_function_with_buf(tokens, 'generate_code') )
     
 if __name__ == '__main__':
   unit_test.main()

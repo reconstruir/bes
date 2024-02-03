@@ -17,25 +17,25 @@ class test_btl_lexer_desc_state_command(_test_simple_lexer_mixin, unit_test):
     cmd = btl_lexer_desc_state_command('emit', 't_cheese', {})
     self.assert_python_code_text_equal( '''
 tokens.append(self.make_token('t_cheese', args = {}))
-''', self.call_buf_func(cmd, 'generate_code', []) )
+''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
   def test_generate_code_with_buffer_write(self):
     cmd = btl_lexer_desc_state_command('buffer', 'write', {})
     self.assert_python_code_text_equal( '''
 self.buffer_write(c)
-''', self.call_buf_func(cmd, 'generate_code', []) )
+''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
   def test_generate_code_with_buffer_reset(self):
     cmd = btl_lexer_desc_state_command('buffer', 'reset', {})
     self.assert_python_code_text_equal( '''
 self.buffer_reset()
-''', self.call_buf_func(cmd, 'generate_code', []) )
+''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
   def test_generate_code_with_buffer_unknown_action(self):
     cmd = btl_lexer_desc_state_command('buffer', 'notthere', {})
 
     with self.assertRaises(btl_lexer_error) as ctx:
-      self.call_buf_func(cmd, 'generate_code', [])
+      self.call_function_with_buf(cmd, 'generate_code', [])
     self.assertEqual( 'Unknown command action: "notthere"', ctx.exception.message )
     
 if __name__ == '__main__':
