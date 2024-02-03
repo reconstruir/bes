@@ -14,7 +14,7 @@ class test_btl_cli_args(_test_simple_lexer_mixin, program_unit_test):
     args = [
       'btl',
       'lexer_make_mmd',
-      self._keyval1_desc_filename,
+      self._simple_lexer_desc_filename,
       tmp,
     ]
     rv = self.run_program(self._program, args)
@@ -51,7 +51,7 @@ stateDiagram-v2
       'btl',
       'lexer_make_diagram',
       '--format', 'svg',
-      self._keyval1_desc_filename,
+      self._simple_lexer_desc_filename,
       tmp,
     ]
     rv = self.run_program(self._program, args)

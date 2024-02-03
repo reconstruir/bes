@@ -11,24 +11,24 @@ from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 class _test_simple_lexer_mixin:
 
   @cached_class_property
-  def _keyval1_desc_filename(clazz):
+  def _simple_lexer_desc_filename(clazz):
     here = path.dirname(__file__)
     filename = path.join(here, '_test_simple_lexer.btl')
     return path.abspath(filename)
   
   @cached_class_property
-  def _keyval1_desc_text(clazz):
-    return file_util.read(clazz._keyval1_desc_filename, codec = 'utf-8')
+  def _simple_lexer_desc_text(clazz):
+    return file_util.read(clazz._simple_lexer_desc_filename, codec = 'utf-8')
 
   @classmethod
-  def _keyval1_desc_tree(clazz):
-    return tree_text_parser.parse(clazz._keyval1_desc_text,
+  def _simple_lexer_desc_tree(clazz):
+    return tree_text_parser.parse(clazz._simple_lexer_desc_text,
                                   strip_comments = True,
                                   root_name = 'btl_lexer_desc')
 
   @classmethod
-  def _keyval1_desc_tree_section(clazz, section_name):
-    root = clazz._keyval1_desc_tree()
+  def _simple_lexer_desc_tree_section(clazz, section_name):
+    root = clazz._simple_lexer_desc_tree()
     for child in root.children:
       if child.data.text == section_name:
         return child

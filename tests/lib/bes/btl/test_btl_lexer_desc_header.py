@@ -13,7 +13,7 @@ from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 class test_btl_lexer_desc_header(_test_simple_lexer_mixin, unit_test):
 
   def test_parse_node(self):
-    lexer_node = self._keyval1_desc_tree_section('lexer')
+    lexer_node = self._simple_lexer_desc_tree_section('lexer')
     self.assertEqual( (
       'keyval',
       'A Key Value pair lexer',
@@ -23,7 +23,7 @@ class test_btl_lexer_desc_header(_test_simple_lexer_mixin, unit_test):
     ), btl_lexer_desc_header.parse_node(lexer_node) )
 
   def test_parse_node_invalid_key(self):
-    lexer_node = self._keyval1_desc_tree_section('lexer')
+    lexer_node = self._simple_lexer_desc_tree_section('lexer')
     assert lexer_node.children[0].data.text == 'name: keyval'
     lexer_node.children[0].data = _text_node_data('kiwi: green', lexer_node.children[0].data.line_number)
     with self.assertRaises(btl_error) as ctx:
@@ -31,7 +31,7 @@ class test_btl_lexer_desc_header(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( True, 'Invalid header key "kiwi" at <unknown>' in ctx.exception.message )
 
   def test_parse_node_missing_key(self):
-    lexer_node = self._keyval1_desc_tree_section('lexer')
+    lexer_node = self._simple_lexer_desc_tree_section('lexer')
     lexer_node.children = lexer_node.children[0:-2]
     with self.assertRaises(btl_error) as ctx:
       btl_lexer_desc_header.parse_node(lexer_node)
