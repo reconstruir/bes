@@ -8,7 +8,7 @@ from bes.text.tree_text_parser import tree_text_parser
 from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
-class _test_lexer_desc_mixin:
+class _test_simple_lexer_mixin:
 
   @cached_class_property
   def _keyval1_desc_filename(clazz):

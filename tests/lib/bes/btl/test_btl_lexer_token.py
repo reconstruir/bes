@@ -5,9 +5,9 @@ from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
-from _test_lexer_desc_mixin import _test_lexer_desc_mixin
+from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 
-class test_btl_lexer_token(_test_lexer_desc_mixin, unit_test):
+class test_btl_lexer_token(_test_simple_lexer_mixin, unit_test):
 
   def test_to_json(self):
     self.assert_json_equal( '''

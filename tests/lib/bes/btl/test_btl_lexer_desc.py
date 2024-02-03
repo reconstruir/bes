@@ -21,9 +21,9 @@ from bes.btl.btl_lexer_desc_state import btl_lexer_desc_state
 from bes.btl.btl_lexer_desc_state_command import btl_lexer_desc_state_command
 from bes.btl.btl_lexer_desc_state_transition import btl_lexer_desc_state_transition
 
-from _test_lexer_desc_mixin import _test_lexer_desc_mixin
+from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 
-class test_btl_lexer_desc(_test_lexer_desc_mixin, unit_test):
+class test_btl_lexer_desc(_test_simple_lexer_mixin, unit_test):
 
   def test_parse_text_to_json(self):
     #print(btl_lexer_desc.parse_text(self._keyval1_desc_text).to_json())

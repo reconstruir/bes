@@ -9,9 +9,9 @@ from bes.btl.btl_lexer_error import btl_lexer_error
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
 
-from _test_lexer_desc_mixin import _test_lexer_desc_mixin
+from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 
-class test_btl_lexer_desc_state_command(_test_lexer_desc_mixin, unit_test):
+class test_btl_lexer_desc_state_command(_test_simple_lexer_mixin, unit_test):
 
   def test_generate_code_with_emit(self):
     cmd = btl_lexer_desc_state_command('emit', 't_cheese', {})
