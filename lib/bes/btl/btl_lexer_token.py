@@ -112,6 +112,13 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     ' ': '｢SP｣',
     '\0': '｢EOS｣',
   }
+  x_debug_char_map = {
+    '\n': '[NL]',
+    '\r': '[CR]',
+    '\t': '[TAB]',
+    ' ': '[SP]',
+    '\0': '[EOS]',
+  }
   @classmethod
   def make_debug_str(clazz, s):
     if s == None:

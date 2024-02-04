@@ -9,7 +9,7 @@ class test_btl_cli_args(_test_simple_lexer_mixin, program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
-  def test_make_mmd(self):
+  def test_lexer_make_mmd(self):
     tmp = self.make_temp_file(suffix = '.mmd')
     args = [
       'btl',
@@ -45,7 +45,7 @@ stateDiagram-v2
   s_done --> [*]    
   ''', tmp )
 
-  def test_make_diagram(self):
+  def test_lexer_make_diagram(self):
     tmp = self.make_temp_file(suffix = '.svg')
     args = [
       'btl',

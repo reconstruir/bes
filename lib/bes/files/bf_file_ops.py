@@ -78,7 +78,11 @@ class bf_file_ops(object):
   def _cross_device_safe_rename(clazz, src, dst):
     'Rename that deals with cross device link issues.' 
     try:
-      os.rename(src, dst)
+      try:
+        os.rename(src, dst)
+      except FileExistsError as fex:
+        filesystem.remove(dst)
+        os.rename(src, dst)
     except OSError as ex:
       if ex.errno == errno.EXDEV:
         shutil.move(src, dst)

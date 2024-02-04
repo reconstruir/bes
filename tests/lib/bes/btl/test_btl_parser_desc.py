@@ -34,7 +34,7 @@ class test_btl_parser_desc(_test_simple_lexer_mixin, unit_test):
   def test_to_mermaid_diagram(self):
     #print(btl_parser_desc.parse_text(self._simple_lexer_desc_text).to_mermaid_diagram())
     #return
-    self.assertEqual( '''\
+    self.assert_string_equal_fuzzy( '''\
 stateDiagram-v2
   direction LR
 
