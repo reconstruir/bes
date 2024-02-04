@@ -51,7 +51,7 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
       error = errors.find_error(self.action)
       if not error:
         raise btl_lexer_error(f'Unknown error: {self.action}')
-      buf.write_line(f'name = self.name')
+      buf.write_line(f'state_name = self.name')
       buf.write_line(f'char = c')
       buf.write_line(f"""msg = f'{error.message}'""")
       buf.write_line(f'raise self.lexer.{error.error_class_name}(message = msg)')

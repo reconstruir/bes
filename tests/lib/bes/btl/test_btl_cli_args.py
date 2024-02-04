@@ -26,7 +26,7 @@ stateDiagram-v2
   %% s_start state
   [*] --> s_start
   s_start --> s_done: c_eos
-  s_start --> s_start: c_nl
+  s_start --> s_start: c_line_break
   s_start --> s_start: c_ws
   s_start --> s_key: c_keyval_key_first
   s_start --> s_done: default
@@ -37,7 +37,7 @@ stateDiagram-v2
   s_key --> s_done: c_eos
     
   %% s_value state
-  s_value --> s_start: c_nl
+  s_value --> s_start: c_line_break
   s_value --> s_done: c_eos
   s_value --> s_value: default
     
@@ -112,7 +112,7 @@ stateDiagram-v2
             <rect rx="0" ry="0" width="80.828125" height="19"/>
             <foreignObject width="80.828125" height="19">
               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
-                <span class="edgeLabel">c_nl</span>
+                <span class="edgeLabel">c_line_break</span>
               </div>
             </foreignObject>
           </g>
@@ -182,7 +182,7 @@ stateDiagram-v2
             <rect rx="0" ry="0" width="80.828125" height="19"/>
             <foreignObject width="80.828125" height="19">
               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
-                <span class="edgeLabel">c_nl</span>
+                <span class="edgeLabel">c_line_break</span>
               </div>
             </foreignObject>
           </g>

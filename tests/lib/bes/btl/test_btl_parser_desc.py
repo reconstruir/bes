@@ -41,7 +41,7 @@ stateDiagram-v2
   %% s_start state
   [*] --> s_start
   s_start --> s_done: c_eos
-  s_start --> s_start: c_nl
+  s_start --> s_start: c_line_break
   s_start --> s_start: c_ws
   s_start --> s_key: c_keyval_key_first
   s_start --> s_done: default
@@ -52,7 +52,7 @@ stateDiagram-v2
   s_key --> s_done: c_eos
 
   %% s_value state
-  s_value --> s_start: c_nl
+  s_value --> s_start: c_line_break
   s_value --> s_done: c_eos
   s_value --> s_value: default
 
@@ -182,7 +182,7 @@ class _fruit_kiwi_lexer(btl_parser_base):
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -240,7 +240,7 @@ class _fruit_kiwi_lexer(btl_parser_base):
       new_state = None
       tokens = []
   
-      if self.char_in(c, 'c_nl'):
+      if self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
@@ -308,7 +308,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -319,7 +319,7 @@ states
   s_start
     c_eos: s_done
       emit t_done
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
       buffer reset
@@ -345,7 +345,7 @@ states
       emit t_done
       
   s_value
-    c_nl: s_start
+    c_line_break: s_start
       emit t_value
       buffer reset
       buffer write
@@ -364,7 +364,7 @@ states
 check.register_class(_fruit_kiwi_lexer, include_seq = False)
 '''
 
-  _DESC_JSON = '''
+  _DESC_JSON = r'''
 {
   "header": {
     "name": "keyval", 
@@ -406,7 +406,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   "errors": [
     {
       "name": "e_unexpected_char", 
-      "message": "In state {state} unexpected character {char} instead of key"
+      "message": "In state \"{state_name}\" unexpected character: \"{char}\""
     }
   ], 
   "char_map": {
@@ -554,7 +554,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
         }, 
         {
           "to_state": "s_start", 
-          "char_name": "c_nl", 
+          "char_name": "c_line_break", 
           "commands": [
             {
               "name": "buffer", 
@@ -683,7 +683,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "transitions": [
         {
           "to_state": "s_start", 
-          "char_name": "c_nl", 
+          "char_name": "c_line_break", 
           "commands": [
             {
               "name": "emit", 

@@ -20,7 +20,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -31,7 +31,7 @@ states
   s_start
     c_eos: s_done
       emit t_done
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
       buffer reset
@@ -57,7 +57,7 @@ states
       emit t_done
       
   s_value
-    c_nl: s_start
+    c_line_break: s_start
       emit t_value
       buffer reset
       buffer write

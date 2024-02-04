@@ -37,7 +37,7 @@ class _test_simple_lexer(btl_lexer_base):
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -50,9 +50,9 @@ class _test_simple_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char} instead of key'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -99,7 +99,7 @@ class _test_simple_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if self.char_in(c, 'c_nl'):
+      if self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
@@ -167,7 +167,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char} instead of key
+  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -178,7 +178,7 @@ states
   s_start
     c_eos: s_done
       emit t_done
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
       buffer reset
@@ -204,7 +204,7 @@ states
       emit t_done
       
   s_value
-    c_nl: s_start
+    c_line_break: s_start
       emit t_value
       buffer reset
       buffer write

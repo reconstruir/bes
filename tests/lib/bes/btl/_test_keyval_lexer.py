@@ -50,9 +50,9 @@ class _test_keyval_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state "{name}" unexpected character: "{char}"'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -86,9 +86,9 @@ class _test_keyval_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state "{name}" unexpected character: "{char}"'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -120,9 +120,9 @@ class _test_keyval_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state "{name}" unexpected character: "{char}"'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -159,9 +159,9 @@ class _test_keyval_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state "{name}" unexpected character: "{char}"'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -194,9 +194,9 @@ class _test_keyval_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state "{name}" unexpected character: "{char}"'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -320,7 +320,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state "{name}" unexpected character: "{char}"
+  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha

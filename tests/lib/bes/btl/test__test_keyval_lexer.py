@@ -191,7 +191,7 @@ class test__test_keyval_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def test_multi_line(self):
+  def test_multi_line_nl(self):
     t = self.call_tokenize(_test_keyval_lexer, '''\nfruit=kiwi\ncolor=green\n''', 
       [
         ( 't_line_break', '｢NL｣', ( 1, 1 ), 'h_line_break' ),

@@ -23,8 +23,8 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char}
-  e_unexpected_eos: In state {state} unexpected end-of-string
+  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
+  e_unexpected_eos: In state "{state_name}" unexpected end-of-string
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -123,7 +123,7 @@ states
   s_before_key_space
     c_ws: s_before_key_space
       buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
@@ -152,7 +152,7 @@ states
   s_before_value_space
     c_ws: s_value_key_space
       buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
@@ -172,7 +172,7 @@ states
       buffer write
     c_eos: s_done
       emit t_done
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
     c_keyval_key_first: s_value

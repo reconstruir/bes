@@ -68,9 +68,9 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_reset()
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -129,15 +129,15 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -173,9 +173,9 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -214,9 +214,9 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -236,7 +236,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state = 's_before_key_space'
         self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
@@ -249,9 +249,9 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -283,9 +283,9 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -305,7 +305,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state = 's_value_key_space'
         self.buffer_write(c)
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
@@ -322,9 +322,9 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_done'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -347,7 +347,7 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
-      elif self.char_in(c, 'c_nl'):
+      elif self.char_in(c, 'c_line_break'):
         new_state = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
@@ -356,9 +356,9 @@ class bc_ini_lexer(btl_lexer_base):
         self.buffer_write(c)
       else:
         new_state = 's_value'
-        name = self.name
+        state_name = self.name
         char = c
-        msg = f'In state {state} unexpected character {char}'
+        msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
       self.lexer.change_state(new_state, c)
@@ -489,8 +489,8 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state {state} unexpected character {char}
-  e_unexpected_eos: In state {state} unexpected end-of-string
+  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
+  e_unexpected_eos: In state "{state_name}" unexpected end-of-string
 
 chars
   c_keyval_key_first: c_underscore | c_alpha
@@ -589,7 +589,7 @@ states
   s_before_key_space
     c_ws: s_before_key_space
       buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
@@ -618,7 +618,7 @@ states
   s_before_value_space
     c_ws: s_value_key_space
       buffer write
-    c_nl: s_start
+    c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
@@ -638,7 +638,7 @@ states
       buffer write
     c_eos: s_done
       emit t_done
-    c_nl: s_start
+    c_line_break: s_start
       buffer write
       emit t_line_break
     c_keyval_key_first: s_value
