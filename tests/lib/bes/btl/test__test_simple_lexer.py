@@ -3,7 +3,10 @@
 
 import os
 
+from bes.system.host import host
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
+
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 
 from _test_simple_lexer import _test_simple_lexer
@@ -94,5 +97,47 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
+  @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
+  def test_multi_line_os_linesep_windows(self):
+    t = self.call_tokenize(_test_simple_lexer, '''
+fruit=kiwi
+color=green
+''', 
+      [
+        ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
+        ( 't_key', 'fruit', ( 1, 2 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 2 ), None ),
+        ( 't_value', 'kiwi', ( 7, 2 ), None ),
+        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 3 ), None ),
+        ( 't_value', 'green', ( 7, 3 ), None ),
+        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break' ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
+  def test_multi_line_os_linesep_unix(self):
+    t = self.call_tokenize(_test_simple_lexer, '''
+fruit=kiwi
+color=green
+''', 
+      [
+        ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
+        ( 't_key', 'fruit', ( 1, 2 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 2 ), None ),
+        ( 't_value', 'kiwi', ( 7, 2 ), None ),
+        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break' ),
+        ( 't_key', 'color', ( 1, 3 ), None ),
+        ( 't_key_value_delimiter', '=', ( 6, 3 ), None ),
+        ( 't_value', 'green', ( 7, 3 ), None ),
+        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break' ),
+        ( 't_done', None, None, 'h_done' ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+    
 if __name__ == '__main__':
   unit_test.main()
