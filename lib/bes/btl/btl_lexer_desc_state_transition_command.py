@@ -7,39 +7,12 @@ from .btl_parsing import btl_parsing
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-class btl_lexer_desc_state_transition_command(object):
+from .btl_desc_command import btl_desc_command
+
+class btl_lexer_desc_state_transition_command(btl_desc_command):
   
   def __init__(self, name, action, args):
-    check.check_string(name)
-    check.check_string(action)
-    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
-
-    self.name = name
-    self.action = action
-    self.args = args
-    
-  def to_dict(self):
-    return {
-      'name': self.name,
-      'action': self.action,
-      'args': self.args,
-    }
-
-  def to_tuple(self):
-    return ( self.name, self.action, self.args )
-  
-  @classmethod
-  def parse_node(clazz, n, source = '<unknown>'):
-    check.check_node(n)
-    check.check_string(source)
-
-    parts = string_util.split_by_white_space(n.data.text, strip = True)
-    name = parts.pop(0)
-    if not parts:
-      raise btl_lexer_error(f'Missing arguments for command: "{name}" - line {n.data.line_number}')
-    action = parts.pop(0)
-    args = clazz._parse_key_values(parts)
-    return btl_lexer_desc_state_transition_command(name, action, args)
+    super().__init__(name, action, args)
 
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
@@ -64,18 +37,5 @@ class btl_lexer_desc_state_transition_command(object):
       buf.write_line(f'raise self.lexer.{error.error_class_name}(message = msg)')
     else:
       raise btl_lexer_error(f'Unknown command: {self.name}')
-
-  @classmethod
-  def _parse_key_value(clazz, s):
-    key, delim, value = s.partition('=')
-    return ( key.strip(), value.strip() )
-        
-  @classmethod
-  def _parse_key_values(clazz, parts):
-    result = {}
-    for part in parts:
-      key, value = clazz._parse_key_value(part)
-      result[key] = value
-    return result
         
 check.register_class(btl_lexer_desc_state_transition_command, include_seq = False)

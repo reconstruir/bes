@@ -3,7 +3,7 @@
 from ..system.check import check
 from ..common.string_util import string_util
 
-from .btl_parsing import btl_parsing
+from .btl_lexer_error import btl_lexer_error
 
 class btl_desc_command(object):
   
@@ -33,10 +33,12 @@ class btl_desc_command(object):
 
     parts = string_util.split_by_white_space(n.data.text, strip = True)
     name = parts.pop(0)
-    command = parts.pop(0)
+    if not parts:
+      raise btl_lexer_error(f'Missing arguments for command: "{name}" - line {n.data.line_number}')
+    action = parts.pop(0)
     args = clazz._parse_key_values(parts)
-    return btl_desc_command(name, command, args)
-
+    return clazz(name, action, args)
+  
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
 
