@@ -19,7 +19,7 @@ class test_btl_lexer_desc_state(_test_simple_lexer_mixin, unit_test):
     char_map = btl_lexer_desc_char_map()
     cmd = btl_lexer_desc_state_command('emit', 't_cheese', {})
     transition = btl_lexer_desc_state_transition('s_juice', 'c_equal', [ cmd ])
-    state = btl_lexer_desc_state('s_juice', [ transition ], False)
+    state = btl_lexer_desc_state('s_juice', [ transition ])
 
     self.assert_python_code_text_equal('''
 class _state_s_juice(btl_lexer_state_base):

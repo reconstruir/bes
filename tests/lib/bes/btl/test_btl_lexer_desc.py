@@ -620,8 +620,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             }
           ]
         }
-      ], 
-      "is_end_state": false
+      ]
     }, 
     {
       "name": "s_key", 
@@ -689,8 +688,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             }
           ]
         }
-      ], 
-      "is_end_state": false
+      ]
     }, 
     {
       "name": "s_value", 
@@ -758,13 +756,11 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             }
           ]
         }
-      ], 
-      "is_end_state": false
+      ]
     }, 
     {
       "name": "s_done", 
-      "transitions": [], 
-      "is_end_state": false
+      "transitions": []
     }
   ]
 }

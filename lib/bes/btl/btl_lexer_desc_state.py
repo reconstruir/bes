@@ -10,20 +10,18 @@ from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 from .btl_lexer_desc_state_transition_list import btl_lexer_desc_state_transition_list
 
-class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions, is_end_state')):
+class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions')):
   
-  def __new__(clazz, name, transitions, is_end_state):
+  def __new__(clazz, name, transitions):
     check.check_string(name)
-    check.check_bool(is_end_state)
     
     transitions = check.check_btl_lexer_desc_state_transition_list(transitions)
-    return clazz.__bases__[0].__new__(clazz, name, transitions, is_end_state)
+    return clazz.__bases__[0].__new__(clazz, name, transitions)
 
   def to_dict(self):
     return {
       'name': self.name,
       'transitions': self.transitions.to_dict_list(),
-      'is_end_state': self.is_end_state,
     }
   
   @classmethod
@@ -33,7 +31,7 @@ class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions
 
     name = n.data.text.strip()
     transitions = btl_lexer_desc_state_transition_list.parse_node(n, source = source)
-    return btl_lexer_desc_state(name, transitions, name == end_state)
+    return btl_lexer_desc_state(name, transitions)
 
   def generate_code(self, buf, errors, char_map):
     check.check_btl_code_gen_buffer(buf)
