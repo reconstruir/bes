@@ -64,7 +64,7 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_multi_line_nl(self):
-    t = self.call_tokenize(_test_simple_lexer, '''\nfruit=kiwi\ncolor=green\n''', 
+    t = self.call_tokenize(_test_simple_lexer, '''\nfruit=kiwi\ncolor=green\n''',
       [
         ( 't_line_break', '[NL]', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
@@ -81,7 +81,7 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
   def test_multi_line_crlf(self):
-    t = self.call_tokenize(_test_simple_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n''', 
+    t = self.call_tokenize(_test_simple_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n''',
       [
         ( 't_line_break', '[CR][NL]', ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
@@ -99,10 +99,7 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
 
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_multi_line_os_linesep_windows(self):
-    t = self.call_tokenize(_test_simple_lexer, '''
-fruit=kiwi
-color=green
-''', 
+    t = self.call_tokenize(_test_simple_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n''',
       [
         ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
@@ -120,10 +117,7 @@ color=green
 
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_multi_line_os_linesep_unix(self):
-    t = self.call_tokenize(_test_simple_lexer, '''
-fruit=kiwi
-color=green
-''', 
+    t = self.call_tokenize(_test_simple_lexer, '''\nfruit=kiwi\ncolor=green\n''',
       [
         ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break' ),
         ( 't_key', 'fruit', ( 1, 2 ), None ),
