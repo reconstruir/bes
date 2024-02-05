@@ -150,8 +150,8 @@ class _test_simple_lexer(btl_lexer_base):
 # Key Value pair lexer
 #
 lexer
-  name: keyval
-  description: A Key Value pair lexer
+  name: l_simple
+  description: A simple key value pair lexer
   version: 1.0
   start_state: s_start
   end_state: s_done

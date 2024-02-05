@@ -305,8 +305,8 @@ class _fruit_kiwi_lexer(btl_lexer_base):
 # Key Value pair lexer
 #
 lexer
-  name: keyval
-  description: A Key Value pair lexer
+  name: l_simple
+  description: A simple key value pair lexer
   version: 1.0
   start_state: s_start
   end_state: s_done
@@ -381,8 +381,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   _DESC_JSON = r'''
 {
   "header": {
-    "name": "keyval", 
-    "description": "A Key Value pair lexer", 
+    "name": "l_simple", 
+    "description": "A simple key value pair lexer", 
     "version": "1.0", 
     "start_state": "s_start", 
     "end_state": "s_done"

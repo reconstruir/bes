@@ -3,9 +3,9 @@
 # Key Value pair parser
 #
 parser
-  name: keyval
-  description: A Key Value pair parser
-  version: 2.0
+  name: p_simple
+  description: A simple key value pair parser
+  version: 1.0
   start_state: s_start
   end_state: s_done
 

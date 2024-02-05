@@ -15,8 +15,8 @@ class test_btl_lexer_desc_header(_test_simple_lexer_mixin, unit_test):
   def test_parse_node(self):
     lexer_node = self._simple_lexer_desc_tree_section('lexer')
     self.assertEqual( (
-      'keyval',
-      'A Key Value pair lexer',
+      'l_simple',
+      'A simple key value pair lexer',
       '1.0',
       's_start',
       's_done',
@@ -24,7 +24,7 @@ class test_btl_lexer_desc_header(_test_simple_lexer_mixin, unit_test):
 
   def test_parse_node_invalid_key(self):
     lexer_node = self._simple_lexer_desc_tree_section('lexer')
-    assert lexer_node.children[0].data.text == 'name: keyval'
+    assert lexer_node.children[0].data.text == 'name: l_simple'
     lexer_node.children[0].data = _text_node_data('kiwi: green', lexer_node.children[0].data.line_number)
     with self.assertRaises(btl_error) as ctx:
       btl_lexer_desc_header.parse_node(lexer_node)
