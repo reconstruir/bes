@@ -1,47 +1,28 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
-
 from ..system.check import check
-from ..common.string_util import string_util
 
-from .btl_parsing import btl_parsing
+from .btl_desc_command import btl_desc_command
+from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-class btl_parser_desc_state_transition_command(namedtuple('btl_parser_desc_state_transition_command', 'name, command, args')):
-  
-  def __new__(clazz, name, command, args):
-    check.check_string(name)
-    check.check_string(command)
-    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
-    
-    return clazz.__bases__[0].__new__(clazz, name, command, args)
+class btl_parser_desc_state_transition_command(btl_desc_command):
 
-  def to_dict(self):
-    return dict(self._asdict())
-  
-  @classmethod
-  def parse_node(clazz, n, source = '<unknown>'):
-    check.check_node(n)
-    check.check_string(source)
+  def __init__(self, name, action, args):
+    super().__init__(name, action, args)
 
-    parts = string_util.split_by_white_space(n.data.text, strip = True)
-    name = parts.pop(0)
-    command = parts.pop(0)
-    args = clazz._parse_key_values(parts)
-    return btl_parser_desc_state_transition_command(name, command, args)
-
-  def generate_code(self, buf):
+  def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
+    errors = check.check_btl_lexer_desc_error_list(errors)
 
     if self.name == 'emit':
-      buf.write_line(f'tokens.append(self.make_token(\'{self.command}\', args = {self.args}))')
+      buf.write_line(f'tokens.append(self.make_token(\'{self.action}\', args = {self.args}))')
     elif self.name == 'buffer':
-      if self.command == 'write':
+      if self.action == 'write':
         buf.write_line(f'self.buffer_write(c)')
-      elif self.command == 'reset':
+      elif self.action == 'reset':
         buf.write_line(f'self.buffer_reset()')
       else:
-        buf.write_line(f'''raise btl_parser_error('Unknown buffer command: "{self.command}"')''')
+        buf.write_line(f'''raise btl_parser_error('Unknown buffer command: "{self.action}"')''')
 
   @classmethod
   def _parse_key_value(clazz, s):

@@ -35,11 +35,12 @@ class btl_parser_desc_state_list(type_checked_list):
       result.append(next_desc_state)
     return result
 
-  def generate_code(self, buf, char_map):
+  def generate_code(self, buf, errors, char_map):
     check.check_btl_code_gen_buffer(buf)
+    errors = check.check_btl_lexer_desc_error_list(errors)
     check.check_btl_parser_desc_char_map(char_map)
 
     for state in self:
-      state.generate_code(buf, char_map)
+      state.generate_code(buf, errors, char_map)
   
 btl_parser_desc_state_list.register_check_class()  

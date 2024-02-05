@@ -547,7 +547,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "emit", 
-              "command": "t_done", 
+              "action": "t_done", 
               "args": {}
             }
           ]
@@ -558,17 +558,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "command": "write", 
+              "action": "write", 
               "args": {}
             }, 
             {
               "name": "emit", 
-              "command": "t_line_break", 
+              "action": "t_line_break", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }
           ]
@@ -579,7 +579,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "emit", 
-              "command": "t_space", 
+              "action": "t_space", 
               "args": {}
             }
           ]
@@ -590,7 +590,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "command": "write", 
+              "action": "write", 
               "args": {}
             }
           ]
@@ -601,7 +601,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "error", 
-              "command": "e_unexpected_char", 
+              "action": "e_unexpected_char", 
               "args": {}
             }
           ]
@@ -617,7 +617,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "command": "write", 
+              "action": "write", 
               "args": {}
             }
           ]
@@ -628,27 +628,27 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "emit", 
-              "command": "t_key", 
+              "action": "t_key", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "write", 
+              "action": "write", 
               "args": {}
             }, 
             {
               "name": "emit", 
-              "command": "t_key_value_delimiter", 
+              "action": "t_key_value_delimiter", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }
           ]
@@ -659,17 +659,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "emit", 
-              "command": "t_key", 
+              "action": "t_key", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }, 
             {
               "name": "emit", 
-              "command": "t_done", 
+              "action": "t_done", 
               "args": {}
             }
           ]
@@ -685,27 +685,27 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "emit", 
-              "command": "t_value", 
+              "action": "t_value", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "write", 
+              "action": "write", 
               "args": {}
             }, 
             {
               "name": "emit", 
-              "command": "t_line_break", 
+              "action": "t_line_break", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }
           ]
@@ -716,17 +716,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "emit", 
-              "command": "t_value", 
+              "action": "t_value", 
               "args": {}
             }, 
             {
               "name": "buffer", 
-              "command": "reset", 
+              "action": "reset", 
               "args": {}
             }, 
             {
               "name": "emit", 
-              "command": "t_done", 
+              "action": "t_done", 
               "args": {}
             }
           ]
@@ -737,7 +737,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "command": "write", 
+              "action": "write", 
               "args": {}
             }
           ]

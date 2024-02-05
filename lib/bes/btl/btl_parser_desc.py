@@ -120,7 +120,7 @@ from bes.system.check import check
     with buf.indent_pusher(depth = 1) as _:
       
       self.tokens.generate_code(buf)
-      self.states.generate_code(buf, self.char_map)
+      self.states.generate_code(buf, self.errors, self.char_map)
 
     buf.write_lines(f'''
   def __init__(self, source = None):
