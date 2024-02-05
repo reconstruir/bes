@@ -25,9 +25,8 @@ class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions
     }
   
   @classmethod
-  def parse_node(clazz, n, end_state, source = '<unknown>'):
+  def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)
-    check.check_string(end_state)
 
     name = n.data.text.strip()
     transitions = btl_lexer_desc_state_transition_list.parse_node(n, source = source)

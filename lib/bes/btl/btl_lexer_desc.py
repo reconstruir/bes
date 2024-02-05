@@ -77,7 +77,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
     #print(errors)
 
     states_node = clazz._find_section(root, 'states', source, raise_error = False)
-    states = btl_lexer_desc_state_list.parse_node(states_node, source, header.end_state)
+    states = btl_lexer_desc_state_list.parse_node(states_node, source)
     #print(states)
 
     chars_node = clazz._find_section(root, 'chars', source, raise_error = False)
