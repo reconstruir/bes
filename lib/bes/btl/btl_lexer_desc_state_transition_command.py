@@ -1,7 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
-
 from ..system.check import check
 from ..common.string_util import string_util
 
@@ -9,17 +7,26 @@ from .btl_parsing import btl_parsing
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-class btl_lexer_desc_state_transition_command(namedtuple('btl_lexer_desc_state_transition_command', 'name, action, args')):
+class btl_lexer_desc_state_transition_command(object):
   
-  def __new__(clazz, name, action, args):
+  def __init__(self, name, action, args):
     check.check_string(name)
     check.check_string(action)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
-    
-    return clazz.__bases__[0].__new__(clazz, name, action, args)
 
+    self.name = name
+    self.action = action
+    self.args = args
+    
   def to_dict(self):
-    return dict(self._asdict())
+    return {
+      'name': self.name,
+      'action': self.action,
+      'args': self.args,
+    }
+
+  def to_tuple(self):
+    return ( self.name, self.action, self.args )
   
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
