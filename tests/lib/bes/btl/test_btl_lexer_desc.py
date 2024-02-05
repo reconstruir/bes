@@ -18,7 +18,7 @@ from bes.btl.btl_lexer_desc_char import btl_lexer_desc_char
 from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from bes.btl.btl_lexer_desc_state import btl_lexer_desc_state
-from bes.btl.btl_lexer_desc_state_command import btl_lexer_desc_state_command
+from bes.btl.btl_lexer_desc_state_transition_command import btl_lexer_desc_state_transition_command
 from bes.btl.btl_lexer_desc_state_transition import btl_lexer_desc_state_transition
 
 from _test_simple_lexer_mixin import _test_simple_lexer_mixin

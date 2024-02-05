@@ -5,7 +5,7 @@ import os.path as path
 
 from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from bes.btl.btl_lexer_desc_state import btl_lexer_desc_state
-from bes.btl.btl_lexer_desc_state_command import btl_lexer_desc_state_command
+from bes.btl.btl_lexer_desc_state_transition_command import btl_lexer_desc_state_transition_command
 from bes.btl.btl_lexer_desc_state_transition import btl_lexer_desc_state_transition
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
@@ -17,7 +17,7 @@ class test_btl_lexer_desc_state(_test_simple_lexer_mixin, unit_test):
 
   def test_generate_code(self):
     char_map = btl_lexer_desc_char_map()
-    cmd = btl_lexer_desc_state_command('emit', 't_cheese', {})
+    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', {})
     transition = btl_lexer_desc_state_transition('s_juice', 'c_equal', [ cmd ])
     state = btl_lexer_desc_state('s_juice', [ transition ])
 

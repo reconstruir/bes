@@ -7,7 +7,7 @@ from ..common.string_util import string_util
 
 from .btl_parsing import btl_parsing
 
-class btl_parser_desc_state_command(namedtuple('btl_parser_desc_state_command', 'name, command, args')):
+class btl_parser_desc_state_transition_command(namedtuple('btl_parser_desc_state_transition_command', 'name, command, args')):
   
   def __new__(clazz, name, command, args):
     check.check_string(name)
@@ -28,7 +28,7 @@ class btl_parser_desc_state_command(namedtuple('btl_parser_desc_state_command', 
     name = parts.pop(0)
     command = parts.pop(0)
     args = clazz._parse_key_values(parts)
-    return btl_parser_desc_state_command(name, command, args)
+    return btl_parser_desc_state_transition_command(name, command, args)
 
   def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
@@ -56,4 +56,4 @@ class btl_parser_desc_state_command(namedtuple('btl_parser_desc_state_command', 
       result[key] = value
     return result
         
-check.register_class(btl_parser_desc_state_command, include_seq = False)
+check.register_class(btl_parser_desc_state_transition_command, include_seq = False)

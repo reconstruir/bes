@@ -9,14 +9,14 @@ from ..version.semantic_version import semantic_version
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-from .btl_lexer_desc_state_command_list import btl_lexer_desc_state_command_list
+from .btl_lexer_desc_state_transition_command_list import btl_lexer_desc_state_transition_command_list
 
 class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transition', 'to_state, char_name, commands')):
   
   def __new__(clazz, to_state, char_name, commands):
     check.check_string(to_state)
     check.check_string(char_name)
-    commands = check.check_btl_lexer_desc_state_command_list(commands)
+    commands = check.check_btl_lexer_desc_state_transition_command_list(commands)
     return clazz.__bases__[0].__new__(clazz, to_state, char_name, commands)
 
   def to_dict(self):
@@ -31,7 +31,7 @@ class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transitio
     check.check_node(n)
 
     char_name, to_state = btl_parsing.parse_key_value(n, source, delimiter = ':')
-    commands = btl_lexer_desc_state_command_list.parse_node(n, source = source)
+    commands = btl_lexer_desc_state_transition_command_list.parse_node(n, source = source)
     return btl_lexer_desc_state_transition(to_state, char_name, commands)
 
   def generate_code(self, buf, errors, char_map, index, total):

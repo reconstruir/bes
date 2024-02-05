@@ -9,7 +9,7 @@ from .btl_parsing import btl_parsing
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'name, action, args')):
+class btl_lexer_desc_state_transition_command(namedtuple('btl_lexer_desc_state_transition_command', 'name, action, args')):
   
   def __new__(clazz, name, action, args):
     check.check_string(name)
@@ -32,7 +32,7 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
       raise btl_lexer_error(f'Missing arguments for command: "{name}" - line {n.data.line_number}')
     action = parts.pop(0)
     args = clazz._parse_key_values(parts)
-    return btl_lexer_desc_state_command(name, action, args)
+    return btl_lexer_desc_state_transition_command(name, action, args)
 
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
@@ -71,4 +71,4 @@ class btl_lexer_desc_state_command(namedtuple('btl_lexer_desc_state_command', 'n
       result[key] = value
     return result
         
-check.register_class(btl_lexer_desc_state_command, include_seq = False)
+check.register_class(btl_lexer_desc_state_transition_command, include_seq = False)
