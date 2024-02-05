@@ -37,7 +37,7 @@ class btl_desc_command(object):
     args = clazz._parse_key_values(parts)
     return btl_desc_command(name, command, args)
 
-  def generate_code(self, buf):
+  def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
 
     assert False, f'Not Implemented'
