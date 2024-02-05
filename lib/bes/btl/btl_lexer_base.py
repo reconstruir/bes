@@ -71,7 +71,7 @@ class btl_lexer_base(object):
       return
     attrs = new_state._make_log_attributes(c)
     max_length = self._max_state_name_length
-    msg = f'lexer: transition: ▒{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}▒ {attrs}'
+    msg = f'lexer: transition: #{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
     self.log_d(msg)
     self._state = new_state
 
@@ -82,7 +82,7 @@ class btl_lexer_base(object):
     if self._buffer_start_position == None:
       self._buffer_start_position = point(1, 1)
     self._buffer_start_position = point(*self._position)
-    self.log_d(f'lexer: buffer_reset: old_value=▒{old_buffer_value}▒ old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
+    self.log_d(f'lexer: buffer_reset: old_value="{old_buffer_value}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
 
   def buffer_write(self, c):
     check.check_string(c)
@@ -94,7 +94,7 @@ class btl_lexer_base(object):
     if len(old_value) == 0:
       self._buffer_start_position = point(*self._position)
     cs = self._state.char_to_string(c)
-    self.log_d(f'lexer: buffer_write: c=▒{cs}▒ old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
+    self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 
   def buffer_value(self):
     if self._buffer == None:

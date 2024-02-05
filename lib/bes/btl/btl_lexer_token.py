@@ -106,13 +106,6 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     return str(debug_token)
 
   _debug_char_map = {
-    '\n': '｢NL｣',
-    '\r': '｢CR｣',
-    '\t': '｢TAB｣',
-    ' ': '｢SP｣',
-    '\0': '｢EOS｣',
-  }
-  x_debug_char_map = {
     '\n': '[NL]',
     '\r': '[CR]',
     '\t': '[TAB]',
