@@ -5,7 +5,7 @@ from ..system.check import check
 from .btl_desc_command import btl_desc_command
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-class btl_parser_desc_state_transition_command(btl_desc_command):
+class btl_parser_desc_state_command(btl_desc_command):
 
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
@@ -21,4 +21,4 @@ class btl_parser_desc_state_transition_command(btl_desc_command):
       else:
         buf.write_line(f'''raise btl_parser_error('Unknown buffer command: "{self.action}"')''')
         
-check.register_class(btl_parser_desc_state_transition_command, include_seq = False)
+check.register_class(btl_parser_desc_state_command, include_seq = False)

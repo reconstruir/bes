@@ -11,9 +11,6 @@ from .btl_desc_command import btl_desc_command
 
 class btl_lexer_desc_state_transition_command(btl_desc_command):
   
-  def __init__(self, name, action, args):
-    super().__init__(name, action, args)
-
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
     errors = check.check_btl_lexer_desc_error_list(errors)
