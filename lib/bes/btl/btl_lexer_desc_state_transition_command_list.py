@@ -10,7 +10,4 @@ class btl_lexer_desc_state_transition_command_list(btl_desc_command_list):
 
   __value_type__ = btl_lexer_desc_state_transition_command
   
-  def __init__(self, values = None):
-    super().__init__(values = values)
-
 btl_lexer_desc_state_transition_command_list.register_check_class()
