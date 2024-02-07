@@ -1,59 +1,146 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 import io
 
 from ..system.log import log
 from ..system.check import check
 from ..common.point import point
+from ..common.node import node as node_class
 
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_node_deque import btl_parser_node_deque
 
+class _parser_node_data(namedtuple('_parser_node_data', 'name, line_number')):
+  def __new__(clazz, name, line_number):
+    check.check_string(name)
+    check.check_int(line_number)
+    return clazz.__bases__[0].__new__(clazz, name, line_number)
+
+class _parser_node(node_class):
+
+  def __init__(self, data):
+    super().__init__(data)
+
+  '''
+  def find_child_by_text(self, text):
+    return self.find_child(lambda node: node.data.text == text)
+
+  def get_text(self, traversal, indent = None, delimiter = None):
+    indent = indent or '  '
+    delimiter = delimiter or ' '
+    if traversal == self.NODE:
+      result = self.data.text
+    elif traversal == self.NODE_FLAT:
+      result = self._get_text_node_flat(delimiter)
+    elif traversal == self.CHILDREN_FLAT:
+      result = self._get_text_children_flat(delimiter)
+    elif traversal == self.CHILDREN_INLINE:
+      result = self._get_text_children_inline(indent)
+    else:
+      raise ValueError('Invalid traversal: %s' % (str(traversal)))
+    return result
+  
+  def _get_text_children_inline(self, indent):
+    lines = []
+    self._visit_node_text(0, True, indent, lines)
+    if not lines:
+      return []
+    count = white_space.count_leading_spaces(lines[0])
+    lines = [ line[count:] for line in lines ]
+    return '\n'.join(lines) + '\n'
+
+  def _get_text_node_flat(self, delimiter):
+    buf = StringIO()
+    self._node_text_collect(self, delimiter, buf)
+    return buf.getvalue().strip()
+
+  def _get_text_children_flat(self, delimiter):
+    texts = [ child._get_text_node_flat(delimiter) for child in self.children ]
+    return delimiter.join(texts)
+  
+  @classmethod
+  def _node_text_collect(clazz, node, delimiter, buf):
+    buf.write(node.data.text)
+    if node.children:
+      buf.write(delimiter)
+    for i, child in enumerate(node.children):
+      clazz._node_text_collect(child, delimiter, buf)
+      buf.write(delimiter)
+  
+  def _visit_node_text(self, depth, children_only, indent, result):
+    if not children_only:
+      result.append('%s%s' % (indent * depth, self.data.text))
+    for child in self.children:
+      child._visit_node_text(depth + 1, False, indent, result)
+    return result
+
+  def replace_text(self, replacements):
+    'Travese the tree and replace text in each node.'
+    new_text = text_replace.replace(self.data.text, replacements, word_boundary = True)
+    self.data = self.data.__class__(new_text, self.data.line_number)
+    for child in self.children:
+      child.replace_text(replacements)
+'''
+  
 class btl_parser_base(object):
 
   EOS = '\0'
   
-  def __init__(self, log_tag, desc_text, token, states, source = None):
-    check.check_string(log_tag)
+  def __init__(self, lexer, desc_text, states):
+    check.check_btl_lexer(lexer)
     check.check_string(desc_text)
-    check.check_string(source, allow_none = True)
     
-    self._log_tag = log_tag
-    log.add_logging(self, tag = self._log_tag)
-    self._source = source or '<unknown>'
-    self._desc = btl_parser_desc.parse_text(desc_text, source = self._source)
-    self._token = token
+    self._lexer = lexer
+    log.add_logging(self, tag = self._lexer.log_tag)
+    self._desc = btl_parser_desc.parse_text(desc_text, source = lexer.source)
     self._states = states
-    self._buffer = None
-    self._last_char = None
     self._state = self._find_state(self._desc.header.start_state)
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
-    self._position = point(1, 1)
-    self._last_position = point(0, 1)
-    self._buffer_start_position = None
-    self.buffer_reset()
+    self._nodes = {}
 
-  @property
-  def position(self):
-    return self._position
+    '''
+        node create n_key_value
+        node create n_key
+        node set_token n_key
+        node add n_key_value n_key
+      node create n_root
+        node create n_value
+        node set_token n_value
+        node add root n_key_value
+  '''
 
+  def node_create(self, node_name):
+    check.check_string(node_name)
+    
+    if node_name in self._nodes:
+      raise btl_parser_error(f'{self._state.name}: node_create: node already exists: "{node_name}"')
+
+  def node_set_token(self, node_name, token):
+    check.check_string(node_name)
+    check.check_btl_lexer_token(token)
+
+    if not node_name in self._nodes:
+      raise btl_parser_error(f'{self._state.name}: node_set_token: node not found: "{node_name}"')
+
+    node = self._nodes[node_name]
+    cloned_token = token.clone()
+    node.set_token(cloned_token)
+    
   @property
-  def buffer_start_position(self):
-    return self._buffer_start_position
-  
+  def lexer(self):
+    return self._lexer
+    
   @property
   def desc(self):
     return self._desc
 
   @property
-  def token(self):
-    return self._token
-
-  @property
   def log_tag(self):
-    return self._log_tag
+    return self._lexer.log_tag
   
   def _find_state(self, state_name):
     return self._states[state_name]
@@ -69,7 +156,7 @@ class btl_parser_base(object):
     new_state = self._find_state(new_state_name)
     if new_state == self._state:
       return
-    attrs = new_state._make_log_attributes(c)
+    attrs = 'attrs' #new_state._make_log_attributes(c)
     max_length = self._max_state_name_length
     msg = f'lexer: transition: ▒{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}▒ {attrs}'
     self.log_d(msg)
@@ -196,3 +283,5 @@ class btl_parser_base(object):
     result.update(desc_args)
     result.update(token_args)
     return result
+  
+check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)

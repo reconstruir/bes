@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 from bes.compat.StringIO import StringIO
+
 from ..system.check import check
 
 class node(object):

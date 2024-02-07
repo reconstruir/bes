@@ -38,6 +38,10 @@ class btl_lexer_base(object):
   @property
   def position(self):
     return self._position
+  
+  @property
+  def source(self):
+    return self._source
 
   @property
   def buffer_start_position(self):
@@ -196,3 +200,5 @@ class btl_lexer_base(object):
     result.update(desc_args)
     result.update(token_args)
     return result
+
+check.register_class(btl_lexer_base, name = 'btl_lexer', include_seq = False)
