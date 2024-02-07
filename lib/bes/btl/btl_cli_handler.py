@@ -78,6 +78,19 @@ class btl_cli_handler(cli_command_handler):
     self._diagram_save(mmd_content, output_filename, output_format)
     return 0
 
+  def parser_make_code(self, filename, output_filename, namespace, name):
+    filename = bf_check.check_file(filename)
+    check.check_string(output_filename)
+    check.check_string(namespace, allow_none = True)
+    check.check_string(name, allow_none = True)
+
+    parsed_namespace, parsed_name = self._parse_code_filename(output_filename)
+    namespace = namespace or parsed_namespace
+    name = name or parsed_name
+    desc = btl_parser_desc.parse_file(filename)
+    desc.write_code(output_filename, namespace, name)
+    return 0
+  
   def _diagram_save(self, mmd_content, output_filename, output_format):
     output_bytes = mermaid_ink.img_request(mmd_content, output_format)
     bf_file_ops.save(output_filename, content = output_bytes)

@@ -11,6 +11,7 @@ TARGETS := \
   _test_simple_lexer.svg \
   _test_simple_parser.mmd \
   _test_simple_parser.svg \
+  _test_simple_parser.py \
   $(NULL)
 
 #_test_simple_parser.py
