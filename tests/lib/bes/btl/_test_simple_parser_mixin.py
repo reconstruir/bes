@@ -12,7 +12,7 @@ class _test_simple_parser_mixin:
   @cached_class_property
   def _simple_parser_desc_filename(clazz):
     here = path.dirname(__file__)
-    filename = path.join(here, '_test_simple_parser.btl')
+    filename = path.join(here, '_test_simple_parser.btp')
     return path.abspath(filename)
   
   @cached_class_property

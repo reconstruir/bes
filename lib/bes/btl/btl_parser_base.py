@@ -58,13 +58,13 @@ class btl_parser_base(object):
   def _find_state(self, state_name):
     return self._states[state_name]
   
-  def change_state(self, new_state_name, c):
+  def change_state(self, new_state_name, token):
     check.check_string(new_state_name, allow_none = True)
-    check.check_string(c)
+    check.check_btl_lexer_token(token)
 
     if new_state_name == None:
-      cs = self._state.char_to_string(c)
-      raise btl_parser_error(f'Cannot transition from state "{self._state.name}" to "None" for char "{cs}"')
+      ts = token.to_debug_str()
+      raise btl_parser_error(f'Cannot transition from state "{self._state.name}" to "None" for token "{ts}"')
     
     new_state = self._find_state(new_state_name)
     if new_state == self._state:

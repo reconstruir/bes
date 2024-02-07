@@ -19,20 +19,20 @@ from bes.btl.btl_parser_desc_state_transition_command import btl_parser_desc_sta
 from bes.btl.btl_parser_desc_state_transition import btl_parser_desc_state_transition
 from bes.btl.btl_error import btl_error
 
-from _test_simple_lexer_mixin import _test_simple_lexer_mixin
+from _test_simple_parser_mixin import _test_simple_parser_mixin
 
-class test_btl_parser_desc(_test_simple_lexer_mixin, unit_test):
+class test_btl_parser_desc(_test_simple_parser_mixin, unit_test):
 
   def test_parse_text_to_json(self):
     #print(btl_parser_desc.parse_text(self._simple_lexer_desc_text).to_json())
     #return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
-      btl_parser_desc.parse_text(self._simple_lexer_desc_text).to_json()
+      btl_parser_desc.parse_text(self._simple_parser_desc_text).to_json()
     )
 
   def test_to_mermaid_diagram(self):
-    #print(btl_parser_desc.parse_text(self._simple_lexer_desc_text).to_mermaid_diagram())
+    #print(btl_parser_desc.parse_text(self._simple_parser_desc_text).to_mermaid_diagram())
     #return
     self.assert_string_equal_fuzzy( '''\
 stateDiagram-v2
@@ -58,10 +58,10 @@ stateDiagram-v2
 
   %% s_done state
   s_done --> [*]
-''', btl_parser_desc.parse_text(self._simple_lexer_desc_text).to_mermaid_diagram() )
+''', btl_parser_desc.parse_text(self._simple_parser_desc_text).to_mermaid_diagram() )
 
   def test_generate_code(self):
-    desc = btl_parser_desc.parse_text(self._simple_lexer_desc_text)
+    desc = btl_parser_desc.parse_text(self._simple_parser_desc_text)
     actual = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     #print(actual)
     #return
@@ -69,7 +69,7 @@ stateDiagram-v2
 
   def test_write_code(self):
     tmp = self.make_temp_file(suffix = '.py')
-    desc = btl_parser_desc.parse_text(self._simple_lexer_desc_text)
+    desc = btl_parser_desc.parse_text(self._simple_parser_desc_text)
     desc.write_code(tmp, '_fruit', 'kiwi_lexer')
 
     self.assert_python_code_text_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
@@ -81,7 +81,7 @@ stateDiagram-v2
     return str(p)
       
   def test_use_code(self):
-    desc = btl_parser_desc.parse_text(self._simple_lexer_desc_text)
+    desc = btl_parser_desc.parse_text(self._simple_parser_desc_text)
     lexer_code = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     use_code = '''
 import unittest
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     self.assertEqual( 0, rv.exit_code )
 
   def test_to_json(self):
-    desc = btl_parser_desc.parse_text(self._simple_lexer_desc_text)
+    desc = btl_parser_desc.parse_text(self._simple_parser_desc_text)
     actual = desc.to_json()
     #print(actual)
     #return
@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
   @cached_class_property
   def _EXPECTED_CODE(clazz):
-    return clazz._EXPECTED_CODE_TEMPLATE.replace('@@@_DESC_TEXT@@@', clazz._simple_lexer_desc_text)
+    return clazz._EXPECTED_CODE_TEMPLATE.replace('@@@_DESC_TEXT@@@', clazz._simple_parser_desc_text)
     
   _EXPECTED_CODE_TEMPLATE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-

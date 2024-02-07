@@ -26,3 +26,14 @@ class btl_parsing(object):
     if result_class:
       return result_class(key, value)
     return key, value
+
+  @classmethod
+  def find_tree_section(clazz, root, name, source, raise_error = True):
+    assert root
+    assert name
+    assert source
+    section_node = root.find_child_by_text(name)
+    if raise_error and not section_node:
+      raise btl_error(f'Missing section "{name}" from "{source}"')
+    return section_node
+  

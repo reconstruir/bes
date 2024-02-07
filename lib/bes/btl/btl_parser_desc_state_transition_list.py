@@ -24,21 +24,22 @@ class btl_parser_desc_state_transition_list(type_checked_list):
     
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
-    check.check_node(n)
+    check.check_node(n, allow_none = True)
     check.check_string(source)
 
     result = btl_parser_desc_state_transition_list()
+    if not n:
+      return result
     for child in n.children:
       next_desc_state_transition = btl_parser_desc_state_transition.parse_node(child, source)
       result.append(next_desc_state_transition)
     return result
 
-  def generate_code(self, buf, errors, char_map):
+  def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
     errors = check.check_btl_lexer_desc_error_list(errors)
-    check.check_btl_parser_desc_char_map(char_map)
 
     for index, transition in enumerate(self):
-      transition.generate_code(buf, errors, char_map, index, len(self))
+      transition.generate_code(buf, errors, index, len(self))
   
 btl_parser_desc_state_transition_list.register_check_class()

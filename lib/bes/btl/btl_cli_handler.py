@@ -12,6 +12,8 @@ from ..files.bf_file_ops import bf_file_ops
 from ..files.bf_file_ops import bf_check
 
 from ..btl.btl_lexer_desc import btl_lexer_desc
+from ..btl.btl_parser_desc import btl_parser_desc
+
 from ..mermaid.mermaid_ink import mermaid_ink
 
 from .btl_cli_options import btl_cli_options
@@ -30,7 +32,8 @@ class btl_cli_handler(cli_command_handler):
     check.check_string(output_filename)
 
     desc = btl_lexer_desc.parse_file(filename)
-    bf_file_ops.save(output_filename, content = desc.to_mermaid_diagram())
+    mmd_content = desc.to_mermaid_diagram()
+    bf_file_ops.save(output_filename, content = mmd_content)
     return 0
   
   def lexer_make_diagram(self, filename, output_filename, output_format):
@@ -40,8 +43,7 @@ class btl_cli_handler(cli_command_handler):
 
     desc = btl_lexer_desc.parse_file(filename)
     mmd_content = desc.to_mermaid_diagram()
-    output_bytes = mermaid_ink.img_request(mmd_content, output_format)
-    bf_file_ops.save(output_filename, content = output_bytes)
+    self._diagram_save(mmd_content, output_filename, output_format)
     return 0
     
   def lexer_make_code(self, filename, output_filename, namespace, name):
@@ -57,6 +59,30 @@ class btl_cli_handler(cli_command_handler):
     desc.write_code(output_filename, namespace, name)
     return 0
 
+  def parser_make_mmd(self, filename, output_filename):
+    filename = bf_check.check_file(filename)
+    check.check_string(output_filename)
+
+    desc = btl_parser_desc.parse_file(filename)
+    mmd_content = desc.to_mermaid_diagram()
+    bf_file_ops.save(output_filename, content = mmd_content)
+    return 0
+  
+  def parser_make_diagram(self, filename, output_filename, output_format):
+    filename = bf_check.check_file(filename)
+    check.check_string(output_filename)
+    check.check_string(output_format)
+
+    desc = btl_parser_desc.parse_file(filename)
+    mmd_content = desc.to_mermaid_diagram()
+    self._diagram_save(mmd_content, output_filename, output_format)
+    return 0
+
+  def _diagram_save(self, mmd_content, output_filename, output_format):
+    output_bytes = mermaid_ink.img_request(mmd_content, output_format)
+    bf_file_ops.save(output_filename, content = output_bytes)
+    return 0
+  
   _parsed_code_filename = namedtuple('_parsed_code_filename', 'namespace, name')
   @classmethod
   def _parse_code_filename(clazz, filename):

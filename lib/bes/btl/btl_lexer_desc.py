@@ -64,38 +64,28 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
 
     root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_lexer_desc')
 
-    lexer_node = clazz._find_section(root, 'lexer', source)
+    lexer_node = btl_parsing.find_tree_section(root, 'lexer', source)
     header = btl_lexer_desc_header.parse_node(lexer_node, source)
     #print(header)
 
-    tokens_node = clazz._find_section(root, 'tokens', source, raise_error = False)
+    tokens_node = btl_parsing.find_tree_section(root, 'tokens', source, raise_error = False)
     tokens = btl_lexer_desc_token_list.parse_node(tokens_node, source)
     #print(tokens)
 
-    errors_node = clazz._find_section(root, 'errors', source, raise_error = False)
+    errors_node = btl_parsing.find_tree_section(root, 'errors', source, raise_error = False)
     errors = btl_lexer_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
-    states_node = clazz._find_section(root, 'states', source, raise_error = False)
+    states_node = btl_parsing.find_tree_section(root, 'states', source, raise_error = False)
     states = btl_lexer_desc_state_list.parse_node(states_node, source)
     #print(states)
 
-    chars_node = clazz._find_section(root, 'chars', source, raise_error = False)
+    chars_node = btl_parsing.find_tree_section(root, 'chars', source, raise_error = False)
     char_map = clazz._parse_char_map(chars_node, source)
     #print(char_map)
     
     return btl_lexer_desc(header, tokens, errors, char_map, states, source_text = text)
 
-  @classmethod
-  def _find_section(clazz, root, name, source, raise_error = True):
-    assert root
-    assert name
-    assert source
-    section_node = root.find_child_by_text(name)
-    if raise_error and not section_node:
-      raise btl_error(f'Missing section "{name}" from "{source}"')
-    return section_node
-  
   @classmethod
   def parse_file(clazz, filename):
     filename = file_check.check_file(filename)

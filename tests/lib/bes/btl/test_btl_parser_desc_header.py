@@ -8,30 +8,30 @@ from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
 
-from _test_simple_lexer_mixin import _test_simple_lexer_mixin
+from _test_simple_parser_mixin import _test_simple_parser_mixin
 
-class test_btl_parser_desc_header(_test_simple_lexer_mixin, unit_test):
+class test_btl_parser_desc_header(_test_simple_parser_mixin, unit_test):
 
   def test_parse_node(self):
-    lexer_node = self._simple_lexer_desc_tree_section('lexer')
+    lexer_node = self._simple_parser_desc_tree_section('parser')
     self.assertEqual( (
-      'l_simple',
-      'A simple key value pair lexer',
+      'p_simple',
+      'A simple key value pair parser',
       '1.0',
       's_start',
       's_done',
     ), btl_parser_desc_header.parse_node(lexer_node) )
 
   def test_parse_node_invalid_key(self):
-    lexer_node = self._simple_lexer_desc_tree_section('lexer')
-    assert lexer_node.children[0].data.text == 'name: l_simple'
+    lexer_node = self._simple_parser_desc_tree_section('parser')
+    assert lexer_node.children[0].data.text == 'name: p_simple'
     lexer_node.children[0].data = _text_node_data('kiwi: green', lexer_node.children[0].data.line_number)
     with self.assertRaises(btl_error) as ctx:
       btl_parser_desc_header.parse_node(lexer_node)
     self.assertEqual( True, 'Invalid header key "kiwi" at <unknown>' in ctx.exception.message )
 
   def test_parse_node_missing_key(self):
-    lexer_node = self._simple_lexer_desc_tree_section('lexer')
+    lexer_node = self._simple_parser_desc_tree_section('parser')
     lexer_node.children = lexer_node.children[0:-2]
     with self.assertRaises(btl_error) as ctx:
       btl_parser_desc_header.parse_node(lexer_node)

@@ -11,34 +11,28 @@ from ..version.semantic_version import semantic_version
 
 from .btl_code_gen_buffer import btl_code_gen_buffer
 from .btl_parser_desc_char import btl_parser_desc_char
-from .btl_parser_desc_char_map import btl_parser_desc_char_map
 from .btl_parser_desc_error_list import btl_parser_desc_error_list
 from .btl_parser_desc_header import btl_parser_desc_header
 from .btl_parser_desc_mermaid import btl_parser_desc_mermaid
 from .btl_parser_desc_state_list import btl_parser_desc_state_list
-from .btl_parser_desc_token_list import btl_parser_desc_token_list
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-class btl_parser_desc(namedtuple('btl_parser_desc', 'header, tokens, errors, char_map, states, source_text')):
+class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, source_text')):
   
-  def __new__(clazz, header, tokens, errors, char_map, states, source_text = None):
+  def __new__(clazz, header, errors, states, source_text = None):
     header = check.check_btl_parser_desc_header(header)
-    tokens = check.check_btl_parser_desc_token_list(tokens)
     errors = check.check_btl_parser_desc_error_list(errors)
-    check.check_btl_parser_desc_char_map(char_map)
     states = check.check_btl_parser_desc_state_list(states)
     check.check_string(source_text, allow_none = True)
 
     source_text = source_text or ''
-    return clazz.__bases__[0].__new__(clazz, header, tokens, errors, char_map, states, source_text)
+    return clazz.__bases__[0].__new__(clazz, header, errors, states, source_text)
 
   def to_dict(self):
     return {
       'header': self.header.to_dict(),
-      'tokens': self.tokens.to_dict_list(),
       'errors': self.errors.to_dict_list(),
-      'char_map': self.char_map.to_dict(),
       'states': self.states.to_dict_list(),
     }
 
@@ -63,38 +57,20 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, tokens, errors, cha
 
     root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_parser_desc')
 
-    lexer_node = clazz._find_section(root, 'lexer', source)
-    header = btl_parser_desc_header.parse_node(lexer_node, source)
+    parser_node = btl_parsing.find_tree_section(root, 'parser', source)
+    header = btl_parser_desc_header.parse_node(parser_node, source)
     #print(header)
 
-    tokens_node = clazz._find_section(root, 'tokens', source, raise_error = False)
-    tokens = btl_parser_desc_token_list.parse_node(tokens_node, source)
-    #print(tokens)
-
-    errors_node = clazz._find_section(root, 'errors', source, raise_error = False)
+    errors_node = btl_parsing.find_tree_section(root, 'errors', source, raise_error = False)
     errors = btl_parser_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
-    states_node = clazz._find_section(root, 'states', source, raise_error = False)
+    states_node = btl_parsing.find_tree_section(root, 'states', source, raise_error = False)
     states = btl_parser_desc_state_list.parse_node(states_node, source)
     #print(states)
 
-    chars_node = clazz._find_section(root, 'chars', source)
-    char_map = clazz._parse_char_map(chars_node, source)
-    #print(char_map)
-    
-    return btl_parser_desc(header, tokens, errors, char_map, states, source_text = text)
+    return btl_parser_desc(header, errors, states, source_text = text)
 
-  @classmethod
-  def _find_section(clazz, root, name, source, raise_error = True):
-    assert root
-    assert name
-    assert source
-    section_node = root.find_child_by_text(name)
-    if raise_error and not section_node:
-      raise btl_error(f'Missing section "{name}" from "{source}"')
-    return section_node
-  
   @classmethod
   def parse_file(clazz, filename):
     filename = file_check.check_file(filename)
@@ -109,18 +85,19 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, tokens, errors, cha
     buf.write_line(f'''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.btl.btl_parser_base import btl_parser_base
-from bes.btl.btl_parser_state_base import btl_parser_state_base
-from bes.btl.btl_parser_node import btl_parser_node
 from bes.system.check import check
+from bes.btl.btl_lexer_base import btl_lexer_base
+from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
+from bes.btl.btl_lexer_state_base import btl_lexer_state_base
+from bes.btl.btl_lexer_token import btl_lexer_token
 ''')
 
-    buf.write_line(f'class {namespace}_{name}(btl_parser_base):')
+    buf.write_line(f'class {namespace}_{name}(btl_lexer_base):')
     buf.write_linesep()
     with buf.indent_pusher(depth = 1) as _:
-      
-      self.tokens.generate_code(buf)
-      self.states.generate_code(buf, self.errors, self.char_map)
+      self.errors.generate_code(buf)
+      buf.write_linesep()
+      self.states.generate_code(buf, self.errors)
 
     buf.write_lines(f'''
   def __init__(self, source = None):

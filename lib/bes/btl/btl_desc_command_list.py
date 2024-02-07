@@ -21,10 +21,12 @@ class btl_desc_command_list(type_checked_list):
     
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
-    check.check_node(n)
+    check.check_node(n, allow_none = True)
     check.check_string(source)
 
     result = clazz()
+    if not n:
+      return result
     for child in n.children:
       next_desc_command = clazz.__value_type__.parse_node(child, source)
       result.append(next_desc_command)

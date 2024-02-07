@@ -6,9 +6,9 @@ from bes.btl.btl_parser_node import btl_parser_node
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
-from _test_simple_lexer_mixin import _test_simple_lexer_mixin
+from _test_simple_parser_mixin import _test_simple_parser_mixin
 
-class test_btl_parser_node_deque(_test_simple_lexer_mixin, unit_test):
+class test_btl_parser_node_deque(_test_simple_parser_mixin, unit_test):
 
   def test_append(self):
     l = btl_parser_node_deque()

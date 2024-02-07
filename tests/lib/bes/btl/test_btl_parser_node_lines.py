@@ -7,9 +7,9 @@ from bes.btl.btl_parser_node import btl_parser_node
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
-from _test_simple_lexer_mixin import _test_simple_lexer_mixin
+from _test_simple_parser_mixin import _test_simple_parser_mixin
 
-class test_btl_parser_node_lines(_test_simple_lexer_mixin, unit_test):
+class test_btl_parser_node_lines(_test_simple_parser_mixin, unit_test):
 
   def test_to_source_string(self):
     tokens = btl_parser_node_deque.parse_json(self._JSON_TEXT)

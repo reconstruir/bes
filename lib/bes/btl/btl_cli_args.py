@@ -16,7 +16,7 @@ class btl_cli_args(object):
                    help = 'The output mmd filename')
 
     # lexer_make_diagram
-    p = subparser.add_parser('lexer_make_diagram', help = 'Make a diagram jpeg/svg from an mmd file.')
+    p = subparser.add_parser('lexer_make_diagram', help = 'Make a diagram jpeg/svg from a lexer btl file.')
     self.__btl_cli_add_add_common_args(p)
     p.add_argument('-f', '--format', action = 'store', default = 'svg',
                    dest = 'output_format', choices = ( 'svg', 'jpg' ),
@@ -37,6 +37,25 @@ class btl_cli_args(object):
                    help = 'The namespace')
     p.add_argument('--name', action = 'store', default = None,
                    help = 'The name')
+
+    # parser_make_mmd
+    p = subparser.add_parser('parser_make_mmd', help = 'Generate the mermaid mmd state diagram.')
+    self.__btl_cli_add_add_common_args(p)
+    p.add_argument('filename', action = 'store', default = None,
+                   help = 'The btl filename')
+    p.add_argument('output_filename', action = 'store', default = None,
+                   help = 'The output mmd filename')
+    
+    # parser_make_diagram
+    p = subparser.add_parser('parser_make_diagram', help = 'Make a diagram jpeg/svg from a parser btp file.')
+    self.__btl_cli_add_add_common_args(p)
+    p.add_argument('-f', '--format', action = 'store', default = 'svg',
+                   dest = 'output_format', choices = ( 'svg', 'jpg' ),
+                   help = 'The output format.  svg or jpg [ svg ]')
+    p.add_argument('filename', action = 'store', default = None,
+                   help = 'The btp filename')
+    p.add_argument('output_filename', action = 'store', default = None,
+                   help = 'The output jpeg filename')
     
   @classmethod
   def __btl_cli_add_add_common_args(clazz, p):
