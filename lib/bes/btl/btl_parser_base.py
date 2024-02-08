@@ -107,6 +107,8 @@ class btl_parser_base(object):
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
+    result = self._node_creator.get_root_node()
+    return result
 
   @classmethod
   def OLD_chars_plus_eos(self, text):

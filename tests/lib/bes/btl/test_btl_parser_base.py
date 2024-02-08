@@ -25,11 +25,16 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_start'
       super().__init__(parser, name, log_tag)
+      self._first_time = True
   
     def handle_token(self, token):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
-  
+
+      if self._first_time:
+        self._first_time = False
+        self.node_creator.create_root()
+      
       new_state_name = None
   
       if token.name == 't_done':
@@ -40,6 +45,10 @@ class _test_parser(btl_parser_base):
         new_state_name = 's_start'
       elif token.name == 't_key':
         new_state_name = 's_expecting_delimiter'
+        self.node_creator.create('n_key_value')
+        self.node_creator.create('n_key')
+        self.node_creator.set_token('n_key', token)
+        self.node_creator.add_child('n_key_value', 'n_key')
       elif token.name == 't_comment':
         new_state_name = 's_start'
       else:
@@ -80,6 +89,10 @@ class _test_parser(btl_parser_base):
   
       if token.name == 't_value':
         new_state_name = 's_after_value'
+        self.node_creator.create('n_value')
+        self.node_creator.set_token('n_value', token)
+        self.node_creator.add_child('n_key_value', 'n_value')
+        self.node_creator.add_child('n_root', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_expecting_value'
       else:
@@ -216,7 +229,8 @@ class test_btl_parser_base(btl_parser_tester_mixin, unit_test):
 fruit=apple
 color=red
 '''
-    p.run(text)
+    root = p.run(text)
+    print(root)
     
 if __name__ == '__main__':
   unit_test.main()
