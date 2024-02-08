@@ -228,9 +228,26 @@ class test_btl_parser_base(btl_parser_tester_mixin, unit_test):
     text = '''
 fruit=apple
 color=red
+
+fruit=kiwi
+color=green
 '''
     root = p.run(text)
-    print(root)
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_key_value;
+    n_key;t_key:fruit:1,2
+    n_value;t_value:apple:7,2
+  n_key_value;
+    n_key;t_key:color:1,3
+    n_value;t_value:red:7,3
+  n_key_value;
+    n_key;t_key:fruit:1,5
+    n_value;t_value:kiwi:7,5
+  n_key_value;
+    n_key;t_key:color:1,6
+    n_value;t_value:green:7,6
+''', str(root) )
     
 if __name__ == '__main__':
   unit_test.main()
