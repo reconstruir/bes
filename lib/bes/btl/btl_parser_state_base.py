@@ -41,11 +41,12 @@ class btl_parser_state_base(object):
     cs = self.char_to_string(c)
     raise RuntimeError(f'unhandled handle_char ▒{cs}▒ in state {self.name}')
 
-  def log_handle_char(self, c):
-    attrs = self._make_log_attributes(c)
-    self.log_d(f'{self.name}: handle_char: {attrs}')
+  def log_handle_token(self, token):
+    #attrs = self._make_log_attributes(c)
+    ts = token.to_debug_str()
+    self.log_d(f'{self.name}: handle_token: token={ts}')
   
-  def _make_log_attributes(self, c):
+  def _make_log_attributes(self, token):
     attributes = []
     cs = self.char_to_string(c)
     attributes.append(f'c=▒{cs}▒')

@@ -12,80 +12,8 @@ from ..common.node import node as node_class
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
-from .btl_parser_node_deque import btl_parser_node_deque
+from .btl_parser_node_creator import btl_parser_node_creator
 
-class _parser_node_data(namedtuple('_parser_node_data', 'name, line_number')):
-  def __new__(clazz, name, line_number):
-    check.check_string(name)
-    check.check_int(line_number)
-    return clazz.__bases__[0].__new__(clazz, name, line_number)
-
-class _parser_node(node_class):
-
-  def __init__(self, data):
-    super().__init__(data)
-
-  '''
-  def find_child_by_text(self, text):
-    return self.find_child(lambda node: node.data.text == text)
-
-  def get_text(self, traversal, indent = None, delimiter = None):
-    indent = indent or '  '
-    delimiter = delimiter or ' '
-    if traversal == self.NODE:
-      result = self.data.text
-    elif traversal == self.NODE_FLAT:
-      result = self._get_text_node_flat(delimiter)
-    elif traversal == self.CHILDREN_FLAT:
-      result = self._get_text_children_flat(delimiter)
-    elif traversal == self.CHILDREN_INLINE:
-      result = self._get_text_children_inline(indent)
-    else:
-      raise ValueError('Invalid traversal: %s' % (str(traversal)))
-    return result
-  
-  def _get_text_children_inline(self, indent):
-    lines = []
-    self._visit_node_text(0, True, indent, lines)
-    if not lines:
-      return []
-    count = white_space.count_leading_spaces(lines[0])
-    lines = [ line[count:] for line in lines ]
-    return '\n'.join(lines) + '\n'
-
-  def _get_text_node_flat(self, delimiter):
-    buf = StringIO()
-    self._node_text_collect(self, delimiter, buf)
-    return buf.getvalue().strip()
-
-  def _get_text_children_flat(self, delimiter):
-    texts = [ child._get_text_node_flat(delimiter) for child in self.children ]
-    return delimiter.join(texts)
-  
-  @classmethod
-  def _node_text_collect(clazz, node, delimiter, buf):
-    buf.write(node.data.text)
-    if node.children:
-      buf.write(delimiter)
-    for i, child in enumerate(node.children):
-      clazz._node_text_collect(child, delimiter, buf)
-      buf.write(delimiter)
-  
-  def _visit_node_text(self, depth, children_only, indent, result):
-    if not children_only:
-      result.append('%s%s' % (indent * depth, self.data.text))
-    for child in self.children:
-      child._visit_node_text(depth + 1, False, indent, result)
-    return result
-
-  def replace_text(self, replacements):
-    'Travese the tree and replace text in each node.'
-    new_text = text_replace.replace(self.data.text, replacements, word_boundary = True)
-    self.data = self.data.__class__(new_text, self.data.line_number)
-    for child in self.children:
-      child.replace_text(replacements)
-'''
-  
 class btl_parser_base(object):
 
   EOS = '\0'
@@ -100,35 +28,11 @@ class btl_parser_base(object):
     self._states = states
     self._state = self._find_state(self._desc.header.start_state)
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
-    self._nodes = {}
+    self._node_creator = btl_parser_node_creator()
 
-    '''
-        node create n_key_value
-        node create n_key
-        node set_token n_key
-        node add n_key_value n_key
-      node create n_root
-        node create n_value
-        node set_token n_value
-        node add root n_key_value
-  '''
-
-  def node_create(self, node_name):
-    check.check_string(node_name)
-    
-    if node_name in self._nodes:
-      raise btl_parser_error(f'{self._state.name}: node_create: node already exists: "{node_name}"')
-
-  def node_set_token(self, node_name, token):
-    check.check_string(node_name)
-    check.check_btl_lexer_token(token)
-
-    if not node_name in self._nodes:
-      raise btl_parser_error(f'{self._state.name}: node_set_token: node not found: "{node_name}"')
-
-    node = self._nodes[node_name]
-    cloned_token = token.clone()
-    node.set_token(cloned_token)
+  @property
+  def node_creator(self):
+    return self._node_creator
     
   @property
   def lexer(self):
@@ -191,36 +95,19 @@ class btl_parser_base(object):
   def run(self, text):
     check.check_string(text)
     
-    self.log_d(f'lexer: run: text=\"{text}\"')
-    
-    assert self.EOS not in text
-    self._position = point(0, 1)
-    for c in self._chars_plus_eos(text):
-      self._position = self._update_position(self._position, c)
-      attrs = self._state._make_log_attributes(c)
-      self.log_d(f'lexer: loop: {attrs} position={self._position}')
+    self.log_d(f'parser: run: text=\"{text}\"')
+
+    for token in self._lexer.run(text):
+      #attrs = self._state._make_log_attributes(c)
+      ts = token.to_debug_str()
+      self.log_d(f'parser: loop: token={ts}')
       old_state_name = self._state.name
-      tokens = self._state.handle_char(c)
-      for token in tokens:
-        self.log_d(f'lexer: run: new token in state {old_state_name}: {token.to_debug_str()}')
-        yield token
-      self._last_char = c
-      self._last_position = self._position
+      new_state_name = self._state.handle_token(token)
+      self.change_state(new_state_name, token)
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
 
-  @classmethod
-  def _update_position(clazz, old_position, c):
-    if c in ( '\n', '\r\n' ):
-      new_position = point(0, old_position.y + 1)
-    else:
-      new_position = point(old_position.x + len(c), old_position.y)
-    return new_position
-    
-  def tokenize(self, text):
-    return btl_parser_node_deque([ token for token in self.run(text) ])
-    
   @classmethod
   def OLD_chars_plus_eos(self, text):
     for c in text:

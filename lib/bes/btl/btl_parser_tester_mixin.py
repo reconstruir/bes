@@ -2,8 +2,6 @@
 
 from collections import namedtuple
 
-from .btl_parser_node_deque import btl_parser_node_deque
-
 class btl_parser_tester_mixin:
 
   _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string, expected_tokens, actual_tokens')

@@ -30,23 +30,22 @@ class _test_parser(btl_parser_base):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
-      new_state = None
+      new_state_name = None
   
-      if self.char_in(c, 't_done'):
-        new_state = 's_done'
-      elif self.char_in(c, 't_line_break'):
-        new_state = 's_start'
-      elif self.char_in(c, 't_space'):
-        new_state = 's_start'
-      elif self.char_in(c, 't_key'):
-        new_state = 's_expecting_delimiter'
-      elif self.char_in(c, 't_comment'):
-        new_state = 's_start'
+      if token.name == 't_done':
+        new_state_name = 's_done'
+      elif token.name == 't_line_break':
+        new_state_name = 's_start'
+      elif token.name == 't_space':
+        new_state_name = 's_start'
+      elif token.name == 't_key':
+        new_state_name = 's_expecting_delimiter'
+      elif token.name == 't_comment':
+        new_state_name = 's_start'
       else:
-        new_state = 's_done'
-      
-      self.parser.change_state(new_state, token)
-      return tokens
+        new_state_name = 's_done'
+
+      return new_state_name
   
   class _state_s_expecting_delimiter(btl_parser_state_base):
     def __init__(self, parser, log_tag):
@@ -57,17 +56,16 @@ class _test_parser(btl_parser_base):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
-      new_state = None
+      new_state_name = None
   
-      if self.char_in(c, 't_key_value_delimiter'):
-        new_state = 's_expecting_value'
-      elif self.char_in(c, 't_space'):
-        new_state = 's_expecting_delimiter'
+      if token.name == 't_key_value_delimiter':
+        new_state_name = 's_expecting_value'
+      elif token.name == 't_space':
+        new_state_name = 's_expecting_delimiter'
       else:
-        new_state = 's_done'
+        new_state_name = 's_done'
       
-      self.parser.change_state(new_state, token)
-      return tokens
+      return new_state_name
   
   class _state_s_expecting_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
@@ -78,17 +76,16 @@ class _test_parser(btl_parser_base):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
-      new_state = None
+      new_state_name = None
   
-      if self.char_in(c, 't_value'):
-        new_state = 's_after_value'
-      elif self.char_in(c, 't_space'):
-        new_state = 's_expecting_value'
+      if token.name == 't_value':
+        new_state_name = 's_after_value'
+      elif token.name == 't_space':
+        new_state_name = 's_expecting_value'
       else:
-        new_state = 's_done'
+        new_state_name = 's_done'
       
-      self.parser.change_state(new_state, token)
-      return tokens
+      return new_state_name
   
   class _state_s_after_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
@@ -99,21 +96,20 @@ class _test_parser(btl_parser_base):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
-      new_state = None
+      new_state_name = None
   
-      if self.char_in(c, 't_done'):
-        new_state = 's_done'
-      elif self.char_in(c, 't_space'):
-        new_state = 's_after_value'
-      elif self.char_in(c, 't_comment'):
-        new_state = 's_after_value'
-      elif self.char_in(c, 't_line_break'):
-        new_state = 's_start'
+      if token.name == 't_done':
+        new_state_name = 's_done'
+      elif token.name == 't_space':
+        new_state_name = 's_after_value'
+      elif token.name == 't_comment':
+        new_state_name = 's_after_value'
+      elif token.name == 't_line_break':
+        new_state_name = 's_start'
       else:
-        new_state = 's_done'
+        new_state_name = 's_done'
       
-      self.parser.change_state(new_state, token)
-      return tokens
+      return new_state_name
   
   class _state_s_done(btl_parser_state_base):
     def __init__(self, parser, log_tag):
@@ -124,11 +120,9 @@ class _test_parser(btl_parser_base):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
-      new_state = None
-  
+      new_state_name = None
       
-      self.parser.change_state(new_state, token)
-      return tokens
+      return new_state_name
 
   def __init__(self, lexer):
     check.check_btl_lexer(lexer)
@@ -218,7 +212,11 @@ class test_btl_parser_base(btl_parser_tester_mixin, unit_test):
   def test_foo(self):
     l = _test_simple_lexer()
     p = _test_parser(l)
-    pass
+    text = '''
+fruit=apple
+color=red
+'''
+    p.run(text)
     
 if __name__ == '__main__':
   unit_test.main()
