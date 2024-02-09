@@ -24,11 +24,8 @@ class btl_lexer_token_deque(object):
   def __iter__(self):
     return iter(self._tokens)
 
-#  def __getitem__(self, subscript):
-#    result = self._tokens[subscript]
-#    if isinstance(result, btl_lexer_token):
-#      return result
-#    print(type(result))
+  def __getitem__(self, index):
+    return self._tokens[index]
     
   def clear(self):
     self._tokens = deque()
