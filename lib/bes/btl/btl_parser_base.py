@@ -82,8 +82,13 @@ class btl_parser_base(object):
       tokens.append(token.clone_replace_index(index))
 
     end_state = self._find_state(self._desc.header.end_state)
-    assert self._state == end_state
-    root_node = self._node_creator.get_root_node()
+    if self._state != end_state:
+      raise btl_parser_error(f'The end state is incorrectly "{self._state.name}" instead of "{end_state}"')
+    root_node = self._node_creator.remove_root_node()
+    if len(self._node_creator) != 0:
+      node_names = self._node_creator.node_names()
+      ns = ' '.join(node_names)
+      raise btl_parser_error(f'Orphaned nodes found in end state: {ns}')
     return self._run_result(root_node, tokens)
 
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)

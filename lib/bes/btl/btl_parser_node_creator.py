@@ -20,6 +20,12 @@ class btl_parser_node_creator(object):
     self._root_node = None
     self._nodes = {}
 
+  def __len__(self):
+    return len(self._nodes)
+
+  def node_names(self):
+    return sorted([ node_name for node_name in self._nodes.keys() ])
+  
   def has_node(self, node_name):
     check.check_string(node_name)
 
@@ -85,7 +91,10 @@ class btl_parser_node_creator(object):
   
   def get_root_node(self):
     return self.get_node(self._root_node_name)
-    
+
+  def remove_root_node(self):
+    return self.remove_node(self._root_node_name)
+  
 #        node create n_key_value
 #        node create n_key
 #        node set_token n_key
