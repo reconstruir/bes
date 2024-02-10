@@ -72,11 +72,17 @@ class _state_{self.name}(btl_parser_state_base):
     check.check_bool(first_time)
 
     self.log_handle_token(token)
-
     new_state_name = None
-
 ''')
 
+    if self.one_time_commands:
+      with buf.indent_pusher(depth = 2) as _:
+        buf.write_lines(f'''
+if first_time:
+''')
+        with buf.indent_pusher(depth = 1) as _:
+          self.one_time_commands.generate_code(buf, errors)
+        buf.write_linesep()
     with buf.indent_pusher(depth = 2) as _:
       self.transitions.generate_code(buf, errors)
       buf.write_lines(f'''

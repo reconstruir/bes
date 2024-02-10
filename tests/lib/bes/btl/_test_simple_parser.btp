@@ -43,7 +43,8 @@ states
       t_value: s_after_value
         node create n_value
         node set_token n_value
-        node add_child root n_key_value
+        node add_child n_key_value n_value
+        node add_child n_root n_key_value
       t_space: s_expecting_value
       default: s_done
         error e_unexpected_token

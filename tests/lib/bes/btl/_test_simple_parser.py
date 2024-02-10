@@ -23,9 +23,11 @@ class _test_simple_parser(btl_parser_base):
       check.check_bool(first_time)
   
       self.log_handle_token(token)
-  
       new_state_name = None
-  
+      
+      if first_time:
+        self.node_creator.create_root()
+
       if token.name == 't_done':
         new_state_name = 's_done'
       elif token.name == 't_line_break':
@@ -58,9 +60,7 @@ class _test_simple_parser(btl_parser_base):
       check.check_bool(first_time)
   
       self.log_handle_token(token)
-  
       new_state_name = None
-  
       if token.name == 't_key_value_delimiter':
         new_state_name = 's_expecting_value'
       elif token.name == 't_space':
@@ -83,14 +83,13 @@ class _test_simple_parser(btl_parser_base):
       check.check_bool(first_time)
   
       self.log_handle_token(token)
-  
       new_state_name = None
-  
       if token.name == 't_value':
         new_state_name = 's_after_value'
         self.node_creator.create('n_value')
         self.node_creator.set_token('n_value', token)
-        self.node_creator.add_child('root', 'n_key_value')
+        self.node_creator.add_child('n_key_value', 'n_value')
+        self.node_creator.add_child('n_root', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_expecting_value'
       else:
@@ -111,9 +110,7 @@ class _test_simple_parser(btl_parser_base):
       check.check_bool(first_time)
   
       self.log_handle_token(token)
-  
       new_state_name = None
-  
       if token.name == 't_done':
         new_state_name = 's_done'
       elif token.name == 't_space':
@@ -140,9 +137,7 @@ class _test_simple_parser(btl_parser_base):
       check.check_bool(first_time)
   
       self.log_handle_token(token)
-  
       new_state_name = None
-  
       
       return new_state_name
 
@@ -202,7 +197,8 @@ states
       t_value: s_after_value
         node create n_value
         node set_token n_value
-        node add_child root n_key_value
+        node add_child n_key_value n_value
+        node add_child n_root n_key_value
       t_space: s_expecting_value
       default: s_done
         error e_unexpected_token
