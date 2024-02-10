@@ -35,8 +35,8 @@ class test_btl_parser_node_creator(unit_test):
     self.assert_string_equal_fuzzy( '''
 n_root;
   n_kv;
-    n_key;t_key:color:1,1
-    n_value;t_value:red:1,1
+    n_key;t_key:color:p=1,1
+    n_value;t_value:red:p=1,1
 ''', str(n) )
     
 if __name__ == '__main__':

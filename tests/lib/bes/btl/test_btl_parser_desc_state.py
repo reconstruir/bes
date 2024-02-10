@@ -9,7 +9,6 @@ from bes.btl.btl_parser_desc_state_transition_command import btl_parser_desc_sta
 from bes.btl.btl_parser_desc_state_transition import btl_parser_desc_state_transition
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
-from bes.text.tree_text_parser import _text_node_data
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 from _test_simple_parser_mixin import _test_simple_parser_mixin

@@ -234,17 +234,17 @@ color=green
     self.assert_python_code_text_equal( '''
 n_root;
   n_key_value;
-    n_key;t_key:fruit:1,2
-    n_value;t_value:apple:7,2
+    n_key;t_key:fruit:p=1,2:i=1
+    n_value;t_value:apple:p=7,2:i=3
   n_key_value;
-    n_key;t_key:color:1,3
-    n_value;t_value:red:7,3
+    n_key;t_key:color:p=1,3:i=5
+    n_value;t_value:red:p=7,3:i=7
   n_key_value;
-    n_key;t_key:fruit:1,5
-    n_value;t_value:kiwi:7,5
+    n_key;t_key:fruit:p=1,5:i=10
+    n_value;t_value:kiwi:p=7,5:i=12
   n_key_value;
-    n_key;t_key:color:1,6
-    n_value;t_value:green:7,6
+    n_key;t_key:color:p=1,6:i=14
+    n_value;t_value:green:p=7,6:i=16
 ''', str(result.root_node) )
     
 if __name__ == '__main__':

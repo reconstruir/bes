@@ -6,7 +6,6 @@ from bes.btl.btl_lexer_desc_state_transition import btl_lexer_desc_state_transit
 from bes.btl.btl_error import btl_error
 from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from bes.testing.unit_test import unit_test
-from bes.text.tree_text_parser import _text_node_data
 
 from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 

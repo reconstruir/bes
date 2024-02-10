@@ -6,7 +6,6 @@ import os.path as path
 from bes.btl.btl_parser_desc_token import btl_parser_desc_token
 from bes.btl.btl_error import btl_error
 from bes.testing.unit_test import unit_test
-from bes.text.tree_text_parser import _text_node_data
 
 from _test_simple_parser_mixin import _test_simple_parser_mixin
 

@@ -24,9 +24,9 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     parts = [
       self.name, 
       self.value or '', 
-      self.position or '', 
-      self.type_hint or None,
-      self.index,
+      f'p={self.position}' if self.position != None else None,      
+      f'h={self.type_hint}' if self.type_hint != None else None,      
+      f'i={self.index}' if self.index != None else None,
     ]
     return ':'.join([ str(part) for part in parts if part != None ])
 

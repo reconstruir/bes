@@ -111,20 +111,20 @@ taste=sour
       return token_
     hacked_tokens = [ _hack_token(token) for token in tokens ]
     expected = [
-      '0: t_line_break:\\n:1,1:h_line_break',
-      '1: t_key:fruit:1,2',
-      '2: t_key_value_delimiter:=:6,2',
-      '3: t_value:kiwi:7,2',
-      '4: t_line_break:\\n:11,2:h_line_break',
-      '5: t_key:color:1,3',
-      '6: t_key_value_delimiter:=:6,3',
-      '7: t_value:green:7,3',
-      '8: t_line_break:\\n:12,3:h_line_break',
-      '9: t_key:taste:1,4',
-      '10: t_key_value_delimiter:=:6,4',
-      '11: t_value:sour:7,4',
-      '12: t_line_break:\\n:11,4:h_line_break',
-      '13: t_done:::h_done',
+      '0: t_line_break:\\n:p=1,1:h=h_line_break',
+      '1: t_key:fruit:p=1,2',
+      '2: t_key_value_delimiter:=:p=6,2',
+      '3: t_value:kiwi:p=7,2',
+      '4: t_line_break:\\n:p=11,2:h=h_line_break',
+      '5: t_key:color:p=1,3',
+      '6: t_key_value_delimiter:=:p=6,3',
+      '7: t_value:green:p=7,3',
+      '8: t_line_break:\\n:p=12,3:h=h_line_break',
+      '9: t_key:taste:p=1,4',
+      '10: t_key_value_delimiter:=:p=6,4',
+      '11: t_value:sour:p=7,4',
+      '12: t_line_break:\\n:p=11,4:h=h_line_break',
+      '13: t_done::h=h_done',
     ]
     actual = [ f'{i}: {str(token)}' for i, token in enumerate(hacked_tokens) ]
     self.assertEqual( expected, actual )
