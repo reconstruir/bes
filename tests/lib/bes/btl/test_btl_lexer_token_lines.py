@@ -36,10 +36,10 @@ color=green
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     new_tokens = btl_lexer_token_deque([
-      ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
-      ( 't_value', 'tart', ( 8, -1 ), None ),
-      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+      ( 't_key', 'flavor', ( 1, -1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
+      ( 't_value', 'tart', ( 8, -1 ), None, None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break', None ),
     ])
     lines.insert_line(1, new_tokens)
     actual = lines.to_source_string()
@@ -54,10 +54,10 @@ color=green
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     new_tokens = btl_lexer_token_deque([
-      ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
-      ( 't_value', 'tart', ( 8, -1 ), None ),
-      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+      ( 't_key', 'flavor', ( 1, -1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
+      ( 't_value', 'tart', ( 8, -1 ), None, None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break', None ),
     ])
     lines.insert_line(3, new_tokens)
     actual = lines.to_source_string()
@@ -72,10 +72,10 @@ color=green
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     new_tokens = btl_lexer_token_deque([
-      ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
-      ( 't_value', 'tart', ( 8, -1 ), None ),
-      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+      ( 't_key', 'flavor', ( 1, -1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
+      ( 't_value', 'tart', ( 8, -1 ), None, None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break', None ),
     ])
     lines.insert_line(5, new_tokens)
     actual = lines.to_source_string()
@@ -90,10 +90,10 @@ flavor=tart
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     new_tokens = btl_lexer_token_deque([
-      ( 't_key', 'flavor', ( 1, -1 ), None ),
-      ( 't_key_value_delimiter', '=', ( 7, -1 ), None ),
-      ( 't_value', 'tart', ( 8, -1 ), None ),
-      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break' ),
+      ( 't_key', 'flavor', ( 1, -1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
+      ( 't_value', 'tart', ( 8, -1 ), None, None ),
+      ( 't_line_break', '\n', ( 12, -1 ), 'h_line_break', None ),
     ])
     lines.insert_line(-1, new_tokens)
     actual = lines.to_source_string()
@@ -116,7 +116,8 @@ flavor=tart
         "name": "t_line_break",
         "value": "\\n",
         "position": "1,1",
-        "type_hint": "h_line_break"
+        "type_hint": "h_line_break",
+        "index": null
       }
     ]
   },
@@ -127,25 +128,29 @@ flavor=tart
         "name": "t_key",
         "value": "fruit",
         "position": "1,2",
-        "type_hint": null
+        "type_hint": null,
+        "index": null
       },
       {
         "name": "t_key_value_delimiter",
         "value": "=",
         "position": "6,2",
-        "type_hint": null
+        "type_hint": null,
+        "index": null
       },
       {
         "name": "t_value",
         "value": "kiwi",
         "position": "7,2",
-        "type_hint": null
+        "type_hint": null,
+        "index": null
       },
       {
         "name": "t_line_break",
         "value": "\\n",
         "position": "11,2",
-        "type_hint": "h_line_break"
+        "type_hint": "h_line_break",
+        "index": null
       }
     ]
   },
@@ -156,25 +161,29 @@ flavor=tart
         "name": "t_key",
         "value": "color",
         "position": "1,3",
-        "type_hint": null
+        "type_hint": null,
+        "index": null
       },
       {
         "name": "t_key_value_delimiter",
         "value": "=",
         "position": "6,3",
-        "type_hint": null
+        "type_hint": null,
+        "index": null
       },
       {
         "name": "t_value",
         "value": "green",
         "position": "7,3",
-        "type_hint": null
+        "type_hint": null,
+        "index": null
       },
       {
         "name": "t_line_break",
         "value": "\\n",
         "position": "12,3",
-        "type_hint": "h_line_break"
+        "type_hint": "h_line_break",
+        "index": null
       }
     ]
   }

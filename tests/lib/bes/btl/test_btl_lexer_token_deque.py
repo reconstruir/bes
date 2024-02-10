@@ -12,42 +12,46 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
 
   def test_append(self):
     l = btl_lexer_token_deque()
-    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
-    l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color', None ))
     self.assert_json_equal( '''
 [
   {
     "name": "fruit",
     "value": "kiwi",
     "position": "1,1",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
    },
    {
      "name": "color",
      "value": "red",
      "position": "10,1", 
-     "type_hint": "h_color"
+     "type_hint": "h_color",
+     "index": null
    }
 ]    
 ''', l.to_json() )
 
   def test_prepend(self):
     l = btl_lexer_token_deque()
-    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None))
-    l.prepend(( 'color', 'red', ( 10, 1 ), 'h_color'))
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None))
+    l.prepend(( 'color', 'red', ( 10, 1 ), 'h_color', None))
     self.assert_json_equal( '''
 [
   {
     "name": "color",
     "value": "red",
     "position": "10,1",
-    "type_hint": "h_color"
+    "type_hint": "h_color",
+    "index": null
   },
   {
     "name": "fruit",
     "value": "kiwi",
     "position": "1,1", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }
 ]
 ''', l.to_json() )
@@ -73,7 +77,8 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "t_line_break",
     "value": "\\n",
     "position": "1,1",
-    "type_hint": "h_line_break"
+    "type_hint": "h_line_break",
+    "index": null
   }
 ]
 ''', d[1].to_json() )
@@ -84,25 +89,29 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "t_key",
     "value": "fruit",
     "position": "1,2",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   },
   {
     "name": "t_key_value_delimiter",
     "value": "=",
     "position": "6,2",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   },
   {
     "name": "t_value",
     "value": "kiwi",
     "position": "7,2",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   },
   {
     "name": "t_line_break",
     "value": "\\n",
     "position": "11,2",
-    "type_hint": "h_line_break"
+    "type_hint": "h_line_break",
+    "index": null
   }
 ]
 ''', d[2].to_json() )
@@ -113,33 +122,37 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "t_key",
     "value": "color",
     "position": "1,3",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   },
   {
     "name": "t_key_value_delimiter",
     "value": "=",
     "position": "6,3",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   },
   {
     "name": "t_value",
     "value": "green",
     "position": "7,3",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   },
   {
     "name": "t_line_break",
     "value": "\\n",
     "position": "12,3",
-    "type_hint": "h_line_break"
+    "type_hint": "h_line_break",
+    "index": null
   }
 ]
 ''', d[3].to_json() )
 
   def test_modify_value_shrinks(self):
     l = btl_lexer_token_deque()
-    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
-    l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color', None ))
     l.modify_value('fruit', 'k')
     self.assert_json_equal( '''
 [
@@ -147,21 +160,23 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "fruit",
     "value": "k",
     "position": "1,1",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
    },
    {
-     "name": "color",
-     "value": "red",
-     "position": "7,1", 
-     "type_hint": "h_color"
+    "name": "color",
+    "value": "red",
+    "position": "7,1", 
+    "type_hint": "h_color",
+    "index": null
    }
 ]    
 ''', l.to_json() )
     
   def test_modify_value_grows(self):
     l = btl_lexer_token_deque()
-    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
-    l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color', None))
     l.modify_value('fruit', 'watermelon')
     self.assert_json_equal( '''
 [
@@ -169,21 +184,23 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "fruit",
     "value": "watermelon",
     "position": "1,1",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
    },
    {
-     "name": "color",
-     "value": "red",
-     "position": "16,1", 
-     "type_hint": "h_color"
+    "name": "color",
+    "value": "red",
+    "position": "16,1", 
+    "type_hint": "h_color",
+    "index": null
    }
 ]    
 ''', l.to_json() )
 
   def test_shift_y(self):
     l = btl_lexer_token_deque()
-    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None ))
-    l.append(( 'color', 'red', ( 10, 1 ), 'h_color'))
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color', None))
     l.shift_y(1)
     self.assert_json_equal( '''
 [
@@ -191,22 +208,24 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "fruit",
     "value": "kiwi",
     "position": "1,2",
-    "type_hint": null
+    "type_hint": null,
+    "index": null
    },
    {
-     "name": "color",
-     "value": "red",
-     "position": "10,2", 
-     "type_hint": "h_color"
+    "name": "color",
+    "value": "red",
+    "position": "10,2", 
+    "type_hint": "h_color",
+    "index": null
    }
 ]    
 ''', l.to_json() )
 
   def test___getitem__(self):
     d = btl_lexer_token_deque()
-    t0 = ( 'fruit', 'kiwi', ( 1, 1 ), None )
-    t1 = ( 'color', 'red', ( 10, 1 ), 'h_color' )
-    t2 = ( 'flavor', 'tart', ( 20, 1 ), None )
+    t0 = ( 'fruit', 'kiwi', ( 1, 1 ), None, None )
+    t1 = ( 'color', 'red', ( 10, 1 ), 'h_color', None )
+    t2 = ( 'flavor', 'tart', ( 20, 1 ), None, None )
     d.append(t0)
     d.append(t1)
     d.append(t2)
@@ -220,61 +239,71 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     "name": "t_line_break", 
     "value": "\\n", 
     "position": "1,1", 
-    "type_hint": "h_line_break"
+    "type_hint": "h_line_break",
+    "index": null
   }, 
   {
     "name": "t_key", 
     "value": "fruit", 
     "position": "1,2", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }, 
   {
     "name": "t_key_value_delimiter", 
     "value": "=", 
     "position": "6,2", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }, 
   {
     "name": "t_value", 
     "value": "kiwi", 
     "position": "7,2", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }, 
   {
     "name": "t_line_break", 
     "value": "\\n", 
     "position": "11,2", 
-    "type_hint": "h_line_break"
+    "type_hint": "h_line_break",
+    "index": null
   }, 
   {
     "name": "t_key", 
     "value": "color", 
     "position": "1,3", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }, 
   {
     "name": "t_key_value_delimiter", 
     "value": "=", 
     "position": "6,3", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }, 
   {
     "name": "t_value", 
     "value": "green", 
     "position": "7,3", 
-    "type_hint": null
+    "type_hint": null,
+    "index": null
   }, 
   {
     "name": "t_line_break", 
     "value": "\\n", 
     "position": "12,3", 
-    "type_hint": "h_line_break"
+    "type_hint": "h_line_break",
+    "index": null
   }, 
   {
     "name": "t_done", 
     "value": null, 
     "position": "", 
-    "type_hint": "h_done"
+    "type_hint": "h_done",
+    "index": null
   }
 ]
 '''

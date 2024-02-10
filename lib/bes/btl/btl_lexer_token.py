@@ -9,15 +9,16 @@ from ..common.point import point
 from ..common.tuple_util import tuple_util
 from ..system.check import check
 
-class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type_hint')):
+class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type_hint, index')):
 
-  def __new__(clazz, name = None, value = None, position = point(1, 1), type_hint = None):
+  def __new__(clazz, name = None, value = None, position = point(1, 1), type_hint = None, index = None):
     check.check_string(name)
     check.check_string(value, allow_none = True)
     position = check.check_point(position, allow_none = True)
     check.check_string(type_hint, allow_none = True)
+    check.check_int(index, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, name, value, position, type_hint)
+    return clazz.__bases__[0].__new__(clazz, name, value, position, type_hint, index)
 
   def __str__(self):
     parts = [
@@ -25,6 +26,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
       self.value or '', 
       self.position or '', 
       self.type_hint or None,
+      self.index,
     ]
     return ':'.join([ str(part) for part in parts if part != None ])
 
@@ -34,6 +36,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
       'value': self.value,
       'position': str(self.position or ''),
       'type_hint': self.type_hint,
+      'index': self.index,
     }
 
   @classmethod
@@ -47,10 +50,12 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     value = d['value']
     position = d['position']
     type_hint = d['type_hint']
+    index = d.get('index', None)
     return btl_lexer_token(name,
                            value,
                            point.parse_str(position) if position else None,
-                           type_hint)
+                           type_hint,
+                           index)
   
   def has_position(self):
     return self.position != None
@@ -82,6 +87,11 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     new_token = self.clone(mutations = { 'value': new_value })
     return new_token, x_shift
 
+  def clone_replace_index(self, new_index):
+    check.check_int(new_index, allow_none = True)
+    
+    return self.clone(mutations = { 'index': new_index })
+  
   def clone_with_x_shift(self, x_shift):
     check.check_int(x_shift)
 

@@ -15,7 +15,8 @@ class test_btl_lexer_token(_test_simple_lexer_mixin, unit_test):
   "name": "fruit",
   "value": "kiwi",
   "position": "1,1", 
-  "type_hint": null
+  "type_hint": null,
+  "index": null
 }
 ''', btl_lexer_token( 'fruit', 'kiwi', ( 1, 1 ), None).to_json() )
 
@@ -24,7 +25,8 @@ class test_btl_lexer_token(_test_simple_lexer_mixin, unit_test):
   "name": "color",
   "value": "red",
   "position": "10,1", 
-  "type_hint": "h_color"
+  "type_hint": "h_color",
+  "index": null
 }
 ''', btl_lexer_token( 'color', 'red', ( 10, 1 ), 'h_color').to_json() )
     

@@ -139,12 +139,6 @@ class btl_lexer_base(object):
     return btl_lexer_token_deque([ token for token in self.run(text) ])
     
   @classmethod
-  def OLD_chars_plus_eos(self, text):
-    for c in text:
-      yield c
-    yield self.EOS
-
-  @classmethod
   def _chars_plus_eos(self, text):
     n = len(text)
     skip_next_char = False
