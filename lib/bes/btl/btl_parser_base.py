@@ -1,13 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 from ..system.log import log
 from ..system.check import check
 
+from .btl_lexer_token_deque import btl_lexer_token_deque
+from .btl_lexer_token_lines import btl_lexer_token_lines
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_node_creator import btl_parser_node_creator
-from .btl_lexer_token_lines import btl_lexer_token_lines
 
 class btl_parser_base(object):
 
@@ -58,25 +61,26 @@ class btl_parser_base(object):
     msg = f'lexer: transition: ▒{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}▒ {attrs}'
     self.log_d(msg)
     self._state = new_state
-    
+
+  _run_result = namedtuple('_run_result', 'root_node, tokens')
   def run(self, text):
     check.check_string(text)
     
     self.log_d(f'parser: run: text=\"{text}\"')
 
-    #btl_lexer_token_lines
-    tokens = self._lexer.tokenize(text)
+    tokens = btl_lexer_token_deque()
     
-    for token in tokens:
+    for index, token in enumerate(self._lexer.run(text)):
       ts = token.to_debug_str()
       self.log_d(f'parser: loop: token={ts}')
       old_state_name = self._state.name
       new_state_name = self._state.handle_token(token)
       self.change_state(new_state_name, token)
+      tokens.append(token.clone_replace_index(index))
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
-    result = self._node_creator.get_root_node()
-    return result
+    root_node = self._node_creator.get_root_node()
+    return self._run_result(root_node, tokens)
 
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)
