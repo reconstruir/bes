@@ -25,14 +25,12 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_start'
       super().__init__(parser, name, log_tag)
-      self._first_time = True
   
-    def handle_token(self, token):
+    def handle_token(self, token, first_time):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
 
-      if self._first_time:
-        self._first_time = False
+      if first_time:
         self.node_creator.create_root()
       
       new_state_name = None
@@ -61,7 +59,7 @@ class _test_parser(btl_parser_base):
       name = 's_expecting_delimiter'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token):
+    def handle_token(self, token, first_time):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
@@ -81,7 +79,7 @@ class _test_parser(btl_parser_base):
       name = 's_expecting_value'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token):
+    def handle_token(self, token, first_time):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
@@ -105,7 +103,7 @@ class _test_parser(btl_parser_base):
       name = 's_after_value'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token):
+    def handle_token(self, token, first_time):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   
@@ -129,7 +127,7 @@ class _test_parser(btl_parser_base):
       name = 's_done'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token):
+    def handle_token(self, token, first_time):
       token = check.check_btl_lexer_token(token)
       self.log_handle_token(token)
   

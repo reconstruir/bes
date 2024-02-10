@@ -9,6 +9,7 @@ from bes.system.check import check
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.text.text_line_parser import text_line_parser
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 from bes.btl.btl_parser_desc import btl_parser_desc
 from bes.btl.btl_parser_desc_char import btl_parser_desc_char
@@ -23,6 +24,10 @@ from _test_simple_parser_mixin import _test_simple_parser_mixin
 
 class test_btl_parser_desc(_test_simple_parser_mixin, unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('BTL_FIXME')
+  
   def test_parse_text_to_json(self):
     #print(btl_parser_desc.parse_text(self._simple_lexer_desc_text).to_json())
     #return

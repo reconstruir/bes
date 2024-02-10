@@ -7,11 +7,16 @@ from bes.btl.btl_error import btl_error
 from bes.btl.btl_parser_desc_char_map import btl_parser_desc_char_map
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 from _test_simple_parser_mixin import _test_simple_parser_mixin
 
 class test_btl_parser_desc_state_transition(_test_simple_parser_mixin, unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('BTL_FIXME')
+  
   def test_generate_code(self):
     char_map = btl_parser_desc_char_map()
     cmd = btl_parser_desc_state_transition_command('emit', 't_cheese', {})

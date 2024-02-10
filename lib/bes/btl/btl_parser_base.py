@@ -25,6 +25,7 @@ class btl_parser_base(object):
     self._state = self._find_state(self._desc.header.start_state)
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
     self._node_creator = btl_parser_node_creator()
+    self._first_times = None
 
   @property
   def node_creator(self):
@@ -69,12 +70,14 @@ class btl_parser_base(object):
     self.log_d(f'parser: run: text=\"{text}\"')
 
     tokens = btl_lexer_token_deque()
-    
+    first_time_set = set()    
     for index, token in enumerate(self._lexer.run(text)):
       ts = token.to_debug_str()
-      self.log_d(f'parser: loop: token={ts}')
       old_state_name = self._state.name
-      new_state_name = self._state.handle_token(token)
+      first_time = old_state_name not in first_time_set
+      first_time_set.add(old_state_name)
+      self.log_d(f'parser: loop: token={ts} old_state_name={old_state_name} first_time={first_time}')
+      new_state_name = self._state.handle_token(token, first_time)
       self.change_state(new_state_name, token)
       tokens.append(token.clone_replace_index(index))
 
