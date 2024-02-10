@@ -86,13 +86,12 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sou
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
-from bes.btl.btl_lexer_base import btl_lexer_base
-from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
-from bes.btl.btl_lexer_state_base import btl_lexer_state_base
-from bes.btl.btl_lexer_token import btl_lexer_token
+from bes.btl.btl_parser_base import btl_parser_base
+from bes.btl.btl_parser_runtime_error import btl_parser_runtime_error
+from bes.btl.btl_parser_state_base import btl_parser_state_base
 ''')
 
-    buf.write_line(f'class {namespace}_{name}(btl_lexer_base):')
+    buf.write_line(f'class {namespace}_{name}(btl_parser_base):')
     buf.write_linesep()
     with buf.indent_pusher(depth = 1) as _:
       self.errors.generate_code(buf)
@@ -100,19 +99,17 @@ from bes.btl.btl_lexer_token import btl_lexer_token
       self.states.generate_code(buf, self.errors)
 
     buf.write_lines(f'''
-  def __init__(self, source = None):
-    log_tag = f'{namespace}_{name}'
-    desc_text = self._DESC_TEXT
-    token = self._token
+  def __init__(self, lexer):
+    check.check_btl_lexer(lexer)
 ''')
     with buf.indent_pusher(depth = 2) as _:
       buf.write_line('states = {')
       with buf.indent_pusher() as _42:
         for state in self.states:
           state_class_name = f'_state_{state.name}'
-          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
+          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, lexer.log_tag),')
       buf.write_line('}')
-      buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, source = source)')
+      buf.write_lines(f'super().__init__(lexer, self._DESC_TEXT, states)')
 
     with buf.indent_pusher(depth = 1) as _:
       desc_text = self.source_text or ''

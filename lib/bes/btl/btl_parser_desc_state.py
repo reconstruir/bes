@@ -63,23 +63,24 @@ class btl_parser_desc_state(namedtuple('btl_parser_desc_state', 'name, transitio
 
     buf.write_lines(f'''
 class _state_{self.name}(btl_parser_state_base):
-  def __init__(self, lexer, log_tag):
+  def __init__(self, parser, log_tag):
     name = '{self.name}'
-    super().__init__(lexer, name, log_tag)
+    super().__init__(parser, name, log_tag)
 
-  def handle_token(self, token):
+  def handle_token(self, token, first_time):
     token = check.check_btl_lexer_token(token)
+    check.check_bool(first_time)
+
     self.log_handle_token(token)
 
-    new_state = None
+    new_state_name = None
 
 ''')
 
     with buf.indent_pusher(depth = 2) as _:
       self.transitions.generate_code(buf, errors)
       buf.write_lines(f'''
-self.lexer.change_state(new_state, token)
-return tokens
+return new_state_name
 ''')
   
 check.register_class(btl_parser_desc_state, include_seq = False)

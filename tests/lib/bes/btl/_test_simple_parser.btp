@@ -12,15 +12,6 @@ parser
 errors
   e_unexpected_token: In state "{state_name}" unexpected token: "{token}"
 
-#  t_done
-#    type_hint: h_done
-#  t_key_value_delimiter
-#  t_key
-#  t_line_break
-#    type_hint: h_line_break
-#  t_space
-#  t_value
-
 states
 
   s_start
@@ -32,7 +23,7 @@ states
         node create n_key_value
         node create n_key
         node set_token n_key
-        node add n_key_value n_key
+        node add_child n_key_value n_key
       t_comment: s_start
       default: s_done
         error e_unexpected_token
@@ -52,7 +43,7 @@ states
       t_value: s_after_value
         node create n_value
         node set_token n_value
-        node add root n_key_value
+        node add_child root n_key_value
       t_space: s_expecting_value
       default: s_done
         error e_unexpected_token

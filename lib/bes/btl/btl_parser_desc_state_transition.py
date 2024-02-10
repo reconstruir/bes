@@ -49,9 +49,9 @@ class btl_parser_desc_state_transition(namedtuple('btl_parser_desc_state_transit
       else:
         buf.write_line(f'else:')
     else:
-      buf.write_line(f'{if_statement} self.char_in(c, \'{token_name}\'):')
+      buf.write_line(f'{if_statement} token.name == \'{token_name}\':')
     with buf.indent_pusher() as _1:
-      buf.write_line(f'new_state = \'{self.to_state}\'')
+      buf.write_line(f'new_state_name = \'{self.to_state}\'')
       self.commands.generate_code(buf, errors)
   
 check.register_class(btl_parser_desc_state_transition, include_seq = False)
