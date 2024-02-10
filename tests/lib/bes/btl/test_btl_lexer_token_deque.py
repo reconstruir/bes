@@ -307,6 +307,100 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
   }
 ]
 '''
+  
+  def test_insert(self):
+    l = btl_lexer_token_deque()
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color', None ))
+    l.append(( 'flavor', 'tart', ( 1, 2 ), None, None ))
+    l.insert(1, ( 'price', 'cheap', ( 1, 3 ), None, None ))
+    self.assert_json_equal( '''
+[
+  {
+    "name": "fruit",
+    "value": "kiwi",
+    "position": "1,1",
+    "type_hint": null,
+    "index": null
+  },
+  {
+    "name": "price",
+    "value": "cheap",
+    "position": "1,3",
+    "type_hint": null,
+    "index": null
+  },
+  {
+    "name": "color",
+    "value": "red",
+    "position": "10,1",
+    "type_hint": "h_color",
+    "index": null
+  },
+  {
+    "name": "flavor",
+    "value": "tart",
+    "position": "1,2",
+    "type_hint": null,
+    "index": null
+  }
+]
+''', l.to_json() )
+
+  def test_insert_with_negative_index(self):
+    l = btl_lexer_token_deque()
+    l.append(( 'fruit', 'kiwi', ( 1, 1 ), None, None ))
+    l.append(( 'color', 'red', ( 10, 1 ), 'h_color', None ))
+    l.append(( 'flavor', 'tart', ( 1, 2 ), None, None ))
+    l.insert(-1, ( 'price', 'cheap', ( 1, 3 ), None, None ))
+    self.assert_json_equal( '''
+[
+  {
+    "name": "fruit",
+    "value": "kiwi",
+    "position": "1,1",
+    "type_hint": null,
+    "index": null
+  },
+  {
+    "name": "color",
+    "value": "red",
+    "position": "10,1",
+    "type_hint": "h_color",
+    "index": null
+  },
+  {
+    "name": "flavor",
+    "value": "tart",
+    "position": "1,2",
+    "type_hint": null,
+    "index": null
+  },
+  {
+    "name": "price",
+    "value": "cheap",
+    "position": "1,3",
+    "type_hint": null,
+    "index": null
+  }
+]
+''', l.to_json() )
+
+  def test_insert_with_empty_deque(self):
+    l = btl_lexer_token_deque()
+    l.insert(0, ( 'price', 'cheap', ( 1, 3 ), None, None ))
+    self.assert_json_equal( '''
+[
+  {
+    "name": "price",
+    "value": "cheap",
+    "position": "1,3",
+    "type_hint": null,
+    "index": null
+  }
+]
+''', l.to_json() )
     
+  
 if __name__ == '__main__':
   unit_test.main()

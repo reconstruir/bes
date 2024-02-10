@@ -43,6 +43,16 @@ class btl_lexer_token_deque(object):
 
     self._tokens.appendleft(token)
 
+  def insert(self, index, token):
+    check.check_int(index)
+    token = check.check_btl_lexer_token(token)
+
+    if index < 0:
+      index = len(self._tokens) + index + 1    
+    self._tokens.rotate(-index)
+    self._tokens.appendleft(token)
+    self._tokens.rotate(index)    
+    
   def to_line_break_ordered_dict(self):
     if not self._tokens:
       return OrderedDict()
