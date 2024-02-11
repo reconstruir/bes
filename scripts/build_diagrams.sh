@@ -12,8 +12,8 @@ function main()
   local _best_script="${_root_dir}/bin/best.py"
   local _diagrams="${_root_dir}/best.exe"
 
-  make -C ${_root_dir}/lib/bes/config/ini clean all
-  make -C ${_root_dir}/tests/lib/bes/btl clean all
+  make -C ${_root_dir}/lib/bes/config/ini touch all
+  make -C ${_root_dir}/tests/lib/bes/btl touch all
   
   return 0
 }

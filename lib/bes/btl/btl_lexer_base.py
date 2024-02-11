@@ -15,15 +15,15 @@ class btl_lexer_base(object):
 
   EOS = '\0'
   
-  def __init__(self, log_tag, desc_text, token, states, source = None):
+  def __init__(self, log_tag, desc_text, token, states, desc_source = None):
     check.check_string(log_tag)
     check.check_string(desc_text)
-    check.check_string(source, allow_none = True)
+    check.check_string(desc_source, allow_none = True)
     
     self._log_tag = log_tag
     log.add_logging(self, tag = self._log_tag)
-    self._source = source or '<unknown>'
-    self._desc = btl_lexer_desc.parse_text(desc_text, source = self._source)
+    self._desc_source = desc_source or '<unknown>'
+    self._desc = btl_lexer_desc.parse_text(desc_text, source = self._desc_source)
     self._token = token
     self._states = states
     self._buffer = None
@@ -40,8 +40,8 @@ class btl_lexer_base(object):
     return self._position
   
   @property
-  def source(self):
-    return self._source
+  def desc_source(self):
+    return self._desc_source
 
   @property
   def buffer_start_position(self):
@@ -105,12 +105,16 @@ class btl_lexer_base(object):
       return None
     return self._buffer.getvalue()
 
-  def run(self, text):
+  def run(self, text, source = None):
     check.check_string(text)
+    check.check_string(source, allow_none = True)
     
-    self.log_d(f'lexer: run: text=\"{text}\"')
-    
-    assert self.EOS not in text
+    source = source or '<unknown>'
+    self.log_d(f'lexer: run: source={source} text=\"{text}\"')
+
+    if self.EOS in text:
+      raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
+      
     self._position = point(0, 1)
     for c in self._chars_plus_eos(text):
       self._position = self._update_position(self._position, c)

@@ -14,13 +14,15 @@ from .btl_parser_node_creator import btl_parser_node_creator
 
 class btl_parser_base(object):
 
-  def __init__(self, lexer, desc_text, states):
+  def __init__(self, lexer, desc_text, states, desc_source = None):
     check.check_btl_lexer(lexer)
     check.check_string(desc_text)
-    
+    check.check_string(desc_source, allow_none = True)
+
+    self._desc_source = desc_source or '<unknown>'
     self._lexer = lexer
     log.add_logging(self, tag = self._lexer.log_tag)
-    self._desc = btl_parser_desc.parse_text(desc_text, source = lexer.source)
+    self._desc = btl_parser_desc.parse_text(desc_text, source = self._desc_source)
     self._states = states
     self._state = self._find_state(self._desc.header.start_state)
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
@@ -36,8 +38,8 @@ class btl_parser_base(object):
     return self._lexer
     
   @property
-  def desc(self):
-    return self._desc
+  def desc_source(self):
+    return self._desc_source
 
   @property
   def log_tag(self):

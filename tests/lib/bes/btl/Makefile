@@ -18,3 +18,6 @@ all: $(TARGETS)
 
 clean:
 	rm -f $(TARGETS)
+
+touch:
+	@touch *.bt*

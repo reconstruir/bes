@@ -282,7 +282,7 @@ class _test_keyval_lexer(btl_lexer_base):
       self.lexer.change_state(new_state, c)
       return tokens
 
-  def __init__(self, source = None):
+  def __init__(self, desc_source = None):
     log_tag = f'_test_keyval_lexer'
     desc_text = self._DESC_TEXT
     token = self._token
@@ -296,7 +296,7 @@ class _test_keyval_lexer(btl_lexer_base):
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, desc_text, token, states, source = source)
+    super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)
   _DESC_TEXT = """
 #BTL
 #

@@ -117,7 +117,7 @@ from bes.btl.btl_lexer_token import btl_lexer_token
       self.states.generate_code(buf, self.errors, self.char_map)
 
     buf.write_lines(f'''
-  def __init__(self, source = None):
+  def __init__(self, desc_source = None):
     log_tag = f'{namespace}_{name}'
     desc_text = self._DESC_TEXT
     token = self._token
@@ -129,7 +129,7 @@ from bes.btl.btl_lexer_token import btl_lexer_token
           state_class_name = f'_state_{state.name}'
           buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
       buf.write_line('}')
-      buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, source = source)')
+      buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)')
 
     with buf.indent_pusher(depth = 1) as _:
       desc_text = self.source_text or ''
