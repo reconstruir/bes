@@ -55,7 +55,7 @@ class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transitio
       char = char_map[char_name]
       buf.write_line(f'{if_statement} self.char_in(c, \'{char_name}\'):')
     with buf.indent_pusher() as _1:
-      buf.write_line(f'new_state = \'{self.to_state}\'')
+      buf.write_line(f'new_state_name = \'{self.to_state}\'')
       self.commands.generate_code(buf, errors)
   
 check.register_class(btl_lexer_desc_state_transition, include_seq = False)

@@ -8,6 +8,7 @@ from ..common.point import point
 
 from .btl_lexer_desc import btl_lexer_desc
 from .btl_lexer_error import btl_lexer_error
+from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
 
@@ -62,7 +63,7 @@ class btl_lexer_base(object):
   def _find_state(self, state_name):
     return self._states[state_name]
   
-  def change_state(self, new_state_name, c):
+  def change_state(self, new_state_name, c, options):
     check.check_string(new_state_name, allow_none = True)
     check.check_string(c)
 
@@ -73,7 +74,7 @@ class btl_lexer_base(object):
     new_state = self._find_state(new_state_name)
     if new_state == self._state:
       return
-    attrs = new_state._make_log_attributes(c)
+    attrs = new_state._make_log_attributes(c, options)
     max_length = self._max_state_name_length
     msg = f'lexer: transition: #{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
     self.log_d(msg)
@@ -105,12 +106,14 @@ class btl_lexer_base(object):
       return None
     return self._buffer.getvalue()
 
-  def lex_generator(self, text, source = None):
+  def lex_generator(self, text, source = None, options = None):
     check.check_string(text)
     check.check_string(source, allow_none = True)
+    check.check_btl_lexer_options(options, allow_none = True)
     
     source = source or '<unknown>'
-    self.log_d(f'lexer: run: source={source} text=\"{text}\"')
+    options = options or btl_lexer_options()
+    self.log_d(f'lexer: run: source={source} options={options} text=\"{text}\"')
 
     if self.EOS in text:
       raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
@@ -118,11 +121,13 @@ class btl_lexer_base(object):
     self._position = point(0, 1)
     for c in self._chars_plus_eos(text):
       self._position = self._update_position(self._position, c)
-      attrs = self._state._make_log_attributes(c)
+      attrs = self._state._make_log_attributes(c, options)
       self.log_d(f'lexer: loop: {attrs} position={self._position}')
       old_state_name = self._state.name
-      tokens = self._state.handle_char(c)
-      for token in tokens:
+      handle_char_result = self._state.handle_char(c, options)
+      new_state_name = handle_char_result.new_state_name
+      self.change_state(new_state_name, c, options)
+      for token in handle_char_result.tokens:
         self.log_d(f'lexer: run: new token in state {old_state_name}: {token.to_debug_str()}')
         yield token
       self._last_char = c

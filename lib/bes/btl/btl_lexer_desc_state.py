@@ -43,10 +43,10 @@ class _state_{self.name}(btl_lexer_state_base):
     name = '{self.name}'
     super().__init__(lexer, name, log_tag)
 
-  def handle_char(self, c):
-    self.log_handle_char(c)
+  def handle_char(self, c, options):
+    self.log_handle_char(c, options)
 
-    new_state = None
+    new_state_name = None
     tokens = []
 
 ''')
@@ -54,8 +54,7 @@ class _state_{self.name}(btl_lexer_state_base):
     with buf.indent_pusher(depth = 2) as _:
       self.transitions.generate_code(buf, errors, char_map)
       buf.write_lines(f'''
-self.lexer.change_state(new_state, c)
-return tokens
+return self._handle_char_result(new_state_name, tokens)
 ''')
   
 check.register_class(btl_lexer_desc_state, include_seq = False)

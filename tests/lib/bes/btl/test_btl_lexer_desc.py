@@ -183,110 +183,106 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       name = 's_start'
       super().__init__(lexer, name, log_tag)
   
-    def handle_char(self, c):
-      self.log_handle_char(c)
+    def handle_char(self, c, options):
+      self.log_handle_char(c, options)
   
-      new_state = None
+      new_state_name = None
       tokens = []
   
       if self.char_in(c, 'c_eos'):
-        new_state = 's_done'
+        new_state_name = 's_done'
         tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_line_break'):
-        new_state = 's_start'
+        new_state_name = 's_start'
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_ws'):
-        new_state = 's_start'
+        new_state_name = 's_start'
         tokens.append(self.make_token('t_space', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
-        new_state = 's_key'
+        new_state_name = 's_key'
         self.buffer_write(c)
       else:
-        new_state = 's_done'
+        new_state_name = 's_done'
         state_name = self.name
         char = c
         msg = f'In state "{state_name}" unexpected character: "{char}"'
         raise self.lexer.e_unexpected_char(message = msg)
       
-      self.lexer.change_state(new_state, c)
-      return tokens
+      return self._handle_char_result(new_state_name, tokens)
   
   class _state_s_key(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_key'
       super().__init__(lexer, name, log_tag)
   
-    def handle_char(self, c):
-      self.log_handle_char(c)
+    def handle_char(self, c, options):
+      self.log_handle_char(c, options)
   
-      new_state = None
+      new_state_name = None
       tokens = []
   
       if self.char_in(c, 'c_keyval_key'):
-        new_state = 's_key'
+        new_state_name = 's_key'
         self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
-        new_state = 's_value'
+        new_state_name = 's_value'
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
         tokens.append(self.make_token('t_key_value_delimiter', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
-        new_state = 's_done'
+        new_state_name = 's_done'
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         tokens.append(self.make_token('t_done', args = {}))
       
-      self.lexer.change_state(new_state, c)
-      return tokens
+      return self._handle_char_result(new_state_name, tokens)
   
   class _state_s_value(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_value'
       super().__init__(lexer, name, log_tag)
   
-    def handle_char(self, c):
-      self.log_handle_char(c)
+    def handle_char(self, c, options):
+      self.log_handle_char(c, options)
   
-      new_state = None
+      new_state_name = None
       tokens = []
   
       if self.char_in(c, 'c_line_break'):
-        new_state = 's_start'
+        new_state_name = 's_start'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
         tokens.append(self.make_token('t_line_break', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
-        new_state = 's_done'
+        new_state_name = 's_done'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
         tokens.append(self.make_token('t_done', args = {}))
       else:
-        new_state = 's_value'
+        new_state_name = 's_value'
         self.buffer_write(c)
       
-      self.lexer.change_state(new_state, c)
-      return tokens
+      return self._handle_char_result(new_state_name, tokens)
   
   class _state_s_done(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_done'
       super().__init__(lexer, name, log_tag)
   
-    def handle_char(self, c):
-      self.log_handle_char(c)
+    def handle_char(self, c, options):
+      self.log_handle_char(c, options)
   
-      new_state = None
+      new_state_name = None
       tokens = []
   
       
-      self.lexer.change_state(new_state, c)
-      return tokens
+      return self._handle_char_result(new_state_name, tokens)
 
   def __init__(self, desc_source = None):
     log_tag = f'_fruit_kiwi_lexer'
