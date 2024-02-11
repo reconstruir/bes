@@ -1,0 +1,59 @@
+#BTL
+#
+parser
+  name: bc_ini_parser
+  description: A ini style config file parser
+  version: 1.0
+  start_state: s_start
+  end_state: s_done
+
+errors
+  e_unexpected_token: In state "{state_name}" unexpected token: "{token}"
+
+states
+
+  s_start
+    transitions
+      t_done: s_done
+      t_line_break: s_start
+      t_space: s_start
+      t_key: s_expecting_delimiter
+        node create n_key_value
+        node create n_key
+        node set_token n_key
+        node add_child n_key_value n_key
+      t_comment: s_start
+      default: s_done
+        error e_unexpected_token
+    one_time_commands
+      node create_root n_root
+    commands
+
+  s_expecting_delimiter
+    transitions
+      t_key_value_delimiter: s_expecting_value
+      t_space: s_expecting_delimiter
+      default: s_done
+        error e_unexpected_token
+
+  s_expecting_value
+    transitions
+      t_value: s_after_value
+        node create n_value
+        node set_token n_value
+        node add_child n_key_value n_value
+        node add_child n_root n_key_value
+      t_space: s_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_after_value
+    transitions
+      t_done: s_done
+      t_space: s_after_value
+      t_comment: s_after_value
+      t_line_break: s_start
+      default: s_done
+        error e_unexpected_token
+
+  s_done
