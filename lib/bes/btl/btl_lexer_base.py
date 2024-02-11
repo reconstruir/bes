@@ -105,7 +105,7 @@ class btl_lexer_base(object):
       return None
     return self._buffer.getvalue()
 
-  def run(self, text, source = None):
+  def lex_generator(self, text, source = None):
     check.check_string(text)
     check.check_string(source, allow_none = True)
     
@@ -131,6 +131,9 @@ class btl_lexer_base(object):
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
 
+  def lex_all(self, text):
+    return btl_lexer_token_deque([ token for token in self.lex_generator(text) ])
+    
   @classmethod
   def _update_position(clazz, old_position, c):
     if c in ( '\n', '\r\n' ):
@@ -138,9 +141,6 @@ class btl_lexer_base(object):
     else:
       new_position = point(old_position.x + len(c), old_position.y)
     return new_position
-    
-  def tokenize(self, text):
-    return btl_lexer_token_deque([ token for token in self.run(text) ])
     
   @classmethod
   def _chars_plus_eos(self, text):

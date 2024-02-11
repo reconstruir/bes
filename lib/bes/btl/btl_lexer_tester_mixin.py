@@ -9,7 +9,7 @@ class btl_lexer_tester_mixin:
   _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string, expected_tokens, actual_tokens')
   def call_tokenize(self, lexer_class, text, expected, desc_source = None):
     lexer = lexer_class()
-    actual_tokens = lexer.tokenize(text)
+    actual_tokens = lexer.lex_all(text)
     actual_json = actual_tokens.to_json()
     expected_tokens = btl_lexer_token_deque(expected)
     expected_json = btl_lexer_token_deque(expected).to_json()

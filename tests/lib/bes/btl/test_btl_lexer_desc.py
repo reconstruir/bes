@@ -104,7 +104,7 @@ taste=sour
     self.assertEqual( 's_done', l.desc.header.end_state )
     self.assertEqual( 's_start', l._states['s_start'].name )
 
-    tokens = l.run(text)
+    tokens = l.lex_all(text)
     def _hack_token(token_):
       if token_.name == 't_line_break':
         return token_.clone(mutations = { 'value': '\\n' })

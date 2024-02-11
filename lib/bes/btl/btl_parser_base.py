@@ -73,7 +73,7 @@ class btl_parser_base(object):
 
     tokens = btl_lexer_token_deque()
     first_time_set = set()    
-    for index, token in enumerate(self._lexer.run(text)):
+    for index, token in enumerate(self._lexer.lex_generator(text)):
       token_with_index = token.clone_replace_index(index)
       ts = token_with_index.to_debug_str()
       old_state_name = self._state.name
