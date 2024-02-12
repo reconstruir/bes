@@ -123,3 +123,5 @@ states
         error e_unexpected_token
 
   s_done
+    commands
+      node add_child n_root n_global_section

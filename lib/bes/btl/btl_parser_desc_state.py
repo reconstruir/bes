@@ -83,6 +83,12 @@ if first_time:
         with buf.indent_pusher(depth = 1) as _:
           self.one_time_commands.generate_code(buf, errors)
         buf.write_linesep()
+        
+    if self.commands:
+      with buf.indent_pusher(depth = 2) as _:
+        self.commands.generate_code(buf, errors)
+        buf.write_linesep()
+        
     with buf.indent_pusher(depth = 2) as _:
       self.transitions.generate_code(buf, errors)
       buf.write_lines(f'''

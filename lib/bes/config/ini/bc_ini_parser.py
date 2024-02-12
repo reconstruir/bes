@@ -324,6 +324,8 @@ class bc_ini_parser(btl_parser_base):
   
       self.log_handle_token(token)
       new_state_name = None
+      self.node_creator.add_child('n_root', 'n_global_section')
+
       
       return new_state_name
 
