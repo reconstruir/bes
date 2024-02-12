@@ -16,12 +16,12 @@ class btl_lexer_desc_state_transition_command(btl_desc_command):
     errors = check.check_btl_lexer_desc_error_list(errors)
 
     if self.name == 'emit':
-      buf.write_line(f'tokens.append(self.make_token(\'{self.action}\', args = {self.args}))')
+      buf.write_line(f'tokens.append(self.make_token(context, \'{self.action}\', args = {self.args}))')
     elif self.name == 'buffer':
       if self.action == 'write':
-        buf.write_line(f'self.buffer_write(c)')
+        buf.write_line(f'context.buffer_write(c)')
       elif self.action == 'reset':
-        buf.write_line(f'self.buffer_reset()')
+        buf.write_line(f'context.buffer_reset()')
       else:
         raise btl_lexer_error(f'Unknown command action: "{self.action}"')
     elif self.name == 'error':

@@ -26,15 +26,15 @@ class _state_s_juice(btl_lexer_state_base):
     name = 's_juice'
     super().__init__(lexer, name, log_tag)
 
-  def handle_char(self, c, options):
-    self.log_handle_char(c, options)
+  def handle_char(self, context, c):
+    self.log_handle_char(context, c)
 
     new_state_name = None
     tokens = []
 
     if self.char_in(c, 'c_equal'):
       new_state_name = 's_juice'
-      tokens.append(self.make_token('t_cheese', args = {}))
+      tokens.append(self.make_token(context, 't_cheese', args = {}))
     
     return self._handle_char_result(new_state_name, tokens)
 ''', self.call_function_with_buf(state, 'generate_code', [], char_map) )

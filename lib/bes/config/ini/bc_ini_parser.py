@@ -324,8 +324,6 @@ class bc_ini_parser(btl_parser_base):
   
       self.log_handle_token(token)
       new_state_name = None
-      self.node_creator.add_child('n_root', 'n_global_section')
-
       
       return new_state_name
 
@@ -472,8 +470,13 @@ states
         error e_unexpected_token
 
   s_done
-    commands
-      node add_child n_root n_global_section
+
+start_commands
+  node create_root n_root
+  node create n_global_section
+
+end_commands
+  node add_child n_root n_global_section
 
 """
 check.register_class(bc_ini_parser, include_seq = False)

@@ -43,8 +43,8 @@ class _state_{self.name}(btl_lexer_state_base):
     name = '{self.name}'
     super().__init__(lexer, name, log_tag)
 
-  def handle_char(self, c, options):
-    self.log_handle_char(c, options)
+  def handle_char(self, context, c):
+    self.log_handle_char(context, c)
 
     new_state_name = None
     tokens = []

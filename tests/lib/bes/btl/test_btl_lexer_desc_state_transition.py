@@ -19,7 +19,7 @@ class test_btl_lexer_desc_state_transition(_test_simple_lexer_mixin, unit_test):
     self.assert_python_code_text_equal('''
 if self.char_in(c, 'c_equal'):
   new_state_name = 's_kiwi'
-  tokens.append(self.make_token('t_cheese', args = {}))
+  tokens.append(self.make_token(context, 't_cheese', args = {}))
 ''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 0, 2) )
 
   def test_generate_code_with_index_non_zero(self):
@@ -30,7 +30,7 @@ if self.char_in(c, 'c_equal'):
     self.assert_python_code_text_equal('''
 elif self.char_in(c, 'c_equal'):
   new_state_name = 's_kiwi'
-  tokens.append(self.make_token('t_cheese', args = {}))
+  tokens.append(self.make_token(context, 't_cheese', args = {}))
 ''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 1, 2) )
     
 if __name__ == '__main__':
