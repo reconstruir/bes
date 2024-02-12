@@ -18,6 +18,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_start'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_global_start: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_global_start: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -55,6 +61,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_expecting_delimiter'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_global_expecting_delimiter: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_global_expecting_delimiter: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -74,6 +86,12 @@ class bc_ini_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_global_expecting_value'
       super().__init__(parser, name, log_tag)
+  
+    def enter_state(self, context):
+      self.log_d(f's_global_expecting_value: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_global_expecting_value: leave_state')
   
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
@@ -99,6 +117,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_after_value'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_global_after_value: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_global_after_value: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -122,6 +146,12 @@ class bc_ini_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_key'
       super().__init__(parser, name, log_tag)
+  
+    def enter_state(self, context):
+      self.log_d(f's_section_expecting_key: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_expecting_key: leave_state')
   
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
@@ -155,6 +185,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_name'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_section_expecting_name: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_expecting_name: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -175,6 +211,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_name_end'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_section_expecting_name_end: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_expecting_name_end: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -192,6 +234,12 @@ class bc_ini_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_section_after_section_name'
       super().__init__(parser, name, log_tag)
+  
+    def enter_state(self, context):
+      self.log_d(f's_section_after_section_name: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_after_section_name: leave_state')
   
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
@@ -217,6 +265,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_delimiter'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_section_expecting_delimiter: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_expecting_delimiter: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -236,6 +290,12 @@ class bc_ini_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_value'
       super().__init__(parser, name, log_tag)
+  
+    def enter_state(self, context):
+      self.log_d(f's_section_expecting_value: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_expecting_value: leave_state')
   
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
@@ -261,6 +321,12 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_after_value'
       super().__init__(parser, name, log_tag)
   
+    def enter_state(self, context):
+      self.log_d(f's_section_after_value: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_section_after_value: leave_state')
+  
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
@@ -284,6 +350,12 @@ class bc_ini_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_done'
       super().__init__(parser, name, log_tag)
+  
+    def enter_state(self, context):
+      self.log_d(f's_done: enter_state')
+  
+    def leave_state(self, context):
+      self.log_d(f's_done: leave_state')
   
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)

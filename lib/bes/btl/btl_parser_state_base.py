@@ -15,21 +15,15 @@ class btl_parser_state_base(object):
     log.add_logging(self, tag = log_tag)
     self._parser = parser
 
-  @property
-  def parser(self):
-    return self._parser
-    
   def handle_token(self, context, token):
     ts = token.to_debug_str()
     raise btl_parser_error(f'{self.name}: unhandled token: {ts}')
 
-  def enter_state(self):
-    self.log_d(f'{self.name}: enter_state')
-    pass
+  def enter_state(self, context):
+    raise btl_parser_error(f'{self.name}: unhandled enter_state')
 
-  def leave_state(self):
-    self.log_d(f'{self.name}: leave_state')
-    pass
+  def leave_state(self, context):
+    raise btl_parser_error(f'{self.name}: unhandled leave_state')
   
   def log_handle_token(self, token):
     ts = token.to_debug_str()

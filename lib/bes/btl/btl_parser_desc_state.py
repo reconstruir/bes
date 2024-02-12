@@ -66,7 +66,19 @@ class _state_{self.name}(btl_parser_state_base):
   def __init__(self, parser, log_tag):
     name = '{self.name}'
     super().__init__(parser, name, log_tag)
+''')
 
+    buf.write_lines(f'''
+  def enter_state(self, context):
+    self.log_d(f'{self.name}: enter_state')
+''')
+    
+    buf.write_lines(f'''
+  def leave_state(self, context):
+    self.log_d(f'{self.name}: leave_state')
+''')
+    
+    buf.write_lines(f'''
   def handle_token(self, context, token, first_time):
     self.log_handle_token(token)
     new_state_name = None

@@ -63,9 +63,9 @@ class btl_parser_base(object):
     msg = f'parser: transition: #{context.state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
     self.log_d(msg)
     if context.state != None:
-      context.state.leave_state()
+      context.state.leave_state(context)
     context.state = new_state
-    context.state.enter_state()
+    context.state.enter_state(context)
 
   _parse_result = namedtuple('_parse_result', 'root_node, tokens')
   def parse(self, text):
@@ -74,7 +74,7 @@ class btl_parser_base(object):
     self.log_d(f'parser: parse: text=\"{text}\"')
 
     context = btl_parser_context(self)
-    context.state.enter_state()
+    context.state.enter_state(context)
     
     tokens = btl_lexer_token_deque()
     first_time_set = set()    

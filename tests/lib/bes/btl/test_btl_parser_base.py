@@ -25,7 +25,13 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_start'
       super().__init__(parser, name, log_tag)
-  
+
+    def enter_state(self, context):
+      self.log_d(f'{self.name}: enter_state')
+
+    def leave_state(self, context):
+      self.log_d(f'{self.name}: leave_state')
+      
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
 
@@ -57,7 +63,13 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_expecting_delimiter'
       super().__init__(parser, name, log_tag)
-  
+
+    def enter_state(self, context):
+      self.log_d(f'{self.name}: enter_state')
+
+    def leave_state(self, context):
+      self.log_d(f'{self.name}: leave_state')
+      
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
   
@@ -76,7 +88,13 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_expecting_value'
       super().__init__(parser, name, log_tag)
-  
+
+    def enter_state(self, context):
+      self.log_d(f'{self.name}: enter_state')
+
+    def leave_state(self, context):
+      self.log_d(f'{self.name}: leave_state')
+      
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
   
@@ -99,7 +117,13 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_after_value'
       super().__init__(parser, name, log_tag)
-  
+
+    def enter_state(self, context):
+      self.log_d(f'{self.name}: enter_state')
+
+    def leave_state(self, context):
+      self.log_d(f'{self.name}: leave_state')
+      
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
   
@@ -122,7 +146,13 @@ class _test_parser(btl_parser_base):
     def __init__(self, parser, log_tag):
       name = 's_done'
       super().__init__(parser, name, log_tag)
-  
+
+    def enter_state(self, context):
+      self.log_d(f'{self.name}: enter_state')
+
+    def leave_state(self, context):
+      self.log_d(f'{self.name}: leave_state')
+      
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
   
