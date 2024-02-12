@@ -129,5 +129,5 @@ start_commands
 
 end_commands
   node add_child n_root n_global_section
-  node add_child n_sections n_section
+  node add_child_if_it_exists n_sections n_section
   node add_child n_root n_sections

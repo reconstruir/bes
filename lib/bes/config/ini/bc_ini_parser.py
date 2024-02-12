@@ -387,7 +387,7 @@ class bc_ini_parser(btl_parser_base):
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.add_child('n_root', 'n_global_section')
-    context.node_creator.add_child('n_sections', 'n_section')
+    context.node_creator.add_child_if_it_exists('n_sections', 'n_section')
     context.node_creator.add_child('n_root', 'n_sections')
   _DESC_TEXT = """
 #BTL
@@ -521,7 +521,7 @@ start_commands
 
 end_commands
   node add_child n_root n_global_section
-  node add_child n_sections n_section
+  node add_child_if_it_exists n_sections n_section
   node add_child n_root n_sections
 
 """

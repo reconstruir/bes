@@ -5,6 +5,11 @@ from ..system.check import check
 from .btl_desc_command import btl_desc_command
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
+from .btl_parser_desc_state_transition_command import btl_parser_desc_state_transition_command
+class btl_parser_desc_state_command(btl_parser_desc_state_transition_command):
+  pass
+
+'''
 # FIXME_BTL this seems to be the same as btl_parser_desc_state_transition_command.py
 class btl_parser_desc_state_command(btl_desc_command):
 
@@ -38,5 +43,5 @@ class btl_parser_desc_state_command(btl_desc_command):
       buf.write_line(f'context.node_creator.add_child({flat_args})')
     else:
       raise btl_parser_error(f'Unkown "node" command action: "{action}"')
-        
+'''
 check.register_class(btl_parser_desc_state_command, include_seq = False)

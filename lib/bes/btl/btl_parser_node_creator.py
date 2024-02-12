@@ -80,6 +80,15 @@ class btl_parser_node_creator(object):
     child_node = self.remove_node(child_node_name)
     node.add_child(child_node)
 
+  def add_child_if_it_exists(self, node_name, child_node_name):
+    check.check_string(node_name)
+    check.check_string(child_node_name)
+
+    self.check_has_node(node_name)
+    if not self.has_node(child_node_name):
+      return
+    self.add_child(node_name, child_node_name)
+    
   def get_node(self, node_name):
     check.check_string(node_name)
 

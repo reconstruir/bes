@@ -36,6 +36,8 @@ class btl_parser_desc_state_transition_command(btl_desc_command):
       buf.write_line(f'context.node_creator.set_token({flat_args}, token)')
     elif action == 'add_child':
       buf.write_line(f'context.node_creator.add_child({flat_args})')
+    elif action == 'add_child_if_it_exists':
+      buf.write_line(f'context.node_creator.add_child_if_it_exists({flat_args})')
     else:
       raise btl_parser_error(f'Unkown "node" command action: "{action}"')
       

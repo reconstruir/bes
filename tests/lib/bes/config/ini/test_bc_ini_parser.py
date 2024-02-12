@@ -45,6 +45,7 @@ n_root;
     n_key_value;
       n_key;t_key:color:p=1,6:i=14
       n_value;t_value:green:p=7,6:i=16
+  n_sections;    
 ''', str(result.root_node) )
 
   def test_parse_one_section(self):
