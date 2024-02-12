@@ -58,6 +58,16 @@ color=red
     result = p.parse(text)
     print(str(result.root_node))
     self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,2:i=2
+      n_key_value;
+        n_key;t_key:name:p=1,3:i=5
+        n_value;t_value:apple:p=6,3:i=7
+      n_key_value;
+        n_key;t_key:color:p=1,4:i=9
+        n_value;t_value:red:p=7,4:i=11
 ''', str(result.root_node) )
     
 if __name__ == '__main__':
