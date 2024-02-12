@@ -30,6 +30,33 @@ states
       node create_root n_root
       node create n_global_section
 
+  s_global_expecting_delimiter
+    transitions
+      t_key_value_delimiter: s_global_expecting_value
+      t_space: s_global_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_global_expecting_value
+    transitions
+      t_value: s_global_after_value
+        node create n_value
+        node set_token n_value
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_space: s_global_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_global_after_value
+    transitions
+      t_done: s_done
+      t_space: s_global_after_value
+      t_comment: s_global_after_value
+      t_line_break: s_global_start
+      default: s_done
+        error e_unexpected_token
+
   s_section_expecting_key
     transitions
       t_done: s_done
@@ -75,13 +102,6 @@ states
       default: s_done
         error e_unexpected_token
 
-  s_global_expecting_delimiter
-    transitions
-      t_key_value_delimiter: s_global_expecting_value
-      t_space: s_global_expecting_value
-      default: s_done
-        error e_unexpected_token
-
   s_section_expecting_value
     transitions
       t_value: s_section_after_value
@@ -93,32 +113,12 @@ states
       default: s_done
         error e_unexpected_token
 
-  s_global_expecting_value
-    transitions
-      t_value: s_global_after_value
-        node create n_value
-        node set_token n_value
-        node add_child n_key_value n_value
-        node add_child n_global_section n_key_value
-      t_space: s_global_expecting_value
-      default: s_done
-        error e_unexpected_token
-
   s_section_after_value
     transitions
       t_done: s_done
       t_space: s_section_after_value
       t_comment: s_section_after_value
       t_line_break: s_section_expecting_key
-      default: s_done
-        error e_unexpected_token
-
-  s_global_after_value
-    transitions
-      t_done: s_done
-      t_space: s_global_after_value
-      t_comment: s_global_after_value
-      t_line_break: s_global_start
       default: s_done
         error e_unexpected_token
 

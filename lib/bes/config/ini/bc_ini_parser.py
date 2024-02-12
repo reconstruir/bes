@@ -53,6 +53,83 @@ class bc_ini_parser(btl_parser_base):
       
       return new_state_name
   
+  class _state_s_global_expecting_delimiter(btl_parser_state_base):
+    def __init__(self, parser, log_tag):
+      name = 's_global_expecting_delimiter'
+      super().__init__(parser, name, log_tag)
+  
+    def handle_token(self, token, first_time):
+      token = check.check_btl_lexer_token(token)
+      check.check_bool(first_time)
+  
+      self.log_handle_token(token)
+      new_state_name = None
+      if token.name == 't_key_value_delimiter':
+        new_state_name = 's_global_expecting_value'
+      elif token.name == 't_space':
+        new_state_name = 's_global_expecting_value'
+      else:
+        new_state_name = 's_done'
+        state_name = self.name
+        msg = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.lexer.e_unexpected_token(message = msg)
+      
+      return new_state_name
+  
+  class _state_s_global_expecting_value(btl_parser_state_base):
+    def __init__(self, parser, log_tag):
+      name = 's_global_expecting_value'
+      super().__init__(parser, name, log_tag)
+  
+    def handle_token(self, token, first_time):
+      token = check.check_btl_lexer_token(token)
+      check.check_bool(first_time)
+  
+      self.log_handle_token(token)
+      new_state_name = None
+      if token.name == 't_value':
+        new_state_name = 's_global_after_value'
+        self.node_creator.create('n_value')
+        self.node_creator.set_token('n_value', token)
+        self.node_creator.add_child('n_key_value', 'n_value')
+        self.node_creator.add_child('n_global_section', 'n_key_value')
+      elif token.name == 't_space':
+        new_state_name = 's_global_expecting_value'
+      else:
+        new_state_name = 's_done'
+        state_name = self.name
+        msg = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.lexer.e_unexpected_token(message = msg)
+      
+      return new_state_name
+  
+  class _state_s_global_after_value(btl_parser_state_base):
+    def __init__(self, parser, log_tag):
+      name = 's_global_after_value'
+      super().__init__(parser, name, log_tag)
+  
+    def handle_token(self, token, first_time):
+      token = check.check_btl_lexer_token(token)
+      check.check_bool(first_time)
+  
+      self.log_handle_token(token)
+      new_state_name = None
+      if token.name == 't_done':
+        new_state_name = 's_done'
+      elif token.name == 't_space':
+        new_state_name = 's_global_after_value'
+      elif token.name == 't_comment':
+        new_state_name = 's_global_after_value'
+      elif token.name == 't_line_break':
+        new_state_name = 's_global_start'
+      else:
+        new_state_name = 's_done'
+        state_name = self.name
+        msg = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.lexer.e_unexpected_token(message = msg)
+      
+      return new_state_name
+  
   class _state_s_section_expecting_key(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_key'
@@ -182,29 +259,6 @@ class bc_ini_parser(btl_parser_base):
       
       return new_state_name
   
-  class _state_s_global_expecting_delimiter(btl_parser_state_base):
-    def __init__(self, parser, log_tag):
-      name = 's_global_expecting_delimiter'
-      super().__init__(parser, name, log_tag)
-  
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
-      self.log_handle_token(token)
-      new_state_name = None
-      if token.name == 't_key_value_delimiter':
-        new_state_name = 's_global_expecting_value'
-      elif token.name == 't_space':
-        new_state_name = 's_global_expecting_value'
-      else:
-        new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
-      
-      return new_state_name
-  
   class _state_s_section_expecting_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_value'
@@ -224,33 +278,6 @@ class bc_ini_parser(btl_parser_base):
         self.node_creator.add_child('n_root', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_section_expecting_value'
-      else:
-        new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
-      
-      return new_state_name
-  
-  class _state_s_global_expecting_value(btl_parser_state_base):
-    def __init__(self, parser, log_tag):
-      name = 's_global_expecting_value'
-      super().__init__(parser, name, log_tag)
-  
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
-      self.log_handle_token(token)
-      new_state_name = None
-      if token.name == 't_value':
-        new_state_name = 's_global_after_value'
-        self.node_creator.create('n_value')
-        self.node_creator.set_token('n_value', token)
-        self.node_creator.add_child('n_key_value', 'n_value')
-        self.node_creator.add_child('n_global_section', 'n_key_value')
-      elif token.name == 't_space':
-        new_state_name = 's_global_expecting_value'
       else:
         new_state_name = 's_done'
         state_name = self.name
@@ -286,33 +313,6 @@ class bc_ini_parser(btl_parser_base):
       
       return new_state_name
   
-  class _state_s_global_after_value(btl_parser_state_base):
-    def __init__(self, parser, log_tag):
-      name = 's_global_after_value'
-      super().__init__(parser, name, log_tag)
-  
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
-      self.log_handle_token(token)
-      new_state_name = None
-      if token.name == 't_done':
-        new_state_name = 's_done'
-      elif token.name == 't_space':
-        new_state_name = 's_global_after_value'
-      elif token.name == 't_comment':
-        new_state_name = 's_global_after_value'
-      elif token.name == 't_line_break':
-        new_state_name = 's_global_start'
-      else:
-        new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
-      
-      return new_state_name
-  
   class _state_s_done(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_done'
@@ -333,16 +333,16 @@ class bc_ini_parser(btl_parser_base):
     check.check_btl_lexer(lexer)
     states = {
       's_global_start': self._state_s_global_start(self, lexer.log_tag),
+      's_global_expecting_delimiter': self._state_s_global_expecting_delimiter(self, lexer.log_tag),
+      's_global_expecting_value': self._state_s_global_expecting_value(self, lexer.log_tag),
+      's_global_after_value': self._state_s_global_after_value(self, lexer.log_tag),
       's_section_expecting_key': self._state_s_section_expecting_key(self, lexer.log_tag),
       's_section_expecting_name': self._state_s_section_expecting_name(self, lexer.log_tag),
       's_section_expecting_name_end': self._state_s_section_expecting_name_end(self, lexer.log_tag),
       's_section_after_section_name': self._state_s_section_after_section_name(self, lexer.log_tag),
       's_section_expecting_delimiter': self._state_s_section_expecting_delimiter(self, lexer.log_tag),
-      's_global_expecting_delimiter': self._state_s_global_expecting_delimiter(self, lexer.log_tag),
       's_section_expecting_value': self._state_s_section_expecting_value(self, lexer.log_tag),
-      's_global_expecting_value': self._state_s_global_expecting_value(self, lexer.log_tag),
       's_section_after_value': self._state_s_section_after_value(self, lexer.log_tag),
-      's_global_after_value': self._state_s_global_after_value(self, lexer.log_tag),
       's_done': self._state_s_done(self, lexer.log_tag),
     }
     super().__init__(lexer, self._DESC_TEXT, states)
@@ -378,6 +378,33 @@ states
     one_time_commands
       node create_root n_root
       node create n_global_section
+
+  s_global_expecting_delimiter
+    transitions
+      t_key_value_delimiter: s_global_expecting_value
+      t_space: s_global_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_global_expecting_value
+    transitions
+      t_value: s_global_after_value
+        node create n_value
+        node set_token n_value
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_space: s_global_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_global_after_value
+    transitions
+      t_done: s_done
+      t_space: s_global_after_value
+      t_comment: s_global_after_value
+      t_line_break: s_global_start
+      default: s_done
+        error e_unexpected_token
 
   s_section_expecting_key
     transitions
@@ -424,13 +451,6 @@ states
       default: s_done
         error e_unexpected_token
 
-  s_global_expecting_delimiter
-    transitions
-      t_key_value_delimiter: s_global_expecting_value
-      t_space: s_global_expecting_value
-      default: s_done
-        error e_unexpected_token
-
   s_section_expecting_value
     transitions
       t_value: s_section_after_value
@@ -442,32 +462,12 @@ states
       default: s_done
         error e_unexpected_token
 
-  s_global_expecting_value
-    transitions
-      t_value: s_global_after_value
-        node create n_value
-        node set_token n_value
-        node add_child n_key_value n_value
-        node add_child n_global_section n_key_value
-      t_space: s_global_expecting_value
-      default: s_done
-        error e_unexpected_token
-
   s_section_after_value
     transitions
       t_done: s_done
       t_space: s_section_after_value
       t_comment: s_section_after_value
       t_line_break: s_section_expecting_key
-      default: s_done
-        error e_unexpected_token
-
-  s_global_after_value
-    transitions
-      t_done: s_done
-      t_space: s_global_after_value
-      t_comment: s_global_after_value
-      t_line_break: s_global_start
       default: s_done
         error e_unexpected_token
 
