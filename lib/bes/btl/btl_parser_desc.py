@@ -121,15 +121,17 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
     buf.write_lines(f'''
   def __init__(self, lexer):
     check.check_btl_lexer(lexer)
+    
+    log_tag = f'{namespace}_{name}'
 ''')
     with buf.indent_pusher(depth = 2) as _:
       buf.write_line('states = {')
       with buf.indent_pusher() as _42:
         for state in self.states:
           state_class_name = f'_state_{state.name}'
-          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, lexer.log_tag),')
+          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
       buf.write_line('}')
-      buf.write_lines(f'super().__init__(lexer, self._DESC_TEXT, states)')
+      buf.write_lines(f'super().__init__(log_tag, lexer, self._DESC_TEXT, states)')
 
     with buf.indent_pusher(depth = 1) as _:
       buf.write_lines(f'''

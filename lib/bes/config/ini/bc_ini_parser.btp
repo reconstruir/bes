@@ -26,6 +26,7 @@ states
       t_section_name_begin: s_section_expecting_name
       default: s_done
         error e_unexpected_token
+    enter_state_commands
 
   s_global_expecting_delimiter
     transitions
@@ -124,6 +125,9 @@ states
 start_commands
   node create_root n_root
   node create n_global_section
+  node create n_sections
 
 end_commands
   node add_child n_root n_global_section
+  node add_child n_sections n_section
+  node add_child n_root n_sections

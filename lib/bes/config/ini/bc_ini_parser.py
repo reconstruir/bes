@@ -360,30 +360,35 @@ class bc_ini_parser(btl_parser_base):
 
   def __init__(self, lexer):
     check.check_btl_lexer(lexer)
+    
+    log_tag = f'bc_ini_parser'
     states = {
-      's_global_start': self._state_s_global_start(self, lexer.log_tag),
-      's_global_expecting_delimiter': self._state_s_global_expecting_delimiter(self, lexer.log_tag),
-      's_global_expecting_value': self._state_s_global_expecting_value(self, lexer.log_tag),
-      's_global_after_value': self._state_s_global_after_value(self, lexer.log_tag),
-      's_section_expecting_key': self._state_s_section_expecting_key(self, lexer.log_tag),
-      's_section_expecting_name': self._state_s_section_expecting_name(self, lexer.log_tag),
-      's_section_expecting_name_end': self._state_s_section_expecting_name_end(self, lexer.log_tag),
-      's_section_after_section_name': self._state_s_section_after_section_name(self, lexer.log_tag),
-      's_section_expecting_delimiter': self._state_s_section_expecting_delimiter(self, lexer.log_tag),
-      's_section_expecting_value': self._state_s_section_expecting_value(self, lexer.log_tag),
-      's_section_after_value': self._state_s_section_after_value(self, lexer.log_tag),
-      's_done': self._state_s_done(self, lexer.log_tag),
+      's_global_start': self._state_s_global_start(self, log_tag),
+      's_global_expecting_delimiter': self._state_s_global_expecting_delimiter(self, log_tag),
+      's_global_expecting_value': self._state_s_global_expecting_value(self, log_tag),
+      's_global_after_value': self._state_s_global_after_value(self, log_tag),
+      's_section_expecting_key': self._state_s_section_expecting_key(self, log_tag),
+      's_section_expecting_name': self._state_s_section_expecting_name(self, log_tag),
+      's_section_expecting_name_end': self._state_s_section_expecting_name_end(self, log_tag),
+      's_section_after_section_name': self._state_s_section_after_section_name(self, log_tag),
+      's_section_expecting_delimiter': self._state_s_section_expecting_delimiter(self, log_tag),
+      's_section_expecting_value': self._state_s_section_expecting_value(self, log_tag),
+      's_section_after_value': self._state_s_section_after_value(self, log_tag),
+      's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(lexer, self._DESC_TEXT, states)
+    super().__init__(log_tag, lexer, self._DESC_TEXT, states)
   
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.create_root()
     context.node_creator.create('n_global_section')
+    context.node_creator.create('n_sections')
   
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.add_child('n_root', 'n_global_section')
+    context.node_creator.add_child('n_sections', 'n_section')
+    context.node_creator.add_child('n_root', 'n_sections')
   _DESC_TEXT = """
 #BTL
 #
@@ -413,6 +418,7 @@ states
       t_section_name_begin: s_section_expecting_name
       default: s_done
         error e_unexpected_token
+    enter_state_commands
 
   s_global_expecting_delimiter
     transitions
@@ -511,9 +517,12 @@ states
 start_commands
   node create_root n_root
   node create n_global_section
+  node create n_sections
 
 end_commands
   node add_child n_root n_global_section
+  node add_child n_sections n_section
+  node add_child n_root n_sections
 
 """
 check.register_class(bc_ini_parser, include_seq = False)

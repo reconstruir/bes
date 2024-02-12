@@ -43,10 +43,6 @@ class btl_lexer_base(object):
     return self._token
 
   @property
-  def log_tag(self):
-    return self._log_tag
-
-  @property
   def start_state(self):
     return self._find_state(self._desc.header.start_state)
 

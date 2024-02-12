@@ -18,7 +18,7 @@ from bes.config.ini.bc_ini_parser import bc_ini_parser
 
 class test_bc_ini_parser(btl_parser_tester_mixin, unit_test):
 
-  def test_parse(self):
+  def test_parse_global_only(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
@@ -45,6 +45,19 @@ n_root;
     n_key_value;
       n_key;t_key:color:p=1,6:i=14
       n_value;t_value:green:p=7,6:i=16
+''', str(result.root_node) )
+
+  def test_parse_one_section(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+[fruit]
+name=apple
+color=red
+'''
+    result = p.parse(text)
+    print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )
     
 if __name__ == '__main__':
