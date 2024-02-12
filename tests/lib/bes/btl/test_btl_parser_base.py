@@ -217,8 +217,6 @@ states
       t_comment: s_start
       default: s_done
         error e_unexpected_token
-    one_time_commands
-      node create n_root
     commands
 
   s_expecting_delimiter

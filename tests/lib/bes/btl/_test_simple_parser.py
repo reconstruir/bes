@@ -27,10 +27,6 @@ class _test_simple_parser(btl_parser_base):
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
-      
-      if first_time:
-        context.node_creator.create_root()
-
       if token.name == 't_done':
         new_state_name = 's_done'
       elif token.name == 't_line_break':
@@ -169,6 +165,7 @@ class _test_simple_parser(btl_parser_base):
   
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
+    context.node_creator.create_root()
   
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
@@ -202,8 +199,6 @@ states
       t_comment: s_start
       default: s_done
         error e_unexpected_token
-    one_time_commands
-      node create_root n_root
     commands
 
   s_expecting_delimiter
@@ -234,6 +229,11 @@ states
         error e_unexpected_token
 
   s_done
+
+start_commands
+  node create_root n_root
+
+end_commands
 
 """
 check.register_class(_test_simple_parser, include_seq = False)

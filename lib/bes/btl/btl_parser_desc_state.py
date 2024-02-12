@@ -8,26 +8,29 @@ from .btl_parser_desc_state_command_list import btl_parser_desc_state_command_li
 from .btl_parser_desc_state_transition_list import btl_parser_desc_state_transition_list
 from .btl_parsing import btl_parsing
 
-class btl_parser_desc_state(namedtuple('btl_parser_desc_state', 'name, transitions, commands, one_time_commands')):
+class btl_parser_desc_state(namedtuple('btl_parser_desc_state', 'name, transitions, commands, enter_state_commands, leave_state_commands')):
   
-  def __new__(clazz, name, transitions, commands, one_time_commands):
+  def __new__(clazz, name, transitions, commands, enter_state_commands, leave_state_commands):
     check.check_string(name)
 
     transitions = check.check_btl_parser_desc_state_transition_list(transitions)
     commands = check.check_btl_parser_desc_state_command_list(commands)
-    one_time_commands = check.check_btl_parser_desc_state_command_list(one_time_commands)
+    enter_state_commands = check.check_btl_parser_desc_state_command_list(enter_state_commands)
+    leave_state_commands = check.check_btl_parser_desc_state_command_list(leave_state_commands)
     return clazz.__bases__[0].__new__(clazz,
                                       name,
                                       transitions,
                                       commands,
-                                      one_time_commands)
+                                      enter_state_commands,
+                                      leave_state_commands)
 
   def to_dict(self):
     return {
       'name': self.name,
       'transitions': self.transitions.to_dict_list(),
       'commands': self.commands.to_dict_list(),
-      'one_time_commands': self.one_time_commands.to_dict_list(),
+      'enter_state_commands': self.enter_state_commands.to_dict_list(),
+      'leave_state_commands': self.leave_state_commands.to_dict_list(),
     }
   
   @classmethod
@@ -48,14 +51,25 @@ class btl_parser_desc_state(namedtuple('btl_parser_desc_state', 'name, transitio
                                                   raise_error = False)
     commands = btl_parser_desc_state_command_list.parse_node(commands_node, source = source)
 
-    one_time_commands_node = btl_parsing.find_tree_section(n,
-                                                           'one_time_commands',
+    enter_state_commands_node = btl_parsing.find_tree_section(n,
+                                                           'enter_state_commands',
                                                            source,
                                                            raise_error = False)
-    one_time_commands = btl_parser_desc_state_command_list.parse_node(one_time_commands_node,
+    enter_state_commands = btl_parser_desc_state_command_list.parse_node(enter_state_commands_node,
                                                                       source = source)
 
-    return btl_parser_desc_state(name, transitions, commands, one_time_commands)
+    leave_state_commands_node = btl_parsing.find_tree_section(n,
+                                                           'leave_state_commands',
+                                                           source,
+                                                           raise_error = False)
+    leave_state_commands = btl_parser_desc_state_command_list.parse_node(leave_state_commands_node,
+                                                                      source = source)
+    
+    return btl_parser_desc_state(name,
+                                 transitions,
+                                 commands,
+                                 enter_state_commands,
+                                 leave_state_commands)
 
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
@@ -72,11 +86,21 @@ class _state_{self.name}(btl_parser_state_base):
   def enter_state(self, context):
     self.log_d(f'{self.name}: enter_state')
 ''')
+#    if self.enter_state_commands:
+#      with buf.indent_pusher(depth = 1) as _:
+#        with buf.indent_pusher(depth = 1) as _:
+#          self.enter_state_commands.generate_code(buf, errors)
+#        buf.write_linesep()
     
     buf.write_lines(f'''
   def leave_state(self, context):
     self.log_d(f'{self.name}: leave_state')
 ''')
+#    if self.leave_state_commands:
+#      with buf.indent_pusher(depth = 1) as _:
+#        with buf.indent_pusher(depth = 1) as _:
+#          self.leave_state_commands.generate_code(buf, errors)
+#        buf.write_linesep()
     
     buf.write_lines(f'''
   def handle_token(self, context, token, first_time):
@@ -84,15 +108,6 @@ class _state_{self.name}(btl_parser_state_base):
     new_state_name = None
 ''')
 
-    if self.one_time_commands:
-      with buf.indent_pusher(depth = 2) as _:
-        buf.write_lines(f'''
-if first_time:
-''')
-        with buf.indent_pusher(depth = 1) as _:
-          self.one_time_commands.generate_code(buf, errors)
-        buf.write_linesep()
-        
     if self.commands:
       with buf.indent_pusher(depth = 2) as _:
         self.commands.generate_code(buf, errors)
