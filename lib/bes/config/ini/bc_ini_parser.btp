@@ -4,7 +4,7 @@ parser
   name: bc_ini_parser
   description: A ini style config file parser
   version: 1.0
-  start_state: s_start
+  start_state: s_global_start
   end_state: s_done
 
 errors
@@ -12,47 +12,113 @@ errors
 
 states
 
-  s_start
+  s_global_start
     transitions
       t_done: s_done
-      t_line_break: s_start
-      t_space: s_start
-      t_key: s_expecting_delimiter
+      t_line_break: s_global_start
+      t_space: s_global_start
+      t_key: s_global_expecting_delimiter
         node create n_key_value
         node create n_key
         node set_token n_key
         node add_child n_key_value n_key
-      t_comment: s_start
+      t_comment: s_global_start
+      t_section_name_begin: s_section_expecting_name
       default: s_done
         error e_unexpected_token
     one_time_commands
       node create_root n_root
-    commands
+      node create n_global_section
 
-  s_expecting_delimiter
+  s_section_expecting_key
     transitions
-      t_key_value_delimiter: s_expecting_value
-      t_space: s_expecting_delimiter
+      t_done: s_done
+      t_line_break: s_section_expecting_key
+      t_space: s_section_expecting_key
+      t_key: s_section_expecting_delimiter
+        node create n_key_value
+        node create n_key
+        node set_token n_key
+        node add_child n_key_value n_key
+      t_comment: s_section_expecting_key
+      t_section_name_begin: s_section_expecting_name
       default: s_done
         error e_unexpected_token
 
-  s_expecting_value
+  s_section_expecting_name
     transitions
-      t_value: s_after_value
+      t_section_name: s_section_expecting_name_end
+        node create n_section
+        node set_token n_section
+      default: s_done
+        error e_unexpected_token
+
+  s_section_expecting_name_end
+    transitions
+      t_section_name_end: s_section_after_section_name
+      default: s_done
+        error e_unexpected_token
+
+  s_section_after_section_name
+    transitions
+      t_done: s_done
+      t_space: s_section_after_section_name
+      t_comment: s_section_after_section_name
+      t_line_break: s_section_expecting_key
+      default: s_done
+        error e_unexpected_token
+
+  s_section_expecting_delimiter
+    transitions
+      t_key_value_delimiter: s_section_expecting_value
+      t_space: s_section_expecting_delimiter
+      default: s_done
+        error e_unexpected_token
+
+  s_global_expecting_delimiter
+    transitions
+      t_key_value_delimiter: s_global_expecting_value
+      t_space: s_global_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_section_expecting_value
+    transitions
+      t_value: s_section_after_value
         node create n_value
         node set_token n_value
         node add_child n_key_value n_value
         node add_child n_root n_key_value
-      t_space: s_expecting_value
+      t_space: s_section_expecting_value
       default: s_done
         error e_unexpected_token
 
-  s_after_value
+  s_global_expecting_value
+    transitions
+      t_value: s_global_after_value
+        node create n_value
+        node set_token n_value
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_space: s_global_expecting_value
+      default: s_done
+        error e_unexpected_token
+
+  s_section_after_value
     transitions
       t_done: s_done
-      t_space: s_after_value
-      t_comment: s_after_value
-      t_line_break: s_start
+      t_space: s_section_after_value
+      t_comment: s_section_after_value
+      t_line_break: s_section_expecting_key
+      default: s_done
+        error e_unexpected_token
+
+  s_global_after_value
+    transitions
+      t_done: s_done
+      t_space: s_global_after_value
+      t_comment: s_global_after_value
+      t_line_break: s_global_start
       default: s_done
         error e_unexpected_token
 

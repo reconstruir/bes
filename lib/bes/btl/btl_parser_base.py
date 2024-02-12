@@ -65,11 +65,11 @@ class btl_parser_base(object):
     self.log_d(msg)
     self._state = new_state
 
-  _run_result = namedtuple('_run_result', 'root_node, tokens')
-  def run(self, text):
+  _parse_result = namedtuple('_parse_result', 'root_node, tokens')
+  def parse(self, text):
     check.check_string(text)
     
-    self.log_d(f'parser: run: text=\"{text}\"')
+    self.log_d(f'parser: parse: text=\"{text}\"')
 
     tokens = btl_lexer_token_deque()
     first_time_set = set()    
@@ -90,8 +90,9 @@ class btl_parser_base(object):
     root_node = self._node_creator.remove_root_node()
     if len(self._node_creator) != 0:
       node_names = self._node_creator.node_names()
-      ns = ' '.join(node_names)
-      raise btl_parser_error(f'Orphaned nodes found in end state: {ns}')
-    return self._run_result(root_node, tokens)
+      orphaned_str = ' '.join(node_names)
+      nodes_str = str(self._node_creator)
+      raise btl_parser_error(f'Orphaned nodes found in end state: {orphaned_str}\nnodes:\n{nodes_str}')
+    return self._parse_result(root_node, tokens)
 
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)

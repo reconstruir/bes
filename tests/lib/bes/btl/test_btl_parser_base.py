@@ -220,7 +220,7 @@ states
   
 class test_btl_parser_base(btl_parser_tester_mixin, unit_test):
 
-  def test_run(self):
+  def test_parse(self):
     l = _test_simple_lexer()
     p = _test_parser(l)
     text = '''
@@ -230,7 +230,7 @@ color=red
 fruit=kiwi
 color=green
 '''
-    result = p.run(text)
+    result = p.parse(text)
     self.assert_python_code_text_equal( '''
 n_root;
   n_key_value;

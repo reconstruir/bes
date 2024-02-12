@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
+
 from collections import namedtuple
 
 from ..system.log import logger
@@ -23,6 +25,9 @@ class btl_parser_node_creator(object):
   def __len__(self):
     return len(self._nodes)
 
+  def __str__(self):
+    return pprint.pformat(self._nodes)
+  
   def node_names(self):
     return sorted([ node_name for node_name in self._nodes.keys() ])
   

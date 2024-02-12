@@ -21,6 +21,9 @@ class btl_parser_node(object):
   def __str__(self):
     return self.to_string(0)
 
+  def __repr__(self):
+    return self.to_string(0)
+  
   def to_string(self, depth = 0, indent = 2, rstrip = True):
     buf = io.StringIO()
     buf.write(' ' * depth)

@@ -1,109 +1,49 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import unittest
-from bes.config.ini.bc_ini_parser import bc_ini_parser as P
-from bes.key_value.key_value import key_value as KV
-from bes.config.ini.bc_ini_lexer_options import bc_ini_lexer_options
+import os
 
-class test_bc_ini_parser(unittest.TestCase):
+from bes.system.host import host
+from bes.system.check import check
+from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
-  def test_empty(self):
-    self.assertEqual( [ ], self._parse('') )
+from bes.btl.btl_parser_base import btl_parser_base
+from bes.btl.btl_parser_state_base import btl_parser_state_base
+from bes.btl.btl_parser_tester_mixin import btl_parser_tester_mixin
+from bes.btl.btl_parser_runtime_error import btl_parser_runtime_error
+
+from bes.config.ini.bc_ini_lexer import bc_ini_lexer
+from bes.config.ini.bc_ini_parser import bc_ini_parser
+
+class test_bc_ini_parser(btl_parser_tester_mixin, unit_test):
+
+  def test_parse(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+fruit=apple
+color=red
+
+fruit=kiwi
+color=green
+'''
+    result = p.parse(text)
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_key_value;
+    n_key;t_key:fruit:p=1,2:i=1
+    n_value;t_value:apple:p=7,2:i=3
+  n_key_value;
+    n_key;t_key:color:p=1,3:i=5
+    n_value;t_value:red:p=7,3:i=7
+  n_key_value;
+    n_key;t_key:fruit:p=1,5:i=10
+    n_value;t_value:kiwi:p=7,5:i=12
+  n_key_value;
+    n_key;t_key:color:p=1,6:i=14
+    n_value;t_value:green:p=7,6:i=16
+''', str(result.root_node) )
     
-  def test_parse_key_values(self):
-    self.assertEqual( [ KV('foo', '123'), KV('bar', 'hello') ], self._parse('foo=123  bar=hello') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse('foo=\"1 2 3\" bar=hello') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self._parse(' f\\ oo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' foo=1\ 2\ 3 bar=hello ') )
-
-  def test_empty_value(self):
-    self.maxDiff = None
-    self.assertEqual( [ KV('foo', None) ], self._parse('foo=') )
-    self.assertEqual( [ KV('foo', None) ], self._parse('foo= ') )
-    self.assertEqual( [ KV('foo', None) ], self._parse(' foo= ') )
-    self.assertEqual( [ KV('foo', None), KV('bar', None) ], self._parse('foo= bar=') )
-    self.assertEqual( [ KV('foo', None), KV('bar', None) ], self._parse('foo=    bar=') )
-
-  def test_empty_value_not_default(self):
-    self.maxDiff = None
-    self.assertEqual( [ KV('foo', 'X') ], self._parse('foo=', empty_value = 'X') )
-    self.assertEqual( [ KV('foo', 'X') ], self._parse('foo= ', empty_value = 'X') )
-    self.assertEqual( [ KV('foo', 'X') ], self._parse(' foo= ', empty_value = 'X') )
-    self.assertEqual( [ KV('foo', 'X'), KV('bar', 'X') ], self._parse('foo= bar=', empty_value = 'X') )
-    self.assertEqual( [ KV('foo', 'X'), KV('bar', 'X') ], self._parse('foo=    bar=', empty_value = 'X') )
-
-  def test_more(self):
-    self.assertEqual( { 'foo': '123', 'bar': 'hello' }, P.parse_to_dict('foo=123\t\nbar=hello') )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=') )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo= ') )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict(' foo=') )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict(' foo= ') )
-    self.assertEqual( { 'foo': '5' }, P.parse_to_dict('foo=5') )
-    self.assertEqual( { 'foo': '5' }, P.parse_to_dict('foo=5 ') )
-    self.assertEqual( { 'foo': '5' }, P.parse_to_dict(' foo=5') )
-    self.assertEqual( { 'foo': '5' }, P.parse_to_dict(' foo=5 ') )
-    self.assertEqual( { 'foo': '5', 'bar': None }, P.parse_to_dict('foo=5 bar=') )
-
-  def test_parse_key_values_single_quoted(self):
-    self.assertEqual( { 'foo': 'x' }, P.parse_to_dict('foo="x"') )
-    self.assertEqual( { 'foo': '5', 'bar': 'hi' }, P.parse_to_dict('foo=5 bar="hi"') )
-    self.assertEqual( { 'foo': '5', 'bar': '' }, P.parse_to_dict('foo=5 bar=""') )
-    self.assertEqual( { 'foo': '5', 'bar': 'a b c' }, P.parse_to_dict('foo=5 bar="a b c"') )
-    self.assertEqual( { 'foo': '5', 'bar': 'a b c', 'baz': None }, P.parse_to_dict('foo=5 bar="a b c" baz=') )
-
-  def test_parse_key_values_double_quoted(self):
-    self.assertEqual( { 'foo': 'x' }, P.parse_to_dict('foo=\'x\'') )
-    self.assertEqual( { 'foo': '5', 'bar': 'hi' }, P.parse_to_dict('foo=5 bar=\'hi\'') )
-    self.assertEqual( { 'foo': '5', 'bar': '' }, P.parse_to_dict('foo=5 bar=\'\'') )
-    self.assertEqual( { 'foo': '5', 'bar': 'a b c' }, P.parse_to_dict('foo=5 bar=\'a b c\'') )
-
-  def test_parse_key_values_quoted_inside_quotes(self):
-    self.assertEqual( { 'foo': 'This is "good"' }, P.parse_to_dict('foo=\'This is "good"\'') )
-
-  def test_comment(self):
-    self.assertEqual( { 'foo': '555' }, P.parse_to_dict('foo=555 # comment') )
-    self.assertEqual( { 'foo': '555' }, P.parse_to_dict('foo=555# comment') )
-    self.assertEqual( { 'foo': '555' }, P.parse_to_dict('foo=555#') )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=#') )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo#') )
-    self.assertEqual( { }, P.parse_to_dict('#') )
-
-  def test_parse_keep_quotes(self):
-    self.assertEqual( { 'foo': 'a b c' }, P.parse_to_dict('foo="a b c"', options = 0) )
-    self.assertEqual( { 'foo': '"a b c"' }, P.parse_to_dict('foo="a b c"', options = bc_ini_lexer_options.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': '""a b c""' }, P.parse_to_dict(r'foo=\""a b c\""', options = bc_ini_lexer_options.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'abc' }, P.parse_to_dict('foo=abc', options = bc_ini_lexer_options.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=', options = bc_ini_lexer_options.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = bc_ini_lexer_options.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = bc_ini_lexer_options.KEEP_QUOTES | bc_ini_lexer_options.ESCAPE_QUOTES) )
-
-  def test_comment_in_quote(self):
-    self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo="a #b c"') )
-    self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo=\'a #b c\'') )
-    
-  def test_ignore_comments(self):
-    self.assertEqual( [ KV('foo', '#bar'), KV('fruit', '#orange') ] , self._parse('foo=#bar fruit=#orange', ignore_comments = True) )
-
-  def test_escaped_equal(self):
-    self.assertEqual( [ KV('foo', 'bar=baz') ] , self._parse(r'foo=bar\=baz') )
-
-  @classmethod
-  def _parse(self, text,
-             keep_quotes = False,
-             escape_quotes = False,
-             ignore_comments = False,
-             empty_value = None):
-    options = 0
-    if keep_quotes:
-      options |= bc_ini_lexer_options.KEEP_QUOTES
-    if escape_quotes:
-      options |= bc_ini_lexer_options.ESCAPE_QUOTES
-    if ignore_comments:
-      options |= bc_ini_lexer_options.IGNORE_COMMENTS
-    return P.parse_to_list(text, options = options, empty_value = empty_value, log_tag = 'test_bc_ini_parser')
-
-if __name__ == "__main__":
-  unittest.main()
+if __name__ == '__main__':
+  unit_test.main()
