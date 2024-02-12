@@ -8,6 +8,7 @@ from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
+from bes.btl.btl_lexer_token_deque import btl_lexer_token_deque
 
 from _test_simple_lexer import _test_simple_lexer
 
@@ -132,6 +133,30 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+
+  def xtest_lex_all_multiple_times(self):
+    l = _test_simple_lexer()
+    expected_tokens = btl_lexer_token_deque([
+      ( 't_key', 'a', ( 1, 1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 2, 1 ), None, None ),
+      ( 't_value', 'k', ( 3, 1 ), None, None ),
+      ( 't_done', None, None, 'h_done', None ),
+    ])
+    expected = '\n'.join([ token.to_debug_str() for token in expected_tokens ])
+    actual_tokens = l.lex_all('a=k')
+    actual = '\n'.join([ token.to_debug_str() for token in actual_tokens ])
+    self.assertEqual( expected, actual )
+
+    expected_tokens = btl_lexer_token_deque([
+      ( 't_key', 'b', ( 1, 1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 2, 1 ), None, None ),
+      ( 't_value', 'z', ( 3, 1 ), None, None ),
+      ( 't_done', None, None, 'h_done', None ),
+    ])
+    expected = '\n'.join([ token.to_debug_str() for token in expected_tokens ])
+    actual_tokens = l.lex_all('b=z')
+    actual = '\n'.join([ token.to_debug_str() for token in actual_tokens ])
+    self.assertEqual( expected, actual )
     
 if __name__ == '__main__':
   unit_test.main()

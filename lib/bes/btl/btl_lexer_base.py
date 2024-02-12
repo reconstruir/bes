@@ -59,6 +59,14 @@ class btl_lexer_base(object):
   @property
   def log_tag(self):
     return self._log_tag
+
+  @property
+  def start_state(self):
+    return self._find_state(self._desc.header.start_state)
+
+  @property
+  def end_state(self):
+    return self._find_state(self._desc.header.end_state)
   
   def _find_state(self, state_name):
     return self._states[state_name]
@@ -133,8 +141,7 @@ class btl_lexer_base(object):
       self._last_char = c
       self._last_position = self._position
 
-    end_state = self._find_state(self._desc.header.end_state)
-    assert self._state == end_state
+    assert self._state == self.end_state
 
   def lex_all(self, text):
     return btl_lexer_token_deque([ token for token in self.lex_generator(text) ])
