@@ -67,10 +67,7 @@ class _state_{self.name}(btl_parser_state_base):
     name = '{self.name}'
     super().__init__(parser, name, log_tag)
 
-  def handle_token(self, token, first_time):
-    token = check.check_btl_lexer_token(token)
-    check.check_bool(first_time)
-
+  def handle_token(self, context, token, first_time):
     self.log_handle_token(token)
     new_state_name = None
 ''')

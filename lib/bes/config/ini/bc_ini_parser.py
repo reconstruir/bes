@@ -18,16 +18,13 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_start'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       
       if first_time:
-        self.node_creator.create_root()
-        self.node_creator.create('n_global_section')
+        context.node_creator.create_root()
+        context.node_creator.create('n_global_section')
 
       if token.name == 't_done':
         new_state_name = 's_done'
@@ -37,10 +34,10 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_global_start'
       elif token.name == 't_key':
         new_state_name = 's_global_expecting_delimiter'
-        self.node_creator.create('n_key_value')
-        self.node_creator.create('n_key')
-        self.node_creator.set_token('n_key', token)
-        self.node_creator.add_child('n_key_value', 'n_key')
+        context.node_creator.create('n_key_value')
+        context.node_creator.create('n_key')
+        context.node_creator.set_token('n_key', token)
+        context.node_creator.add_child('n_key_value', 'n_key')
       elif token.name == 't_comment':
         new_state_name = 's_global_start'
       elif token.name == 't_section_name_begin':
@@ -58,10 +55,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_expecting_delimiter'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_key_value_delimiter':
@@ -81,18 +75,15 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_expecting_value'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_value':
         new_state_name = 's_global_after_value'
-        self.node_creator.create('n_value')
-        self.node_creator.set_token('n_value', token)
-        self.node_creator.add_child('n_key_value', 'n_value')
-        self.node_creator.add_child('n_global_section', 'n_key_value')
+        context.node_creator.create('n_value')
+        context.node_creator.set_token('n_value', token)
+        context.node_creator.add_child('n_key_value', 'n_value')
+        context.node_creator.add_child('n_global_section', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_global_expecting_value'
       else:
@@ -108,10 +99,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_global_after_value'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -135,10 +123,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_key'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -149,10 +134,10 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_key'
       elif token.name == 't_key':
         new_state_name = 's_section_expecting_delimiter'
-        self.node_creator.create('n_key_value')
-        self.node_creator.create('n_key')
-        self.node_creator.set_token('n_key', token)
-        self.node_creator.add_child('n_key_value', 'n_key')
+        context.node_creator.create('n_key_value')
+        context.node_creator.create('n_key')
+        context.node_creator.set_token('n_key', token)
+        context.node_creator.add_child('n_key_value', 'n_key')
       elif token.name == 't_comment':
         new_state_name = 's_section_expecting_key'
       elif token.name == 't_section_name_begin':
@@ -170,16 +155,13 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_name'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_section_name':
         new_state_name = 's_section_expecting_name_end'
-        self.node_creator.create('n_section')
-        self.node_creator.set_token('n_section', token)
+        context.node_creator.create('n_section')
+        context.node_creator.set_token('n_section', token)
       else:
         new_state_name = 's_done'
         state_name = self.name
@@ -193,10 +175,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_name_end'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_section_name_end':
@@ -214,10 +193,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_after_section_name'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -241,10 +217,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_delimiter'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_key_value_delimiter':
@@ -264,18 +237,15 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_expecting_value'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_value':
         new_state_name = 's_section_after_value'
-        self.node_creator.create('n_value')
-        self.node_creator.set_token('n_value', token)
-        self.node_creator.add_child('n_key_value', 'n_value')
-        self.node_creator.add_child('n_root', 'n_key_value')
+        context.node_creator.create('n_value')
+        context.node_creator.set_token('n_value', token)
+        context.node_creator.add_child('n_key_value', 'n_value')
+        context.node_creator.add_child('n_root', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_section_expecting_value'
       else:
@@ -291,10 +261,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_section_after_value'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -318,10 +285,7 @@ class bc_ini_parser(btl_parser_base):
       name = 's_done'
       super().__init__(parser, name, log_tag)
   
-    def handle_token(self, token, first_time):
-      token = check.check_btl_lexer_token(token)
-      check.check_bool(first_time)
-  
+    def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
       

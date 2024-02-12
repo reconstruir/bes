@@ -5,6 +5,7 @@ from ..system.check import check
 from .btl_desc_command import btl_desc_command
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
+# FIXME_BTL this seems to be the same as btl_parser_desc_state_transition_command.py
 class btl_parser_desc_state_command(btl_desc_command):
 
   def generate_code(self, buf, errors):
@@ -28,13 +29,13 @@ class btl_parser_desc_state_command(btl_desc_command):
     quoted_args = [ f"'{arg}'" for arg in args ]
     flat_args = ', '.join(quoted_args)
     if action == 'create':
-      buf.write_line(f'self.node_creator.create({flat_args})')
+      buf.write_line(f'context.node_creator.create({flat_args})')
     elif action == 'create_root':
-      buf.write_line(f'self.node_creator.create_root()')
+      buf.write_line(f'context.node_creator.create_root()')
     elif action == 'set_token':
-      buf.write_line(f'self.node_creator.set_token({flat_args}, token)')
+      buf.write_line(f'context.node_creator.set_token({flat_args}, token)')
     elif action == 'add_child':
-      buf.write_line(f'self.node_creator.add_child({flat_args})')
+      buf.write_line(f'context.node_creator.add_child({flat_args})')
     else:
       raise btl_parser_error(f'Unkown "node" command action: "{action}"')
         

@@ -7,11 +7,11 @@ from ..system.check import check
 
 from .btl_lexer_token_deque import btl_lexer_token_deque
 from .btl_lexer_token_lines import btl_lexer_token_lines
+from .btl_parser_context import btl_parser_context
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_node_creator import btl_parser_node_creator
-from .btl_parser_context import btl_parser_context
 
 class btl_parser_base(object):
 
@@ -25,14 +25,8 @@ class btl_parser_base(object):
     log.add_logging(self, tag = self._lexer.log_tag)
     self._desc = btl_parser_desc.parse_text(desc_text, source = self._desc_source)
     self._states = states
-    self._state = None
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
-    self._node_creator = None
 
-  @property
-  def node_creator(self):
-    return self._node_creator
-    
   @property
   def lexer(self):
     return self._lexer
@@ -56,25 +50,22 @@ class btl_parser_base(object):
   def _find_state(self, state_name):
     return self._states[state_name]
   
-  def change_state(self, new_state_name, token):
-    check.check_string(new_state_name, allow_none = True)
-    check.check_btl_lexer_token(token)
-
+  def _change_state(self, context, new_state_name, token):
     if new_state_name == None:
       ts = token.to_debug_str()
-      raise btl_parser_error(f'Cannot transition from state "{self._state.name}" to "None" for token "{ts}"')
+      raise btl_parser_error(f'Cannot transition from state "{context.state.name}" to "None" for token "{ts}"')
     
     new_state = self._find_state(new_state_name)
-    if new_state == self._state:
+    if new_state == context.state:
       return
     attrs = 'attrs' #new_state._make_log_attributes(c)
     max_length = self._max_state_name_length
-    msg = f'parser: transition: #{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
+    msg = f'parser: transition: #{context.state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
     self.log_d(msg)
-    if self._state != None:
-      self._state.leave_state()
-    self._state = new_state
-    self._state.enter_state()
+    if context.state != None:
+      context.state.leave_state()
+    context.state = new_state
+    context.state.enter_state()
 
   _parse_result = namedtuple('_parse_result', 'root_node, tokens')
   def parse(self, text):
@@ -82,30 +73,29 @@ class btl_parser_base(object):
     
     self.log_d(f'parser: parse: text=\"{text}\"')
 
-    self._state = self._find_state(self._desc.header.start_state)
-    self._node_creator = btl_parser_node_creator()
-    self._state.enter_state()
+    context = btl_parser_context(self)
+    context.state.enter_state()
     
     tokens = btl_lexer_token_deque()
     first_time_set = set()    
     for index, token in enumerate(self._lexer.lex_generator(text)):
       token_with_index = token.clone_replace_index(index)
       ts = token_with_index.to_debug_str()
-      old_state_name = self._state.name
+      old_state_name = context.state.name
       first_time = old_state_name not in first_time_set
       first_time_set.add(old_state_name)
       self.log_d(f'parser: loop: token={ts} old_state_name={old_state_name} first_time={first_time}')
-      new_state_name = self._state.handle_token(token_with_index, first_time)
-      self.change_state(new_state_name, token_with_index)
+      new_state_name = context.state.handle_token(context, token_with_index, first_time)
+      self._change_state(context, new_state_name, token_with_index)
       tokens.append(token_with_index)
 
-    if self._state != self.end_state:
-      raise btl_parser_error(f'The end state is incorrectly "{self._state.name}" instead of "{self.end_state.name}"')
-    root_node = self._node_creator.remove_root_node()
-    if len(self._node_creator) != 0:
-      node_names = self._node_creator.node_names()
+    if context.state != self.end_state:
+      raise btl_parser_error(f'The end state is incorrectly "{context.state.name}" instead of "{self.end_state.name}"')
+    root_node = context.node_creator.remove_root_node()
+    if len(context.node_creator) != 0:
+      node_names = context.node_creator.node_names()
       orphaned_str = ' '.join(node_names)
-      nodes_str = str(self._node_creator)
+      nodes_str = str(context.node_creator)
       raise btl_parser_error(f'Orphaned nodes found in end state: {orphaned_str}\nnodes:\n{nodes_str}')
     return self._parse_result(root_node, tokens)
 
