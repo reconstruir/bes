@@ -470,6 +470,8 @@ states
         error e_unexpected_token
 
   s_done
+    commands
+      node add_child n_root n_global_section
 
 """
 check.register_class(bc_ini_parser, include_seq = False)
