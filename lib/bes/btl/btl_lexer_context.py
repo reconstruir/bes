@@ -23,6 +23,7 @@ class btl_lexer_context(object):
     self._source = source or '<unknown>'
     self._options = options or btl_lexer_options()
     self._state = lexer.start_state
+    self._last_char = None
     self._last_position = point(0, 1)
     self._position = point(0, 1)
     self._last_position = None
@@ -49,7 +50,15 @@ class btl_lexer_context(object):
   @state.setter
   def state(self, state):
     self._state = state
-  
+
+  @property
+  def last_char(self):
+    return self._last_char
+
+  @last_char.setter
+  def last_char(self, last_char):
+    self._last_char = last_char
+    
   @property
   def position(self):
     return self._position
@@ -84,11 +93,11 @@ class btl_lexer_context(object):
     
     old_buffer_position = point(*self._buffer_start_position)
     old_value = self.buffer_value()
-    assert c != self.EOS
+    assert c != '\0'
     self._buffer.write(c)
     if len(old_value) == 0:
       self._buffer_start_position = point(*self._position)
-    cs = self._state.char_to_string(c)
+    cs = 'caca' #self._state.char_to_string(c)
     self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 
   def buffer_value(self):

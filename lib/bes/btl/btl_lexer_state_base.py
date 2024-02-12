@@ -41,16 +41,16 @@ class btl_lexer_state_base(object):
     cs = self.char_to_string(c)
     raise RuntimeError(f'unhandled handle_char "{cs}" in state {self.name}')
 
-  def log_handle_char(self, c, options):
-    attrs = self._make_log_attributes(c, options)
+  def log_handle_char(self, context, c):
+    attrs = self._make_log_attributes(context, c)
     self.log_d(f'{self.name}: handle_char: {attrs}')
   
-  def _make_log_attributes(self, c, options):
+  def _make_log_attributes(self, context, c):
     attributes = []
     cs = self.char_to_string(c)
     attributes.append(f'c="{cs}"')
     try:
-      bs = self.char_to_string(self._lexer.buffer_value())
+      bs = self.char_to_string(context.buffer_value())
       attributes.append(f'buffer="{bs}"')
     except AttributeError as ex:
       attributes.append('buffer=None')
@@ -60,14 +60,14 @@ class btl_lexer_state_base(object):
   def char_to_string(clazz, c):
     return btl_lexer_token.make_debug_str(c)
 
-  def make_token(self, name, args = None):
-    return self._lexer.make_token(name, args = args)
+  def make_token(self, context, name, args = None):
+    return self._lexer.make_token(context, name, args = args)
   
-  def buffer_reset(self):
-    self._lexer.buffer_reset()
+  def buffer_reset(self, context):
+    context.buffer_reset()
 
-  def buffer_write(self, c):
-    self._lexer.buffer_write(c)
+  def buffer_write(self, context, c):
+    context.buffer_write(c)
 
   def buffer_value(self):
     return self._lexer.buffer_value()

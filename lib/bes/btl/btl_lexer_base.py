@@ -6,6 +6,7 @@ from ..system.log import log
 from ..system.check import check
 from ..common.point import point
 
+from .btl_lexer_context import btl_lexer_context
 from .btl_lexer_desc import btl_lexer_desc
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_options import btl_lexer_options
@@ -27,27 +28,12 @@ class btl_lexer_base(object):
     self._desc = btl_lexer_desc.parse_text(desc_text, source = self._desc_source)
     self._token = token
     self._states = states
-    self._buffer = None
-    self._last_char = None
-    self._state = self._find_state(self._desc.header.start_state)
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
-    self._position = point(1, 1)
-    self._last_position = point(0, 1)
-    self._buffer_start_position = None
-    self.buffer_reset()
 
-  @property
-  def position(self):
-    return self._position
-  
   @property
   def desc_source(self):
     return self._desc_source
 
-  @property
-  def buffer_start_position(self):
-    return self._buffer_start_position
-  
   @property
   def desc(self):
     return self._desc
@@ -71,88 +57,49 @@ class btl_lexer_base(object):
   def _find_state(self, state_name):
     return self._states[state_name]
   
-  def change_state(self, new_state_name, c, options):
-    check.check_string(new_state_name, allow_none = True)
-    check.check_string(c)
-
+  def _change_state(self, context, new_state_name, c):
     if new_state_name == None:
-      cs = self._state.char_to_string(c)
-      raise btl_lexer_error(f'Cannot transition from state "{self._state.name}" to "None" for char "{cs}"')
+      cs = context.state.char_to_string(c)
+      raise btl_lexer_error(f'Cannot transition from state "{context.state.name}" to "None" for char "{cs}"')
     
     new_state = self._find_state(new_state_name)
-    if new_state == self._state:
+    if new_state == context.state:
       return
-    attrs = new_state._make_log_attributes(c, options)
+    attrs = new_state._make_log_attributes(context, c)
     max_length = self._max_state_name_length
-    msg = f'lexer: transition: #{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
+    msg = f'lexer: transition: #{context.state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
     self.log_d(msg)
-    self._state = new_state
-
-  def buffer_reset(self):
-    old_buffer_position = point(*self._buffer_start_position) if self._buffer_start_position != None else 'None'
-    old_buffer_value = self.buffer_value()
-    self._buffer = io.StringIO()
-    if self._buffer_start_position == None:
-      self._buffer_start_position = point(1, 1)
-    self._buffer_start_position = point(*self._position)
-    self.log_d(f'lexer: buffer_reset: old_value="{old_buffer_value}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
-
-  def buffer_write(self, c):
-    check.check_string(c)
-    
-    old_buffer_position = point(*self._buffer_start_position)
-    old_value = self.buffer_value()
-    assert c != self.EOS
-    self._buffer.write(c)
-    if len(old_value) == 0:
-      self._buffer_start_position = point(*self._position)
-    cs = self._state.char_to_string(c)
-    self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
-
-  def buffer_value(self):
-    if self._buffer == None:
-      return None
-    return self._buffer.getvalue()
+    context.state = new_state
 
   def lex_generator(self, text, source = None, options = None):
     check.check_string(text)
     check.check_string(source, allow_none = True)
     check.check_btl_lexer_options(options, allow_none = True)
-    
-    source = source or '<unknown>'
-    options = options or btl_lexer_options()
-    self.log_d(f'lexer: run: source={source} options={options} text=\"{text}\"')
 
     if self.EOS in text:
       raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
-      
-    self._position = point(0, 1)
+    
+    context = btl_lexer_context(self, self._log_tag, text, source, options)
+    self.log_d(f'lexer: run: source={context.source} options={context.options} text=\"{text}\"')
+
     for c in self._chars_plus_eos(text):
-      self._position = self._update_position(self._position, c)
-      attrs = self._state._make_log_attributes(c, options)
-      self.log_d(f'lexer: loop: {attrs} position={self._position}')
-      old_state_name = self._state.name
-      handle_char_result = self._state.handle_char(c, options)
+      context.update_position(c)
+      attrs = context.state._make_log_attributes(context, c)
+      self.log_d(f'lexer: loop: {attrs} position={context.position}')
+      old_state_name = context.state.name
+      handle_char_result = context.state.handle_char(context, c)
       new_state_name = handle_char_result.new_state_name
-      self.change_state(new_state_name, c, options)
+      self._change_state(context, new_state_name, c)
       for token in handle_char_result.tokens:
         self.log_d(f'lexer: run: new token in state {old_state_name}: {token.to_debug_str()}')
         yield token
-      self._last_char = c
-      self._last_position = self._position
+      context.last_char = c
 
-    assert self._state == self.end_state
+    if context.state != self.end_state:
+      raise btl_lexer_error(f'The end state is incorrectly "{context.state.name}" instead of "{self.end_state.name}"')
 
   def lex_all(self, text):
     return btl_lexer_token_deque([ token for token in self.lex_generator(text) ])
-    
-  @classmethod
-  def _update_position(clazz, old_position, c):
-    if c in ( '\n', '\r\n' ):
-      new_position = point(0, old_position.y + 1)
-    else:
-      new_position = point(old_position.x + len(c), old_position.y)
-    return new_position
     
   @classmethod
   def _chars_plus_eos(self, text):
@@ -175,19 +122,20 @@ class btl_lexer_base(object):
         yield c
     yield self.EOS
     
-  def make_token(self, name, args = None):
+  def make_token(self, context, name, args = None):
+    check.check_btl_lexer_context(context)
     check.check_string(name)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
 
     token_args = self._make_token_args(name, args)
     
-    assert self.buffer_start_position != None
-    token_position = self.buffer_start_position
-    buffer_value = self.buffer_value()
+    assert context.buffer_start_position != None
+    token_position = context.buffer_start_position
+    buffer_value = context.buffer_value()
     type_hint = token_args.get('type_hint', None)
     if type_hint:
       if type_hint == 'h_line_break':
-        token_position = point(self._last_position.x + 1, self._last_position.y)
+        token_position = point(context.last_position.x + 1, context.last_position.y)
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None
