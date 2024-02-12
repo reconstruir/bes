@@ -10,30 +10,47 @@ from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
 
 from .btl_code_gen_buffer import btl_code_gen_buffer
+from .btl_error import btl_error
 from .btl_parser_desc_char import btl_parser_desc_char
 from .btl_parser_desc_error_list import btl_parser_desc_error_list
 from .btl_parser_desc_header import btl_parser_desc_header
 from .btl_parser_desc_mermaid import btl_parser_desc_mermaid
+from .btl_parser_desc_state_command_list import btl_parser_desc_state_command_list
 from .btl_parser_desc_state_list import btl_parser_desc_state_list
-from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, source_text')):
+class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, start_commands, end_commands, source_text')):
   
-  def __new__(clazz, header, errors, states, source_text = None):
+  def __new__(clazz,
+              header,
+              errors,
+              states,
+              start_commands,
+              end_commands,
+              source_text = None):
     header = check.check_btl_parser_desc_header(header)
     errors = check.check_btl_parser_desc_error_list(errors)
     states = check.check_btl_parser_desc_state_list(states)
+    start_commands = check.check_btl_parser_desc_state_command_list(start_commands)
+    end_commands = check.check_btl_parser_desc_state_command_list(end_commands)
     check.check_string(source_text, allow_none = True)
 
     source_text = source_text or ''
-    return clazz.__bases__[0].__new__(clazz, header, errors, states, source_text)
+    return clazz.__bases__[0].__new__(clazz,
+                                      header,
+                                      errors,
+                                      states,
+                                      start_commands,
+                                      end_commands,
+                                      source_text)
 
   def to_dict(self):
     return {
       'header': self.header.to_dict(),
       'errors': self.errors.to_dict_list(),
       'states': self.states.to_dict_list(),
+      'start_commands': self.start_commands.to_dict_list(),
+      'end_commands': self.end_commands.to_dict_list(),
     }
 
   def to_json(self):
@@ -41,14 +58,6 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sou
 
   def to_mermaid_diagram(self):
     return btl_parser_desc_mermaid.desc_to_mermain_diagram(self)
-  
-  @classmethod
-  def _parse_char_map(clazz, n, source):
-    result = btl_parser_desc_char_map()
-    for child in n.children:
-      name, chars = btl_parsing.parse_key_value(child, source)
-      result.parse_and_add(name, chars)
-    return result
   
   @classmethod
   def parse_text(clazz, text, source = '<unknown>'):
@@ -69,7 +78,18 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sou
     states = btl_parser_desc_state_list.parse_node(states_node, source)
     #print(states)
 
-    return btl_parser_desc(header, errors, states, source_text = text)
+    start_commands_node = btl_parsing.find_tree_section(root, 'start_commands', source, raise_error = False)
+    start_commands = btl_parser_desc_state_command_list.parse_node(start_commands_node, source)
+
+    end_commands_node = btl_parsing.find_tree_section(root, 'end_commands', source, raise_error = False)
+    end_commands = btl_parser_desc_state_command_list.parse_node(end_commands_node, source)
+    
+    return btl_parser_desc(header,
+                           errors,
+                           states,
+                           start_commands,
+                           end_commands,
+                           source_text = text)
 
   @classmethod
   def parse_file(clazz, filename):

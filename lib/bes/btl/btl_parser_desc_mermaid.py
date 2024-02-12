@@ -6,6 +6,7 @@ import os
 from ..system.check import check
 from ..text.bindent import bindent
 
+# BTL_FIXME - retire this class its the same as btl_lexer_desc_mermaid
 class btl_parser_desc_mermaid(object):
 
   @classmethod

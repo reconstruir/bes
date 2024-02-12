@@ -123,5 +123,10 @@ states
         error e_unexpected_token
 
   s_done
-    commands
-      node add_child n_root n_global_section
+
+start_commands
+  node create_root n_root
+  node create n_global_section
+
+end_commands
+  node add_child n_root n_global_section

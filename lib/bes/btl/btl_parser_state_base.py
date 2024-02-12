@@ -4,7 +4,6 @@ from ..system.log import log
 from ..system.check import check
 
 from .btl_parser_error import btl_parser_error
-from .btl_parser_node import btl_parser_node
 
 class btl_parser_state_base(object):
   
@@ -26,8 +25,16 @@ class btl_parser_state_base(object):
     
   def handle_token(self, token):
     ts = token.to_debug_str()
-    raise btl_parser_node(f'{self.name}: unhandled token: {ts}')
+    raise btl_parser_error(f'{self.name}: unhandled token: {ts}')
 
+  def enter_state(self):
+    self.log_d(f'{self.name}: enter_state')
+    pass
+
+  def leave_state(self):
+    self.log_d(f'{self.name}: leave_state')
+    pass
+  
   def log_handle_token(self, token):
     ts = token.to_debug_str()
     self.log_d(f'{self.name}: handle_token: token={ts}')
