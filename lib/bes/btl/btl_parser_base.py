@@ -11,6 +11,7 @@ from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_node_creator import btl_parser_node_creator
+from .btl_parser_context import btl_parser_context
 
 class btl_parser_base(object):
 
@@ -43,6 +44,14 @@ class btl_parser_base(object):
   @property
   def log_tag(self):
     return self._lexer.log_tag
+  
+  @property
+  def start_state(self):
+    return self._find_state(self._desc.header.start_state)
+
+  @property
+  def end_state(self):
+    return self._find_state(self._desc.header.end_state)
   
   def _find_state(self, state_name):
     return self._states[state_name]
@@ -90,9 +99,8 @@ class btl_parser_base(object):
       self.change_state(new_state_name, token_with_index)
       tokens.append(token_with_index)
 
-    end_state = self._find_state(self._desc.header.end_state)
-    if self._state != end_state:
-      raise btl_parser_error(f'The end state is incorrectly "{self._state.name}" instead of "{end_state}"')
+    if self._state != self.end_state:
+      raise btl_parser_error(f'The end state is incorrectly "{self._state.name}" instead of "{self.end_state.name}"')
     root_node = self._node_creator.remove_root_node()
     if len(self._node_creator) != 0:
       node_names = self._node_creator.node_names()
