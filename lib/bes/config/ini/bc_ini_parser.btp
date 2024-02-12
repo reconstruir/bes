@@ -26,9 +26,9 @@ states
       t_section_name_begin: s_section_expecting_name
       default: s_done
         error e_unexpected_token
-    one_time_commands
-      node create_root n_root
-      node create n_global_section
+#    one_time_commands
+#      node create_root n_root
+#      node create n_global_section
 
   s_global_expecting_delimiter
     transitions

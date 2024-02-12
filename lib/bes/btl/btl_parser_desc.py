@@ -135,10 +135,16 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
       buf.write_lines(f'''
 def do_start_commands(self, context):
   self.log_d(f'do_start_commands:')
+''')
+      with buf.indent_pusher(depth = 1) as _1:
+        self.start_commands.generate_code(buf, self.errors)
 
+      buf.write_lines(f'''
 def do_end_commands(self, context):
   self.log_d(f'do_start_commands:')
 ''')
+      with buf.indent_pusher(depth = 1) as _1:
+        self.end_commands.generate_code(buf, self.errors)
       
     with buf.indent_pusher(depth = 1) as _:
       desc_text = self.source_text or ''

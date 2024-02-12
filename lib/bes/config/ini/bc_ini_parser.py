@@ -27,11 +27,6 @@ class bc_ini_parser(btl_parser_base):
     def handle_token(self, context, token, first_time):
       self.log_handle_token(token)
       new_state_name = None
-      
-      if first_time:
-        context.node_creator.create_root()
-        context.node_creator.create('n_global_section')
-
       if token.name == 't_done':
         new_state_name = 's_done'
       elif token.name == 't_line_break':
@@ -383,9 +378,12 @@ class bc_ini_parser(btl_parser_base):
   
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
+    context.node_creator.create_root()
+    context.node_creator.create('n_global_section')
   
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
+    context.node_creator.add_child('n_root', 'n_global_section')
   _DESC_TEXT = """
 #BTL
 #
@@ -415,9 +413,9 @@ states
       t_section_name_begin: s_section_expecting_name
       default: s_done
         error e_unexpected_token
-    one_time_commands
-      node create_root n_root
-      node create n_global_section
+#    one_time_commands
+#      node create_root n_root
+#      node create n_global_section
 
   s_global_expecting_delimiter
     transitions
