@@ -166,6 +166,12 @@ class _test_simple_parser(btl_parser_base):
       's_done': self._state_s_done(self, lexer.log_tag),
     }
     super().__init__(lexer, self._DESC_TEXT, states)
+  
+  def do_start_commands(self, context):
+    self.log_d(f'do_start_commands:')
+  
+  def do_end_commands(self, context):
+    self.log_d(f'do_start_commands:')
   _DESC_TEXT = """
 #BTP
 #

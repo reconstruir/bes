@@ -74,6 +74,7 @@ class btl_parser_base(object):
     self.log_d(f'parser: parse: text=\"{text}\"')
 
     context = btl_parser_context(self)
+    self.do_start_commands(context)
     context.state.enter_state(context)
     
     tokens = btl_lexer_token_deque()
@@ -91,6 +92,9 @@ class btl_parser_base(object):
 
     if context.state != self.end_state:
       raise btl_parser_error(f'The end state is incorrectly "{context.state.name}" instead of "{self.end_state.name}"')
+
+    self.do_end_commands(context)
+    
     root_node = context.node_creator.remove_root_node()
     if len(context.node_creator) != 0:
       node_names = context.node_creator.node_names()
@@ -99,4 +103,10 @@ class btl_parser_base(object):
       raise btl_parser_error(f'Orphaned nodes found in end state: {orphaned_str}\nnodes:\n{nodes_str}')
     return self._parse_result(root_node, tokens)
 
+  def do_start_commands(self, context):
+    raise btl_parser_error(f'{self.name}: unhandled do_start_commands')
+
+  def do_end_commands(self, context):
+    raise btl_parser_error(f'{self.name}: unhandled do_end_commands')
+  
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)

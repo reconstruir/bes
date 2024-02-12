@@ -132,6 +132,15 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
       buf.write_lines(f'super().__init__(lexer, self._DESC_TEXT, states)')
 
     with buf.indent_pusher(depth = 1) as _:
+      buf.write_lines(f'''
+def do_start_commands(self, context):
+  self.log_d(f'do_start_commands:')
+
+def do_end_commands(self, context):
+  self.log_d(f'do_start_commands:')
+''')
+      
+    with buf.indent_pusher(depth = 1) as _:
       desc_text = self.source_text or ''
       buf.write_line(f'_DESC_TEXT = """')
     buf.write_line(f'{self.source_text}')

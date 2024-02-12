@@ -162,7 +162,7 @@ class _test_parser(btl_parser_base):
 
   def __init__(self, lexer):
     check.check_btl_lexer(lexer)
-    desc_text = self._DESC_TEXT
+
     states = {
       's_start': self._state_s_start(self, lexer.log_tag),
       's_expecting_delimiter': self._state_s_expecting_delimiter(self, lexer.log_tag),
@@ -170,7 +170,14 @@ class _test_parser(btl_parser_base):
       's_after_value': self._state_s_after_value(self, lexer.log_tag),
       's_done': self._state_s_done(self, lexer.log_tag),
     }
-    super().__init__(lexer, desc_text, states)
+    super().__init__(lexer, self._DESC_TEXT, states)
+
+  def do_start_commands(self, context):
+    pass
+
+  def do_end_commands(self, context):
+    pass
+  
   _DESC_TEXT = """
 #BTP
 #
