@@ -2,10 +2,9 @@
 
 from collections import namedtuple
 
-from ..common.json_util import json_util
 from ..common.tuple_util import tuple_util
 from ..system.check import check
-
+    
 class btl_document_position(namedtuple('btl_document_position', 'line, column')):
 
   def __new__(clazz, line, column):
