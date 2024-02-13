@@ -57,6 +57,8 @@ class btl_point(object):
     if isinstance(obj, ( list, tuple )):
       return btl_point(*obj)
     assert False
-    #return tuple_util.cast_seq_to_namedtuple(clazz, obj)
-  
+
+  def advanced(self, c):
+    self._pos = self._pos.advanced(c)
+    
 check.register_class(btl_point, cast_func = btl_point._check_cast_func)
