@@ -104,6 +104,45 @@ n_root;
         n_key;t_key:smell:p=1,8:i=22
         n_value;t_value:stink:p=7,8:i=24
 ''', str(result.root_node) )
+
+  def test_parse_multiple_sessions(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+fruit=apple
+color=red
+'''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:fruit:p=1,2:i=1
+      n_value;t_value:apple:p=7,2:i=3
+    n_key_value;
+      n_key;t_key:color:p=1,3:i=5
+      n_value;t_value:red:p=7,3:i=7
+  n_sections;    
+''', str(result.root_node) )
+
+    text = '''
+fruit=melon
+color=green
+'''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:fruit:p=1,2:i=1
+      n_value;t_value:melon:p=7,2:i=3
+    n_key_value;
+      n_key;t_key:color:p=1,3:i=5
+      n_value;t_value:green:p=7,3:i=7
+  n_sections;    
+''', str(result.root_node) )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -134,7 +134,7 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def xtest_lex_all_multiple_times(self):
+  def xtest_lex_all_multiple_sessions(self):
     l = _test_simple_lexer()
     expected_tokens = btl_lexer_token_deque([
       ( 't_key', 'a', ( 1, 1 ), None, None ),

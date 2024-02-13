@@ -45,7 +45,7 @@ n_root;
     n_value;t_value:green:p=7,6:i=16
 ''', str(result.root_node) )
 
-  def test_parse_multiple_times(self):
+  def test_parse_multiple_sessions(self):
     l = _test_simple_lexer()
     p = _test_simple_parser(l)
     text = '''
