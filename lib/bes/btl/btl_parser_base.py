@@ -21,9 +21,10 @@ class btl_parser_base(object):
     check.check_string(desc_text)
     check.check_string(desc_source, allow_none = True)
 
+    self._log_tag = log_tag
     self._desc_source = desc_source or '<unknown>'
     self._lexer = lexer
-    log.add_logging(self, tag = log_tag)
+    log.add_logging(self, tag = self._log_tag)
     self._desc = btl_parser_desc.parse_text(desc_text, source = self._desc_source)
     self._states = states
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
@@ -74,7 +75,7 @@ class btl_parser_base(object):
     
     self.log_d(f'parser: parse: text=\"{text}\"')
 
-    context = btl_parser_context(self)
+    context = btl_parser_context(self, self._log_tag)
     self.do_start_commands(context)
     context.state.enter_state(context)
     

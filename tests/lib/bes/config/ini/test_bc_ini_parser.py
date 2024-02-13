@@ -70,6 +70,40 @@ n_root;
         n_key;t_key:color:p=1,4:i=9
         n_value;t_value:red:p=7,4:i=11
 ''', str(result.root_node) )
+
+  def test_parse_two_sections(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+[fruit]
+name=apple
+color=red
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    result = p.parse(text)
+    print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,2:i=2
+      n_key_value;
+        n_key;t_key:name:p=1,3:i=5
+        n_value;t_value:apple:p=6,3:i=7
+      n_key_value;
+        n_key;t_key:color:p=1,4:i=9
+        n_value;t_value:red:p=7,4:i=11
+    n_section;t_section_name:cheese:p=2,6:i=15
+      n_key_value;
+        n_key;t_key:name:p=1,7:i=18
+        n_value;t_value:vieux:p=6,7:i=20
+      n_key_value;
+        n_key;t_key:smell:p=1,8:i=22
+        n_value;t_value:stink:p=7,8:i=24
+''', str(result.root_node) )
     
 if __name__ == '__main__':
   unit_test.main()

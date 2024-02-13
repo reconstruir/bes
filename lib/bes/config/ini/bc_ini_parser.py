@@ -191,6 +191,7 @@ class bc_ini_parser(btl_parser_base):
       new_state_name = None
       if token.name == 't_section_name':
         new_state_name = 's_section_expecting_name_end'
+        context.node_creator.add_child_if_it_exists('n_sections', 'n_section')
         context.node_creator.create('n_section')
         context.node_creator.set_token('n_section', token)
       else:
@@ -465,6 +466,7 @@ states
   s_section_expecting_name
     transitions
       t_section_name: s_section_expecting_name_end
+        node add_child_if_it_exists n_sections n_section  
         node create n_section
         node set_token n_section
       default: s_done

@@ -86,21 +86,21 @@ class _state_{self.name}(btl_parser_state_base):
   def enter_state(self, context):
     self.log_d(f'{self.name}: enter_state')
 ''')
-#    if self.enter_state_commands:
-#      with buf.indent_pusher(depth = 1) as _:
-#        with buf.indent_pusher(depth = 1) as _:
-#          self.enter_state_commands.generate_code(buf, errors)
-#        buf.write_linesep()
+    if self.enter_state_commands:
+      with buf.indent_pusher(depth = 1) as _:
+        with buf.indent_pusher(depth = 1) as _:
+          self.enter_state_commands.generate_code(buf, errors)
+        buf.write_linesep()
     
     buf.write_lines(f'''
   def leave_state(self, context):
     self.log_d(f'{self.name}: leave_state')
 ''')
-#    if self.leave_state_commands:
-#      with buf.indent_pusher(depth = 1) as _:
-#        with buf.indent_pusher(depth = 1) as _:
-#          self.leave_state_commands.generate_code(buf, errors)
-#        buf.write_linesep()
+    if self.leave_state_commands:
+      with buf.indent_pusher(depth = 1) as _:
+        with buf.indent_pusher(depth = 1) as _:
+          self.leave_state_commands.generate_code(buf, errors)
+        buf.write_linesep()
     
     buf.write_lines(f'''
   def handle_token(self, context, token, first_time):

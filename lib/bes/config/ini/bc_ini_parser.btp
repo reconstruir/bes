@@ -73,6 +73,7 @@ states
   s_section_expecting_name
     transitions
       t_section_name: s_section_expecting_name_end
+        node add_child_if_it_exists n_sections n_section  
         node create n_section
         node set_token n_section
       default: s_done

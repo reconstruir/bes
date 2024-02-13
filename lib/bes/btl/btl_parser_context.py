@@ -7,9 +7,11 @@ from .btl_parser_node_creator import btl_parser_node_creator
 
 class btl_parser_context(object):
 
-  def __init__(self, parser):
+  def __init__(self, parser, log_tag):
     check.check_btl_parser(parser)
-    self._node_creator = btl_parser_node_creator()
+    check.check_string(log_tag)
+    
+    self._node_creator = btl_parser_node_creator(log_tag)
     self._state = parser.start_state
 
   @property

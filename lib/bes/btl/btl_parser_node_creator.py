@@ -4,7 +4,7 @@ import pprint
 
 from collections import namedtuple
 
-from ..system.log import logger
+from ..system.log import log
 from ..system.check import check
 
 from .btl_parser_node_error import btl_parser_node_error
@@ -13,10 +13,11 @@ from .btl_parser_node import btl_parser_node
 
 class btl_parser_node_creator(object):
 
-  _log = logger('parser_node_creator')
-  
-  def __init__(self, root_node_name = 'n_root'):
+  def __init__(self, log_tag, root_node_name = 'n_root'):
+    check.check_string(log_tag)
     check.check_string(root_node_name)
+
+    log.add_logging(self, tag = log_tag)
     
     self._root_node_name = root_node_name
     self._root_node = None
@@ -52,20 +53,22 @@ class btl_parser_node_creator(object):
     
   def create(self, node_name):
     check.check_string(node_name)
-    
+
+    self.log_d(f'node create {node_name}')
     if node_name in self._nodes:
       raise btl_parser_node_error(f'create: node already exists: "{node_name}"')
-
     node = btl_parser_node(node_name)
     self._nodes[node_name] = node
 
   def create_root(self):
+    self.log_d(f'node create_root')
     self.create(self._root_node_name)
     
   def set_token(self, node_name, token):
     check.check_string(node_name)
     check.check_btl_lexer_token(token)
 
+    self.log_d(f'node set_token {node_name} {token.to_debug_str()}')
     self.check_has_node(node_name)
     node = self._nodes[node_name]
     node.token = token.clone()
@@ -74,6 +77,7 @@ class btl_parser_node_creator(object):
     check.check_string(node_name)
     check.check_string(child_node_name)
 
+    self.log_d(f'node add_child {node_name} {child_node_name}')
     self.check_has_node(node_name)
     self.check_has_node(child_node_name)
     node = self._nodes[node_name]
@@ -84,6 +88,7 @@ class btl_parser_node_creator(object):
     check.check_string(node_name)
     check.check_string(child_node_name)
 
+    self.log_d(f'node add_child_if_it_exists {node_name} {child_node_name}')
     self.check_has_node(node_name)
     if not self.has_node(child_node_name):
       return
@@ -98,6 +103,7 @@ class btl_parser_node_creator(object):
   def remove_node(self, node_name):
     check.check_string(node_name)
 
+    self.log_d(f'node remove_node {node_name}')
     self.check_has_node(node_name)
     result = self._nodes[node_name]
     del self._nodes[node_name]
@@ -107,22 +113,5 @@ class btl_parser_node_creator(object):
     return self.get_node(self._root_node_name)
 
   def remove_root_node(self):
+    self.log_d(f'node remove_root_node')
     return self.remove_node(self._root_node_name)
-  
-#        node create n_key_value
-#        node create n_key
-#        node set_token n_key
-#        node add n_key_value n_key
-#      node create_root n_root
-    
-
-#    '''
-#        node create n_key_value
-#        node create n_key
-#        node set_token n_key
-#        node add n_key_value n_key
-#      node create n_root
-#        node create n_value
-#        node set_token n_value
-#        node add root n_key_value
-#  '''

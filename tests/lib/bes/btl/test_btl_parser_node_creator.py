@@ -7,14 +7,14 @@ from bes.testing.unit_test import unit_test
 
 class test_btl_parser_node_creator(unit_test):
 
-  def xtest_create_root(self):
-    nc = btl_parser_node_creator()
+  def test_create_root(self):
+    nc = btl_parser_node_creator('_test')
     self.assertEqual( False, nc.has_node('n_root') )
     nc.create_root()
     self.assertEqual( True, nc.has_node('n_root') )
 
   def test_create(self):
-    nc = btl_parser_node_creator()
+    nc = btl_parser_node_creator('_test')
     nc.create_root()
     nc.create('n_kv')
 
