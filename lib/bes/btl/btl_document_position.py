@@ -31,10 +31,12 @@ class btl_document_position(namedtuple('btl_document_position', 'line, column'))
   def parse_str(clazz, s):
     check.check_string(s)
 
-    xs, delim, ys = s.partition(',')
-    x = int(xs.strip())
-    y = int(ys.strip())
-    return btl_document_position(x, y)
+    line_str, delim, column_str = s.partition(',')
+    if delim.strip() != ',':
+      raise ValueError(f'Invalid position: "{s}"')
+    line = int(line_str.strip())
+    column = int(column_str.strip())
+    return btl_document_position(line, column)
   
   @classmethod
   def _check_cast_func(clazz, obj):
