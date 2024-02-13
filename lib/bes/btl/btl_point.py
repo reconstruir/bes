@@ -20,7 +20,11 @@ class btl_point(object):
   @property
   def y(self):
     return self._pos.line
-  
+
+  def __iter__(self):
+    yield self.x
+    yield self.y
+
   def __str__(self):
     return f'{self.x},{self.y}'
 
@@ -31,7 +35,15 @@ class btl_point(object):
     return btl_point(self.x + delta_x, self.y + delta_y)
 
   def clone(self, mutations = None):
-    return tuple_util.clone(self, mutations = mutations)
+    if mutations and 'x' in mutations:
+      x = mutations['x']
+    else:
+      x = self.x
+    if mutations and 'y' in mutations:
+      y = mutations['y']
+    else:
+      y = self.y
+    return btl_point(x, y)
 
   @classmethod
   def parse_str(clazz, s):
@@ -42,6 +54,9 @@ class btl_point(object):
   
   @classmethod
   def _check_cast_func(clazz, obj):
-    return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+    if isinstance(obj, ( list, tuple )):
+      return btl_point(*obj)
+    assert False
+    #return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
 check.register_class(btl_point, cast_func = btl_point._check_cast_func)

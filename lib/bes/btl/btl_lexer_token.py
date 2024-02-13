@@ -5,16 +5,17 @@ import copy
 from collections import namedtuple
 
 from ..common.json_util import json_util
-from ..common.point import point
 from ..common.tuple_util import tuple_util
 from ..system.check import check
 
+from .btl_point import btl_point
+
 class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type_hint, index')):
 
-  def __new__(clazz, name = None, value = None, position = point(1, 1), type_hint = None, index = None):
+  def __new__(clazz, name = None, value = None, position = btl_point(1, 1), type_hint = None, index = None):
     check.check_string(name)
     check.check_string(value, allow_none = True)
-    position = check.check_point(position, allow_none = True)
+    position = check.check_btl_point(position, allow_none = True)
     check.check_string(type_hint, allow_none = True)
     check.check_int(index, allow_none = True)
     
@@ -53,7 +54,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     index = d.get('index', None)
     return btl_lexer_token(name,
                            value,
-                           point.parse_str(position) if position else None,
+                           btl_point.parse_str(position) if position else None,
                            type_hint,
                            index)
   
@@ -67,7 +68,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     mutations = mutations or {}
     if 'position' in mutations:
       position = mutations['position']
-      position = check.check_point(position, allow_none = True)
+      position = check.check_btl_point(position, allow_none = True)
     else:
       position = self.position
     copied_mutations = copy.deepcopy(mutations)
@@ -95,19 +96,19 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
   def clone_with_x_shift(self, x_shift):
     check.check_int(x_shift)
 
-    new_position = point(self.position.x + x_shift, self.position.y)
+    new_position = btl_point(self.position.x + x_shift, self.position.y)
     return self.clone(mutations = { 'position': new_position })
 
   def clone_with_y_shift(self, y_shift):
     check.check_int(y_shift)
 
-    new_position = point(self.position.x, self.position.y + y_shift)
+    new_position = btl_point(self.position.x, self.position.y + y_shift)
     return self.clone(mutations = { 'position': new_position })
 
   def clone_with_y(self, y):
     check.check_int(y)
 
-    new_position = point(self.position.x, y)
+    new_position = btl_point(self.position.x, y)
     return self.clone(mutations = { 'position': new_position })
 
   def to_debug_str(self):

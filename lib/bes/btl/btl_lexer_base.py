@@ -4,14 +4,16 @@ import io
 
 from ..system.log import log
 from ..system.check import check
-from ..common.point import point
 
+from .btl_document_position import btl_document_position
 from .btl_lexer_context import btl_lexer_context
 from .btl_lexer_desc import btl_lexer_desc
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
+
+from .btl_point import btl_point
 
 class btl_lexer_base(object):
 
@@ -131,7 +133,7 @@ class btl_lexer_base(object):
     type_hint = token_args.get('type_hint', None)
     if type_hint:
       if type_hint == 'h_line_break':
-        token_position = point(context.last_position.x + 1, context.last_position.y)
+        token_position = btl_point(context.last_position.x + 1, context.last_position.y)
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None

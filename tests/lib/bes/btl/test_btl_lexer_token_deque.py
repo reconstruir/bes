@@ -223,9 +223,9 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
 
   def test___getitem__(self):
     d = btl_lexer_token_deque()
-    t0 = ( 'fruit', 'kiwi', ( 1, 1 ), None, None )
-    t1 = ( 'color', 'red', ( 10, 1 ), 'h_color', None )
-    t2 = ( 'flavor', 'tart', ( 20, 1 ), None, None )
+    t0 = btl_lexer_token( 'fruit', 'kiwi', ( 1, 1 ), None, None )
+    t1 = btl_lexer_token( 'color', 'red', ( 10, 1 ), 'h_color', None )
+    t2 = btl_lexer_token( 'flavor', 'tart', ( 20, 1 ), None, None )
     d.append(t0)
     d.append(t1)
     d.append(t2)
