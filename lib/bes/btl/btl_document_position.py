@@ -39,5 +39,14 @@ class btl_document_position(namedtuple('btl_document_position', 'line_number, co
   @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+
+  def advanced(self, c):
+    delta_line_number = 0
+    delta_column = 0
+    if c in ( '\n', '\r\n' ):
+      delta_line_number = 1
+    else:
+      delta_column = len(c)
+    return self.moved(delta_line_number, delta_column)
   
 check.register_class(btl_document_position, cast_func = btl_document_position._check_cast_func)
