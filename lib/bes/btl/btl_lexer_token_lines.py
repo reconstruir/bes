@@ -20,9 +20,8 @@ class _lexer_token_line(object):
   def clone_with_y(self, y):
     check.check_int(y)
 
-    new_line_number = self.line_number + 1
-    new_line = _lexer_token_line(new_line_number, self.tokens)
-    new_line.tokens.set_y(new_line_number)
+    new_line = _lexer_token_line(y, self.tokens)
+    new_line.tokens.set_y(y)
     return new_line
 
   def to_dict(self):
