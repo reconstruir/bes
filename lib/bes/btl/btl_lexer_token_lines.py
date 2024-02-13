@@ -10,7 +10,6 @@ from ..system.check import check
 
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
-
   
 class btl_lexer_token_lines(object):
 
