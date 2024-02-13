@@ -47,7 +47,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -73,7 +73,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -103,7 +103,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -133,7 +133,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -171,7 +171,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -198,7 +198,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -222,7 +222,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -252,7 +252,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -278,7 +278,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -308,7 +308,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   
@@ -338,7 +338,7 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         state_name = self.name
         msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.lexer.e_unexpected_token(message = msg)
+        raise self.parser.e_unexpected_token(message = msg)
       
       return new_state_name
   

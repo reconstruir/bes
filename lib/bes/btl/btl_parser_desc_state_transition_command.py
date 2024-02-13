@@ -20,7 +20,7 @@ class btl_parser_desc_state_transition_command(btl_desc_command):
         raise btl_parser_error(f'Unknown error: {self.action}')
       buf.write_line(f'state_name = self.name')
       buf.write_line(f"""msg = f'{error.message}'""")
-      buf.write_line(f'raise self.lexer.{error.error_class_name}(message = msg)')
+      buf.write_line(f'raise self.parser.{error.error_class_name}(message = msg)')
     else:
       raise btl_parser_error(f'Unkown command: "{self.name}"')
 

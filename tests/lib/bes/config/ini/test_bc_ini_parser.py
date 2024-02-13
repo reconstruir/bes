@@ -176,6 +176,18 @@ n_root;
       n_value;t_value:green:p=7,3:i=7
   n_sections;    
 ''', str(result.root_node) )
+
+  def xtest_parse_key_only(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+[fruit]
+name=
+'''
+    result = p.parse(text)
+    print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+''', str(result.root_node) )
     
 if __name__ == '__main__':
   unit_test.main()
