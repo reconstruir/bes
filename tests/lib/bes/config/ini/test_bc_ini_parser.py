@@ -18,6 +18,16 @@ from bes.config.ini.bc_ini_parser import bc_ini_parser
 
 class test_bc_ini_parser(btl_parser_tester_mixin, unit_test):
 
+  def test_parse_empty(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse('')
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+''', str(result.root_node) )
+
   def test_parse_global_only(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
@@ -48,6 +58,29 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
 
+  def test_parse_one_empty_section(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse('[fruit]')
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,1:i=1
+''', str(result.root_node) )
+
+  def test_parse_two_empty_sections(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse('[fruit]\n[cheese]\n')
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,1:i=1
+    n_section;t_section_name:cheese:p=2,2:i=5
+''', str(result.root_node) )
+    
   def test_parse_one_section(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
