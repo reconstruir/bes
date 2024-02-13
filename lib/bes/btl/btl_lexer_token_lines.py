@@ -11,7 +11,7 @@ from ..system.check import check
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
 
-class _lexer_token_line(object):
+class _lexer_token_item(object):
 
   def __init__(self, line_number, tokens):
     self.line_number = line_number
@@ -20,7 +20,7 @@ class _lexer_token_line(object):
   def clone_moved_to_line(self, line):
     check.check_int(line)
 
-    new_item = _lexer_token_line(line, self.tokens)
+    new_item = _lexer_token_item(line, self.tokens)
     new_item.tokens.set_line(line)
     return new_item
 
@@ -35,14 +35,14 @@ class btl_lexer_token_lines(object):
   def __init__(self, tokens):
     check.check_btl_lexer_token_deque(tokens)
     
-    self._lines = deque()
+    self._items = deque()
     self._indeces = {}
     self._first_line_number = None
     self._last_line_number = None
     d = tokens.to_line_break_ordered_dict()
     for line_number, tokens in d.items():
-      line = _lexer_token_line(line_number, tokens)
-      self._lines.append(line)
+      line = _lexer_token_item(line_number, tokens)
+      self._items.append(line)
       assert line_number not in self._indeces
       self._indeces[line_number] = line
       if self._last_line_number == None:
@@ -53,21 +53,21 @@ class btl_lexer_token_lines(object):
         self._last_line_number = max(self._last_line_number, line_number)
 
   def __len__(self):
-    return len(self._lines)
+    return len(self._items)
 
   def __iter__(self):
-    for line in self._lines:
+    for line in self._items:
       for token in line.tokens:
         yield token
 
   def to_dict_list(self):
-    return [ line.to_dict() for line in self._lines ]
+    return [ line.to_dict() for line in self._items ]
 
   def to_json(self):
     return json_util.to_json(self.to_dict_list(), indent = 2, sort_keys = False)
   
   def clear(self):
-    self._lines = deque()
+    self._items = deque()
 
   def modify_value(self, line_number, token_name, new_value):
     check.check_int(line_number)
@@ -87,12 +87,12 @@ class btl_lexer_token_lines(object):
     state = STATE_BEFORE_FOUND
     new_lines = deque()
     
-    for line in self._lines:
+    for line in self._items:
       if state == STATE_BEFORE_FOUND:
         if line.line_number == line_number:
           found = True
           tokens.set_line(line_number)
-          new_line = _lexer_token_line(line_number, tokens)
+          new_line = _lexer_token_item(line_number, tokens)
           new_lines.append(new_line)
 
           old_line = line.clone_moved_to_line(line.line_number + 1)
@@ -109,16 +109,16 @@ class btl_lexer_token_lines(object):
     # we did not find line_number so we are at the end
     if state == STATE_BEFORE_FOUND:
       tokens.set_line(line_number)
-      new_line = _lexer_token_line(line_number, tokens)
+      new_line = _lexer_token_item(line_number, tokens)
       new_lines.append(new_line)
       
-    self._lines = new_lines
+    self._items = new_lines
 
     # renumber the indeces
     self._indeces = {}
     self._first_line_number = None
     self._last_line_number = None
-    for line in self._lines:
+    for line in self._items:
       line_number = line.line_number
       assert line_number not in self._indeces
       self._indeces[line_number] = line
@@ -129,19 +129,10 @@ class btl_lexer_token_lines(object):
         self._first_line_number = min(self._first_line_number, line_number)
         self._last_line_number = max(self._last_line_number, line_number)
 
-  def append_line(self, tokens):
-    pass
-      
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:
       buf.write(token.value or '')
     return buf.getvalue()
 
-  def to_source_string(self):
-    buf = io.StringIO()
-    for token in self:
-      buf.write(token.value or '')
-    return buf.getvalue()
-  
 check.register_class(btl_lexer_token_lines, include_seq = False)

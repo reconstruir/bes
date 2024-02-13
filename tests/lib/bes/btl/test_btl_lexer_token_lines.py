@@ -127,28 +127,28 @@ flavor=tart
       {
         "name": "t_key",
         "value": "fruit",
-        "position": "1,2",
+        "position": "2,1",
         "type_hint": null,
         "index": null
       },
       {
         "name": "t_key_value_delimiter",
         "value": "=",
-        "position": "6,2",
+        "position": "2,6",
         "type_hint": null,
         "index": null
       },
       {
         "name": "t_value",
         "value": "kiwi",
-        "position": "7,2",
+        "position": "2,7",
         "type_hint": null,
         "index": null
       },
       {
         "name": "t_line_break",
         "value": "\\n",
-        "position": "11,2",
+        "position": "2,11",
         "type_hint": "h_line_break",
         "index": null
       }
@@ -160,28 +160,28 @@ flavor=tart
       {
         "name": "t_key",
         "value": "color",
-        "position": "1,3",
+        "position": "3,1",
         "type_hint": null,
         "index": null
       },
       {
         "name": "t_key_value_delimiter",
         "value": "=",
-        "position": "6,3",
+        "position": "3,6",
         "type_hint": null,
         "index": null
       },
       {
         "name": "t_value",
         "value": "green",
-        "position": "7,3",
+        "position": "3,7",
         "type_hint": null,
         "index": null
       },
       {
         "name": "t_line_break",
         "value": "\\n",
-        "position": "12,3",
+        "position": "3,12",
         "type_hint": "h_line_break",
         "index": null
       }
@@ -201,49 +201,49 @@ flavor=tart
   {
     "name": "t_key", 
     "value": "fruit", 
-    "position": "1,2", 
+    "position": "2,1", 
     "type_hint": null
   }, 
   {
     "name": "t_key_value_delimiter", 
     "value": "=", 
-    "position": "6,2", 
+    "position": "2,6", 
     "type_hint": null
   }, 
   {
     "name": "t_value", 
     "value": "kiwi", 
-    "position": "7,2", 
+    "position": "2,7", 
     "type_hint": null
   }, 
   {
     "name": "t_line_break", 
     "value": "\\n", 
-    "position": "11,2", 
+    "position": "2,11", 
     "type_hint": "h_line_break"
   }, 
   {
     "name": "t_key", 
     "value": "color", 
-    "position": "1,3", 
+    "position": "3,1", 
     "type_hint": null
   }, 
   {
     "name": "t_key_value_delimiter", 
     "value": "=", 
-    "position": "6,3", 
+    "position": "3,6", 
     "type_hint": null
   }, 
   {
     "name": "t_value", 
     "value": "green", 
-    "position": "7,3", 
+    "position": "3,7", 
     "type_hint": null
   }, 
   {
     "name": "t_line_break", 
     "value": "\\n", 
-    "position": "12,3", 
+    "position": "3,12", 
     "type_hint": "h_line_break"
   }, 
   {
