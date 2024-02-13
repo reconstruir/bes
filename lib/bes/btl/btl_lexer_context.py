@@ -67,7 +67,7 @@ class btl_lexer_context(object):
   def last_position(self):
     return self._last_position
 
-  def update_position(self, c):
+  def advance_position(self, c):
     self._last_position = self._position
     if c in ( '\n', '\r\n' ):
       new_position = btl_point(0, self._last_position.y + 1)

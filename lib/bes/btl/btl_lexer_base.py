@@ -81,7 +81,7 @@ class btl_lexer_base(object):
     self.log_d(f'lexer: run: source={context.source} options={context.options} text=\"{text}\"')
 
     for c in self._chars_plus_eos(text):
-      context.update_position(c)
+      context.advance_position(c)
       attrs = context.state._make_log_attributes(context, c)
       self.log_d(f'lexer: loop: {attrs} position={context.position}')
       old_state_name = context.state.name
