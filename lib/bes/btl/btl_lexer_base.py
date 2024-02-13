@@ -4,14 +4,16 @@ import io
 
 from ..system.log import log
 from ..system.check import check
-from ..common.point import point
 
+from .btl_document_position import btl_document_position
 from .btl_lexer_context import btl_lexer_context
 from .btl_lexer_desc import btl_lexer_desc
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
+
+from .btl_point import btl_point
 
 class btl_lexer_base(object):
 
@@ -79,9 +81,10 @@ class btl_lexer_base(object):
     self.log_d(f'lexer: run: source={context.source} options={context.options} text=\"{text}\"')
 
     for c in self._chars_plus_eos(text):
-      context.update_position(c)
+      old_position = context.position.clone()
+      context.advance_position(c)
       attrs = context.state._make_log_attributes(context, c)
-      self.log_d(f'lexer: loop: {attrs} position={context.position}')
+      self.log_d(f'lexer: loop: {attrs} old_position={old_position} new_position={context.position}')
       old_state_name = context.state.name
       handle_char_result = context.state.handle_char(context, c)
       new_state_name = handle_char_result.new_state_name
@@ -131,7 +134,7 @@ class btl_lexer_base(object):
     type_hint = token_args.get('type_hint', None)
     if type_hint:
       if type_hint == 'h_line_break':
-        token_position = point(context.last_position.x + 1, context.last_position.y)
+        token_position = context.last_position.moved_horizontal(1)
       elif type_hint == 'h_done':
         token_position = None
         buffer_value = None

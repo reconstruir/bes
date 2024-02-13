@@ -44,17 +44,17 @@ color=green
 n_root;
   n_global_section;
     n_key_value;
-      n_key;t_key:fruit:p=1,2:i=1
-      n_value;t_value:apple:p=7,2:i=3
+      n_key;t_key:fruit:p=2,1:i=1
+      n_value;t_value:apple:p=2,7:i=3
     n_key_value;
-      n_key;t_key:color:p=1,3:i=5
-      n_value;t_value:red:p=7,3:i=7
+      n_key;t_key:color:p=3,1:i=5
+      n_value;t_value:red:p=3,7:i=7
     n_key_value;
-      n_key;t_key:fruit:p=1,5:i=10
-      n_value;t_value:kiwi:p=7,5:i=12
+      n_key;t_key:fruit:p=5,1:i=10
+      n_value;t_value:kiwi:p=5,7:i=12
     n_key_value;
-      n_key;t_key:color:p=1,6:i=14
-      n_value;t_value:green:p=7,6:i=16
+      n_key;t_key:color:p=6,1:i=14
+      n_value;t_value:green:p=6,7:i=16
   n_sections;    
 ''', str(result.root_node) )
 
@@ -66,7 +66,7 @@ n_root;
 n_root;
   n_global_section;
   n_sections;
-    n_section;t_section_name:fruit:p=2,1:i=1
+    n_section;t_section_name:fruit:p=1,2:i=1
 ''', str(result.root_node) )
 
   def test_parse_two_empty_sections(self):
@@ -77,7 +77,7 @@ n_root;
 n_root;
   n_global_section;
   n_sections;
-    n_section;t_section_name:fruit:p=2,1:i=1
+    n_section;t_section_name:fruit:p=1,2:i=1
     n_section;t_section_name:cheese:p=2,2:i=5
 ''', str(result.root_node) )
     
@@ -97,11 +97,11 @@ n_root;
   n_sections;
     n_section;t_section_name:fruit:p=2,2:i=2
       n_key_value;
-        n_key;t_key:name:p=1,3:i=5
-        n_value;t_value:apple:p=6,3:i=7
+        n_key;t_key:name:p=3,1:i=5
+        n_value;t_value:apple:p=3,6:i=7
       n_key_value;
-        n_key;t_key:color:p=1,4:i=9
-        n_value;t_value:red:p=7,4:i=11
+        n_key;t_key:color:p=4,1:i=9
+        n_value;t_value:red:p=4,7:i=11
 ''', str(result.root_node) )
 
   def test_parse_two_sections(self):
@@ -124,18 +124,18 @@ n_root;
   n_sections;
     n_section;t_section_name:fruit:p=2,2:i=2
       n_key_value;
-        n_key;t_key:name:p=1,3:i=5
-        n_value;t_value:apple:p=6,3:i=7
+        n_key;t_key:name:p=3,1:i=5
+        n_value;t_value:apple:p=3,6:i=7
       n_key_value;
-        n_key;t_key:color:p=1,4:i=9
-        n_value;t_value:red:p=7,4:i=11
-    n_section;t_section_name:cheese:p=2,6:i=15
+        n_key;t_key:color:p=4,1:i=9
+        n_value;t_value:red:p=4,7:i=11
+    n_section;t_section_name:cheese:p=6,2:i=15
       n_key_value;
-        n_key;t_key:name:p=1,7:i=18
-        n_value;t_value:vieux:p=6,7:i=20
+        n_key;t_key:name:p=7,1:i=18
+        n_value;t_value:vieux:p=7,6:i=20
       n_key_value;
-        n_key;t_key:smell:p=1,8:i=22
-        n_value;t_value:stink:p=7,8:i=24
+        n_key;t_key:smell:p=8,1:i=22
+        n_value;t_value:stink:p=8,7:i=24
 ''', str(result.root_node) )
 
   def test_parse_multiple_sessions(self):
@@ -151,11 +151,11 @@ color=red
 n_root;
   n_global_section;
     n_key_value;
-      n_key;t_key:fruit:p=1,2:i=1
-      n_value;t_value:apple:p=7,2:i=3
+      n_key;t_key:fruit:p=2,1:i=1
+      n_value;t_value:apple:p=2,7:i=3
     n_key_value;
-      n_key;t_key:color:p=1,3:i=5
-      n_value;t_value:red:p=7,3:i=7
+      n_key;t_key:color:p=3,1:i=5
+      n_value;t_value:red:p=3,7:i=7
   n_sections;    
 ''', str(result.root_node) )
 
@@ -169,11 +169,11 @@ color=green
 n_root;
   n_global_section;
     n_key_value;
-      n_key;t_key:fruit:p=1,2:i=1
-      n_value;t_value:melon:p=7,2:i=3
+      n_key;t_key:fruit:p=2,1:i=1
+      n_value;t_value:melon:p=2,7:i=3
     n_key_value;
-      n_key;t_key:color:p=1,3:i=5
-      n_value;t_value:green:p=7,3:i=7
+      n_key;t_key:color:p=3,1:i=5
+      n_value;t_value:green:p=3,7:i=7
   n_sections;    
 ''', str(result.root_node) )
 

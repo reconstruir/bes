@@ -2,11 +2,12 @@
 
 import io
 
-from ..common.point import point
 from ..system.check import check
 from ..system.log import log
 
+from .btl_document_position import btl_document_position
 from .btl_lexer_options import btl_lexer_options
+from .btl_point import btl_point
 
 class btl_lexer_context(object):
 
@@ -24,8 +25,8 @@ class btl_lexer_context(object):
     self._options = options or btl_lexer_options()
     self._state = lexer.start_state
     self._last_char = None
-    self._last_position = point(0, 1)
-    self._position = point(0, 1)
+    self._last_position = btl_document_position(1, 0)
+    self._position = btl_document_position(1, 0)
     self._last_position = None
     self._buffer = None
     self._buffer_start_position = None
@@ -67,36 +68,33 @@ class btl_lexer_context(object):
   def last_position(self):
     return self._last_position
 
-  def update_position(self, c):
+  def advance_position(self, c):
     self._last_position = self._position
-    if c in ( '\n', '\r\n' ):
-      new_position = point(0, self._last_position.y + 1)
-    else:
-      new_position = point(self._last_position.x + len(c), self._last_position.y)
-    self._position = new_position
+    self._position = self._position.advanced(c)
 
   @property
   def buffer_start_position(self):
     return self._buffer_start_position
     
   def buffer_reset(self):
-    old_buffer_position = point(*self._buffer_start_position) if self._buffer_start_position != None else 'None'
+    old_buffer_position = btl_document_position(*self._buffer_start_position) if self._buffer_start_position != None else 'None'
     old_buffer_value = self.buffer_value()
     self._buffer = io.StringIO()
     if self._buffer_start_position == None:
-      self._buffer_start_position = point(1, 1)
-    self._buffer_start_position = point(*self._position)
+      self._buffer_start_position = btl_document_position(1, 1)
+    else:
+      self._buffer_start_position = btl_document_position(*self._position)
     self.log_d(f'lexer: buffer_reset: old_value="{old_buffer_value}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
 
   def buffer_write(self, c):
     check.check_string(c)
     
-    old_buffer_position = point(*self._buffer_start_position)
+    old_buffer_position = btl_document_position(*self._buffer_start_position)
     old_value = self.buffer_value()
     assert c != '\0'
     self._buffer.write(c)
     if len(old_value) == 0:
-      self._buffer_start_position = point(*self._position)
+      self._buffer_start_position = btl_point(*self._position)
     cs = 'caca' #self._state.char_to_string(c)
     self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 
