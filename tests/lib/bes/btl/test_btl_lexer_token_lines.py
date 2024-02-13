@@ -110,7 +110,7 @@ flavor=tart
     self.assert_json_equal( '''
 [
   {
-    "line_number": 1,
+    "line": 1,
     "tokens": [
       {
         "name": "t_line_break",
@@ -122,7 +122,7 @@ flavor=tart
     ]
   },
   {
-    "line_number": 2,
+    "line": 2,
     "tokens": [
       {
         "name": "t_key",
@@ -155,7 +155,7 @@ flavor=tart
     ]
   },
   {
-    "line_number": 3,
+    "line": 3,
     "tokens": [
       {
         "name": "t_key",
