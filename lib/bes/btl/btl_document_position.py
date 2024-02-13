@@ -42,13 +42,13 @@ class btl_document_position(namedtuple('btl_document_position', 'line, column'))
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
 
   def advanced(self, c):
-    delta_line = 0
-    delta_column = 0
     if c in ( '\n', '\r\n' ):
-      delta_line = 1
+      line = self.line + 1
+      column = 0
     else:
-      delta_column = len(c)
-    return self.moved(delta_line, delta_column)
+      line = self.line
+      column = self.column + len(c)
+    return btl_document_position(line, column)
 
   def moved_horizontal(self, delta_column):
     check.check_int(delta_column)

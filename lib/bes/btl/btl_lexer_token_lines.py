@@ -17,13 +17,12 @@ class _lexer_token_line(object):
     self.line_number = line_number
     self.tokens = tokens
 
-  def clone_with_y(self, y):
-    check.check_int(y)
+  def clone_moved_to_line(self, line):
+    check.check_int(line)
 
-    new_line_number = self.line_number + 1
-    new_line = _lexer_token_line(new_line_number, self.tokens)
-    new_line.tokens.set_y(new_line_number)
-    return new_line
+    new_item = _lexer_token_line(line, self.tokens)
+    new_item.tokens.set_line(line)
+    return new_item
 
   def to_dict(self):
     return {
@@ -92,24 +91,24 @@ class btl_lexer_token_lines(object):
       if state == STATE_BEFORE_FOUND:
         if line.line_number == line_number:
           found = True
-          tokens.set_y(line_number)
+          tokens.set_line(line_number)
           new_line = _lexer_token_line(line_number, tokens)
           new_lines.append(new_line)
 
-          old_line = line.clone_with_y(line.line_number + 1)
+          old_line = line.clone_moved_to_line(line.line_number + 1)
           new_lines.append(old_line)
           
           state = STATE_AFTER_FOUND
         else:
           new_lines.append(line)
       elif state == STATE_AFTER_FOUND:
-        new_line = line.clone_with_y(line.line_number + 1)
+        new_line = line.clone_moved_to_line(line.line_number + 1)
         new_lines.append(new_line)
       else:
         assert False, f'unexpected state {state}'
     # we did not find line_number so we are at the end
     if state == STATE_BEFORE_FOUND:
-      tokens.set_y(line_number)
+      tokens.set_line(line_number)
       new_line = _lexer_token_line(line_number, tokens)
       new_lines.append(new_line)
       

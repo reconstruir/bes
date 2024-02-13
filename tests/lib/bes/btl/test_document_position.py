@@ -25,8 +25,8 @@ class test_btl_document_position(unit_test):
   def test_advanced(self):
     self.assertEqual( ( 10, 2 ), btl_document_position(10, 1).advanced('a') )
     self.assertEqual( ( 10, 3 ), btl_document_position(10, 1).advanced('aa') )
-    self.assertEqual( ( 11, 1 ), btl_document_position(10, 1).advanced('\n') )
-    self.assertEqual( ( 11, 1 ), btl_document_position(10, 1).advanced('\r\n') )
+    self.assertEqual( ( 11, 0 ), btl_document_position(10, 1).advanced('\n') )
+    self.assertEqual( ( 11, 0 ), btl_document_position(10, 1).advanced('\r\n') )
 
   def test_moved_horizontal(self):
     self.assertEqual( ( 10, 2 ), btl_document_position(10, 1).moved_horizontal(1) )

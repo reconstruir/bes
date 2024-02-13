@@ -21,7 +21,7 @@ color=green
 '''
     self.assertMultiLineEqual( expected, actual )
 
-  def test_modiy_value(self):
+  def test_modify_value(self):
     tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     lines.modify_value(2, 't_value', 'watermelon')

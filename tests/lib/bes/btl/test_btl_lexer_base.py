@@ -246,8 +246,8 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, 'ab=',
       [
         ( 't_key', 'ab', ( 1, 1 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 3, 1 ), None, None ),
-        ( 't_value', '', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 1, 3 ), None, None ),
+        ( 't_value', '', ( 1, 3 ), None, None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -257,8 +257,8 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, 'a=k',
       [
         ( 't_key', 'a', ( 1, 1 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 2, 1 ), None, None ),
-        ( 't_value', 'k', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 1, 2 ), None, None ),
+        ( 't_value', 'k', ( 1, 3 ), None, None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -268,8 +268,8 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, 'fruit=kiwi',
       [
         ( 't_key', 'fruit', ( 1, 1 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 1 ), None, None ),
-        ( 't_value', 'kiwi', ( 7, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 1, 6 ), None, None ),
+        ( 't_value', 'kiwi', ( 1, 7 ), None, None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -279,14 +279,14 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, '''\nfruit=kiwi\ncolor=green\n''',
       [
         ( 't_line_break', '[NL]', ( 1, 1 ), 'h_line_break', None ),
-        ( 't_key', 'fruit', ( 1, 2 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 2 ), None, None ),
-        ( 't_value', 'kiwi', ( 7, 2 ), None, None ),
-        ( 't_line_break', '[NL]', ( 11, 2 ), 'h_line_break', None ),
-        ( 't_key', 'color', ( 1, 3 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 3 ), None, None ),
-        ( 't_value', 'green', ( 7, 3 ), None, None ),
-        ( 't_line_break', '[NL]', ( 12, 3 ), 'h_line_break', None ),
+        ( 't_key', 'fruit', ( 2, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 2, 6 ), None, None ),
+        ( 't_value', 'kiwi', ( 2, 7 ), None, None ),
+        ( 't_line_break', '[NL]', (  2, 11 ), 'h_line_break', None ),
+        ( 't_key', 'color', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 3, 6 ), None, None ),
+        ( 't_value', 'green', ( 3, 7 ), None, None ),
+        ( 't_line_break', '[NL]', (  3, 12 ), 'h_line_break', None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -296,14 +296,14 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n''',
       [
         ( 't_line_break', '[CR][NL]', ( 1, 1 ), 'h_line_break', None ),
-        ( 't_key', 'fruit', ( 1, 2 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 2 ), None, None ),
-        ( 't_value', 'kiwi', ( 7, 2 ), None, None ),
-        ( 't_line_break', '[CR][NL]', ( 11, 2 ), 'h_line_break', None ),
-        ( 't_key', 'color', ( 1, 3 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 3 ), None, None ),
-        ( 't_value', 'green', ( 7, 3 ), None, None ),
-        ( 't_line_break', '[CR][NL]', ( 12, 3 ), 'h_line_break', None ),
+        ( 't_key', 'fruit', ( 2, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 2, 6 ), None, None ),
+        ( 't_value', 'kiwi', ( 2, 7 ), None, None ),
+        ( 't_line_break', '[CR][NL]', (  2, 11 ), 'h_line_break', None ),
+        ( 't_key', 'color', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 3, 6 ), None, None ),
+        ( 't_value', 'green', ( 3, 7 ), None, None ),
+        ( 't_line_break', '[CR][NL]', (  3, 12 ), 'h_line_break', None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -314,14 +314,14 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, '''\r\nfruit=kiwi\r\ncolor=green\r\n''',
       [
         ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break', None ),
-        ( 't_key', 'fruit', ( 1, 2 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 2 ), None, None ),
-        ( 't_value', 'kiwi', ( 7, 2 ), None, None ),
-        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break', None ),
-        ( 't_key', 'color', ( 1, 3 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 3 ), None, None ),
-        ( 't_value', 'green', ( 7, 3 ), None, None ),
-        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break', None ),
+        ( 't_key', 'fruit', ( 2, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 2, 6 ), None, None ),
+        ( 't_value', 'kiwi', ( 2, 7 ), None, None ),
+        ( 't_line_break', os.linesep, (  2, 11 ), 'h_line_break', None ),
+        ( 't_key', 'color', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 3, 6 ), None, None ),
+        ( 't_value', 'green', ( 3, 7 ), None, None ),
+        ( 't_line_break', os.linesep, (  3, 12 ), 'h_line_break', None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -332,14 +332,14 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     t = self.call_lex_all(_test_lexer, '''\nfruit=kiwi\ncolor=green\n''',
       [
         ( 't_line_break', os.linesep, ( 1, 1 ), 'h_line_break', None ),
-        ( 't_key', 'fruit', ( 1, 2 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 2 ), None, None ),
-        ( 't_value', 'kiwi', ( 7, 2 ), None, None ),
-        ( 't_line_break', os.linesep, ( 11, 2 ), 'h_line_break', None ),
-        ( 't_key', 'color', ( 1, 3 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 6, 3 ), None, None ),
-        ( 't_value', 'green', ( 7, 3 ), None, None ),
-        ( 't_line_break', os.linesep, ( 12, 3 ), 'h_line_break', None ),
+        ( 't_key', 'fruit', ( 2, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 2, 6 ), None, None ),
+        ( 't_value', 'kiwi', ( 2, 7 ), None, None ),
+        ( 't_line_break', os.linesep, (  2, 11 ), 'h_line_break', None ),
+        ( 't_key', 'color', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 3, 6 ), None, None ),
+        ( 't_value', 'green', ( 3, 7 ), None, None ),
+        ( 't_line_break', os.linesep, (  3, 12 ), 'h_line_break', None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )
@@ -349,8 +349,8 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     l = _test_lexer()
     expected_tokens = btl_lexer_token_deque([
       ( 't_key', 'a', ( 1, 1 ), None, None ),
-      ( 't_key_value_delimiter', '=', ( 2, 1 ), None, None ),
-      ( 't_value', 'k', ( 3, 1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 1, 2 ), None, None ),
+      ( 't_value', 'k', ( 1, 3 ), None, None ),
       ( 't_done', None, None, 'h_done', None ),
     ])
     expected = '\n'.join([ token.to_debug_str() for token in expected_tokens ])
@@ -360,8 +360,8 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
 
     expected_tokens = btl_lexer_token_deque([
       ( 't_key', 'b', ( 1, 1 ), None, None ),
-      ( 't_key_value_delimiter', '=', ( 2, 1 ), None, None ),
-      ( 't_value', 'z', ( 3, 1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 1, 2 ), None, None ),
+      ( 't_value', 'z', ( 1, 3 ), None, None ),
       ( 't_done', None, None, 'h_done', None ),
     ])
     expected = '\n'.join([ token.to_debug_str() for token in expected_tokens ])

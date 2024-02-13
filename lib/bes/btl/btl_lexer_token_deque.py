@@ -62,12 +62,12 @@ class btl_lexer_token_deque(object):
       if token.type_hint == 'h_done':
         continue
       assert token.has_position()
-      line_number = token.position.y
-      if not line_number in result:
-        result[line_number] = btl_lexer_token_deque()
-      result[line_number].append(token)
-    for line_number, line_list in result.items():
-      line_list.sort_by_x()
+      line = token.position.line
+      if not line in result:
+        result[line] = btl_lexer_token_deque()
+      result[line].append(token)
+    for line, line_list in result.items():
+      line_list.sort_by_column()
       
     return result
 
@@ -76,7 +76,7 @@ class btl_lexer_token_deque(object):
     check.check_string(new_value, allow_none = True)
 
     found = False
-    x_shift = None
+    column_delta = None
     STATE_BEFORE_FOUND = 1
     STATE_AFTER_FOUND = 2
     state = STATE_BEFORE_FOUND
@@ -84,32 +84,32 @@ class btl_lexer_token_deque(object):
       if state == STATE_BEFORE_FOUND:
         if token.name == token_name:
           found = True
-          new_token, x_shift = token.clone_replace_value(new_value)
-          assert x_shift != None
+          new_token, column_delta = token.clone_replace_value(new_value)
+          assert column_delta != None
           self._tokens[i] = new_token
           state = STATE_AFTER_FOUND
       elif state == STATE_AFTER_FOUND:
-        assert x_shift != None
-        new_token = token.clone_with_x_shift(x_shift)
+        assert column_delta != None
+        new_token = token.clone_with_moved_horizontal(column_delta)
         self._tokens[i] = new_token
       else:
         assert False, f'unexpected state {state}'
 
-  def shift_y(self, y_shift):
-    check.check_int(y_shift)
+  def shift_vertical(self, line_delta):
+    check.check_int(line_delta)
 
     new_tokens = deque()
     for token in self:
-      new_token = token.clone_with_y_shift(y_shift)
+      new_token = token.clone_with_moved_vertical(line_delta)
       new_tokens.append(new_token)
     self._tokens = new_tokens
 
-  def set_y(self, y):
-    check.check_int(y)
+  def set_line(self, line):
+    check.check_int(line)
 
     new_tokens = deque()
     for token in self:
-      new_token = token.clone_with_y(y)
+      new_token = token.clone_moved_to_line(line)
       new_tokens.append(new_token)
     self._tokens = new_tokens
     
@@ -125,8 +125,8 @@ class btl_lexer_token_deque(object):
   def to_list(self):
     return [ token for token in self ]
 
-  def sort_by_x(self):
-    sorted_tokens = sorted(self.to_list(), key = lambda token: token.position.x)
+  def sort_by_column(self):
+    sorted_tokens = sorted(self.to_list(), key = lambda token: token.position.column)
     self.clear()
     self.extend(sorted_tokens)
   
