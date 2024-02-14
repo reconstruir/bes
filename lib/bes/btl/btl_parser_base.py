@@ -75,7 +75,7 @@ class btl_parser_base(object):
     
     self.log_d(f'parser: parse: text=\"{text}\"')
 
-    context = btl_parser_context(self, self._log_tag)
+    context = btl_parser_context(self, text, self._log_tag)
     self.do_start_commands(context)
     context.state.enter_state(context)
     

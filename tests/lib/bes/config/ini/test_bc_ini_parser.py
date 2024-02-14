@@ -177,7 +177,7 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
 
-  def xtest_parse_key_only(self):
+  def test_parse_key_only(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_context import btl_lexer_context
 from bes.btl.btl_lexer_token import btl_lexer_token
 
