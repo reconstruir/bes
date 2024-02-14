@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import io
+import os
 
 from ..system.check import check
 from ..system.log import log
@@ -102,5 +103,16 @@ class btl_lexer_context(object):
     if self._buffer == None:
       return None
     return self._buffer.getvalue()
-    
+
+  def make_error_text(self, token):
+    check.check_btl_lexer_token(token)
+
+    lines = self._text.splitlines()
+    top = lines[0:token.position.line]
+    bottom = lines[token.position.line:]
+    indent = ' ' * (token.position.column - 1)
+    marker = f'{indent}^'
+    error_lines = top + [ marker ] + bottom
+    return os.linesep.join(error_lines)
+  
 check.register_class(btl_lexer_context, include_seq = False)
