@@ -29,6 +29,41 @@ class test_btl_lexer_token(_test_simple_lexer_mixin, unit_test):
   "index": null
 }
 ''', btl_lexer_token( 'color', 'red', ( 10, 1 ), 'h_color').to_json() )
+
+  def test_make_error_text(self):
+    text = '''
+; this is my config file.  there are many config files but this is mine
+
+[treats]
+name=ice cream
+    
+; fruit
+[fruit]
+name=
+    
+; cheese
+name=manchego
+taste=awesome
+
+; wine
+name=syrah
+taste=earthy
+'''
+    token = btl_lexer_token('t_fruit', 'kiwi', ( 9, 6 ))
+    self.assertEqual('''\
+ 5|name=ice cream
+ 6|    
+ 7|; fruit
+ 8|[fruit]
+ 9|name=
+        ^^^ unexpected token foo bar
+10|    
+11|; cheese
+12|name=manchego
+13|taste=awesome
+14|\
+'''
+, token.make_error_text(text, 'unexpected token foo bar') )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -70,12 +70,13 @@ class btl_parser_base(object):
     context.state.enter_state(context)
 
   _parse_result = namedtuple('_parse_result', 'root_node, tokens')
-  def parse(self, text):
+  def parse(self, text, source = None):
     check.check_string(text)
+    check.check_string(source, allow_none = True)
     
     self.log_d(f'parser: parse: text=\"{text}\"')
 
-    context = btl_parser_context(self, text, self._log_tag)
+    context = btl_parser_context(self, self._log_tag, text, source)
     self.do_start_commands(context)
     context.state.enter_state(context)
     

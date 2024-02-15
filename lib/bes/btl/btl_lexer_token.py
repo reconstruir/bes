@@ -1,12 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
+import os
 
 from collections import namedtuple
 
 from ..common.json_util import json_util
 from ..common.tuple_util import tuple_util
 from ..system.check import check
+from ..text.line_numbers import line_numbers
 
 from .btl_document_position import btl_document_position
 
@@ -132,6 +134,25 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
   @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+
+  def make_error_text(self, text, message):
+    check.check_string(text)
+    check.check_string(message)
+
+    if not text:
+      return ''
+
+    NUM_CONTEXT_LINES = 5
+
+    numbered_text = line_numbers.add_line_numbers(text, delimiter = '|')
+    delim_col = numbered_text.find('|')
+    lines = numbered_text.splitlines()
+    top = lines[0:self.position.line][-NUM_CONTEXT_LINES:]
+    bottom = lines[self.position.line:][0:NUM_CONTEXT_LINES]
+    indent = ' ' * (self.position.column + delim_col)
+    marker = f'{indent}^^^ {message}'
+    error_lines = top + [ marker ] + bottom
+    return os.linesep.join(error_lines).rstrip()
   
 check.register_class(btl_lexer_token, include_seq = False, cast_func = btl_lexer_token._check_cast_func)
   

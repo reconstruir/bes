@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import math
 from bes.compat.StringIO import StringIO
 
@@ -8,7 +9,7 @@ class line_numbers(object):
       
   @classmethod
   def add_line_numbers(clazz, text, delimiter = '|'):
-    lines = text.split('\n')
+    lines = text.splitlines()
     width = math.trunc(math.log10(len(lines)) + 1)
     fmt  = '%%%dd' % (width)
     buf = StringIO()
@@ -16,5 +17,5 @@ class line_numbers(object):
       buf.write(fmt % (line_number))
       buf.write(delimiter)
       buf.write(str(line))
-      buf.write('\n')
+      buf.write(os.linesep)
     return buf.getvalue()

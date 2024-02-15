@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.btl.btl_lexer_context import btl_lexer_context
-from bes.btl.btl_lexer_token import btl_lexer_token
+from bes.btl.btl_parser_context import btl_parser_context
 
 from _test_simple_lexer import _test_simple_lexer
+from _test_simple_parser import _test_simple_parser
 
 from bes.testing.unit_test import unit_test
 
-class test_btl_lexer_context(unit_test):
+class test_btl_parser_context(unit_test):
 
   def test_make_error_text(self):
     text = '''
@@ -23,9 +23,10 @@ name=
      ^
 [cheese]
 name=brie'''
-    c = btl_lexer_context(_test_simple_lexer(), 'tag', text, '<unit_test>', None)
-    t = btl_lexer_token('t_kiwi', value = '', position = ( 3, 6 ))
-    self.assertMultiLineEqual( expected, c.make_error_text(t) )
+    l = _test_simple_lexer()
+    p = _test_simple_parser(l)
+    c = btl_parser_context(p, 'tag', text, '<unit_test>')
+    self.assertMultiLineEqual( '<unit_test>', c.source )
     
 if __name__ == '__main__':
   unit_test.main()

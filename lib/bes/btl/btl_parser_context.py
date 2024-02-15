@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 from ..system.log import log
 from ..system.check import check
 
@@ -7,13 +9,15 @@ from .btl_parser_node_creator import btl_parser_node_creator
 
 class btl_parser_context(object):
 
-  def __init__(self, parser, text, log_tag):
+  def __init__(self, parser, log_tag, text, source):
     check.check_btl_parser(parser)
-    check.check_string(text)
     check.check_string(log_tag)
+    check.check_string(text)
+    check.check_string(source, allow_none = True)
     
     self._parser = parser
     self._text = text
+    self._source = source or '<unknown>'
     self._node_creator = btl_parser_node_creator(log_tag)
     self._state = parser.start_state
 
@@ -29,15 +33,12 @@ class btl_parser_context(object):
   def state(self, state):
     self._state = state
 
-  def make_error_text(self, token):
-    check.check_btl_lexer_token(token)
+  @property
+  def text(self):
+    return self._text
 
-    lines = self._text.splitlines()
-    top = lines[0:token.position.line]
-    bottom = lines[token.position.line:]
-    indent = ' ' * (token.position.column - 1)
-    marker = f'{indent}^'
-    error_lines = top + [ marker ] + bottom
-    return os.linesep.join(error_lines)
-    
+  @property
+  def source(self):
+    return self._source
+  
 check.register_class(btl_parser_context, include_seq = False)

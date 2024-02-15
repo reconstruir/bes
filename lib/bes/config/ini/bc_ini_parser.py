@@ -9,8 +9,7 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
 class bc_ini_parser(btl_parser_base):
 
   class e_unexpected_token(btl_parser_runtime_error):
-    def __init__(self, message = None):
-      super().__init__(message = message)
+    pass
 
   
   class _state_s_global_start(btl_parser_state_base):
@@ -45,9 +44,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_name'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -71,9 +69,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_global_expecting_value'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -101,9 +98,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_global_expecting_value'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -131,9 +127,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_global_start'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -169,9 +164,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_name'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -196,9 +190,8 @@ class bc_ini_parser(btl_parser_base):
         context.node_creator.set_token('n_section', token)
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -220,9 +213,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_after_section_name'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -250,9 +242,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_key'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -276,9 +267,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_delimiter'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -306,9 +296,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_value'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -336,9 +325,8 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_section_expecting_key'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{self.name}" unexpected token: "{token.name}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -401,7 +389,7 @@ parser
   end_state: s_done
 
 errors
-  e_unexpected_token: In state "{state_name}" unexpected token: "{token}"
+  e_unexpected_token: In state "{self.name}" unexpected token: "{token.name}"
 
 states
 

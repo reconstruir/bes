@@ -18,7 +18,7 @@ class btl_parser_state_base(object):
   @property
   def parser(self):
     return self._parser
-  
+
   def handle_token(self, context, token):
     ts = token.to_debug_str()
     raise btl_parser_error(f'{self.name}: unhandled token: {ts}')
