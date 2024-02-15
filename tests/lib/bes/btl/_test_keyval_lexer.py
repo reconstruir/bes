@@ -19,8 +19,7 @@ class _test_keyval_lexer(btl_lexer_base):
     T_VALUE = 't_value'
 
   class e_unexpected_char(btl_lexer_runtime_error):
-    def __init__(self, message = None):
-      super().__init__(message = message)
+    pass
 
   
   class _state_s_start(btl_lexer_state_base):
@@ -51,7 +50,7 @@ class _test_keyval_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -84,7 +83,7 @@ class _test_keyval_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -115,7 +114,7 @@ class _test_keyval_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -151,7 +150,7 @@ class _test_keyval_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -183,7 +182,7 @@ class _test_keyval_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   

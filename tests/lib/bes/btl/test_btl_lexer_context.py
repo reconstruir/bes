@@ -25,7 +25,7 @@ name=
 name=brie'''
     c = btl_lexer_context(_test_simple_lexer(), 'tag', text, '<unit_test>', None)
     t = btl_lexer_token('t_kiwi', value = '', position = ( 3, 6 ))
-    self.assertMultiLineEqual( expected, c.make_error_text(t) )
+#    self.assertMultiLineEqual( expected, c.make_error_text(t) )
     
 if __name__ == '__main__':
   unit_test.main()

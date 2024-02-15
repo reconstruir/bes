@@ -35,8 +35,7 @@ class btl_lexer_desc_error(namedtuple('btl_lexer_desc_error', 'name, message')):
     check.check_btl_code_gen_buffer(buf)
 
     code = f'''class {self.error_class_name}(btl_lexer_runtime_error):
-  def __init__(self, message = None):
-    super().__init__(message = message)'''
+  pass'''
     buf.write_lines(code)
     
   @classmethod

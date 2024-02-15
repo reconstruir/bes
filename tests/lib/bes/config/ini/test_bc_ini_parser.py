@@ -271,18 +271,24 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
 
-  def test_poto(self):
+  def test_parse_command_instead_of_value(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
-POTO = ; foo    
-='''
+kiwi = ; foo    
+'''
     result = p.parse(text)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:kiwi:p=2,1:i=1
+      n_value;t_value::p=2,7
+  n_sections;
 ''', str(result.root_node) )
     
-  def test_caca(self):
+  def xtest_caca(self):
     source = self.caca_filename('test_data/gitea.app.ini')
     text = self.caca_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()

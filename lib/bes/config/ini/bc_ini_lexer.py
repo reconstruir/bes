@@ -24,11 +24,9 @@ class bc_ini_lexer(btl_lexer_base):
     T_VALUE = 't_value'
 
   class e_unexpected_char(btl_lexer_runtime_error):
-    def __init__(self, message = None):
-      super().__init__(message = message)
+    pass
   class e_unexpected_eos(btl_lexer_runtime_error):
-    def __init__(self, message = None):
-      super().__init__(message = message)
+    pass
 
   
   class _state_s_start(btl_lexer_state_base):
@@ -69,7 +67,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -126,11 +124,11 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_eos'):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -165,7 +163,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -203,7 +201,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -235,7 +233,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -266,7 +264,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -307,7 +305,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -338,7 +336,7 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_value'
         message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = message)
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   

@@ -17,8 +17,7 @@ class test_btl_lexer_desc_state(_test_simple_lexer_mixin, unit_test):
 
     self.assert_python_code_text_equal('''\
 class e_bad(btl_lexer_runtime_error):
-  def __init__(self, message = None):
-    super().__init__(message = message)
+  pass
 ''', self.call_function_with_buf(error, 'generate_code') )
   
 if __name__ == '__main__':
