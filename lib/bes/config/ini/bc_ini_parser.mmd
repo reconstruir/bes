@@ -7,6 +7,7 @@ stateDiagram-v2
   s_global_start --> s_global_start: t_line_break
   s_global_start --> s_global_start: t_space
   s_global_start --> s_global_expecting_delimiter: t_key
+  s_global_start --> s_global_start: t_comment_begin
   s_global_start --> s_global_start: t_comment
   s_global_start --> s_section_expecting_name: t_section_name_begin
   s_global_start --> s_done: default
@@ -35,6 +36,7 @@ stateDiagram-v2
   s_section_expecting_key --> s_section_expecting_key: t_line_break
   s_section_expecting_key --> s_section_expecting_key: t_space
   s_section_expecting_key --> s_section_expecting_delimiter: t_key
+  s_section_expecting_key --> s_section_expecting_key: t_comment_begin
   s_section_expecting_key --> s_section_expecting_key: t_comment
   s_section_expecting_key --> s_section_expecting_name: t_section_name_begin
   s_section_expecting_key --> s_done: default

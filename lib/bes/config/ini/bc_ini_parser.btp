@@ -22,6 +22,7 @@ states
         node create n_key
         node set_token n_key
         node add_child n_key_value n_key
+      t_comment_begin: s_global_start
       t_comment: s_global_start
       t_section_name_begin: s_section_expecting_name
       default: s_done
@@ -75,6 +76,7 @@ states
         node create n_key
         node set_token n_key
         node add_child n_key_value n_key
+      t_comment_begin: s_section_expecting_key
       t_comment: s_section_expecting_key
       t_section_name_begin: s_section_expecting_name
       default: s_done

@@ -16,7 +16,9 @@ from bes.btl.btl_parser_runtime_error import btl_parser_runtime_error
 from bes.config.ini.bc_ini_lexer import bc_ini_lexer
 from bes.config.ini.bc_ini_parser import bc_ini_parser
 
-class test_bc_ini_parser(btl_parser_tester_mixin, unit_test):
+from _test_ini_mixin import _test_ini_mixin
+
+class test_bc_ini_parser(btl_parser_tester_mixin, _test_ini_mixin, unit_test):
 
   def test_parse_empty(self):
     l = bc_ini_lexer()
@@ -28,6 +30,28 @@ n_root;
   n_sections;
 ''', str(result.root_node) )
 
+  def test_parse_global_comment_only(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse(';empty')
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+''', str(result.root_node) )
+
+  def test_parse_section_comment_only(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse('''[fruit]
+;empty''')
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=1,2:i=1
+''', str(result.root_node) )
+    
   def test_parse_global_only(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
@@ -245,6 +269,16 @@ n_root;
       n_key;t_key:name:p=2,1:i=1
       n_value;t_value::p=2,6
   n_sections;    
+''', str(result.root_node) )
+
+  def xtest_caca(self):
+    source = self.caca_filename('gitea.app.ini')
+    text = self.caca_text('gitea.app.ini')
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse(text, source = source)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )
     
 if __name__ == '__main__':

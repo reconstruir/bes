@@ -38,6 +38,8 @@ class bc_ini_parser(btl_parser_base):
         context.node_creator.create('n_key')
         context.node_creator.set_token('n_key', token)
         context.node_creator.add_child('n_key_value', 'n_key')
+      elif token.name == 't_comment_begin':
+        new_state_name = 's_global_start'
       elif token.name == 't_comment':
         new_state_name = 's_global_start'
       elif token.name == 't_section_name_begin':
@@ -170,6 +172,8 @@ class bc_ini_parser(btl_parser_base):
         context.node_creator.create('n_key')
         context.node_creator.set_token('n_key', token)
         context.node_creator.add_child('n_key_value', 'n_key')
+      elif token.name == 't_comment_begin':
+        new_state_name = 's_section_expecting_key'
       elif token.name == 't_comment':
         new_state_name = 's_section_expecting_key'
       elif token.name == 't_section_name_begin':
@@ -427,6 +431,7 @@ states
         node create n_key
         node set_token n_key
         node add_child n_key_value n_key
+      t_comment_begin: s_global_start
       t_comment: s_global_start
       t_section_name_begin: s_section_expecting_name
       default: s_done
@@ -480,6 +485,7 @@ states
         node create n_key
         node set_token n_key
         node add_child n_key_value n_key
+      t_comment_begin: s_section_expecting_key
       t_comment: s_section_expecting_key
       t_section_name_begin: s_section_expecting_name
       default: s_done
