@@ -32,11 +32,11 @@ class _test_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f'{self.name}: leave_state')
       
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
 
-      if first_time:
-        context.node_creator.create_root()
+#      if first_time:
+#        context.node_creator.create_root()
       
       new_state_name = None
   
@@ -70,7 +70,7 @@ class _test_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f'{self.name}: leave_state')
       
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
   
       new_state_name = None
@@ -95,7 +95,7 @@ class _test_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f'{self.name}: leave_state')
       
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
   
       new_state_name = None
@@ -124,7 +124,7 @@ class _test_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f'{self.name}: leave_state')
       
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
   
       new_state_name = None
@@ -153,7 +153,7 @@ class _test_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f'{self.name}: leave_state')
       
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
   
       new_state_name = None
@@ -173,10 +173,11 @@ class _test_parser(btl_parser_base):
     super().__init__(log_tag, lexer, self._DESC_TEXT, states)
 
   def do_start_commands(self, context):
-    pass
-
+    self.log_d(f'do_start_commands:')
+    context.node_creator.create_root()
+  
   def do_end_commands(self, context):
-    pass
+    self.log_d(f'do_start_commands:')
   
   _DESC_TEXT = """
 #BTP

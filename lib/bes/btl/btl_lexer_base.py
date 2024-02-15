@@ -65,7 +65,7 @@ class btl_lexer_base(object):
       return
     attrs = new_state._make_log_attributes(context, c)
     max_length = self._max_state_name_length
-    msg = f'lexer: transition: #{context.state.name:>{max_length}} -> {new_state.name:<{max_length}}# {attrs}'
+    msg = f'lexer: transition: {context.state.name} -> {new_state.name} {attrs}'
     self.log_d(msg)
     context.state = new_state
 

@@ -23,7 +23,7 @@ class _test_simple_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_start: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -58,7 +58,7 @@ class _test_simple_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_expecting_delimiter: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_key_value_delimiter':
@@ -83,7 +83,7 @@ class _test_simple_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_expecting_value: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_value':
@@ -112,7 +112,7 @@ class _test_simple_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_after_value: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -141,7 +141,7 @@ class _test_simple_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_done: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       

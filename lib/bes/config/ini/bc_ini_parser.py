@@ -23,7 +23,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_global_start: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -62,7 +62,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_global_expecting_delimiter: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_key_value_delimiter':
@@ -87,7 +87,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_global_expecting_value: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_value':
@@ -136,7 +136,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_global_after_value: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -165,7 +165,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_expecting_key: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -204,7 +204,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_expecting_name: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_section_name':
@@ -230,7 +230,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_expecting_name_end: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_section_name_end':
@@ -253,7 +253,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_after_section_name: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -282,7 +282,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_expecting_delimiter: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_key_value_delimiter':
@@ -307,7 +307,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_expecting_value: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_value':
@@ -356,7 +356,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_section_after_value: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       if token.name == 't_done':
@@ -385,7 +385,7 @@ class bc_ini_parser(btl_parser_base):
     def leave_state(self, context):
       self.log_d(f's_done: leave_state')
   
-    def handle_token(self, context, token, first_time):
+    def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
       

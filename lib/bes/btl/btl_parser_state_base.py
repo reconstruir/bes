@@ -31,4 +31,4 @@ class btl_parser_state_base(object):
   
   def log_handle_token(self, token):
     ts = token.to_debug_str()
-    self.log_d(f'{self.name}: handle_token: token={ts}')
+    self.log_d(f'parser: {self.name}: handle_token: token={ts}')

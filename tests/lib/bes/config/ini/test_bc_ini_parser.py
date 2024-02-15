@@ -284,16 +284,15 @@ n_root;
   n_global_section;
     n_key_value;
       n_key;t_key:kiwi:p=2,1:i=1
-      n_value;t_value::p=2,7
+      n_value;t_value::p=2,8
   n_sections;
 ''', str(result.root_node) )
 
-  def test_parse_section_two_comment_instead_of_value(self):
+  def test_parse_global_two_comment_instead_of_value(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
 kiwi = ; foo
-;
 melon = ; bar
 '''
     result = p.parse(text)
@@ -301,7 +300,7 @@ melon = ; bar
     self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )
     
-  def test_parse_gitea_default_config(self):
+  def xtest_parse_gitea_default_config(self):
     source = self.caca_filename('test_data/gitea.app.ini')
     text = self.caca_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()

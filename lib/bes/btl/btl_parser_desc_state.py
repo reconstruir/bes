@@ -103,7 +103,7 @@ class _state_{self.name}(btl_parser_state_base):
         buf.write_linesep()
     
     buf.write_lines(f'''
-  def handle_token(self, context, token, first_time):
+  def handle_token(self, context, token):
     self.log_handle_token(token)
     new_state_name = None
 ''')

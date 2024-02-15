@@ -299,6 +299,8 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_done', args = {}))
       elif self.char_in(c, 'c_semicolon'):
         new_state_name = 's_comment'
+        tokens.append(self.make_token(context, 't_space', args = {}))
+        context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_comment_begin', args = {}))
         context.buffer_reset()
@@ -604,6 +606,8 @@ states
       emit t_space
       emit t_done
     c_semicolon: s_comment
+      emit t_space
+      buffer reset
       buffer write
       emit t_comment_begin
       buffer reset

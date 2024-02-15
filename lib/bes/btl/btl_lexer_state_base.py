@@ -43,7 +43,7 @@ class btl_lexer_state_base(object):
 
   def log_handle_char(self, context, c):
     attrs = self._make_log_attributes(context, c)
-    self.log_d(f'{self.name}: handle_char: {attrs}')
+    self.log_d(f'lexer: {self.name}: handle_char: {attrs}')
   
   def _make_log_attributes(self, context, c):
     attributes = []

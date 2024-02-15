@@ -9,6 +9,7 @@ from ..text.line_numbers import line_numbers
 
 from .btl_document_position import btl_document_position
 from .btl_lexer_options import btl_lexer_options
+from .btl_lexer_token import btl_lexer_token
 from .btl_point import btl_point
 
 class btl_lexer_context(object):
@@ -97,7 +98,7 @@ class btl_lexer_context(object):
     self._buffer.write(c)
     if len(old_value) == 0:
       self._buffer_start_position = btl_point(*self._position)
-    cs = 'caca' #self._state.char_to_string(c)
+    cs = btl_lexer_token.make_debug_str(c)
     self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 
   def buffer_value(self):

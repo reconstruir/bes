@@ -165,6 +165,8 @@ states
       emit t_space
       emit t_done
     c_semicolon: s_comment
+      emit t_space
+      buffer reset
       buffer write
       emit t_comment_begin
       buffer reset
