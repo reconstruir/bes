@@ -299,6 +299,11 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_space', args = {}))
         tokens.append(self.make_token(context, 't_done', args = {}))
+      elif self.char_in(c, 'c_semicolon'):
+        new_state_name = 's_comment'
+        context.buffer_write(c)
+        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        context.buffer_reset()
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
@@ -600,6 +605,10 @@ states
     c_eos: s_done
       emit t_space
       emit t_done
+    c_semicolon: s_comment
+      buffer write
+      emit t_comment_begin
+      buffer reset
     default: s_done
       error e_unexpected_char
 

@@ -68,7 +68,7 @@ class bc_ini_parser(btl_parser_base):
       if token.name == 't_key_value_delimiter':
         new_state_name = 's_global_expecting_value'
       elif token.name == 't_space':
-        new_state_name = 's_global_expecting_value'
+        new_state_name = 's_global_expecting_delimiter'
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
@@ -110,6 +110,14 @@ class bc_ini_parser(btl_parser_base):
         context.node_creator.add_child('n_global_section', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_global_expecting_value'
+      elif token.name == 't_comment_begin':
+        new_state_name = 's_global_expecting_value'
+        context.node_creator.create('n_value')
+        context.node_creator.set_token_empty_value('n_value', 't_value', context.position)
+        context.node_creator.add_child('n_key_value', 'n_value')
+        context.node_creator.add_child('n_global_section', 'n_key_value')
+      elif token.name == 't_comment':
+        new_state_name = 's_section_after_value'
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
@@ -441,7 +449,7 @@ states
   s_global_expecting_delimiter
     transitions
       t_key_value_delimiter: s_global_expecting_value
-      t_space: s_global_expecting_value
+      t_space: s_global_expecting_delimiter
       default: s_done
         error e_unexpected_token
 
@@ -463,6 +471,12 @@ states
         node add_child n_key_value n_value
         node add_child n_global_section n_key_value
       t_space: s_global_expecting_value
+      t_comment_begin: s_global_expecting_value
+        node create n_value
+        node set_token_empty_value n_value 
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_comment: s_section_after_value
       default: s_done
         error e_unexpected_token
 

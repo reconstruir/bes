@@ -14,7 +14,7 @@ stateDiagram-v2
 
   %% s_global_expecting_delimiter state
   s_global_expecting_delimiter --> s_global_expecting_value: t_key_value_delimiter
-  s_global_expecting_delimiter --> s_global_expecting_value: t_space
+  s_global_expecting_delimiter --> s_global_expecting_delimiter: t_space
   s_global_expecting_delimiter --> s_done: default
 
   %% s_global_expecting_value state
@@ -22,6 +22,8 @@ stateDiagram-v2
   s_global_expecting_value --> s_section_after_value: t_line_break
   s_global_expecting_value --> s_done: t_done
   s_global_expecting_value --> s_global_expecting_value: t_space
+  s_global_expecting_value --> s_global_expecting_value: t_comment_begin
+  s_global_expecting_value --> s_section_after_value: t_comment
   s_global_expecting_value --> s_done: default
 
   %% s_global_after_value state

@@ -32,7 +32,7 @@ states
   s_global_expecting_delimiter
     transitions
       t_key_value_delimiter: s_global_expecting_value
-      t_space: s_global_expecting_value
+      t_space: s_global_expecting_delimiter
       default: s_done
         error e_unexpected_token
 
@@ -54,6 +54,12 @@ states
         node add_child n_key_value n_value
         node add_child n_global_section n_key_value
       t_space: s_global_expecting_value
+      t_comment_begin: s_global_expecting_value
+        node create n_value
+        node set_token_empty_value n_value 
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_comment: s_section_after_value
       default: s_done
         error e_unexpected_token
 
