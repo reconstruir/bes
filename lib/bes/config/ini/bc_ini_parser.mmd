@@ -68,6 +68,8 @@ stateDiagram-v2
   s_section_expecting_value --> s_section_after_value: t_line_break
   s_section_expecting_value --> s_done: t_done
   s_section_expecting_value --> s_section_expecting_value: t_space
+  s_section_expecting_value --> s_section_expecting_value: t_comment_begin
+  s_section_expecting_value --> s_section_after_value: t_comment
   s_section_expecting_value --> s_done: default
 
   %% s_section_after_value state

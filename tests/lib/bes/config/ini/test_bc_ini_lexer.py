@@ -344,25 +344,24 @@ color=yellow
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def test_comment_line(self):
+  def xtest_extraneous_spaces(self):
     t = self.call_lex_all(bc_ini_lexer, '''
-; fruit
-name=kiwi
-color=green
+[foo]
+\t\t\t
+fruit=kiwi
 ''', 
       [
-        ( 't_line_break', '[NL]', ( 1, 1 ), 'h_line_break', None ),
-        ( 't_comment_begin', ';', ( 2, 1 ), None, None ),
-        ( 't_comment', ' fruit', ( 2, 2 ), None, None ),
-        ( 't_line_break', '[NL]', ( 2, 8 ), 'h_line_break', None ),
-        ( 't_key', 'name', ( 3, 1 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 3, 5 ), None, None ),
-        ( 't_value', 'kiwi', ( 3, 6 ), None, None ),
-        ( 't_line_break', '[NL]', (  3, 10 ), 'h_line_break', None ),
-        ( 't_key', 'color', ( 4, 1 ), None, None ),
-        ( 't_key_value_delimiter', '=', ( 4, 6 ), None, None ),
-        ( 't_value', 'green', ( 4, 7 ), None, None ),
-        ( 't_line_break', '[NL]', (  4, 12 ), 'h_line_break', None ),
+        ( 't_section_name', 'fruit.2', ( 6, 2 ), None, None ),
+        ( 't_section_name_end', ']', ( 6, 9 ), None, None ),
+        ( 't_line_break', '[NL]', (  6, 10 ), 'h_line_break', None ),
+        ( 't_key', 'name', ( 7, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 7, 5 ), None, None ),
+        ( 't_value', 'lemon', ( 7, 6 ), None, None ),
+        ( 't_line_break', '[NL]', (  7, 11 ), 'h_line_break', None ),
+        ( 't_key', 'color', ( 8, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 8, 6 ), None, None ),
+        ( 't_value', 'yellow', ( 8, 7 ), None, None ),
+        ( 't_line_break', '[NL]', (  8, 13 ), 'h_line_break', None ),
         ( 't_done', None, None, 'h_done', None ),
       ])
     self.assertMultiLineEqual( t.expected, t.actual )

@@ -271,7 +271,7 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
 
-  def test_parse_command_instead_of_value(self):
+  def test_parse_global_comment_instead_of_value(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
@@ -287,8 +287,21 @@ n_root;
       n_value;t_value::p=2,7
   n_sections;
 ''', str(result.root_node) )
+
+  def test_parse_section_two_comment_instead_of_value(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+kiwi = ; foo
+;
+melon = ; bar
+'''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+''', str(result.root_node) )
     
-  def xtest_caca(self):
+  def test_parse_gitea_default_config(self):
     source = self.caca_filename('test_data/gitea.app.ini')
     text = self.caca_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()
