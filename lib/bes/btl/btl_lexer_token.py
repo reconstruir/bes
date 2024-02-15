@@ -10,6 +10,7 @@ from ..common.tuple_util import tuple_util
 from ..system.check import check
 from ..text.line_numbers import line_numbers
 
+from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
 
 class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type_hint, index')):
@@ -115,21 +116,9 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     debug_token = self.clone(mutations = { 'value': debug_value })
     return str(debug_token)
 
-  _debug_char_map = {
-    '\n': '[NL]',
-    '\r': '[CR]',
-    '\t': '[TAB]',
-    ' ': '[SP]',
-    '\0': '[EOS]',
-  }
   @classmethod
   def make_debug_str(clazz, s):
-    if s == None:
-      return None
-    result = []
-    for c in s:
-      result.append(clazz._debug_char_map.get(c, c))
-    return ''.join(result)
+    return btl_debug.make_debug_str(s)
   
   @classmethod
   def _check_cast_func(clazz, obj):
