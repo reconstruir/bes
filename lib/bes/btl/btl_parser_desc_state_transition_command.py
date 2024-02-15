@@ -33,6 +33,8 @@ class btl_parser_desc_state_transition_command(btl_desc_command):
       buf.write_line(f'context.node_creator.create_root()')
     elif action == 'set_token':
       buf.write_line(f'context.node_creator.set_token({flat_args}, token)')
+    elif action == 'set_token_empty_value':
+      buf.write_line(f'context.node_creator.set_token_empty_value({flat_args}, \'t_value\', context.position)')
     elif action == 'add_child':
       buf.write_line(f'context.node_creator.add_child({flat_args})')
     elif action == 'add_child_if_it_exists':

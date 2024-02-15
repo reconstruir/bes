@@ -90,7 +90,7 @@ name=apple
 color=red
 '''
     result = p.parse(text)
-    print(str(result.root_node))
+    #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
 n_root;
   n_global_section;
@@ -117,7 +117,7 @@ name=vieux
 smell=stink
 '''
     result = p.parse(text)
-    print(str(result.root_node))
+    #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
 n_root;
   n_global_section;
@@ -177,7 +177,7 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
 
-  def test_parse_key_only(self):
+  def test_parse_key_only_ends_in_line_break(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
@@ -185,8 +185,33 @@ n_root;
 name=
 '''
     result = p.parse(text)
-    print(str(result.root_node))
+    #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,2:i=2
+      n_key_value;
+        n_key;t_key:name:p=3,1:i=5
+        n_value;t_value::p=3,6
+''', str(result.root_node) )
+
+  def test_parse_key_only_ends_in_eos(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+[fruit]
+name='''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,2:i=2
+      n_key_value;
+        n_key;t_key:name:p=3,1:i=5
+        n_value;t_value::p=3,6
 ''', str(result.root_node) )
     
 if __name__ == '__main__':

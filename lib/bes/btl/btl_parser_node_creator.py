@@ -73,6 +73,16 @@ class btl_parser_node_creator(object):
     node = self._nodes[node_name]
     node.token = token.clone()
 
+  def set_token_empty_value(self, node_name, token_name, position):
+    check.check_string(node_name)
+    check.check_string(token_name)
+    position = check.check_btl_document_position(position)
+
+    self.log_d(f'node set_token_empty_value {node_name}')
+    self.check_has_node(node_name)
+    node = self._nodes[node_name]
+    node.token = btl_lexer_token(token_name, value = None, position = position)
+    
   def add_child(self, node_name, child_node_name):
     check.check_string(node_name)
     check.check_string(child_node_name)

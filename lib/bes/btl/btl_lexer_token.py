@@ -144,12 +144,14 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
 
     NUM_CONTEXT_LINES = 5
 
+    position = self.position or btl_document_position(666, 666)
+    
     numbered_text = line_numbers.add_line_numbers(text, delimiter = '|')
     delim_col = numbered_text.find('|')
     lines = numbered_text.splitlines()
-    top = lines[0:self.position.line][-NUM_CONTEXT_LINES:]
-    bottom = lines[self.position.line:][0:NUM_CONTEXT_LINES]
-    indent = ' ' * (self.position.column + delim_col)
+    top = lines[0:position.line][-NUM_CONTEXT_LINES:]
+    bottom = lines[position.line:][0:NUM_CONTEXT_LINES]
+    indent = ' ' * (position.column + delim_col)
     marker = f'{indent}^^^ {message}'
     error_lines = top + [ marker ] + bottom
     return os.linesep.join(error_lines).rstrip()

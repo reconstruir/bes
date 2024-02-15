@@ -32,11 +32,24 @@ class test_btl_parser_node_creator(unit_test):
     nc.add_child('n_root', 'n_kv')
 
     n = nc.get_root_node()
-    self.assert_string_equal_fuzzy( '''
+    self.assert_python_code_text_equal( '''
 n_root;
   n_kv;
     n_key;t_key:color:p=1,1
     n_value;t_value:red:p=1,1
+''', str(n) )
+
+  def test_set_token_empty_value(self):
+    nc = btl_parser_node_creator('_test')
+    nc.create_root()
+    nc.create('n_key')
+    nc.set_token_empty_value('n_key', 't_key', ( 42, 42 ))
+    nc.add_child('n_root', 'n_key')
+
+    n = nc.get_root_node()
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_key;t_key::p=42,42
 ''', str(n) )
     
 if __name__ == '__main__':

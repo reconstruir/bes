@@ -6,6 +6,7 @@ from ..system.log import log
 from ..system.check import check
 
 from .btl_parser_node_creator import btl_parser_node_creator
+from .btl_document_position import btl_document_position
 
 class btl_parser_context(object):
 
@@ -15,6 +16,7 @@ class btl_parser_context(object):
     check.check_string(text)
     check.check_string(source, allow_none = True)
     
+    self._position = None
     self._parser = parser
     self._text = text
     self._source = source or '<unknown>'
@@ -40,5 +42,13 @@ class btl_parser_context(object):
   @property
   def source(self):
     return self._source
+
+  @property
+  def position(self):
+    return self._position
+
+  @position.setter
+  def position(self, position):
+    self._position = check.check_btl_document_position(position)
   
 check.register_class(btl_parser_context, include_seq = False)

@@ -31,11 +31,12 @@ taste=awesome
 name=syrah
 taste=earthy
 '''
-    token = btl_lexer_token('t_fruit', 'kiwi', ( 9, 6 ))
+    position = ( 9, 6 )
+    token = btl_lexer_token('t_fruit', 'kiwi', position)
     lexer = _test_simple_lexer()
     parser = _test_simple_parser(lexer)
     context = btl_parser_context(parser, 'tag', text, '<unit_test>')
-
+    context.position = position
     class _text_runtime_error(btl_parser_runtime_error):
       pass
     

@@ -5,6 +5,7 @@ from collections import namedtuple
 from ..system.log import log
 from ..system.check import check
 
+from .btl_document_position import btl_document_position
 from .btl_lexer_token_deque import btl_lexer_token_deque
 from .btl_lexer_token_lines import btl_lexer_token_lines
 from .btl_parser_context import btl_parser_context
@@ -81,7 +82,8 @@ class btl_parser_base(object):
     context.state.enter_state(context)
     
     tokens = btl_lexer_token_deque()
-    first_time_set = set()    
+    first_time_set = set()
+    last_position = btl_document_position(1, 1)
     for index, token in enumerate(self._lexer.lex_generator(text)):
       token_with_index = token.clone_replace_index(index)
       ts = token_with_index.to_debug_str()
@@ -89,9 +91,12 @@ class btl_parser_base(object):
       first_time = old_state_name not in first_time_set
       first_time_set.add(old_state_name)
       self.log_d(f'parser: loop: token={ts} old_state_name={old_state_name} first_time={first_time}')
+      context.position = last_position.advanced(' ')
       new_state_name = context.state.handle_token(context, token_with_index, first_time)
       self._change_state(context, new_state_name, token_with_index)
       tokens.append(token_with_index)
+      if token_with_index.name != 't_eos':
+        last_position = token_with_index.position
 
     if context.state != self.end_state:
       raise btl_parser_error(f'The end state is incorrectly "{context.state.name}" instead of "{self.end_state.name}"')
