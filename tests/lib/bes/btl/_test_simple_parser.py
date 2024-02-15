@@ -9,8 +9,7 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
 class _test_simple_parser(btl_parser_base):
 
   class e_unexpected_token(btl_parser_runtime_error):
-    def __init__(self, message = None):
-      super().__init__(message = message)
+    pass
 
   
   class _state_s_start(btl_parser_state_base):
@@ -43,10 +42,8 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_start'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        print("fix my arm")
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -70,10 +67,8 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_expecting_delimiter'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        print("fix my arm")
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -101,10 +96,8 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_expecting_value'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        print("fix my arm")
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   
@@ -132,10 +125,8 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_start'
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        msg = f'In state "{state_name}" unexpected token: "{token}"'
-        print("fix my arm")
-        raise self.parser.e_unexpected_token(message = msg)
+        message = f'In state "{state_name}" unexpected token: "{token}"'
+        raise self.parser.e_unexpected_token(token, context, message)
       
       return new_state_name
   

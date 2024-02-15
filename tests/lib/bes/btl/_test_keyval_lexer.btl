@@ -20,7 +20,7 @@ tokens
   t_value
 
 errors
-  e_unexpected_char: In state "{state_name}" unexpected character: "{char}"
+  e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
 
 chars
   c_keyval_key_first: c_underscore | c_alpha

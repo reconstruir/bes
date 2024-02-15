@@ -191,7 +191,7 @@ parser
   end_state: s_done
 
 errors
-  e_unexpected_token: In state "{state_name}" unexpected token: "{token}"
+  e_unexpected_token: In state "{self.name}" unexpected token: "{token.name}"
 
 #  t_done
 #    type_hint: h_done
