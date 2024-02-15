@@ -177,7 +177,7 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
 
-  def test_parse_key_only_ends_in_line_break(self):
+  def test_parse_section_key_only_ends_in_line_break(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
@@ -196,7 +196,7 @@ n_root;
         n_value;t_value::p=3,6
 ''', str(result.root_node) )
 
-  def test_parse_key_only_ends_in_eos(self):
+  def test_parse_section_key_only_ends_in_eos(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
@@ -212,6 +212,39 @@ n_root;
       n_key_value;
         n_key;t_key:name:p=3,1:i=5
         n_value;t_value::p=3,6
+''', str(result.root_node) )
+
+  def test_parse_global_key_only_ends_in_line_break(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+name=
+'''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:name:p=2,1:i=1
+      n_value;t_value::p=2,6
+  n_sections;    
+''', str(result.root_node) )
+
+  def test_parse_global_key_only_ends_in_eos(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+name='''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:name:p=2,1:i=1
+      n_value;t_value::p=2,6
+  n_sections;    
 ''', str(result.root_node) )
     
 if __name__ == '__main__':

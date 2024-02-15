@@ -94,6 +94,18 @@ class bc_ini_parser(btl_parser_base):
         context.node_creator.set_token('n_value', token)
         context.node_creator.add_child('n_key_value', 'n_value')
         context.node_creator.add_child('n_global_section', 'n_key_value')
+      elif token.name == 't_line_break':
+        new_state_name = 's_section_after_value'
+        context.node_creator.create('n_value')
+        context.node_creator.set_token_empty_value('n_value', 't_value', context.position)
+        context.node_creator.add_child('n_key_value', 'n_value')
+        context.node_creator.add_child('n_global_section', 'n_key_value')
+      elif token.name == 't_done':
+        new_state_name = 's_done'
+        context.node_creator.create('n_value')
+        context.node_creator.set_token_empty_value('n_value', 't_value', context.position)
+        context.node_creator.add_child('n_key_value', 'n_value')
+        context.node_creator.add_child('n_global_section', 'n_key_value')
       elif token.name == 't_space':
         new_state_name = 's_global_expecting_value'
       else:
@@ -433,6 +445,16 @@ states
       t_value: s_global_after_value
         node create n_value
         node set_token n_value
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_line_break: s_section_after_value
+        node create n_value
+        node set_token_empty_value n_value 
+        node add_child n_key_value n_value
+        node add_child n_global_section n_key_value
+      t_done: s_done
+        node create n_value
+        node set_token_empty_value n_value 
         node add_child n_key_value n_value
         node add_child n_global_section n_key_value
       t_space: s_global_expecting_value

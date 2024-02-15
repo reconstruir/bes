@@ -18,6 +18,8 @@ stateDiagram-v2
 
   %% s_global_expecting_value state
   s_global_expecting_value --> s_global_after_value: t_value
+  s_global_expecting_value --> s_section_after_value: t_line_break
+  s_global_expecting_value --> s_done: t_done
   s_global_expecting_value --> s_global_expecting_value: t_space
   s_global_expecting_value --> s_done: default
 
