@@ -43,7 +43,7 @@ states
         node set_token n_value
         node add_child n_key_value n_value
         node add_child n_global_section n_key_value
-      t_line_break: s_section_after_value
+      t_line_break: s_global_after_value
         node create n_value
         node set_token_empty_value n_value 
         node add_child n_key_value n_value
@@ -67,6 +67,7 @@ states
     transitions
       t_done: s_done
       t_space: s_global_after_value
+      t_comment_begin: s_global_after_value
       t_comment: s_global_after_value
       t_line_break: s_global_start
       default: s_done
@@ -150,6 +151,7 @@ states
     transitions
       t_done: s_done
       t_space: s_section_after_value
+      t_comment_begin: s_section_after_value
       t_comment: s_section_after_value
       t_line_break: s_section_expecting_key
       default: s_done

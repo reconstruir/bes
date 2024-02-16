@@ -288,6 +288,26 @@ n_root;
   n_sections;
 ''', str(result.root_node) )
 
+
+
+  def test_parse_double_comment(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+a =
+;;
+'''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:a:p=2,1:i=1
+      n_value;t_value::p=2,4
+  n_sections;    
+''', str(result.root_node) )
+
   def test_parse_global_two_comment_instead_of_value(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
@@ -309,7 +329,7 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
     
-  def xtest_parse_gitea_default_config(self):
+  def test_parse_gitea_default_config(self):
     source = self.caca_filename('test_data/gitea.app.ini')
     text = self.caca_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()
@@ -317,6 +337,53 @@ n_root;
     result = p.parse(text, source = source)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:APP_NAME:p=44,1:i=123
+      n_value;t_value::p=44,12
+    n_key_value;
+      n_key;t_key:RUN_USER:p=47,1:i=136
+      n_value;t_value::p=47,12
+  n_sections;
+    n_section;t_section_name:server:p=58,2:i=172
+    n_section;t_section_name:database:p=337,2:i=1008
+      n_key_value;
+        n_key;t_key:DB_TYPE:p=347,1:i=1038
+        n_value;t_value:mysql:p=347,11:i=1042
+      n_key_value;
+        n_key;t_key:HOST:p=348,1:i=1044
+        n_value;t_value:127.0.0.1:3306 ; can use socket e.g. /var/run/mysqld/mysqld.sock:p=348,8:i=1048
+      n_key_value;
+        n_key;t_key:NAME:p=349,1:i=1050
+        n_value;t_value:gitea:p=349,8:i=1054
+      n_key_value;
+        n_key;t_key:USER:p=350,1:i=1056
+        n_value;t_value:root:p=350,8:i=1060
+    n_section;t_section_name:security:p=415,2:i=1253
+      n_key_value;
+        n_key;t_key:INSTALL_LOCK:p=420,1:i=1268
+        n_value;t_value:false:p=420,16:i=1272
+      n_key_value;
+        n_key;t_key:SECRET_KEY:p=424,1:i=1283
+        n_value;t_value::p=424,13
+      n_key_value;
+        n_key;t_key:INTERNAL_TOKEN:p=431,1:i=1305
+        n_value;t_value::p=431,16
+    n_section;t_section_name:camo:p=497,2:i=1502
+    n_section;t_section_name:oauth2:p=514,2:i=1552
+      n_key_value;
+        n_key;t_key:ENABLE:p=519,1:i=1567
+        n_value;t_value:true:p=519,10:i=1571
+    n_section;t_section_name:log:p=555,2:i=1677
+      n_key_value;
+        n_key;t_key:MODE:p=566,1:i=1710
+        n_value;t_value:console:p=566,8:i=1714
+      n_key_value;
+        n_key;t_key:LEVEL:p=569,1:i=1722
+        n_value;t_value:Info:p=569,9:i=1726
+    n_section;t_section_name:git:p=651,2:i=1968
+    n_section;t_section_name:service:p=717,2:i=2161    
 ''', str(result.root_node) )
     
 if __name__ == '__main__':

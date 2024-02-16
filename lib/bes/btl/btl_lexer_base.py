@@ -78,7 +78,8 @@ class btl_lexer_base(object):
       raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
     
     context = btl_lexer_context(self, self._log_tag, text, source, options)
-    self.log_i(f' lexer: run: source={context.source} options={context.options} text=\"{text}\"')
+    self.log_i(f' lexer: run: source={context.source} options={context.options}')
+    self.log_d(f' lexer: run: text=\"{text}\"')
 
     for c in self._chars_plus_eos(text):
       old_position = context.position.clone()

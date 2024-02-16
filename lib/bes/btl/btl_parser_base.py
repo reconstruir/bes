@@ -75,7 +75,8 @@ class btl_parser_base(object):
     check.check_string(text)
     check.check_string(source, allow_none = True)
     
-    self.log_i(f'parser: parse: text=\"{text}\"')
+    self.log_i(f'parser: parse: source=\"{source}\"')
+    self.log_d(f'parser: parse: text=\"{text}\"')
 
     context = btl_parser_context(self, self._log_tag, text, source)
     self.do_start_commands(context)

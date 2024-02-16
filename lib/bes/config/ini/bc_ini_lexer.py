@@ -468,8 +468,8 @@ errors
   e_unexpected_eos: In state "{self.name}" unexpected end-of-string
 
 chars
-  c_keyval_key_first: c_underscore | c_alpha
-  c_keyval_key: c_keyval_key_first | c_numeric
+  c_keyval_key_first: c_underscore | c_alpha | c_numeric
+  c_keyval_key: c_keyval_key_first # | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
 
 states
