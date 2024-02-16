@@ -65,7 +65,7 @@ class btl_lexer_base(object):
       return
     attrs = new_state._make_log_attributes(context, c)
     max_length = self._max_state_name_length
-    msg = f'lexer: transition: {context.state.name} -> {new_state.name} {attrs}'
+    msg = f' lexer: transition: {context.state.name} -> {new_state.name} {attrs}'
     self.log_i(msg)
     context.state = new_state
 
@@ -78,19 +78,19 @@ class btl_lexer_base(object):
       raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
     
     context = btl_lexer_context(self, self._log_tag, text, source, options)
-    self.log_i(f'lexer: run: source={context.source} options={context.options} text=\"{text}\"')
+    self.log_i(f' lexer: run: source={context.source} options={context.options} text=\"{text}\"')
 
     for c in self._chars_plus_eos(text):
       old_position = context.position.clone()
       context.advance_position(c)
       attrs = context.state._make_log_attributes(context, c)
-      self.log_i(f'lexer: loop: {attrs} old_position={old_position} new_position={context.position}')
+      self.log_i(f' lexer: loop: {attrs} old_position={old_position} new_position={context.position}')
       old_state_name = context.state.name
       handle_char_result = context.state.handle_char(context, c)
       new_state_name = handle_char_result.new_state_name
       self._change_state(context, new_state_name, c)
       for token in handle_char_result.tokens:
-        self.log_i(f'lexer: run: new token in state {old_state_name}: {token.to_debug_str()}')
+        self.log_i(f' lexer: run: new token in state {old_state_name}: {token.to_debug_str()}')
         yield token
       context.last_char = c
 

@@ -298,6 +298,15 @@ melon = ; bar
     result = p.parse(text)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:kiwi:p=2,1:i=1
+      n_value;t_value::p=2,8
+    n_key_value;
+      n_key;t_key:melon:p=3,1:i=8
+      n_value;t_value::p=3,9
+  n_sections;    
 ''', str(result.root_node) )
     
   def xtest_parse_gitea_default_config(self):
