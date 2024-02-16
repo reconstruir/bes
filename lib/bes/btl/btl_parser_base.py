@@ -5,6 +5,7 @@ from collections import namedtuple
 from ..system.log import log
 from ..system.check import check
 
+from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
 from .btl_lexer_token_deque import btl_lexer_token_deque
 from .btl_lexer_token_lines import btl_lexer_token_lines
@@ -61,10 +62,9 @@ class btl_parser_base(object):
     new_state = self._find_state(new_state_name)
     if new_state == context.state:
       return
-    attrs = 'attrs' #new_state._make_log_attributes(c)
     max_length = self._max_state_name_length
-    msg = f'parser: transition: {context.state.name} -> {new_state.name} {attrs}'
-    self.log_d(msg)
+    msg = f'parser: transition: {context.state.name} -> {new_state.name} token={token.to_debug_str()}'
+    self.log_i(msg)
     if context.state != None:
       context.state.leave_state(context)
     context.state = new_state
@@ -75,7 +75,7 @@ class btl_parser_base(object):
     check.check_string(text)
     check.check_string(source, allow_none = True)
     
-    self.log_d(f'parser: parse: text=\"{text}\"')
+    self.log_i(f'parser: parse: text=\"{text}\"')
 
     context = btl_parser_context(self, self._log_tag, text, source)
     self.do_start_commands(context)
@@ -87,7 +87,7 @@ class btl_parser_base(object):
       token_with_index = token.clone_replace_index(index)
       ts = token_with_index.to_debug_str()
       old_state_name = context.state.name
-      self.log_d(f'parser: loop: token={ts} old_state_name={old_state_name}')
+      self.log_i(f'parser: loop: token={ts} old_state_name={old_state_name}')
       context.position = last_position.advanced(' ')
       new_state_name = context.state.handle_token(context, token_with_index)
       self._change_state(context, new_state_name, token_with_index)

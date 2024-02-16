@@ -7,6 +7,7 @@ from ..system.check import check
 from ..system.log import log
 from ..text.line_numbers import line_numbers
 
+from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
 from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_token import btl_lexer_token
@@ -81,22 +82,22 @@ class btl_lexer_context(object):
     
   def buffer_reset(self):
     old_buffer_position = btl_document_position(*self._buffer_start_position) if self._buffer_start_position != None else 'None'
-    old_buffer_value = self.buffer_value()
+    old_buffer_value = btl_debug.make_debug_str(self.buffer_value())
     self._buffer = io.StringIO()
     if self._buffer_start_position == None:
       self._buffer_start_position = btl_document_position(1, 1)
     else:
       self._buffer_start_position = btl_document_position(*self._position)
-    self.log_d(f'lexer: buffer_reset: old_value="{old_buffer_value}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
+    self.log_d(f'lexer: buffer_reset: old_buffer_value="{old_buffer_value}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
 
   def buffer_write(self, c):
     check.check_string(c)
     
     old_buffer_position = btl_document_position(*self._buffer_start_position)
-    old_value = self.buffer_value()
+    old_buffer_value = btl_debug.make_debug_str(self.buffer_value())
     assert c != '\0'
     self._buffer.write(c)
-    if len(old_value) == 0:
+    if len(old_buffer_value) == 0:
       self._buffer_start_position = btl_point(*self._position)
     cs = btl_lexer_token.make_debug_str(c)
     self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    

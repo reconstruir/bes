@@ -275,7 +275,7 @@ n_root;
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     text = '''
-kiwi = ; foo    
+kiwi = ; foo
 '''
     result = p.parse(text)
     #print(str(result.root_node))

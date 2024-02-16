@@ -117,7 +117,7 @@ class bc_ini_parser(btl_parser_base):
         context.node_creator.add_child('n_key_value', 'n_value')
         context.node_creator.add_child('n_global_section', 'n_key_value')
       elif token.name == 't_comment':
-        new_state_name = 's_section_after_value'
+        new_state_name = 's_global_expecting_value'
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
@@ -484,7 +484,7 @@ states
         node set_token_empty_value n_value 
         node add_child n_key_value n_value
         node add_child n_global_section n_key_value
-      t_comment: s_section_after_value
+      t_comment: s_global_expecting_value
       default: s_done
         error e_unexpected_token
 

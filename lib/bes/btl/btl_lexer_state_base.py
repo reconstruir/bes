@@ -33,7 +33,6 @@ class btl_lexer_state_base(object):
     chars = self._lexer.desc.char_map[char_name].chars
     r = c in chars
     cs = self.char_to_string(c)
-    #print(f'checking if char "{cs}" is in "{chars}" => {r}')
     return c in self._lexer.desc.char_map[char_name].chars
 
   _handle_char_result = namedtuple('_handle_char_result', 'new_state_name, tokens')
@@ -62,13 +61,3 @@ class btl_lexer_state_base(object):
 
   def make_token(self, context, name, args = None):
     return self._lexer.make_token(context, name, args = args)
-  
-#  def buffer_reset(self, context):
-#    context.buffer_reset()
-#
-#  def buffer_write(self, context, c):
-#    context.buffer_write(c)
-#
-#  def buffer_value(self):
-#    return self._lexer.buffer_value()
-
