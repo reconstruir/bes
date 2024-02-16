@@ -329,7 +329,7 @@ n_root;
   n_sections;    
 ''', str(result.root_node) )
     
-  def test_parse_gitea_default_config(self):
+  def test_parse_example_gitea(self):
     source = self.caca_filename('test_data/gitea.app.ini')
     text = self.caca_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()
@@ -384,6 +384,16 @@ n_root;
         n_value;t_value:Info:p=569,9:i=1726
     n_section;t_section_name:git:p=651,2:i=1968
     n_section;t_section_name:service:p=717,2:i=2161    
+''', str(result.root_node) )
+
+  def xtest_parse_example_business_objects(self):
+    source = self.caca_filename('test_data/business_objects.ini')
+    text = self.caca_text('test_data/business_objects.ini')
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse(text, source = source)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )
     
 if __name__ == '__main__':
