@@ -10,6 +10,8 @@ from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
 
 from .btl_code_gen_buffer import btl_code_gen_buffer
+from .btl_desc_text_node import btl_desc_text_node
+from .btl_error import btl_error
 from .btl_lexer_desc_char import btl_lexer_desc_char
 from .btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
@@ -17,7 +19,6 @@ from .btl_lexer_desc_header import btl_lexer_desc_header
 from .btl_lexer_desc_mermaid import btl_lexer_desc_mermaid
 from .btl_lexer_desc_state_list import btl_lexer_desc_state_list
 from .btl_lexer_desc_token_list import btl_lexer_desc_token_list
-from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
 class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_map, states, source_text')):
@@ -62,7 +63,10 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
     check.check_string(text)
     check.check_string(source)
 
-    root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_lexer_desc')
+    root = tree_text_parser.parse(text,
+                                  strip_comments = True,
+                                  root_name = 'btl_lexer_desc',
+                                  node_class = btl_desc_text_node)
 
     lexer_node = btl_parsing.find_tree_section(root, 'lexer', source)
     header = btl_lexer_desc_header.parse_node(lexer_node, source)

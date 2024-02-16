@@ -9,7 +9,7 @@ class line_numbers(object):
       
   @classmethod
   def add_line_numbers(clazz, text, delimiter = '|'):
-    lines = text.splitlines()
+    lines = text.splitlines(keepends = False)
     width = math.trunc(math.log10(len(lines)) + 1)
     fmt  = '%%%dd' % (width)
     buf = StringIO()

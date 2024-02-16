@@ -22,11 +22,12 @@ class text_traversal(IntEnum):
 class tree_text_parser(object):
 
   @classmethod
-  def parse(clazz, text, strip_comments = False, root_name = 'root'):
-    result = _text_node(_text_node_data(root_name, 0))
+  def parse(clazz, text, strip_comments = False, root_name = 'root', node_class = None):
+    node_class = node_class or _text_node
+    result = node_class(_text_node_data(root_name, 0))
     if not text:
       return result
-    result.child_class = _text_node
+    result.child_class = node_class
     st = _text_stack()
     current_indent_length = None
     text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
@@ -53,10 +54,6 @@ class tree_text_parser(object):
       return literals[text].text
     return text
   
-  @classmethod
-  def make_node(clazz, text, line_number):
-    return _text_node(_text_node_data(text, line_number))
-
   _literal = namedtuple('_literal', 'id, text, line_number')
   @classmethod
   def _fold_literals(clazz, parser):

@@ -10,6 +10,7 @@ from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
 
 from .btl_code_gen_buffer import btl_code_gen_buffer
+from .btl_desc_text_node import btl_desc_text_node
 from .btl_error import btl_error
 from .btl_parser_desc_char import btl_parser_desc_char
 from .btl_parser_desc_error_list import btl_parser_desc_error_list
@@ -64,7 +65,10 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
     check.check_string(text)
     check.check_string(source)
 
-    root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_parser_desc')
+    root = tree_text_parser.parse(text,
+                                  strip_comments = True,
+                                  root_name = 'btl_parser_desc',
+                                  node_class = btl_desc_text_node)
 
     parser_node = btl_parsing.find_tree_section(root, 'parser', source)
     header = btl_parser_desc_header.parse_node(parser_node, source)
