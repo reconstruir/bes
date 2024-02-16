@@ -395,6 +395,16 @@ n_root;
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )
+
+  def xtest_parse_example1(self):
+    source = self.caca_filename('test_data/example1.ini')
+    text = self.caca_text('test_data/example1.ini')
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    result = p.parse(text, source = source)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+''', str(result.root_node) )
     
 if __name__ == '__main__':
   unit_test.main()

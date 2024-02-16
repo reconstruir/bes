@@ -46,7 +46,7 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_eos'):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done', args = {}))
-      elif self.char_in(c, 'c_semicolon'):
+      elif self.char_in(c, 'c_comment_begin'):
         new_state_name = 's_comment'
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_comment_begin', args = {}))
@@ -146,7 +146,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state_name = 's_after_section_name_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_semicolon'):
+      elif self.char_in(c, 'c_comment_begin'):
         new_state_name = 's_comment'
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_comment_begin', args = {}))
@@ -181,7 +181,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state_name = 's_after_section_name_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_semicolon'):
+      elif self.char_in(c, 'c_comment_begin'):
         new_state_name = 's_comment'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
@@ -251,7 +251,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws'):
         new_state_name = 's_after_key_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal'):
+      elif self.char_in(c, 'c_key_value_delimiter'):
         new_state_name = 's_expecting_value'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
@@ -297,7 +297,7 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_space', args = {}))
         tokens.append(self.make_token(context, 't_done', args = {}))
-      elif self.char_in(c, 'c_semicolon'):
+      elif self.char_in(c, 'c_comment_begin'):
         new_state_name = 's_comment'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
@@ -356,7 +356,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_keyval_key'):
         new_state_name = 's_key'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal'):
+      elif self.char_in(c, 'c_key_value_delimiter'):
         new_state_name = 's_expecting_value'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
@@ -467,10 +467,29 @@ errors
   e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
   e_unexpected_eos: In state "{self.name}" unexpected end-of-string
 
+variables
+  v_comment_begin: ;
+  v_key_value_delimiter: =
+  
 chars
   c_keyval_key_first: c_underscore | c_alpha | c_numeric
   c_keyval_key: c_keyval_key_first # | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
+  c_comment_begin: c_semicolon
+  c_key_value_delimiter: c_equal
+  
+#  c_comment_begin: ${v_comment_begin}
+#  c_key_value_delimiter: ${v_key_value_delimiter}
+
+functions
+
+  handle_comment_begin
+    body
+      emit t_space
+      buffer reset
+      buffer write
+      emit t_comment_begin
+      buffer reset
 
 states
 
@@ -479,7 +498,7 @@ states
       buffer write
     c_eos: s_done
       emit t_done
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       buffer write
       emit t_comment_begin
       buffer reset
@@ -527,7 +546,7 @@ states
   s_after_section_name
     c_ws: s_after_section_name_space
       buffer write
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       buffer write
       emit t_comment_begin
       buffer reset
@@ -544,7 +563,7 @@ states
   s_after_section_name_space
     c_ws: s_after_section_name_space
       buffer write
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       emit t_space
       buffer reset
       buffer write
@@ -579,7 +598,7 @@ states
   s_after_key_space
     c_ws: s_after_key_space
       buffer write
-    c_equal: s_expecting_value
+    c_key_value_delimiter: s_expecting_value
       emit t_space
       buffer reset
       buffer write
@@ -605,7 +624,7 @@ states
     c_eos: s_done
       emit t_space
       emit t_done
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       emit t_space
       buffer reset
       buffer write
@@ -630,7 +649,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_expecting_value
+    c_key_value_delimiter: s_expecting_value
       emit t_key
       buffer reset
       buffer write

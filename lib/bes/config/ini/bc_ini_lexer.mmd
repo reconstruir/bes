@@ -5,7 +5,7 @@ stateDiagram-v2
   [*] --> s_start
   s_start --> s_key: c_keyval_key_first
   s_start --> s_done: c_eos
-  s_start --> s_comment: c_semicolon
+  s_start --> s_comment: c_comment_begin
   s_start --> s_before_key_space: c_ws
   s_start --> s_start: c_line_break
   s_start --> s_section_name: c_open_bracket
@@ -24,14 +24,14 @@ stateDiagram-v2
 
   %% s_after_section_name state
   s_after_section_name --> s_after_section_name_space: c_ws
-  s_after_section_name --> s_comment: c_semicolon
+  s_after_section_name --> s_comment: c_comment_begin
   s_after_section_name --> s_start: c_line_break
   s_after_section_name --> s_done: c_eos
   s_after_section_name --> s_done: default
 
   %% s_after_section_name_space state
   s_after_section_name_space --> s_after_section_name_space: c_ws
-  s_after_section_name_space --> s_comment: c_semicolon
+  s_after_section_name_space --> s_comment: c_comment_begin
   s_after_section_name_space --> s_start: c_line_break
   s_after_section_name_space --> s_done: c_eos
   s_after_section_name_space --> s_done: default
@@ -44,7 +44,7 @@ stateDiagram-v2
 
   %% s_after_key_space state
   s_after_key_space --> s_after_key_space: c_ws
-  s_after_key_space --> s_expecting_value: c_equal
+  s_after_key_space --> s_expecting_value: c_key_value_delimiter
   s_after_key_space --> s_done: c_eos
   s_after_key_space --> s_done: default
 
@@ -53,7 +53,7 @@ stateDiagram-v2
   s_before_value_space --> s_start: c_line_break
   s_before_value_space --> s_value: c_keyval_key_first
   s_before_value_space --> s_done: c_eos
-  s_before_value_space --> s_comment: c_semicolon
+  s_before_value_space --> s_comment: c_comment_begin
   s_before_value_space --> s_done: default
 
   %% s_expecting_value state
@@ -65,7 +65,7 @@ stateDiagram-v2
 
   %% s_key state
   s_key --> s_key: c_keyval_key
-  s_key --> s_expecting_value: c_equal
+  s_key --> s_expecting_value: c_key_value_delimiter
   s_key --> s_done: c_eos
   s_key --> s_after_key_space: c_ws
 

@@ -10,6 +10,26 @@ parser
 errors
   e_unexpected_token: In state "{self.name}" unexpected token: "{token.name}"
 
+functions
+
+  create_value_node_empty_token
+    args
+      section
+    body
+      node create n_value
+      node set_token_empty_value n_value
+      node add_child n_key_value n_value
+      node add_child ${section} n_key_value
+      
+  create_value_node
+    args
+      section
+    body
+      node create n_value
+      node set_token n_value
+      node add_child n_key_value n_value
+      node add_child ${section} n_key_value
+
 states
 
   s_global_start

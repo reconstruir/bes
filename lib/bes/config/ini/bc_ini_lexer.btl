@@ -26,10 +26,29 @@ errors
   e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
   e_unexpected_eos: In state "{self.name}" unexpected end-of-string
 
+variables
+  v_comment_begin: ;
+  v_key_value_delimiter: =
+  
 chars
   c_keyval_key_first: c_underscore | c_alpha | c_numeric
   c_keyval_key: c_keyval_key_first # | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
+  c_comment_begin: c_semicolon
+  c_key_value_delimiter: c_equal
+  
+#  c_comment_begin: ${v_comment_begin}
+#  c_key_value_delimiter: ${v_key_value_delimiter}
+
+functions
+
+  handle_comment_begin
+    body
+      emit t_space
+      buffer reset
+      buffer write
+      emit t_comment_begin
+      buffer reset
 
 states
 
@@ -38,7 +57,7 @@ states
       buffer write
     c_eos: s_done
       emit t_done
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       buffer write
       emit t_comment_begin
       buffer reset
@@ -86,7 +105,7 @@ states
   s_after_section_name
     c_ws: s_after_section_name_space
       buffer write
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       buffer write
       emit t_comment_begin
       buffer reset
@@ -103,7 +122,7 @@ states
   s_after_section_name_space
     c_ws: s_after_section_name_space
       buffer write
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       emit t_space
       buffer reset
       buffer write
@@ -138,7 +157,7 @@ states
   s_after_key_space
     c_ws: s_after_key_space
       buffer write
-    c_equal: s_expecting_value
+    c_key_value_delimiter: s_expecting_value
       emit t_space
       buffer reset
       buffer write
@@ -164,7 +183,7 @@ states
     c_eos: s_done
       emit t_space
       emit t_done
-    c_semicolon: s_comment
+    c_comment_begin: s_comment
       emit t_space
       buffer reset
       buffer write
@@ -189,7 +208,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_expecting_value
+    c_key_value_delimiter: s_expecting_value
       emit t_key
       buffer reset
       buffer write
