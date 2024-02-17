@@ -70,22 +70,22 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
                                   root_name = 'btl_parser_desc',
                                   node_class = btl_desc_text_node)
 
-    parser_node = btl_parsing.find_tree_section(root, 'parser', source)
+    parser_node = root.find_tree_section('parser', source)
     header = btl_parser_desc_header.parse_node(parser_node, source)
     #print(header)
 
-    errors_node = btl_parsing.find_tree_section(root, 'errors', source, raise_error = False)
+    errors_node = root.find_tree_section('errors', source, raise_error = False)
     errors = btl_parser_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
-    states_node = btl_parsing.find_tree_section(root, 'states', source, raise_error = False)
+    states_node = root.find_tree_section('states', source, raise_error = False)
     states = btl_parser_desc_state_list.parse_node(states_node, source)
     #print(states)
 
-    start_commands_node = btl_parsing.find_tree_section(root, 'start_commands', source, raise_error = False)
+    start_commands_node = root.find_tree_section('start_commands', source, raise_error = False)
     start_commands = btl_parser_desc_state_command_list.parse_node(start_commands_node, source)
 
-    end_commands_node = btl_parsing.find_tree_section(root, 'end_commands', source, raise_error = False)
+    end_commands_node = root.find_tree_section('end_commands', source, raise_error = False)
     end_commands = btl_parser_desc_state_command_list.parse_node(end_commands_node, source)
     
     return btl_parser_desc(header,

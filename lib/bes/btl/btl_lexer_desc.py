@@ -68,23 +68,23 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
                                   root_name = 'btl_lexer_desc',
                                   node_class = btl_desc_text_node)
 
-    lexer_node = btl_parsing.find_tree_section(root, 'lexer', source)
+    lexer_node = root.find_tree_section('lexer', source)
     header = btl_lexer_desc_header.parse_node(lexer_node, source)
     #print(header)
 
-    tokens_node = btl_parsing.find_tree_section(root, 'tokens', source, raise_error = False)
+    tokens_node = root.find_tree_section('tokens', source, raise_error = False)
     tokens = btl_lexer_desc_token_list.parse_node(tokens_node, source)
     #print(tokens)
 
-    errors_node = btl_parsing.find_tree_section(root, 'errors', source, raise_error = False)
+    errors_node = root.find_tree_section('errors', source, raise_error = False)
     errors = btl_lexer_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
-    states_node = btl_parsing.find_tree_section(root, 'states', source, raise_error = False)
+    states_node = root.find_tree_section('states', source, raise_error = False)
     states = btl_lexer_desc_state_list.parse_node(states_node, source)
     #print(states)
 
-    chars_node = btl_parsing.find_tree_section(root, 'chars', source, raise_error = False)
+    chars_node = root.find_tree_section('chars', source, raise_error = False)
     char_map = clazz._parse_char_map(chars_node, source)
     #print(char_map)
     

@@ -38,30 +38,26 @@ class btl_parser_desc_state(namedtuple('btl_parser_desc_state', 'name, transitio
     check.check_node(n)
 
     name = n.data.text.strip()
-    transitions_node = btl_parsing.find_tree_section(n,
-                                                     'transitions',
-                                                     source,
-                                                     raise_error = False)
+    transitions_node = n.find_tree_section('transitions',
+                                           source,
+                                           raise_error = False)
     transitions = btl_parser_desc_state_transition_list.parse_node(transitions_node,
                                                                    source = source)
 
-    commands_node = btl_parsing.find_tree_section(n,
-                                                  'commands',
-                                                  source,
-                                                  raise_error = False)
+    commands_node = n.find_tree_section('commands',
+                                        source,
+                                        raise_error = False)
     commands = btl_parser_desc_state_command_list.parse_node(commands_node, source = source)
 
-    enter_state_commands_node = btl_parsing.find_tree_section(n,
-                                                           'enter_state_commands',
-                                                           source,
-                                                           raise_error = False)
+    enter_state_commands_node = n.find_tree_section('enter_state_commands',
+                                                    source,
+                                                    raise_error = False)
     enter_state_commands = btl_parser_desc_state_command_list.parse_node(enter_state_commands_node,
                                                                       source = source)
 
-    leave_state_commands_node = btl_parsing.find_tree_section(n,
-                                                           'leave_state_commands',
-                                                           source,
-                                                           raise_error = False)
+    leave_state_commands_node = n.find_tree_section('leave_state_commands',
+                                                    source,
+                                                    raise_error = False)
     leave_state_commands = btl_parser_desc_state_command_list.parse_node(leave_state_commands_node,
                                                                       source = source)
     
