@@ -3,7 +3,6 @@
 from ..system.check import check
 from ..common.string_util import string_util
 
-from .btl_parsing import btl_parsing
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 

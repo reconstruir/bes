@@ -6,8 +6,6 @@ from ..system.check import check
 from ..version.semantic_version import semantic_version
 from ..common.tuple_util import tuple_util
 
-from .btl_parsing import btl_parsing
-
 class btl_parser_desc_error(namedtuple('btl_parser_desc_error', 'name, message')):
   
   def __new__(clazz, name, message):
@@ -23,9 +21,7 @@ class btl_parser_desc_error(namedtuple('btl_parser_desc_error', 'name, message')
     check.check_node(n)
     check.check_string(source)
 
-    return btl_parsing.parse_key_value(n,
-                                       source,
-                                       result_class = btl_parser_desc_error)
+    return n.parse_key_value(source, result_class = btl_parser_desc_error)
 
   @property
   def error_class_name(self):

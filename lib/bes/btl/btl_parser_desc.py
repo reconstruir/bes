@@ -18,7 +18,6 @@ from .btl_parser_desc_header import btl_parser_desc_header
 from .btl_parser_desc_mermaid import btl_parser_desc_mermaid
 from .btl_parser_desc_state_command_list import btl_parser_desc_state_command_list
 from .btl_parser_desc_state_list import btl_parser_desc_state_list
-from .btl_parsing import btl_parsing
 
 class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, start_commands, end_commands, source_text')):
   

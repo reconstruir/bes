@@ -6,8 +6,6 @@ from ..system.check import check
 from ..version.semantic_version import semantic_version
 from ..property.cached_property import cached_property
 
-from .btl_parsing import btl_parsing
-
 class btl_parser_desc_token(namedtuple('btl_parser_desc_token', 'name, args')):
   
   def __new__(clazz, name, args):
@@ -31,7 +29,7 @@ class btl_parser_desc_token(namedtuple('btl_parser_desc_token', 'name, args')):
     name = n.data.text.strip()
     args = {}
     for child in n.children:
-      key, value = btl_parsing.parse_key_value(child, source)
+      key, value = child.parse_key_value(source)
       args[key] = value
     return btl_parser_desc_token(name, args)
 

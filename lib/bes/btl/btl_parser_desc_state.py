@@ -6,7 +6,6 @@ from ..system.check import check
 
 from .btl_parser_desc_state_command_list import btl_parser_desc_state_command_list
 from .btl_parser_desc_state_transition_list import btl_parser_desc_state_transition_list
-from .btl_parsing import btl_parsing
 
 class btl_parser_desc_state(namedtuple('btl_parser_desc_state', 'name, transitions, commands, enter_state_commands, leave_state_commands')):
   

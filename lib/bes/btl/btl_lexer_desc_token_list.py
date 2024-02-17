@@ -10,7 +10,6 @@ from ..property.cached_property import cached_property
 
 from .btl_lexer_desc_token import btl_lexer_desc_token
 from .btl_error import btl_error
-from .btl_parsing import btl_parsing
 
 class btl_lexer_desc_token_list(type_checked_list):
 

@@ -6,7 +6,6 @@ from ..system.check import check
 from ..common.type_checked_list import type_checked_list
 
 from .btl_parser_desc_state_transition import btl_parser_desc_state_transition
-from .btl_parsing import btl_parsing
 
 class btl_parser_desc_state_transition_list(type_checked_list):
 

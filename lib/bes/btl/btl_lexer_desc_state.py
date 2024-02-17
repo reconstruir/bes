@@ -7,7 +7,6 @@ from ..system.check import check
 from ..version.semantic_version import semantic_version
 
 from .btl_error import btl_error
-from .btl_parsing import btl_parsing
 from .btl_lexer_desc_state_transition_list import btl_lexer_desc_state_transition_list
 
 class btl_lexer_desc_state(namedtuple('btl_lexer_desc_state', 'name, transitions')):

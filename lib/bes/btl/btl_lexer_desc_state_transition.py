@@ -7,7 +7,6 @@ from ..system.check import check
 from ..version.semantic_version import semantic_version
 
 from .btl_error import btl_error
-from .btl_parsing import btl_parsing
 
 from .btl_lexer_desc_state_transition_command_list import btl_lexer_desc_state_transition_command_list
 
@@ -30,7 +29,7 @@ class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transitio
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)
 
-    char_name, to_state = btl_parsing.parse_key_value(n, source, delimiter = ':')
+    char_name, to_state = n.parse_key_value(source, delimiter = ':')
     commands = btl_lexer_desc_state_transition_command_list.parse_node(n, source = source)
     return btl_lexer_desc_state_transition(to_state, char_name, commands)
 

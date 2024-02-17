@@ -7,7 +7,6 @@ from ..system.check import check
 from ..version.semantic_version import semantic_version
 
 from .btl_error import btl_error
-from .btl_parsing import btl_parsing
 
 class btl_parser_desc_header(namedtuple('btl_parser_desc_header', 'name, description, version, start_state, end_state')):
   
@@ -36,7 +35,7 @@ class btl_parser_desc_header(namedtuple('btl_parser_desc_header', 'name, descrip
       ( 'end_state', None ),
     ])
     for child in n.children:
-      key, value = btl_parsing.parse_key_value(child, source)
+      key, value = child.parse_key_value(source)
       if key not in d:
         raise btl_error(f'Invalid header key "{key}" at {source}:{child.data.line_number}')
       d[key] = value

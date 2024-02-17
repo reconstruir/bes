@@ -19,7 +19,6 @@ from .btl_lexer_desc_header import btl_lexer_desc_header
 from .btl_lexer_desc_mermaid import btl_lexer_desc_mermaid
 from .btl_lexer_desc_state_list import btl_lexer_desc_state_list
 from .btl_lexer_desc_token_list import btl_lexer_desc_token_list
-from .btl_parsing import btl_parsing
 
 class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_map, states, source_text')):
   
@@ -54,7 +53,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
     result = btl_lexer_desc_char_map()
     if n:
       for child in n.children:
-        name, chars = btl_parsing.parse_key_value(child, source)
+        name, chars = child.parse_key_value(source)
         result.parse_and_add(name, chars)
     return result
   

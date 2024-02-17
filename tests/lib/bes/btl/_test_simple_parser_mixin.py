@@ -6,6 +6,7 @@ from bes.property.cached_class_property import cached_class_property
 from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser
 from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
+from bes.btl.btl_desc_text_node import btl_desc_text_node
 
 class _test_simple_parser_mixin:
 
@@ -23,7 +24,8 @@ class _test_simple_parser_mixin:
   def _simple_parser_desc_tree(clazz):
     return tree_text_parser.parse(clazz._simple_parser_desc_text,
                                   strip_comments = True,
-                                  root_name = 'btl_parser_desc')
+                                  root_name = 'btl_parser_desc',
+                                  node_class = btl_desc_text_node)
 
   @classmethod
   def _simple_parser_desc_tree_section(clazz, section_name):
