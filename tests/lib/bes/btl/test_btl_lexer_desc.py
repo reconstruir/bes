@@ -755,7 +755,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "name": "s_done", 
       "transitions": []
     }
-  ]
+  ],
+  "variables": []
 }
 '''
 

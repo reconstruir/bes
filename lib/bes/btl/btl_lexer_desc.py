@@ -19,19 +19,28 @@ from .btl_lexer_desc_header import btl_lexer_desc_header
 from .btl_lexer_desc_mermaid import btl_lexer_desc_mermaid
 from .btl_lexer_desc_state_list import btl_lexer_desc_state_list
 from .btl_lexer_desc_token_list import btl_lexer_desc_token_list
+from .btl_lexer_desc_variable_list import btl_lexer_desc_variable_list
 
-class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_map, states, source_text')):
+class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_map, states, variables, source_text')):
   
-  def __new__(clazz, header, tokens, errors, char_map, states, source_text = None):
+  def __new__(clazz, header, tokens, errors, char_map, states, variables, source_text = None):
     header = check.check_btl_lexer_desc_header(header)
     tokens = check.check_btl_lexer_desc_token_list(tokens)
     errors = check.check_btl_lexer_desc_error_list(errors)
     check.check_btl_lexer_desc_char_map(char_map)
     states = check.check_btl_lexer_desc_state_list(states)
     check.check_string(source_text, allow_none = True)
+    variables = check.check_btl_lexer_desc_variable_list(variables)
 
     source_text = source_text or ''
-    return clazz.__bases__[0].__new__(clazz, header, tokens, errors, char_map, states, source_text)
+    return clazz.__bases__[0].__new__(clazz,
+                                      header,
+                                      tokens,
+                                      errors,
+                                      char_map,
+                                      states,
+                                      variables,
+                                      source_text)
 
   def to_dict(self):
     return {
@@ -40,6 +49,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
       'errors': self.errors.to_dict_list(),
       'char_map': self.char_map.to_dict(),
       'states': self.states.to_dict_list(),
+      'variables': self.variables.to_dict_list(),
     }
 
   def to_json(self):
@@ -86,8 +96,18 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, char_
     chars_node = root.find_tree_section('chars', source, raise_error = False)
     char_map = clazz._parse_char_map(chars_node, source)
     #print(char_map)
+
+    variables_node = root.find_tree_section('variables', source, raise_error = False)
+    variables = btl_lexer_desc_variable_list.parse_node(variables_node, source)
+    #print(variables)
     
-    return btl_lexer_desc(header, tokens, errors, char_map, states, source_text = text)
+    return btl_lexer_desc(header,
+                          tokens,
+                          errors,
+                          char_map,
+                          states,
+                          variables,
+                          source_text = text)
 
   @classmethod
   def parse_file(clazz, filename):
