@@ -7,19 +7,20 @@ from ..system.check import check
 
 from .btl_parser_node_creator import btl_parser_node_creator
 from .btl_document_position import btl_document_position
+from .btl_parser_options import btl_parser_options
 
 class btl_parser_context(object):
 
-  def __init__(self, parser, log_tag, text, source):
+  def __init__(self, parser, log_tag, text, options):
     check.check_btl_parser(parser)
     check.check_string(log_tag)
     check.check_string(text)
-    check.check_string(source, allow_none = True)
+    check.check_btl_parser_options(options)
     
     self._position = None
     self._parser = parser
     self._text = text
-    self._source = source or '<unknown>'
+    self._options = options
     self._node_creator = btl_parser_node_creator(log_tag)
     self._state = parser.start_state
 
@@ -40,9 +41,13 @@ class btl_parser_context(object):
     return self._text
 
   @property
-  def source(self):
-    return self._source
+  def options(self):
+    return self._options
 
+  @property
+  def source(self):
+    return self._options.lexer_options.source
+  
   @property
   def position(self):
     return self._position

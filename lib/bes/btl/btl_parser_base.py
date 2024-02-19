@@ -14,6 +14,7 @@ from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_node_creator import btl_parser_node_creator
+from .btl_parser_options import btl_parser_options
 
 class btl_parser_base(object):
 
@@ -71,20 +72,21 @@ class btl_parser_base(object):
     context.state.enter_state(context)
 
   _parse_result = namedtuple('_parse_result', 'root_node, tokens')
-  def parse(self, text, source = None):
+  def parse(self, text, options = None):
     check.check_string(text)
-    check.check_string(source, allow_none = True)
-    
-    self.log_i(f'parser: parse: source=\"{source}\"')
+    check.check_btl_parser_options(options, allow_none = True)
+
+    options = options or btl_parser_options()
+    context = btl_parser_context(self, self._log_tag, text, options)
+    self.log_i(f'parser: parse: source=\"{context.source}\"')
     self.log_d(f'parser: parse: text=\"{text}\"')
 
-    context = btl_parser_context(self, self._log_tag, text, source)
     self.do_start_commands(context)
     context.state.enter_state(context)
     
     tokens = btl_lexer_token_deque()
     last_position = btl_document_position(1, 1)
-    for index, token in enumerate(self._lexer.lex_generator(text)):
+    for index, token in enumerate(self._lexer.lex_generator(text, options = options.lexer_options)):
       token_with_index = token.clone_replace_index(index)
       ts = token_with_index.to_debug_str()
       old_state_name = context.state.name

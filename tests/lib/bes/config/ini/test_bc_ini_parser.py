@@ -8,10 +8,12 @@ from bes.system.check import check
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
+from bes.btl.btl_lexer_options import btl_lexer_options
 from bes.btl.btl_parser_base import btl_parser_base
+from bes.btl.btl_parser_options import btl_parser_options
+from bes.btl.btl_parser_runtime_error import btl_parser_runtime_error
 from bes.btl.btl_parser_state_base import btl_parser_state_base
 from bes.btl.btl_parser_tester_mixin import btl_parser_tester_mixin
-from bes.btl.btl_parser_runtime_error import btl_parser_runtime_error
 
 from bes.config.ini.bc_ini_lexer import bc_ini_lexer
 from bes.config.ini.bc_ini_parser import bc_ini_parser
@@ -334,7 +336,9 @@ n_root;
     text = self.caca_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
-    result = p.parse(text, source = source)
+    lexer_options = btl_lexer_options(source = source)
+    parser_options = btl_parser_options(lexer_options = lexer_options)
+    result = p.parse(text, options = parser_options)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
 n_root;
@@ -386,22 +390,28 @@ n_root;
     n_section;t_section_name:service:p=717,2:i=2161    
 ''', str(result.root_node) )
 
-  def xtest_parse_example_business_objects(self):
+  def test_parse_example_business_objects(self):
     source = self.caca_filename('test_data/business_objects.ini')
     text = self.caca_text('test_data/business_objects.ini')
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
-    result = p.parse(text, source = source)
+    lexer_options = btl_lexer_options(source = source)
+    parser_options = btl_parser_options(lexer_options = lexer_options)
+    result = p.parse(text, options = parser_options)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )
 
-  def xtest_parse_example1(self):
+  def test_parse_example1(self):
     source = self.caca_filename('test_data/example1.ini')
     text = self.caca_text('test_data/example1.ini')
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
-    result = p.parse(text, source = source)
+    variables = { 'v_comment_begin': '#' }
+    lexer_options = btl_lexer_options(source = source,
+                                      variables = variables)
+    parser_options = btl_parser_options(lexer_options = lexer_options)
+    result = p.parse(text, options = parser_options)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
 ''', str(result.root_node) )

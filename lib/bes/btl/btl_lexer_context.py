@@ -71,6 +71,10 @@ class btl_lexer_context(object):
   @property
   def char_map(self):
     return self._char_map
+
+  @property
+  def source(self):
+    return self._options.source
   
   def advance_position(self, c):
     self._last_position = self._position

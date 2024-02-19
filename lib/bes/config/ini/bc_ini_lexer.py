@@ -475,12 +475,9 @@ chars
   c_keyval_key_first: c_underscore | c_alpha | c_numeric
   c_keyval_key: c_keyval_key_first # | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
-  c_comment_begin: c_semicolon
+  c_comment_begin: ${v_comment_begin}
   c_key_value_delimiter: c_equal
   
-#  c_comment_begin: ${v_comment_begin}
-#  c_key_value_delimiter: ${v_key_value_delimiter}
-
 functions
 
   handle_comment_begin
