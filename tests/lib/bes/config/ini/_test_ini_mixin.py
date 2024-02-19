@@ -7,10 +7,10 @@ from bes.fs.file_util import file_util
 
 class _test_ini_mixin:
 
-  def caca_filename(clazz, filename):
+  def demo_filename(clazz, filename):
     here = path.dirname(__file__)
     filename = path.join(here, filename)
     return path.abspath(filename)
   
-  def caca_text(clazz, filename):
-    return file_util.read(clazz.caca_filename(filename), codec = 'utf-8')
+  def demo_text(clazz, filename):
+    return file_util.read(clazz.demo_filename(filename), codec = 'utf-8')

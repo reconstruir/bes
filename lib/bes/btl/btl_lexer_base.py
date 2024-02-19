@@ -10,6 +10,7 @@ from .btl_lexer_context import btl_lexer_context
 from .btl_lexer_desc import btl_lexer_desc
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_options import btl_lexer_options
+from .btl_lexer_runtime_error import btl_lexer_runtime_error
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
 
@@ -56,8 +57,8 @@ class btl_lexer_base(object):
   def _change_state(self, context, new_state_name, c):
     if new_state_name == None:
       cs = context.state.char_to_string(c)
-      print(f'char_map={context.char_map}')
-      raise btl_lexer_error(f'lexer: failed to transition from state "{context.state.name}" for char "{cs}"')
+      message = f'lexer: failed to transition from state "{context.state.name}" for char "{cs}"'
+      raise btl_lexer_runtime_error(context, message)
     
     new_state = self._find_state(new_state_name)
     if new_state == context.state:

@@ -49,18 +49,16 @@ stateDiagram-v2
   s_after_key_space --> s_done: default
 
   %% s_before_value_space state
-  s_before_value_space --> s_value_key_space: c_ws
+  s_before_value_space --> s_before_value_space: c_ws
   s_before_value_space --> s_start: c_line_break
-  s_before_value_space --> s_value: c_keyval_key_first
   s_before_value_space --> s_done: c_eos
   s_before_value_space --> s_comment: c_comment_begin
-  s_before_value_space --> s_done: default
+  s_before_value_space --> s_value: default
 
   %% s_expecting_value state
   s_expecting_value --> s_before_value_space: c_ws
   s_expecting_value --> s_done: c_eos
   s_expecting_value --> s_start: c_line_break
-  s_expecting_value --> s_value: c_keyval_key_first
   s_expecting_value --> s_value: default
 
   %% s_key state

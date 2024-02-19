@@ -152,5 +152,6 @@ class btl_lexer_desc_char_map(object):
     'c_upper_letter': set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
     'c_ws': set(' \t'),
     'c_line_break': { '\r\n', '\n' },
+    'c_punctuation': set('!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'),
   }
 check.register_class(btl_lexer_desc_char_map)

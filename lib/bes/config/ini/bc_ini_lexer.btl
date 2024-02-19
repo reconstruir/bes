@@ -31,7 +31,7 @@ variables
   v_key_value_delimiter: =
 
 chars
-  c_keyval_key_first: c_underscore | c_alpha | c_numeric
+  c_keyval_key_first: c_underscore | c_alpha | c_numeric | c_period
   c_keyval_key: c_keyval_key_first # | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
   c_comment_begin: ${v_comment_begin}
@@ -166,17 +166,13 @@ states
       error e_unexpected_char
 
   s_before_value_space
-    c_ws: s_value_key_space
+    c_ws: s_before_value_space
       buffer write
     c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
       emit t_line_break
-    c_keyval_key_first: s_value
-      emit t_space
-      buffer reset
-      buffer write
     c_eos: s_done
       emit t_space
       emit t_done
@@ -186,8 +182,10 @@ states
       buffer write
       emit t_comment_begin
       buffer reset
-    default: s_done
-      error e_unexpected_char
+    default: s_value
+      emit t_space
+      buffer reset
+      buffer write
 
   s_expecting_value
     c_ws: s_before_value_space
@@ -197,10 +195,8 @@ states
     c_line_break: s_start
       buffer write
       emit t_line_break
-    c_keyval_key_first: s_value
-      buffer write
     default: s_value
-      error e_unexpected_char
+      buffer write
 
   s_key
     c_keyval_key: s_key

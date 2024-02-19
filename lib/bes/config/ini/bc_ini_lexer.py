@@ -280,7 +280,7 @@ class bc_ini_lexer(btl_lexer_base):
       tokens = []
   
       if self.char_in(c, 'c_ws', context):
-        new_state_name = 's_value_key_space'
+        new_state_name = 's_before_value_space'
         context.buffer_write(c)
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
@@ -288,11 +288,6 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
-      elif self.char_in(c, 'c_keyval_key_first', context):
-        new_state_name = 's_value'
-        tokens.append(self.make_token(context, 't_space', args = {}))
-        context.buffer_reset()
-        context.buffer_write(c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_space', args = {}))
@@ -305,9 +300,10 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_comment_begin', args = {}))
         context.buffer_reset()
       else:
-        new_state_name = 's_done'
-        message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(context, message)
+        new_state_name = 's_value'
+        tokens.append(self.make_token(context, 't_space', args = {}))
+        context.buffer_reset()
+        context.buffer_write(c)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -332,13 +328,9 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_start'
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
-      elif self.char_in(c, 'c_keyval_key_first', context):
-        new_state_name = 's_value'
-        context.buffer_write(c)
       else:
         new_state_name = 's_value'
-        message = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(context, message)
+        context.buffer_write(c)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -470,9 +462,9 @@ errors
 variables
   v_comment_begin: ;
   v_key_value_delimiter: =
-  
+
 chars
-  c_keyval_key_first: c_underscore | c_alpha | c_numeric
+  c_keyval_key_first: c_underscore | c_alpha | c_numeric | c_period
   c_keyval_key: c_keyval_key_first # | c_numeric
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
   c_comment_begin: ${v_comment_begin}
@@ -607,17 +599,13 @@ states
       error e_unexpected_char
 
   s_before_value_space
-    c_ws: s_value_key_space
+    c_ws: s_before_value_space
       buffer write
     c_line_break: s_start
       emit t_space
       buffer reset
       buffer write
       emit t_line_break
-    c_keyval_key_first: s_value
-      emit t_space
-      buffer reset
-      buffer write
     c_eos: s_done
       emit t_space
       emit t_done
@@ -627,8 +615,10 @@ states
       buffer write
       emit t_comment_begin
       buffer reset
-    default: s_done
-      error e_unexpected_char
+    default: s_value
+      emit t_space
+      buffer reset
+      buffer write
 
   s_expecting_value
     c_ws: s_before_value_space
@@ -638,10 +628,8 @@ states
     c_line_break: s_start
       buffer write
       emit t_line_break
-    c_keyval_key_first: s_value
-      buffer write
     default: s_value
-      error e_unexpected_char
+      buffer write
 
   s_key
     c_keyval_key: s_key
