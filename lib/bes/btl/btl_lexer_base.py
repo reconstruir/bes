@@ -13,8 +13,6 @@ from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_deque import btl_lexer_token_deque
 
-from .btl_point import btl_point
-
 class btl_lexer_base(object):
 
   EOS = '\0'
@@ -58,7 +56,8 @@ class btl_lexer_base(object):
   def _change_state(self, context, new_state_name, c):
     if new_state_name == None:
       cs = context.state.char_to_string(c)
-      raise btl_lexer_error(f'Cannot transition from state "{context.state.name}" to "None" for char "{cs}"')
+      print(f'char_map={context.char_map}')
+      raise btl_lexer_error(f'lexer: failed to transition from state "{context.state.name}" for char "{cs}"')
     
     new_state = self._find_state(new_state_name)
     if new_state == context.state:
@@ -69,16 +68,17 @@ class btl_lexer_base(object):
     self.log_i(msg)
     context.state = new_state
 
-  def lex_generator(self, text, source = None, options = None):
+  def lex_generator(self, text, options = None):
     check.check_string(text)
-    check.check_string(source, allow_none = True)
     check.check_btl_lexer_options(options, allow_none = True)
 
     if self.EOS in text:
       raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
-    
-    context = btl_lexer_context(self, self._log_tag, text, source, options)
-    self.log_i(f' lexer: run: source={context.source} options={context.options}')
+
+    vm = self._desc.make_variable_manager(options.variables if options else {})
+    char_map = self._desc.char_map.substituted_variables(vm)
+    context = btl_lexer_context(self, self._log_tag, text, char_map, options)
+    self.log_i(f' lexer: run: options={context.options}')
     self.log_d(f' lexer: run: text=\"{text}\"')
 
     for c in self._chars_plus_eos(text):
@@ -98,8 +98,10 @@ class btl_lexer_base(object):
     if context.state != self.end_state:
       raise btl_lexer_error(f'The end state is incorrectly "{context.state.name}" instead of "{self.end_state.name}"')
 
-  def lex_all(self, text):
-    return btl_lexer_token_deque([ token for token in self.lex_generator(text) ])
+  def lex_all(self, text, options = None):
+    check.check_btl_lexer_options(options, allow_none = True)
+
+    return btl_lexer_token_deque([ token for token in self.lex_generator(text, options = options) ])
     
   @classmethod
   def _chars_plus_eos(self, text):

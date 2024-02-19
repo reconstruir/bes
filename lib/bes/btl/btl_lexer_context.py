@@ -9,24 +9,24 @@ from ..text.line_numbers import line_numbers
 
 from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
+from .btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_token import btl_lexer_token
-from .btl_point import btl_point
 
 class btl_lexer_context(object):
 
-  def __init__(self, lexer, log_tag, text, source, options):
+  def __init__(self, lexer, log_tag, text, char_map, options):
     check.check_btl_lexer(lexer)
     check.check_string(log_tag)
     check.check_string(text)
-    check.check_string(source, allow_none = True)
+    check.check_btl_lexer_desc_char_map(char_map)
     check.check_btl_lexer_options(options, allow_none = True)
 
     log.add_logging(self, tag = log_tag)
     
     self._text = text
-    self._source = source or '<unknown>'
     self._options = options or btl_lexer_options()
+    self._char_map = char_map
     self._state = lexer.start_state
     self._last_char = None
     self._last_position = btl_document_position(1, 0)
@@ -39,10 +39,6 @@ class btl_lexer_context(object):
   @property
   def text(self):
     return self._text
-
-  @property
-  def source(self):
-    return self._source
 
   @property
   def options(self):
@@ -72,6 +68,10 @@ class btl_lexer_context(object):
   def last_position(self):
     return self._last_position
 
+  @property
+  def char_map(self):
+    return self._char_map
+  
   def advance_position(self, c):
     self._last_position = self._position
     self._position = self._position.advanced(c)
@@ -98,7 +98,7 @@ class btl_lexer_context(object):
     assert c != '\0'
     self._buffer.write(c)
     if len(old_buffer_value) == 0:
-      self._buffer_start_position = btl_point(*self._position)
+      self._buffer_start_position = btl_document_position(*self._position)
     cs = btl_lexer_token.make_debug_str(c)
     self.log_d(f'lexer: buffer_write: c="{cs}" old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 

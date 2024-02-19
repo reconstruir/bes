@@ -6,6 +6,7 @@ from ..common.string_util import string_util
 from ..system.log import log
 from ..system.check import check
 
+from .btl_lexer_context import btl_lexer_context
 from .btl_lexer_token import btl_lexer_token
 
 class btl_lexer_state_base(object):
@@ -26,14 +27,14 @@ class btl_lexer_state_base(object):
   def lexer(self):
     return self._lexer
     
-  def char_in(self, c, char_name):
+  def char_in(self, c, char_name, context):
     check.check_string(c)
     check.check_string(char_name)
+    check.check_btl_lexer_context(context)
 
-    chars = self._lexer.desc.char_map[char_name].chars
-    r = c in chars
+    chars = context.char_map[char_name].chars
     cs = self.char_to_string(c)
-    return c in self._lexer.desc.char_map[char_name].chars
+    return c in context.char_map[char_name].chars
 
   _handle_char_result = namedtuple('_handle_char_result', 'new_state_name, tokens')
   def handle_char(self, c, options):

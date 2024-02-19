@@ -17,7 +17,7 @@ class btl_desc_variable_list(type_checked_list):
   def to_variable_manager(self):
     vm = variable_manager(add_system_variables = False)
     for var in self:
-      vm.add_variable(var.name, var.value)
+      vm.add_variable(var.name, var.default_value)
     return vm
   
   def to_dict_list(self):
@@ -46,3 +46,9 @@ class btl_desc_variable_list(type_checked_list):
 
     for var in self:
       var.generate_code(buf, errors)
+
+  def to_dict(self):
+    result = {}
+    for var in self:
+      result[var.name] = var.default_value
+    return result

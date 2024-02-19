@@ -9,6 +9,7 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
 from bes.btl.btl_lexer_token_deque import btl_lexer_token_deque
+from bes.btl.btl_lexer_options import btl_lexer_options
 
 from _test_simple_lexer import _test_simple_lexer
 
@@ -157,6 +158,25 @@ class test__test_simple_lexer(btl_lexer_tester_mixin, unit_test):
     actual_tokens = l.lex_all('b=z')
     actual = '\n'.join([ token.to_debug_str() for token in actual_tokens ])
     self.assertEqual( expected, actual )
+
+  def test_options_variables(self):
+    variables = { 'v_key_value_delimiter': ':' }
+    options = btl_lexer_options(variables = variables)
+    t = self.call_lex_all(_test_simple_lexer, '''\nfruit:kiwi\ncolor:green\n''',
+      [
+        ( 't_line_break', '[NL]', ( 1, 1 ), 'h_line_break', None ),
+        ( 't_key', 'fruit', ( 2, 1 ), None, None ),
+        ( 't_key_value_delimiter', ':', ( 2, 6 ), None, None ),
+        ( 't_value', 'kiwi', ( 2, 7 ), None, None ),
+        ( 't_line_break', '[NL]', ( 2, 11 ), 'h_line_break', None ),
+        ( 't_key', 'color', ( 3, 1 ), None, None ),
+        ( 't_key_value_delimiter', ':', ( 3, 6 ), None, None ),
+        ( 't_value', 'green', ( 3, 7 ), None, None ),
+        ( 't_line_break', '[NL]', ( 3, 12 ), 'h_line_break', None ),
+        ( 't_done', None, None, 'h_done', None ),
+      ], options = options)
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
     
 if __name__ == '__main__':
   unit_test.main()

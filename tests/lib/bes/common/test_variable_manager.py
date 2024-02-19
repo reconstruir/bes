@@ -9,12 +9,12 @@ class test_variable_manager(unit_test):
 
   def test_substitute(self):
     v = variable_manager()
-    v.add_variables(key_value_list.parse('FOO=1.2.3 BAR=abcdefg'))
+    v.update_variables(key_value_list.parse('FOO=1.2.3 BAR=abcdefg'))
     self.assertEqual( 'FOO is 1.2.3; BAR is abcdefg', v.substitute('FOO is ${FOO}; BAR is ${BAR}') )
     
   def test_substitute_dict(self):
     v = variable_manager()
-    v.add_variables({ 'FOO': '1.2.3', 'BAR': 'abcdefg' })
+    v.update_variables({ 'FOO': '1.2.3', 'BAR': 'abcdefg' })
     self.assertEqual( 'FOO is 1.2.3; BAR is abcdefg', v.substitute('FOO is ${FOO}; BAR is ${BAR}') )
 
   def test___init__(self):

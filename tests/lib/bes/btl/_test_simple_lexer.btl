@@ -28,8 +28,8 @@ variables
 chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
-  #c_key_value_delimiter: ${v_key_value_delimiter}
-  c_key_value_delimiter: c_equal
+  c_key_value_delimiter: ${v_key_value_delimiter}
+  #c_key_value_delimiter: c_equal
 
 states
 

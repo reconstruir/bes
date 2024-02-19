@@ -33,18 +33,18 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_eos'):
+      if self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done', args = {}))
-      elif self.char_in(c, 'c_line_break'):
+      elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_ws'):
+      elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_keyval_key_first'):
+      elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         context.buffer_write(c)
       else:
@@ -65,17 +65,17 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_ws'):
+      if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_line_break'):
+      elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_keyval_key_first'):
+      elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
@@ -98,17 +98,17 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_ws'):
+      if self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_key_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal'):
+      elif self.char_in(c, 'c_equal', context):
         new_state_name = 's_expecting_value'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done', args = {}))
       else:
@@ -129,21 +129,21 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_ws'):
+      if self.char_in(c, 'c_ws', context):
         new_state_name = 's_value_key_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_line_break'):
+      elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_keyval_key_first'):
+      elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_value'
         tokens.append(self.make_token(context, 't_space', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_space', args = {}))
         tokens.append(self.make_token(context, 't_done', args = {}))
@@ -165,18 +165,18 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_ws'):
+      if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_value_space'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done', args = {}))
-      elif self.char_in(c, 'c_line_break'):
+      elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_keyval_key_first'):
+      elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_value'
         context.buffer_write(c)
       else:
@@ -197,22 +197,22 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_keyval_key'):
+      if self.char_in(c, 'c_keyval_key', context):
         new_state_name = 's_key'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal'):
+      elif self.char_in(c, 'c_equal', context):
         new_state_name = 's_expecting_value'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
         tokens.append(self.make_token(context, 't_done', args = {}))
-      elif self.char_in(c, 'c_ws'):
+      elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_key_space'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
@@ -231,14 +231,14 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_line_break'):
+      if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_value', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_value', args = {}))
         context.buffer_reset()

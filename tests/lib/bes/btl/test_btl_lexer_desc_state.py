@@ -32,7 +32,7 @@ class _state_s_juice(btl_lexer_state_base):
     new_state_name = None
     tokens = []
 
-    if self.char_in(c, 'c_equal'):
+    if self.char_in(c, 'c_equal', context):
       new_state_name = 's_juice'
       tokens.append(self.make_token(context, 't_cheese', args = {}))
     

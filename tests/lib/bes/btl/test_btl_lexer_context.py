@@ -3,6 +3,7 @@
 
 from bes.btl.btl_lexer_context import btl_lexer_context
 from bes.btl.btl_lexer_token import btl_lexer_token
+from bes.btl.btl_lexer_desc_char_map import btl_lexer_desc_char_map
 
 from _test_simple_lexer import _test_simple_lexer
 
@@ -17,15 +18,17 @@ name=
 [cheese]
 name=brie
 '''
-    expected = '''
-[fruit]
-name=
-     ^
-[cheese]
-name=brie'''
-    c = btl_lexer_context(_test_simple_lexer(), 'tag', text, '<unit_test>', None)
+    expected = '''\
+1|this
+ ^^^ message is good
+2|is
+3|the
+4|text\
+'''
+    char_map = btl_lexer_desc_char_map()
+    c = btl_lexer_context(_test_simple_lexer(), 'tag', text, char_map, None)
     t = btl_lexer_token('t_kiwi', value = '', position = ( 3, 6 ))
-#    self.assertMultiLineEqual( expected, c.make_error_text(t) )
+    self.assertMultiLineEqual( expected, c.make_error_text('this\nis\nthe\ntext', 'message is good') )
     
 if __name__ == '__main__':
   unit_test.main()

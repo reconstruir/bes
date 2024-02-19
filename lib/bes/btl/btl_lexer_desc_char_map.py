@@ -1,25 +1,24 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import pprint
+import copy
 import json
+import pprint
 
 from ..common.json_util import json_util
-from ..common.variable_manager import variable_manager as bt_variable_manager
 from ..system.check import check
+from ..common.variable_manager import variable_manager
 
 from .btl_error import btl_error
 from .btl_lexer_desc_char import btl_lexer_desc_char
 
 class btl_lexer_desc_char_map(object):
   
-  def __init__(self, variable_manager = None):
-    check.check_variable_manager(variable_manager, allow_none = True)
-
-    self._variable_manager = variable_manager or bt_variable_manager()
+  def __init__(self, add_basic_chars = True):
     self._map = {}
-    for name, chars in self._BASIC_CHARS.items():
-      desc_char = btl_lexer_desc_char(name, chars)
-      self.add(desc_char)
+    if add_basic_chars:
+      for name, chars in self._BASIC_CHARS.items():
+        desc_char = btl_lexer_desc_char(name, chars)
+        self.add(desc_char)
 
   def __str__(self):
     return pprint.pformat(self._map)
@@ -32,6 +31,11 @@ class btl_lexer_desc_char_map(object):
   
   def __contains__(self, char_name):
     return char_name in self._map
+
+  def clone(self):
+    result = btl_lexer_desc_char_map()
+    result._map = copy.deepcopy(self._map)
+    return result
   
   def to_dict(self, without_basic = True):
     result = {}
@@ -48,8 +52,7 @@ class btl_lexer_desc_char_map(object):
   def parse_union(self, chars):
     check.check_string(chars)
 
-    replaced_chars = self._variable_manager.substitute(chars, word_boundary = True)
-    parts = [ part.strip() for part in replaced_chars.split('|') ]
+    parts = [ part.strip() for part in chars.split('|') ]
     parts = [ part for part in parts if part ]
     result = set()
     for part in parts:
@@ -57,7 +60,7 @@ class btl_lexer_desc_char_map(object):
         cd = self._map[part]
         result = result | cd.chars
       else:
-        if len(part) == 1:
+        if len(part) == 1 or part.startswith('${'):
           result.add(part)
         else:
           raise btl_error(f'Unknown char: "{part}"')
@@ -94,6 +97,16 @@ class btl_lexer_desc_char_map(object):
       result.add(desc_char)
     return result
 
+  def substituted_variables(self, variables):
+    check.check_variable_manager(variables)
+
+    sub_map = {}
+    for name, char in self._map.items():
+      sub_map[name] = char.substituted_variables(variables)
+    result = btl_lexer_desc_char_map(add_basic_chars = False)
+    result._map = sub_map
+    return result
+      
   _BASIC_CHARS = {
     'c_alpha': set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
     'c_alpha_numeric': set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'),

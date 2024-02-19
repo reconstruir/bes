@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from ..common.json_util import json_util
+from ..common.variable_manager import variable_manager
 from ..fs.file_check import file_check
 from ..fs.file_util import file_util
 from ..system.check import check
@@ -171,4 +172,11 @@ from bes.btl.btl_lexer_token import btl_lexer_token
     self.generate_code(buf, namespace, name)
     file_util.save(output_filename, content = buf.get_value())
 
+  def make_variable_manager(self, variables):
+    check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)
+
+    combined = self.variables.to_dict()
+    combined.update(variables)
+    return variable_manager(combined)
+    
 check.register_class(btl_lexer_desc, include_seq = False)

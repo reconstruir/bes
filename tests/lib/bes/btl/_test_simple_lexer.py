@@ -33,18 +33,18 @@ class _test_simple_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_eos'):
+      if self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done', args = {}))
-      elif self.char_in(c, 'c_line_break'):
+      elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_ws'):
+      elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space', args = {}))
-      elif self.char_in(c, 'c_keyval_key_first'):
+      elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         context.buffer_write(c)
       else:
@@ -65,17 +65,17 @@ class _test_simple_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_keyval_key'):
+      if self.char_in(c, 'c_keyval_key', context):
         new_state_name = 's_key'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal'):
+      elif self.char_in(c, 'c_key_value_delimiter', context):
         new_state_name = 's_value'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
@@ -94,14 +94,14 @@ class _test_simple_lexer(btl_lexer_base):
       new_state_name = None
       tokens = []
   
-      if self.char_in(c, 'c_line_break'):
+      if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_value', args = {}))
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
         context.buffer_reset()
-      elif self.char_in(c, 'c_eos'):
+      elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_value', args = {}))
         context.buffer_reset()
@@ -162,9 +162,14 @@ tokens
 errors
   e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
 
+variables
+  v_key_value_delimiter: =
+
 chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
+  c_key_value_delimiter: ${v_key_value_delimiter}
+  #c_key_value_delimiter: c_equal
 
 states
 
@@ -185,7 +190,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_value
+    c_key_value_delimiter: s_value
       emit t_key
       buffer reset
       buffer write

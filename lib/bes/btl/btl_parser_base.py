@@ -57,7 +57,7 @@ class btl_parser_base(object):
   def _change_state(self, context, new_state_name, token):
     if new_state_name == None:
       ts = token.to_debug_str()
-      raise btl_parser_error(f'Cannot transition from state "{context.state.name}" to "None" for token "{ts}"')
+      raise btl_parser_error(f'parser: cannot transition from state "{context.state.name}" to "None" for token "{ts}"')
     
     new_state = self._find_state(new_state_name)
     if new_state == context.state:
