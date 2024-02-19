@@ -40,10 +40,6 @@ class btl_parser_base(object):
   def desc_source(self):
     return self._desc_source
 
-#  @property
-#  def log_tag(self):
-#    return self._lexer.log_tag
-  
   @property
   def start_state(self):
     return self._find_state(self._desc.header.start_state)
@@ -116,5 +112,8 @@ class btl_parser_base(object):
 
   def do_end_commands(self, context):
     raise btl_parser_error(f'{self.name}: unhandled do_end_commands')
+
+#  def desc(self):
+#    raise btl_parser_error(f'{self.name}: unhandled desc')
   
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)

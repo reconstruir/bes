@@ -10,9 +10,9 @@ from .btl_lexer_token_lines import btl_lexer_token_lines
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
-from .btl_parser_node_creator import btl_parser_node_creator
+from .btl_parser_options import btl_parser_options
 
-class btl_parser_document(object):
+class btl_document(object):
 
   def __init__(self, lexer, parser, text, source = None):
     check.check_btl_lexer(lexer)
@@ -30,4 +30,4 @@ class btl_parser_document(object):
 #  def from_text(clazz, text):
 #    check.check_string(text)
 
-check.register_class(btl_parser_document, include_seq = False)
+check.register_class(btl_document, include_seq = False)

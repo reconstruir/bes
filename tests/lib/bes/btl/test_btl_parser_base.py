@@ -178,7 +178,10 @@ class _test_parser(btl_parser_base):
   
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
-  
+
+  def desc(self):
+    self.log_d(f'do_start_commands:')
+    
   _DESC_TEXT = """
 #BTP
 #

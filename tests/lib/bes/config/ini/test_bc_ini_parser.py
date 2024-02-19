@@ -8,7 +8,6 @@ from bes.system.check import check
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
-from bes.btl.btl_lexer_options import btl_lexer_options
 from bes.btl.btl_parser_base import btl_parser_base
 from bes.btl.btl_parser_options import btl_parser_options
 from bes.btl.btl_parser_runtime_error import btl_parser_runtime_error
@@ -351,8 +350,7 @@ n_root;
     text = self.demo_text('test_data/gitea.app.ini')
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
-    lexer_options = btl_lexer_options(source = source)
-    parser_options = btl_parser_options(lexer_options = lexer_options)
+    parser_options = btl_parser_options(source = source)
     result = p.parse(text, options = parser_options)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
@@ -411,8 +409,7 @@ n_root;
     text = self.demo_text('test_data/business_objects.ini')
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
-    lexer_options = btl_lexer_options(source = source)
-    parser_options = btl_parser_options(lexer_options = lexer_options)
+    parser_options = btl_parser_options(source = source)
     result = p.parse(text, options = parser_options)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
@@ -632,9 +629,8 @@ n_root;
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
     variables = { 'v_comment_begin': '#' }
-    lexer_options = btl_lexer_options(source = source,
+    parser_options = btl_parser_options(source = source,
                                       variables = variables)
-    parser_options = btl_parser_options(lexer_options = lexer_options)
     result = p.parse(text, options = parser_options)
     #print(str(result.root_node))
     self.assert_python_code_text_equal( '''
