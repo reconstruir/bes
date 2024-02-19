@@ -225,6 +225,7 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_reset()
         context.buffer_write(c)
         tokens.append(self.make_token(context, 't_line_break', args = {}))
+        context.buffer_reset()
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         tokens.append(self.make_token(context, 't_space', args = {}))
@@ -584,6 +585,7 @@ states
       buffer reset
       buffer write
       emit t_line_break
+      buffer reset
     c_keyval_key_first: s_key
       emit t_space
       buffer reset

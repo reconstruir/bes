@@ -144,6 +144,7 @@ states
       buffer reset
       buffer write
       emit t_line_break
+      buffer reset
     c_keyval_key_first: s_key
       emit t_space
       buffer reset
