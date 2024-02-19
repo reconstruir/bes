@@ -227,6 +227,12 @@ states
       emit t_value
       buffer reset
       emit t_done
+    c_comment_begin: s_comment
+      emit t_value
+      buffer reset
+      buffer write
+      emit t_comment_begin
+      buffer reset
     default: s_value
       buffer write
 

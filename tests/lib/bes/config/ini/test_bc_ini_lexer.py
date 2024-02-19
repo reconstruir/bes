@@ -367,5 +367,18 @@ fruit=kiwi
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
+  def test_comment_after_value(self):
+    t = self.call_lex_all(bc_ini_lexer, 'k=v;foo',
+      [
+        ( 't_key', 'k', ( 1, 1 ), None, None ),
+        ( 't_key_value_delimiter', '=', ( 1, 2 ), None, None ),
+        ( 't_value', 'v', ( 1, 3 ), None, None ),
+        ( 't_comment_begin', ';', ( 1, 4 ), None, None ),
+        ( 't_comment', 'foo', ( 1, 5 ), None, None ),
+        ( 't_done', None, None, 'h_done', None ),
+      ])
+    self.assertMultiLineEqual( t.expected, t.actual )
+    self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
+    
 if __name__ == '__main__':
   unit_test.main()

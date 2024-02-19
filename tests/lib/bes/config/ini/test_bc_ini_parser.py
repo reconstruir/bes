@@ -290,8 +290,23 @@ n_root;
   n_sections;
 ''', str(result.root_node) )
 
-
-
+  def test_parse_global_comment_after_value(self):
+    l = bc_ini_lexer()
+    p = bc_ini_parser(l)
+    text = '''
+kiwi = foo ; that was foo
+'''
+    result = p.parse(text)
+    #print(str(result.root_node))
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+    n_key_value;
+      n_key;t_key:kiwi:p=2,1:i=1
+      n_value;t_value:foo :p=2,8:i=5
+  n_sections;
+''', str(result.root_node) )
+    
   def test_parse_double_comment(self):
     l = bc_ini_lexer()
     p = bc_ini_parser(l)
@@ -357,37 +372,37 @@ n_root;
         n_value;t_value:mysql:p=347,11:i=1042
       n_key_value;
         n_key;t_key:HOST:p=348,1:i=1044
-        n_value;t_value:127.0.0.1:3306 ; can use socket e.g. /var/run/mysqld/mysqld.sock:p=348,8:i=1048
+        n_value;t_value:127.0.0.1:3306 :p=348,8:i=1048
       n_key_value;
-        n_key;t_key:NAME:p=349,1:i=1050
-        n_value;t_value:gitea:p=349,8:i=1054
+        n_key;t_key:NAME:p=349,1:i=1052
+        n_value;t_value:gitea:p=349,8:i=1056
       n_key_value;
-        n_key;t_key:USER:p=350,1:i=1056
-        n_value;t_value:root:p=350,8:i=1060
-    n_section;t_section_name:security:p=415,2:i=1253
+        n_key;t_key:USER:p=350,1:i=1058
+        n_value;t_value:root:p=350,8:i=1062
+    n_section;t_section_name:security:p=415,2:i=1255
       n_key_value;
-        n_key;t_key:INSTALL_LOCK:p=420,1:i=1268
-        n_value;t_value:false:p=420,16:i=1272
+        n_key;t_key:INSTALL_LOCK:p=420,1:i=1270
+        n_value;t_value:false:p=420,16:i=1274
       n_key_value;
-        n_key;t_key:SECRET_KEY:p=424,1:i=1283
+        n_key;t_key:SECRET_KEY:p=424,1:i=1285
         n_value;t_value::p=424,13
       n_key_value;
-        n_key;t_key:INTERNAL_TOKEN:p=431,1:i=1305
+        n_key;t_key:INTERNAL_TOKEN:p=431,1:i=1307
         n_value;t_value::p=431,16
-    n_section;t_section_name:camo:p=497,2:i=1502
-    n_section;t_section_name:oauth2:p=514,2:i=1552
+    n_section;t_section_name:camo:p=497,2:i=1504
+    n_section;t_section_name:oauth2:p=514,2:i=1554
       n_key_value;
-        n_key;t_key:ENABLE:p=519,1:i=1567
-        n_value;t_value:true:p=519,10:i=1571
-    n_section;t_section_name:log:p=555,2:i=1677
+        n_key;t_key:ENABLE:p=519,1:i=1569
+        n_value;t_value:true:p=519,10:i=1573
+    n_section;t_section_name:log:p=555,2:i=1679
       n_key_value;
-        n_key;t_key:MODE:p=566,1:i=1710
-        n_value;t_value:console:p=566,8:i=1714
+        n_key;t_key:MODE:p=566,1:i=1712
+        n_value;t_value:console:p=566,8:i=1716
       n_key_value;
-        n_key;t_key:LEVEL:p=569,1:i=1722
-        n_value;t_value:Info:p=569,9:i=1726
-    n_section;t_section_name:git:p=651,2:i=1968
-    n_section;t_section_name:service:p=717,2:i=2161    
+        n_key;t_key:LEVEL:p=569,1:i=1724
+        n_value;t_value:Info:p=569,9:i=1728
+    n_section;t_section_name:git:p=651,2:i=1970
+    n_section;t_section_name:service:p=717,2:i=2163
 ''', str(result.root_node) )
 
   def test_parse_example_business_objects(self):
@@ -662,14 +677,14 @@ n_root;
         n_value;t_value:root:p=25,17:i=85
       n_key_value;
         n_key;t_key:password:p=26,1:i=87
-        n_value;t_value:secure # not recommended to store secure information:p=26,17:i=91
-    n_section;t_section_name:settings:p=28,2:i=97
+        n_value;t_value:secure :p=26,17:i=91
+    n_section;t_section_name:settings:p=28,2:i=99
       n_key_value;
-        n_key;t_key:enable_ssl:p=29,1:i=100
-        n_value;t_value:true:p=29,14:i=104
+        n_key;t_key:enable_ssl:p=29,1:i=102
+        n_value;t_value:true:p=29,14:i=106
       n_key_value;
-        n_key;t_key:enable_2mf:p=30,1:i=106
-        n_value;t_value:true:p=30,15:i=110
+        n_key;t_key:enable_2mf:p=30,1:i=108
+        n_value;t_value:true:p=30,15:i=112
 ''', str(result.root_node) )
     
 if __name__ == '__main__':

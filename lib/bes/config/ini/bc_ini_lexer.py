@@ -391,6 +391,13 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_value', args = {}))
         context.buffer_reset()
         tokens.append(self.make_token(context, 't_done', args = {}))
+      elif self.char_in(c, 'c_comment_begin', context):
+        new_state_name = 's_comment'
+        tokens.append(self.make_token(context, 't_value', args = {}))
+        context.buffer_reset()
+        context.buffer_write(c)
+        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        context.buffer_reset()
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
@@ -660,6 +667,12 @@ states
       emit t_value
       buffer reset
       emit t_done
+    c_comment_begin: s_comment
+      emit t_value
+      buffer reset
+      buffer write
+      emit t_comment_begin
+      buffer reset
     default: s_value
       buffer write
 
