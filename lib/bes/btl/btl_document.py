@@ -14,18 +14,25 @@ from .btl_parser_options import btl_parser_options
 
 class btl_document(object):
 
-  def __init__(self, lexer, parser, text, source = None):
-    check.check_btl_lexer(lexer)
+  def __init__(self, parser, text, parser_options = None):
     check.check_btl_parser(parser)
     check.check_string(text)
-    check.check_string(source, allow_none = True)
+    check.check_btl_parser_options(parser_options, allow_none = True)
 
-    source = source or '<unknown>'
-    self._lexer = lexer
+    self._parser_options = parser_options or btl_parser_options()
     self._parser = parser
-    self._root = None
+    self._text = text
+    self._root_node = None
     self._tokens = None
+    self._do_parse()
 
+  def _do_parse(self):
+    self._root_node, self._tokens = self._parser.parse(self._text,
+                                                       options = self._parser_options)
+    print(self._root_node)
+    for t in self._tokens:
+      print(t)
+    
 #  @classmethod
 #  def from_text(clazz, text):
 #    check.check_string(text)
