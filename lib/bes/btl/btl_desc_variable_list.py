@@ -4,6 +4,8 @@ from os import path
 
 from ..system.check import check
 from ..common.type_checked_list import type_checked_list
+from ..property.cached_property import cached_property
+from ..common.variable_manager import variable_manager
 
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
@@ -12,11 +14,17 @@ class btl_desc_variable_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
+  def to_variable_manager(self):
+    vm = variable_manager(add_system_variables = False)
+    for var in self:
+      vm.add_variable(var.name, var.value)
+    return vm
+  
   def to_dict_list(self):
     result = []
-    for command in self:
-      command_dict = command.to_dict()
-      result.append(command_dict)
+    for var in self:
+      var_dict = var.to_dict()
+      result.append(var_dict)
     return result
     
   @classmethod
@@ -28,13 +36,13 @@ class btl_desc_variable_list(type_checked_list):
     if not n:
       return result
     for child in n.children:
-      next_desc_command = clazz.__value_type__.parse_node(child, source)
-      result.append(next_desc_command)
+      next_desc_var = clazz.__value_type__.parse_node(child, source)
+      result.append(next_desc_var)
     return result
 
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
     errors = check.check_btl_lexer_desc_error_list(errors)
 
-    for command in self:
-      command.generate_code(buf, errors)
+    for var in self:
+      var.generate_code(buf, errors)

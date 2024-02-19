@@ -4,6 +4,7 @@ import pprint
 import json
 
 from ..common.json_util import json_util
+from ..common.variable_manager import variable_manager as bt_variable_manager
 from ..system.check import check
 
 from .btl_error import btl_error
@@ -11,7 +12,10 @@ from .btl_lexer_desc_char import btl_lexer_desc_char
 
 class btl_lexer_desc_char_map(object):
   
-  def __init__(self):
+  def __init__(self, variable_manager = None):
+    check.check_variable_manager(variable_manager, allow_none = True)
+
+    self._variable_manager = variable_manager or bt_variable_manager()
     self._map = {}
     for name, chars in self._BASIC_CHARS.items():
       desc_char = btl_lexer_desc_char(name, chars)
@@ -43,8 +47,9 @@ class btl_lexer_desc_char_map(object):
   
   def parse_union(self, chars):
     check.check_string(chars)
-    
-    parts = [ part.strip() for part in chars.split('|') ]
+
+    replaced_chars = self._variable_manager.substitute(chars, word_boundary = True)
+    parts = [ part.strip() for part in replaced_chars.split('|') ]
     parts = [ part for part in parts if part ]
     result = set()
     for part in parts:

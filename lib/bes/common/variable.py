@@ -36,6 +36,14 @@ class variable(object):
 
     patterns = patterns or clazz.ALL
     expressions = clazz._mask_to_patterns(patterns)
+
+    if False:
+#    if True:
+      print(f's={s}')
+      print(f'd={d}')
+      print(f'patterns={patterns}')
+      print(f'expressions={expressions}')
+    
     exp = '|'.join(expressions)
     old_result = s
     new_result = None

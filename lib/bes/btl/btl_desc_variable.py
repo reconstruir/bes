@@ -28,11 +28,7 @@ class btl_desc_variable(object):
     check.check_node(n)
     check.check_string(source)
 
-    parts = string_util.split_by_white_space(n.data.text, strip = True)
-    name = parts.pop(0)
-    if not parts:
-      raise btl_lexer_error(f'Missing arguments for variable: "{name}" - line {n.data.line_number}')
-    value = parts.pop(0)
+    name, value = clazz._parse_key_value(n.data.text, delimiter = ':')
     return clazz(name, value)
   
   def generate_code(self, buf, errors):
@@ -41,8 +37,9 @@ class btl_desc_variable(object):
     assert False, f'Not Implemented'
 
   @classmethod
-  def _parse_key_value(clazz, s):
-    key, delim, value = s.partition('=')
+  def _parse_key_value(clazz, s, delimiter = '='):
+    key, delim, value = s.partition(delimiter)
+    assert delim.strip() == delimiter
     return ( key.strip(), value.strip() )
         
   @classmethod

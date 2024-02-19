@@ -28,7 +28,7 @@ class test_btl_lexer_desc(_test_simple_lexer_mixin, unit_test):
   def test_parse_text_to_json(self):
     #print(btl_lexer_desc.parse_text(self._simple_lexer_desc_text).to_json())
     #return
-    self.assert_string_equal_fuzzy(
+    self.assert_json_equal(
       self._DESC_JSON,
       btl_lexer_desc.parse_text(self._simple_lexer_desc_text).to_json()
     )
@@ -50,7 +50,7 @@ stateDiagram-v2
 
   %% s_key state
   s_key --> s_key: c_keyval_key
-  s_key --> s_value: c_equal
+  s_key --> s_value: c_key_value_delimiter
   s_key --> s_done: c_eos
 
   %% s_value state
@@ -223,7 +223,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       if self.char_in(c, 'c_keyval_key'):
         new_state_name = 's_key'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal'):
+      elif self.char_in(c, 'c_key_value_delimiter'):
         new_state_name = 's_value'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
@@ -317,9 +317,14 @@ tokens
 errors
   e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
 
+variables
+  v_key_value_delimiter: =
+
 chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
+  #c_key_value_delimiter: ${v_key_value_delimiter}
+  c_key_value_delimiter: c_equal
 
 states
 
@@ -340,7 +345,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_value
+    c_key_value_delimiter: s_value
       emit t_key
       buffer reset
       buffer write
@@ -415,7 +420,13 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "name": "e_unexpected_char", 
       "message": "In state \"{self.name}\" unexpected character: \"{c}\""
     }
-  ], 
+  ],
+  "variables": [
+    {
+      "name": "v_key_value_delimiter",
+      "value": "="
+    }
+  ],
   "char_map": {
     "c_keyval_key_first": {
       "name": "c_keyval_key_first", 
@@ -542,7 +553,13 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
         "y", 
         "z"
       ]
-    }
+    },
+    "c_key_value_delimiter": {
+      "name": "c_key_value_delimiter",
+      "chars": [
+        "="
+      ]
+    }  
   }, 
   "states": [
     {
@@ -631,7 +648,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
         }, 
         {
           "to_state": "s_value", 
-          "char_name": "c_equal", 
+          "char_name": "c_key_value_delimiter", 
           "commands": [
             {
               "name": "emit", 
@@ -755,8 +772,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "name": "s_done", 
       "transitions": []
     }
-  ],
-  "variables": []
+  ]
 }
 '''
 

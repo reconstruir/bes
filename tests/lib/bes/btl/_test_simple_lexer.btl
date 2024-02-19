@@ -22,9 +22,14 @@ tokens
 errors
   e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
 
+variables
+  v_key_value_delimiter: =
+
 chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
+  #c_key_value_delimiter: ${v_key_value_delimiter}
+  c_key_value_delimiter: c_equal
 
 states
 
@@ -45,7 +50,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_value
+    c_key_value_delimiter: s_value
       emit t_key
       buffer reset
       buffer write
