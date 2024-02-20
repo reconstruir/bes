@@ -133,6 +133,13 @@ class btl_parser_node(object):
     func = lambda n, part: n.data == part
     return self.find_child_by_path(path, func)
 
+  def visit_children(self, func, recurse = True):
+    for child in self.children:
+      func(child)
+    if recurse:
+      for child in self.children:
+        child.visit_children(func, recurse = recurse)
+  
 check.register_class(btl_parser_node, include_seq = False)
 
   

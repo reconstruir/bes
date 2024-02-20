@@ -102,7 +102,7 @@ smell=stink
 '''
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
-  def xtest_remove_section(self):
+  def test_remove_section(self):
     text = '''
 name=grocery
 version=1.0
@@ -116,7 +116,6 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    doc.remove_section('fruit')
     self.assert_python_code_text_equal( text, doc.to_source_string() )
     expected = '''
 name=grocery
@@ -127,6 +126,7 @@ version=1.0
 name=vieux
 smell=stink
 '''
+    doc.remove_section('fruit')
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
     
 if __name__ == '__main__':
