@@ -25,6 +25,9 @@ class bc_ini_document(btl_document):
   def set_value(self, key, value):
     check.check_string(key)
     check.check_string(value)
+
+    kv_node = self._find_global_key_value_node(key, raise_error = True)
+    self._key_value_node_modify_value(kv_node, value)
     
   def remove_value(self, key):
     check.check_string(key)
@@ -42,10 +45,7 @@ class bc_ini_document(btl_document):
     check.check_string(value)
 
     kv_node = self._find_section_key_value_node(section_name, key, raise_error = True)
-    old_token = kv_node.children[1].token
-    new_token, horizontal_shift = old_token.clone_replace_value(value)
-    kv_node.children[1].token = new_token
-    self._tokens[old_token.index] = new_token.clone()
+    self._key_value_node_modify_value(kv_node, value)
     
   def add_section(self, section_name):
     check.check_string(section_name)
@@ -85,5 +85,11 @@ class bc_ini_document(btl_document):
     if not key_value_node and raise_error:
       raise bc_ini_error(f'key value not found: "{key}"')
     return key_value_node
+
+  def _key_value_node_modify_value(self, key_value_node, new_value):
+    old_token = key_value_node.children[1].token
+    new_token, horizontal_shift = old_token.clone_replace_value(new_value)
+    key_value_node.children[1].token = new_token
+    self._tokens[old_token.index] = new_token.clone()
   
 check.register_class(bc_ini_document, include_seq = False)
