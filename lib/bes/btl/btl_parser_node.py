@@ -139,7 +139,21 @@ class btl_parser_node(object):
     if recurse:
       for child in self.children:
         child.visit_children(func, recurse = recurse)
-  
+
+  def indeces(self, recurse = True):
+    indeces = []
+    if self.token:
+      indeces.append(self.token.index)
+    def _func(node):
+      if node.token:
+        indeces.append(node.token.index)
+    self.visit_children(_func, recurse = True)
+    return sorted(indeces)
+
+  def largest_index(self, recurse = True):
+    indeces = self.indeces(recurse = recurse)
+    return indeces[-1]
+
 check.register_class(btl_parser_node, include_seq = False)
 
   

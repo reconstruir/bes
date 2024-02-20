@@ -172,5 +172,29 @@ class btl_lexer_token_deque(object):
 
     dict_list = json.loads(s)
     return clazz.parse_dict_list(dict_list)
+
+  def find_backwards(self, index, token_name):
+    check.check_int(index)
+    
+    if index < 0:
+      index = len(self._tokens) + index + 1
+
+    for next_index in reversed(range(0, index)):
+      next_token = self[next_index]
+      if next_token.name == token_name:
+        return next_token
+    return None
+
+  def find_forwards(self, index, token_name):
+    check.check_int(index)
+    
+    if index < 0:
+      index = len(self._tokens) + index + 1
+
+    for next_index in range(index + 1, len(self) + 1):
+      next_token = self[next_index]
+      if next_token.name == token_name:
+        return next_token
+    return None
   
 check.register_class(btl_lexer_token_deque, include_seq = False)

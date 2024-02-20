@@ -497,6 +497,32 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
   }
 ]
 ''', d.to_json() )
+
+  def test_find_backwards(self):
+    d = btl_lexer_token_deque()
+    d.append( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ) )
+    d.append( ( 'color', 'red', ( 10, 1 ), 'h_color', None ) )
+    d.append( ( 'flavor', 'tart', ( 20, 1 ), None, None ) )
+    d.append( ( 'price', 'cheap', ( 30, 1 ), None, None ) )
+    d.append( ( 'aisle', '42', ( 40, 1 ), None, None ) )
+
+    self.assertEqual( ( 'price', 'cheap', ( 30, 1 ), None, None ),
+                      d.find_backwards(4, 'price') )
+    self.assertEqual( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ),
+                      d.find_backwards(3, 'fruit') )
+
+  def test_find_forewards(self):
+    d = btl_lexer_token_deque()
+    d.append( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ) )
+    d.append( ( 'color', 'red', ( 10, 1 ), 'h_color', None ) )
+    d.append( ( 'flavor', 'tart', ( 20, 1 ), None, None ) )
+    d.append( ( 'price', 'cheap', ( 30, 1 ), None, None ) )
+    d.append( ( 'aisle', '42', ( 40, 1 ), None, None ) )
+
+    self.assertEqual( ( 'color', 'red', ( 10, 1 ), 'h_color', None ),
+                      d.find_forwards(0, 'color') )
+    self.assertEqual( ( 'aisle', '42', ( 40, 1 ), None, None ),
+                      d.find_forwards(0, 'aisle') )
     
 if __name__ == '__main__':
   unit_test.main()
