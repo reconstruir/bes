@@ -77,15 +77,15 @@ class btl_parser_node(object):
                                grandchild_node_name,
                                token_name,
                                token_value):
+    
     def _func(node):
       if node.name != child_node_name:
         return False
       grandchild_node = node.find_child_by_token(grandchild_node_name,
                                                  token_name,
                                                  token_value)
-      if not grandchild_node:
-        return False
-      return True
+      return grandchild_node != None
+    
     return self.find_child(_func, recurse = False)
   
   find_result = namedtuple('find_result', 'depth, child')

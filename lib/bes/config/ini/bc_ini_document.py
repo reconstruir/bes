@@ -18,6 +18,15 @@ class bc_ini_document(btl_document):
   def get_value(self, key):
     check.check_string(key)
 
+    global_section_node = self.root_node.find_child_by_name('n_global_section')
+    assert global_section_node
+    kv_node = global_section_node.find_grandchild_by_token('n_key_value',
+                                                           'n_key',
+                                                           't_key',
+                                                           key)
+    assert kv_node
+    return kv_node.children[1].token.value
+    
   def set_value(self, key, value):
     check.check_string(key)
     check.check_string(value)

@@ -24,6 +24,24 @@ smell=stink
 
     self.assertEqual( 'vieux', doc.get_section_value('cheese', 'name') )
     self.assertEqual( 'stink', doc.get_section_value('cheese', 'smell') )
+
+  def test_get_value(self):
+    text = '''
+name=grocery
+version=1.0
+
+[fruit]
+name=apple
+color=red
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+
+    self.assertEqual( 'grocery', doc.get_value('name') )
+    self.assertEqual( '1.0', doc.get_value('version') )
     
 if __name__ == '__main__':
   unit_test.main()
