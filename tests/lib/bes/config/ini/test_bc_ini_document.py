@@ -7,7 +7,7 @@ from bes.config.ini.bc_ini_document import bc_ini_document
 
 class test_bc_ini_document(unit_test):
 
-  def test_foo(self):
+  def test_get_section_value(self):
     text = '''
 [fruit]
 name=apple
@@ -17,7 +17,13 @@ color=red
 name=vieux
 smell=stink
 '''
-    doc = bc_ini_document(text) 
+    doc = bc_ini_document(text)
+    
+    self.assertEqual( 'apple', doc.get_section_value('fruit', 'name') )
+    self.assertEqual( 'red', doc.get_section_value('fruit', 'color') )
+
+    self.assertEqual( 'vieux', doc.get_section_value('cheese', 'name') )
+    self.assertEqual( 'stink', doc.get_section_value('cheese', 'smell') )
     
 if __name__ == '__main__':
   unit_test.main()

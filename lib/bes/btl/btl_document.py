@@ -26,12 +26,28 @@ class btl_document(object):
     self._tokens = None
     self._do_parse()
 
+  @property
+  def root_node(self):
+    return self._root_node
+  
+  def to_source_string(self):
+    return self._tokens.to_source_string()
+    
   def _do_parse(self):
     self._root_node, self._tokens = self._parser.parse(self._text,
                                                        options = self._parser_options)
-    print(self._root_node)
-    for t in self._tokens:
-      print(t)
+    #print(f'=====:text:=====')
+    #print(self._text)
+    #print(f'================')
+    source_string = self.to_source_string()
+    #print(f'=====:source:=====')
+    #print(source_string)
+    #print(f'================')
+    assert self._text == self.to_source_string()
+    
+    #print(self._root_node)
+    #for t in self._tokens:
+    #  print(t)
     
 #  @classmethod
 #  def from_text(clazz, text):
