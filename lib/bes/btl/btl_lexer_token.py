@@ -87,9 +87,9 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     
     old_length = len(self.value)
     new_length = len(new_value)
-    x_shift = new_length - old_length
+    horizontal_shift = new_length - old_length
     new_token = self.clone(mutations = { 'value': new_value })
-    return new_token, x_shift
+    return new_token, horizontal_shift
 
   def clone_replace_index(self, new_index):
     check.check_int(new_index, allow_none = True)

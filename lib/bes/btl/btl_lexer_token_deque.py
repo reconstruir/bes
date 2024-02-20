@@ -26,6 +26,21 @@ class btl_lexer_token_deque(object):
 
   def __getitem__(self, index):
     return self._tokens[index]
+
+  def __setitem__(self, index, token):
+    token = check.check_btl_lexer_token(token)
+    self._tokens[index] = token
+  
+  def replace_by_index(self, index, token):
+    check.check_int(index)
+    token = check.check_btl_lexer_token(token)
+    
+    if index < 0:
+      index = len(self._tokens) + index + 1    
+    self._tokens.rotate(-index)
+    old_token = self._tokens.popleft()
+    self._tokens.appendleft(token)
+    self._tokens.rotate(index)
     
   def clear(self):
     self._tokens = deque()

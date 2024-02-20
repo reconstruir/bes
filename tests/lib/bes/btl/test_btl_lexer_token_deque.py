@@ -232,6 +232,23 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( t0, d[0] )
     self.assertEqual( t1, d[1] )
     self.assertEqual( t2, d[2] )
+
+  def test___setitem__(self):
+    d = btl_lexer_token_deque()
+    t0 = btl_lexer_token( 'fruit', 'kiwi', ( 1, 1 ), None, None )
+    t1 = btl_lexer_token( 'color', 'red', ( 10, 1 ), 'h_color', None )
+    t2 = btl_lexer_token( 'flavor', 'tart', ( 20, 1 ), None, None )
+    d.append(t0)
+    d.append(t1)
+    d.append(t2)
+    self.assertEqual( t0, d[0] )
+    self.assertEqual( t1, d[1] )
+    self.assertEqual( t2, d[2] )
+    new_token, _ = t1.clone_replace_value('yellow')
+    d[1] = new_token
+    self.assertEqual( t0, d[0] )
+    self.assertEqual( new_token, d[1] )
+    self.assertEqual( t2, d[2] )
     
   _JSON_TEXT = '''
 [
@@ -401,6 +418,48 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
 ]
 ''', l.to_json() )
     
+  def test_replace_by_index(self):
+    d = btl_lexer_token_deque()
+    t0 = btl_lexer_token( 'fruit', 'kiwi', ( 1, 1 ), None, None )
+    t1 = btl_lexer_token( 'color', 'red', ( 10, 1 ), 'h_color', None )
+    t2 = btl_lexer_token( 'flavor', 'tart', ( 20, 1 ), None, None )
+    d.append(t0)
+    d.append(t1)
+    d.append(t2)
+    self.assertEqual( t0, d[0] )
+    self.assertEqual( t1, d[1] )
+    self.assertEqual( t2, d[2] )
+    new_token, _ = t1.clone_replace_value('green')
+    d.replace_by_index(1, new_token)
+    self.assertEqual( t0, d[0] )
+    self.assertEqual( new_token, d[1] )
+    self.assertEqual( t2, d[2] )
+
+    self.assert_json_equal( '''
+[
+  {
+    "name": "fruit",
+    "value": "kiwi",
+    "position": "1,1",
+    "type_hint": null,
+    "index": null
+  },
+  {
+    "name": "color",
+    "value": "green",
+    "position": "10,1",
+    "type_hint": "h_color",
+    "index": null
+  },
+  {
+    "name": "flavor",
+    "value": "tart",
+    "position": "20,1",
+    "type_hint": null,
+    "index": null
+  }
+]
+''', d.to_json() )
   
 if __name__ == '__main__':
   unit_test.main()

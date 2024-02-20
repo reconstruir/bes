@@ -29,6 +29,10 @@ class btl_document(object):
   @property
   def root_node(self):
     return self._root_node
+
+  @property
+  def tokens(self):
+    return self._tokens
   
   def to_source_string(self):
     return self._tokens.to_source_string()

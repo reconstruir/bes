@@ -30,7 +30,7 @@ class bc_ini_document(btl_document):
   def set_value(self, key, value):
     check.check_string(key)
     check.check_string(value)
-
+    
   def remove_value(self, key):
     check.check_string(key)
     
@@ -56,6 +56,23 @@ class bc_ini_document(btl_document):
     check.check_string(key)
     check.check_string(value)
 
+    sections_node = self.root_node.find_child_by_name('n_sections')
+    assert sections_node
+    section_node = sections_node.find_child_by_token('n_section',
+                                                     't_section_name',
+                                                     section_name)
+    assert section_node
+    kv_node = section_node.find_grandchild_by_token('n_key_value',
+                                                    'n_key',
+                                                    't_key',
+                                                    key)
+    assert kv_node
+
+    old_token = kv_node.children[1].token
+    new_token, horizontal_shift = old_token.clone_replace_value(value)
+    kv_node.children[1].token = new_token
+    self._tokens[old_token.index] = new_token.clone()
+    
   def add_section(self, section_name):
     check.check_string(section_name)
 
