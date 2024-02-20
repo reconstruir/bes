@@ -73,9 +73,21 @@ class bc_ini_document(btl_document):
     first_index = first_token.index
     last_index = section_node.largest_index()
 
-    for index_to_remove in reversed(range(first_index, last_index + 1)):
-      self._tokens.remove_by_index(index_to_remove)
+    new_line_before_token = self._tokens.find_backwards(first_index, 't_line_break')
+    new_line_after_token = self._tokens.find_forwards(last_index, 't_line_break')
+#    print(f'new_line_before_token={new_line_before_token}')
+#    print(f'new_line_after_token={new_line_after_token}')
+
+    indeces_to_remove = [ i for i in reversed(range(new_line_before_token.index, new_line_after_token.index + 1)) ]
+    #indeces_to_remove = [ i for i in reversed(range(first_index, last_index + 1)) ]
+
+
     
+#    last_index_to_remove = None
+    for index_to_remove in indeces_to_remove:
+      self._tokens.remove_by_index(index_to_remove)
+#      last_index_to_remove = index_to_remove
+
     sections_node.remove_child(section_node)
 
     self._text = self._tokens.to_source_string()
