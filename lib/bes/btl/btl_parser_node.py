@@ -61,6 +61,11 @@ class btl_parser_node(object):
 
     self._children.append(child)
 
+  def remove_child(self, child):
+    check.check_btl_parser_node(child)
+
+    self._children.remove(child)
+    
   def num_children(self):
     return len(self.children)
 
