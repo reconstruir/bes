@@ -127,6 +127,39 @@ smell=stink
 '''
     doc.remove_section('fruit')
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_remove_empty_section(self):
+    text = '''
+[fruit]
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+    
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc.remove_section('fruit')
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_remove_top_section(self):
+    text = '''[fruit]
+[cheese]
+name=vieux
+smell=stink'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''[cheese]
+name=vieux
+smell=stink
+'''
+    doc.remove_section('fruit')
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
     
 if __name__ == '__main__':
   unit_test.main()

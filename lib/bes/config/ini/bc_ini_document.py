@@ -53,44 +53,13 @@ class bc_ini_document(btl_document):
   def remove_section_value(self, section_name, key):
     check.check_string(section_name)
     check.check_string(key)
-
-#    sections_node = self.root_node.find_child_by_name('n_sections')
-#    section_node =  self._find_section_node(section_name, raise_error = True)
-#    index = section_node.token.index
-#    sections_node.remove_child(section_node)
-#    self._tokens.remove_by_index(index)
     
   def remove_section(self, section_name):
     check.check_string(section_name)
 
-    s1 = str(self._tokens.to_source_string())
-    
     sections_node = self.root_node.find_child_by_name('n_sections')
     section_node =  self._find_section_node(section_name, raise_error = True)
-    section_name_index = section_node.token.index
-
-    first_token = self._tokens.find_backwards(section_name_index, 't_section_name_begin')
-    first_index = first_token.index
-    last_index = section_node.largest_index()
-
-    new_line_before_token = self._tokens.find_backwards(first_index, 't_line_break')
-    new_line_after_token = self._tokens.find_forwards(last_index, 't_line_break')
-#    print(f'new_line_before_token={new_line_before_token}')
-#    print(f'new_line_after_token={new_line_after_token}')
-
-    indeces_to_remove = [ i for i in reversed(range(new_line_before_token.index, new_line_after_token.index + 1)) ]
-    #indeces_to_remove = [ i for i in reversed(range(first_index, last_index + 1)) ]
-
-
-    
-#    last_index_to_remove = None
-    for index_to_remove in indeces_to_remove:
-      self._tokens.remove_by_index(index_to_remove)
-#      last_index_to_remove = index_to_remove
-
-    sections_node.remove_child(section_node)
-
-    self._text = self._tokens.to_source_string()
+    self.reitre_node(sections_node, section_node, 't_section_name_begin', True, True)
     
   def _find_section_node(self, section_name, raise_error = True):
     sections_node = self.root_node.find_child_by_name('n_sections')

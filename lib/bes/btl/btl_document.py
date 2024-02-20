@@ -57,4 +57,35 @@ class btl_document(object):
 #  def from_text(clazz, text):
 #    check.check_string(text)
 
+  def reitre_node(self,
+                  parent_node,
+                  node,
+                  starting_token_name,
+                  include_previous_line_break,
+                  include_next_line_break):
+    token_index = node.token.index
+
+    first_token = self._tokens.find_backwards(token_index, 't_section_name_begin')
+    first_index = first_token.index
+    last_index = node.largest_index()
+    last_token = self._tokens[last_index]
+    
+    if include_previous_line_break:
+      new_line_before_token = self._tokens.find_backwards(first_index, 't_line_break')
+      if new_line_before_token:
+        first_token = new_line_before_token
+
+    if include_next_line_break:
+      new_line_after_token = self._tokens.find_forwards(last_index, 't_line_break')
+      if new_line_after_token:
+        last_token = new_line_after_token
+
+    indeces_to_remove = [ i for i in reversed(range(first_token.index, last_token.index + 1)) ]
+    for index_to_remove in indeces_to_remove:
+      self._tokens.remove_by_index(index_to_remove)
+
+    parent_node.remove_child(node)
+
+    self._text = self._tokens.to_source_string()
+
 check.register_class(btl_document, include_seq = False)
