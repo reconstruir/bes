@@ -41,6 +41,16 @@ class btl_lexer_token_deque(object):
     old_token = self._tokens.popleft()
     self._tokens.appendleft(token)
     self._tokens.rotate(index)
+
+  def remove_by_index(self, index):
+    check.check_int(index)
+    
+    if index < 0:
+      index = len(self._tokens) + index + 1    
+    self._tokens.rotate(-index)
+    removed_token = self._tokens.popleft()
+    self._tokens.rotate(index)
+    return removed_token
     
   def clear(self):
     self._tokens = deque()

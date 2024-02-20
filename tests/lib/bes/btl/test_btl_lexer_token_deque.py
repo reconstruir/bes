@@ -460,6 +460,43 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
   }
 ]
 ''', d.to_json() )
-  
+
+  def test_remove_by_index(self):
+    d = btl_lexer_token_deque()
+    t0 = btl_lexer_token( 'fruit', 'kiwi', ( 1, 1 ), None, None )
+    t1 = btl_lexer_token( 'color', 'red', ( 10, 1 ), 'h_color', None )
+    t2 = btl_lexer_token( 'flavor', 'tart', ( 20, 1 ), None, None )
+    d.append(t0)
+    d.append(t1)
+    d.append(t2)
+    self.assertEqual( t0, d[0] )
+    self.assertEqual( t1, d[1] )
+    self.assertEqual( t2, d[2] )
+    self.assertEqual( 3, len(d) )
+    removed_token = d.remove_by_index(1)
+    self.assertEqual( 2, len(d) )
+    self.assertEqual( t1, removed_token )
+    self.assertEqual( t0, d[0] )
+    self.assertEqual( t2, d[1] )
+
+    self.assert_json_equal( '''
+[
+  {
+    "name": "fruit",
+    "value": "kiwi",
+    "position": "1,1",
+    "type_hint": null,
+    "index": null
+  },
+  {
+    "name": "flavor",
+    "value": "tart",
+    "position": "20,1",
+    "type_hint": null,
+    "index": null
+  }
+]
+''', d.to_json() )
+    
 if __name__ == '__main__':
   unit_test.main()
