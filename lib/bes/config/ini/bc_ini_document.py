@@ -50,6 +50,13 @@ class bc_ini_document(btl_document):
   def add_section(self, section_name):
     check.check_string(section_name)
 
+  def remove_section_value(self, section_name, key):
+    check.check_string(section_name)
+    check.check_string(key)
+
+#    kv_node = self._find_section_key_value_node(section_name, key, raise_error = True)
+#    self._key_value_node_modify_value(kv_node, value)
+    
   def remove_section(self, section_name):
     check.check_string(section_name)
 
