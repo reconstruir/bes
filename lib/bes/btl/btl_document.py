@@ -38,8 +38,7 @@ class btl_document(object):
     return self._tokens.to_source_string()
     
   def _do_parse(self):
-    self._root_node, self._tokens = self._parser.parse(self._text,
-                                                       options = self._parser_options)
+    self._root_node, self._tokens = self._parse_text(self._text)
     #print(f'=====:text:=====')
     #print(self._text)
     #print(f'================')
@@ -48,15 +47,10 @@ class btl_document(object):
     #print(source_string)
     #print(f'================')
     assert self._text == self.to_source_string()
-    
-    #print(self._root_node)
-    #for t in self._tokens:
-    #  print(t)
-    
-#  @classmethod
-#  def from_text(clazz, text):
-#    check.check_string(text)
 
+  def _parse_text(self, text):
+    return self._parser.parse(text, options = self._parser_options)
+    
   def reitre_node(self,
                   parent_node,
                   node,
@@ -88,4 +82,24 @@ class btl_document(object):
 
     self._text = self._tokens.to_source_string()
 
+  def add_comment_node(self, parent_node, comment_value):
+    pass
+    #token = btl_lexer_token('t_comment',
+    #                          comment_value, position, type_hint, index')):
+
+  def add_node_from_text(self, parent_node, text):
+    check.check_btl_parser_node(parent_node)
+    check.check_string(text)
+
+    print(f'parent_node={parent_node}')
+    
+    last_child = parent_node.children[-1]
+    last_child_index = last_child.token.index
+    print(f'last_child_index={last_child_index}')
+    new_node, tokens = self._parse_text(text)
+    parent_node.add_child(new_node)
+#    print(f'root_node={root_node}')
+#    for t in tokens:
+#      print(f'token: {t}')
+    
 check.register_class(btl_document, include_seq = False)

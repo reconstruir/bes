@@ -154,6 +154,28 @@ class btl_parser_node(object):
     indeces = self.indeces(recurse = recurse)
     return indeces[-1]
 
-check.register_class(btl_parser_node, include_seq = False)
-
+  def find_last_node(self):
   
+    # Helper function for DFS traversal
+    def dfs(node, level, last_node):
+      nonlocal max_level
+      if not node:
+        return
+      if level > max_level:
+        max_level = level
+        last_node[0] = node
+      left = None
+      right = None
+      if len(node.children) > 0:
+        right = node.children[-1]
+      if len(node.children) > 1:
+        left = node.children[0]
+      dfs(right, level + 1, last_node)
+      dfs(left, level + 1, last_node)
+
+    max_level = -1
+    last_node = [ None ]
+    dfs(self, 0, last_node)
+    return last_node[0]  
+  
+check.register_class(btl_parser_node, include_seq = False)

@@ -58,13 +58,23 @@ class bc_ini_document(btl_document):
     check.check_string(section_name)
 
     sections_node = self.root_node.find_child_by_name('n_sections')
-    section_node =  self._find_section_node(section_name, raise_error = True)
+    section_node =  self.find_section_node(section_name, raise_error = True)
     self.reitre_node(sections_node, section_node, 't_section_name_begin', True, True)
-    
-  def _find_section_node(self, section_name, raise_error = True):
+
+  def find_global_section_node(self):
+    global_section_node = self.root_node.find_child_by_name('n_global_section')
+    if not global_section_node:
+      raise bc_ini_error(f'missing node: "n_global_section"')
+    return global_section_node
+
+  def find_sections_node(self):
     sections_node = self.root_node.find_child_by_name('n_sections')
     if not sections_node:
       raise bc_ini_error(f'missing node: "n_sections"')
+    return sections_node
+  
+  def find_section_node(self, section_name, raise_error = True):
+    sections_node = self.find_sections_node()
     section_node = sections_node.find_child_by_token('n_section',
                                                      't_section_name',
                                                      section_name)
@@ -73,7 +83,7 @@ class bc_ini_document(btl_document):
     return section_node
 
   def _find_section_key_value_node(self, section_name, key, raise_error = True):
-    section_node =  self._find_section_node(section_name, raise_error = True)
+    section_node =  self.find_section_node(section_name, raise_error = True)
     key_value_node = section_node.find_grandchild_by_token('n_key_value',
                                                            'n_key',
                                                            't_key',
@@ -99,5 +109,5 @@ class bc_ini_document(btl_document):
     new_token, horizontal_shift = old_token.clone_replace_value(new_value)
     key_value_node.children[1].token = new_token
     self._tokens[old_token.index] = new_token.clone()
-  
+
 check.register_class(bc_ini_document, include_seq = False)

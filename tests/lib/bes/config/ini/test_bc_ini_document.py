@@ -160,6 +160,75 @@ smell=stink
 '''
     doc.remove_section('fruit')
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_global_add_node_from_text(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+smell=stink
+price=cheap
+'''
+    doc.add_node_from_text(doc.find_global_section_node(), 'price=cheap')
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_caca(self):
+    text = '''
+name=grocery
+version=1.0
+
+[fruit]
+name=apple
+color=red
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+smell=stink
+price=cheap
+'''
+    last_node = doc.find_global_section_node().find_last_node()
+    print(f'last_node={last_node}')
+    #doc.add_node_from_text(doc.find_global_section_node, 'price=cheap')
+#    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+#find_section_node
+
+  def test_find_global_section_node(self):
+    doc = bc_ini_document('')
+    expected = '''
+n_global_section;
+'''
+    self.assert_python_code_text_equal( expected, str(doc.find_global_section_node()) )
+
+  def test_find_sections_node(self):
+    text = '''
+[fruits]
+'''
+    doc = bc_ini_document(text)
+    expected = '''
+n_sections;
+  n_section;t_section_name:fruits:p=2,2:i=2    
+'''
+    self.assert_python_code_text_equal( expected, str(doc.find_sections_node()) )
+
+  def test_empty_text(self):
+    doc = bc_ini_document('')
+    expected = '''
+n_root;
+  n_global_section;
+  n_sections;
+'''
+    self.assert_python_code_text_equal( expected, str(doc.root_node) )
     
 if __name__ == '__main__':
   unit_test.main()
