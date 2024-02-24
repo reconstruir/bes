@@ -144,6 +144,38 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
     marker = f'{indent}^^^ {message}'
     error_lines = top + [ marker ] + bottom
     return os.linesep.join(error_lines).rstrip()
-  
+
+  @classmethod
+  def parse_str(clazz, s):
+    parts = s.split(':')
+
+    assert len(parts) > 0
+    name = parts.pop(0)
+    value = parts.pop(0) if len(parts) else None
+    position = None
+    type_hint = None
+    index = None
+    for part in parts:
+      left, right = clazz._parse_str_part(part)
+      if left == 'p':
+        position = right
+      elif left == 'i':
+        index = right
+      elif left == 'h':
+        type_hint = right
+    return btl_lexer_token(name, value, position, type_hint, index)
+
+  @classmethod
+  def _parse_str_part(clazz, part):
+    if not part:
+      return None
+    left, delimiter, right = part.partition('=')
+    if left == 'p':
+      return left, btl_document_position.parse_str(right)
+    elif left == 'h':
+      return left, right
+    elif left == 'i':
+      return left, int(right)
+      
 check.register_class(btl_lexer_token, include_seq = False, cast_func = btl_lexer_token._check_cast_func)
   

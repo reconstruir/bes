@@ -2,6 +2,11 @@
 
 from collections import namedtuple
 
+from ..text.tree_text_parser import tree_text_parser
+
+from .btl_parser_node import btl_parser_node
+from .btl_lexer_token import btl_lexer_token
+
 class btl_parser_tester_mixin:
 
   _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string, expected_tokens, actual_tokens')
@@ -26,3 +31,23 @@ class btl_parser_tester_mixin:
                              actual_tokens.to_source_string(),
                              expected_tokens,
                              actual_tokens)
+
+  @classmethod
+  def parse_test_tree(clazz, text):
+    tree = tree_text_parser.parse(text,
+                                  strip_comments = True,
+                                  root_name = 'root')
+    btl_tree = clazz._clone_as_btl_parser_node(tree)
+    return btl_tree.children[0]
+
+  @classmethod
+  def _clone_as_btl_parser_node(clazz, root):
+    if root is None:
+      return None
+    node_name, delimiter, token_str = root.data.text.partition(';')
+    token = btl_lexer_token.parse_str(token_str)
+    cloned_root = btl_parser_node(node_name, token = token)
+    for child in root.children:
+       cloned_child = clazz._clone_as_btl_parser_node(child)
+       cloned_root.children.append(cloned_child)
+    return cloned_root

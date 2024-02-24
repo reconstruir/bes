@@ -64,6 +64,10 @@ taste=earthy
 14|\
 '''
 , token.make_error_text(text, 'unexpected token foo bar') )
+
+  def test_parse_str(self):
+    self.assertEqual( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ),
+                      btl_lexer_token.parse_str('fruit:kiwi:p=1,1') )
     
 if __name__ == '__main__':
   unit_test.main()
