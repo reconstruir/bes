@@ -176,33 +176,6 @@ price=cheap
     doc.add_node_from_text(doc.find_global_section_node(), 'price=cheap')
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
-  def test_caca(self):
-    text = '''
-name=grocery
-version=1.0
-
-[fruit]
-name=apple
-color=red
-
-[cheese]
-name=vieux
-smell=stink
-'''
-    doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
-    expected = '''
-name=vieux
-smell=stink
-price=cheap
-'''
-    last_node = doc.find_global_section_node().find_last_node()
-    print(f'last_node={last_node}')
-    #doc.add_node_from_text(doc.find_global_section_node, 'price=cheap')
-#    self.assert_python_code_text_equal( expected, doc.to_source_string() )
-
-#find_section_node
-
   def test_find_global_section_node(self):
     doc = bc_ini_document('')
     expected = '''
