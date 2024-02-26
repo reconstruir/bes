@@ -1,28 +1,55 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy
 import os
 
-from collections import namedtuple
-
 from ..common.json_util import json_util
-from ..common.tuple_util import tuple_util
 from ..system.check import check
 from ..text.line_numbers import line_numbers
 
 from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
 
-class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type_hint, index')):
+class btl_lexer_token(object):
 
-  def __new__(clazz, name = None, value = None, position = ( 1, 1 ), type_hint = None, index = None):
+  def __init__(self, name = None, value = None, position = ( 1, 1 ), type_hint = None, index = None):
     check.check_string(name)
     check.check_string(value, allow_none = True)
     position = check.check_btl_document_position(position, allow_none = True)
     check.check_string(type_hint, allow_none = True)
     check.check_int(index, allow_none = True)
-    
-    return clazz.__bases__[0].__new__(clazz, name, value, position, type_hint, index)
+
+    self._name = name
+    self._value = value
+    self._position = position
+    self._type_hint = type_hint
+    self._index = index
+
+  @property
+  def name(self):
+    return self._name
+
+  @property
+  def value(self):
+    return self._value
+
+  @property
+  def position(self):
+    return self._position
+
+  @property
+  def type_hint(self):
+    return self._type_hint
+
+  @property
+  def index(self):
+    return self._index
+
+  def __eq__(self, other):
+    if isinstance(other, btl_lexer_token):
+      return self._name == other._name and self._value == other._value and self._position == other._position and self._type_hint == other._type_hint and self._index == other._index
+    elif isinstance(other, ( tuple, list )):
+      other = self._check_cast_func(other)
+      return self._name == other._name and self._value == other._value and self._position == other._position and self._type_hint == other._type_hint and self._index == other._index
 
   def __str__(self):
     parts = [
@@ -69,18 +96,22 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
   
   def clone(self, mutations = None):
     mutations = mutations or {}
+    name = mutations.get('name', self._name)
+    value = mutations.get('value', self._value)
+    type_hint = mutations.get('type_hint', self._type_hint)
+    index = mutations.get('index', self._index)
+
     if 'position' in mutations:
-      position = mutations['position']
-      position = check.check_btl_document_position(position, allow_none = True)
+      position = check.check_btl_document_position(mutations['position'], allow_none = True)
+      if position:
+        position = position.clone()
     else:
-      position = self.position
-    copied_mutations = copy.deepcopy(mutations)
-    if position == None:
-      cloned_position = None
-    else:
-      cloned_position = position.clone()
-    copied_mutations['position'] = cloned_position
-    return tuple_util.clone(self, mutations = copied_mutations)
+      position = self._position
+    return btl_lexer_token(name = name,
+                           value = value,
+                           position = position,
+                           type_hint = type_hint,
+                           index = index)
 
   def clone_replace_value(self, new_value):
     check.check_string(new_value)
@@ -122,7 +153,20 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position, type
   
   @classmethod
   def _check_cast_func(clazz, obj):
-    return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+    if isinstance(obj, ( tuple, list )):
+      l = list(obj)[:]
+      name = l.pop(0) if l else None
+      value = l.pop(0) if l else None
+      position = l.pop(0) if l else None
+      type_hint = l.pop(0) if l else None
+      index = l.pop(0) if l else None
+      return btl_lexer_token(name = name,
+                             value = value,
+                             position = position,
+                             type_hint = type_hint,
+                             index = index)
+    else:
+      raise ValueError(f'cannot cast "{obj}" to btl_lexer_token')
 
   def make_error_text(self, text, message):
     check.check_string(text)
