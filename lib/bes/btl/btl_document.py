@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from ..system.log import log
+from ..system.log import logger
 from ..system.check import check
 
 from .btl_lexer_token_deque import btl_lexer_token_deque
@@ -14,6 +14,7 @@ from .btl_parser_options import btl_parser_options
 
 class btl_document(object):
 
+  _log = logger('btl_document')
   def __init__(self, parser, text, parser_options = None):
     check.check_btl_parser(parser)
     check.check_string(text)
@@ -39,13 +40,13 @@ class btl_document(object):
     
   def _do_parse(self):
     self._root_node, self._tokens = self._parse_text(self._text)
-    #print(f'=====:text:=====')
-    #print(self._text)
-    #print(f'================')
+    #self._log.log_d(f'=====:text:=====')
+    #self._log.log_d(self._text)
+    #self._log.log_d(f'================')
     source_string = self.to_source_string()
-    #print(f'=====:source:=====')
-    #print(source_string)
-    #print(f'================')
+    #self._log.log_d(f'=====:source:=====')
+    #self._log.log_d(source_string)
+    #self._log.log_d(f'================')
     assert self._text == self.to_source_string()
 
   def _parse_text(self, text):
@@ -91,15 +92,18 @@ class btl_document(object):
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
 
-    print(f'parent_node={parent_node}')
+    self._log.log_d(f'parent_node={parent_node}')
+    for i, child in enumerate(parent_node.children):
+      self._log.log_d(f'{i}: child={child}')
     
     last_child = parent_node.children[-1]
+    self._log.log_d(f'last_child={last_child}')
     last_child_index = last_child.token.index
-    print(f'last_child_index={last_child_index}')
+    self._log.log_d(f'last_child_index={last_child_index}')
     new_node, tokens = self._parse_text(text)
     parent_node.add_child(new_node)
-#    print(f'root_node={root_node}')
+#    self._log.log_d(f'root_node={root_node}')
 #    for t in tokens:
-#      print(f'token: {t}')
+#      self._log.log_d(f'token: {t}')
     
 check.register_class(btl_document, include_seq = False)
