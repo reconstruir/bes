@@ -1,6 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import deque
 from collections import OrderedDict
 
 import io
@@ -14,7 +13,7 @@ from .btl_lexer_token import btl_lexer_token
 class btl_lexer_token_list(object):
 
   def __init__(self, tokens = None):
-    self._tokens = deque()
+    self._tokens = []
     for token in (tokens or []):
       self.append(token)
 
@@ -29,31 +28,25 @@ class btl_lexer_token_list(object):
 
   def __setitem__(self, index, token):
     token = check.check_btl_lexer_token(token)
+
     self._tokens[index] = token
   
   def replace_by_index(self, index, token):
     check.check_int(index)
     token = check.check_btl_lexer_token(token)
     
-    if index < 0:
-      index = len(self._tokens) + index + 1    
-    self._tokens.rotate(-index)
-    old_token = self._tokens.popleft()
-    self._tokens.appendleft(token)
-    self._tokens.rotate(index)
+    old_token = self._tokens[index]
+    self._tokens[index] = token
+    return old_token
 
   def remove_by_index(self, index):
     check.check_int(index)
     
-    if index < 0:
-      index = len(self._tokens) + index + 1    
-    self._tokens.rotate(-index)
-    removed_token = self._tokens.popleft()
-    self._tokens.rotate(index)
+    removed_token = self._tokens.pop(index)
     return removed_token
     
   def clear(self):
-    self._tokens = deque()
+    self._tokens = []
   
   def append(self, token):
     token = check.check_btl_lexer_token(token)
@@ -66,7 +59,7 @@ class btl_lexer_token_list(object):
   def prepend(self, token):
     token = check.check_btl_lexer_token(token)
 
-    self._tokens.appendleft(token)
+    self._tokens.insert(0, token)
 
   def insert(self, index, token):
     check.check_int(index)
@@ -74,9 +67,8 @@ class btl_lexer_token_list(object):
 
     if index < 0:
       index = len(self._tokens) + index + 1    
-    self._tokens.rotate(-index)
-    self._tokens.appendleft(token)
-    self._tokens.rotate(index)    
+    
+    self._tokens.insert(index, token)
     
   def to_line_break_ordered_dict(self):
     if not self._tokens:
