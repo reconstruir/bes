@@ -15,6 +15,7 @@ from .btl_parser_options import btl_parser_options
 class btl_document(object):
 
   _log = logger('btl_document')
+  
   def __init__(self, parser, text, parser_options = None):
     check.check_btl_parser(parser)
     check.check_string(text)
@@ -89,6 +90,7 @@ class btl_document(object):
     #                          comment_value, position, type_hint, index')):
 
   def add_node_from_text(self, parent_node, text):
+    'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
 
@@ -98,8 +100,9 @@ class btl_document(object):
     
     last_child = parent_node.children[-1]
     self._log.log_d(f'last_child={last_child}')
-    last_child_index = last_child.token.index
-    self._log.log_d(f'last_child_index={last_child_index}')
+    self._log.log_d(f'last_child_token={last_child.token}')
+    #last_child_index = last_child.token.index
+    #self._log.log_d(f'last_child_index={last_child_index}')
     new_node, tokens = self._parse_text(text)
     parent_node.add_child(new_node)
 #    self._log.log_d(f'root_node={root_node}')

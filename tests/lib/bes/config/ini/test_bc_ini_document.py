@@ -161,7 +161,7 @@ smell=stink
     doc.remove_section('fruit')
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
-  def xtest_global_add_node_from_text(self):
+  def test_global_add_node_from_text(self):
     text = '''
 name=vieux
 smell=stink
