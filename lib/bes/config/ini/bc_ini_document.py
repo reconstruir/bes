@@ -105,9 +105,7 @@ class bc_ini_document(btl_document):
     return key_value_node
 
   def _key_value_node_modify_value(self, key_value_node, new_value):
-    old_token = key_value_node.children[1].token
-    new_token, horizontal_shift = old_token.clone_replace_value(new_value)
-    key_value_node.children[1].token = new_token
-    self._tokens[old_token.index] = new_token
+    token = key_value_node.children[1].token
+    token.replace_value(new_value)
 
 check.register_class(bc_ini_document, include_seq = False)

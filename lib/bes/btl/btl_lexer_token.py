@@ -115,18 +115,14 @@ class btl_lexer_token(object):
   def to_json(self):
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
 
-  def clone_replace_value(self, new_value):
+  def replace_value(self, new_value):
     check.check_string(new_value)
     
     old_length = len(self.value)
     new_length = len(new_value)
     horizontal_shift = new_length - old_length
-    new_token = btl_lexer_token(name = self.name,
-                                value = new_value,
-                                position = self.position,
-                                type_hint = self.type_hint,
-                                index = self.index)
-    return new_token, horizontal_shift
+    self.value = new_value
+    return horizontal_shift
   
   def move_horizontal(self, horizontal_delta):
     check.check_int(horizontal_delta)

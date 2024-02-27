@@ -109,9 +109,8 @@ class btl_lexer_token_deque(object):
       if state == STATE_BEFORE_FOUND:
         if token.name == token_name:
           found = True
-          new_token, column_delta = token.clone_replace_value(new_value)
+          column_delta = token.replace_value(new_value)
           assert column_delta != None
-          self._tokens[i] = new_token
           state = STATE_AFTER_FOUND
       elif state == STATE_AFTER_FOUND:
         assert column_delta != None
