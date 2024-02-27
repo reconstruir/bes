@@ -114,26 +114,6 @@ class btl_lexer_token(object):
   
   def to_json(self):
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
-  
-  def clone(self, mutations = None):
-    assert False
-    mutations = mutations or {}
-    name = mutations.get('name', self._name)
-    value = mutations.get('value', self._value)
-    type_hint = mutations.get('type_hint', self._type_hint)
-    index = mutations.get('index', self._index)
-
-    if 'position' in mutations:
-      position = check.check_btl_document_position(mutations['position'], allow_none = True)
-      if position:
-        position = position.clone()
-    else:
-      position = self._position
-    return btl_lexer_token(name = name,
-                           value = value,
-                           position = position,
-                           type_hint = type_hint,
-                           index = index)
 
   def clone_replace_value(self, new_value):
     check.check_string(new_value)
@@ -147,37 +127,17 @@ class btl_lexer_token(object):
                                 type_hint = self.type_hint,
                                 index = self.index)
     return new_token, horizontal_shift
-
-  def clone_replace_index(self, new_index):
-    check.check_int(new_index, allow_none = True)
-    
-    return self.clone(mutations = { 'index': new_index })
   
-  def clone_with_moved_horizontal(self, horizontal_delta):
-    check.check_int(horizontal_delta)
-
-    return self.clone(mutations = { 'position': self.position.moved_horizontal(horizontal_delta) })
-
   def move_horizontal(self, horizontal_delta):
     check.check_int(horizontal_delta)
 
     self.position = self.position.moved_horizontal(horizontal_delta)
   
-  def clone_with_moved_vertical(self, vertical_delta):
-    check.check_int(vertical_delta)
-
-    return self.clone(mutations = { 'position': self.position.moved_vertical(vertical_delta) })
-
   def move_vertical(self, vertical_delta):
     check.check_int(vertical_delta)
 
     self.position = self.position.moved_vertical(vertical_delta)
   
-  def clone_moved_to_line(self, line):
-    check.check_int(line)
-    
-    return self.clone(mutations = { 'position': self.position.moved_to_line(line) })
-
   def move_to_line(self, line):
     check.check_int(line)
     
@@ -185,8 +145,11 @@ class btl_lexer_token(object):
   
   def to_debug_str(self):
     debug_value = self.make_debug_str(self.value)
-#  def __init__(self, name = None, value = None, position = ( 1, 1 ), type_hint = None, index = None, node = None):    
-    debug_token = btl_lexer_token(name = self.name, value = debug_value, position = self.position, type_hint = self.type_hint, index = self.index) #self.clone(mutations = { 'value': debug_value })
+    debug_token = btl_lexer_token(name = self.name,
+                                  value = debug_value,
+                                  position = self.position,
+                                  type_hint = self.type_hint,
+                                  index = self.index)
     return str(debug_token)
 
   @classmethod
