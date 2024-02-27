@@ -107,7 +107,7 @@ taste=sour
     tokens = l.lex_all(text)
     def _hack_token(token_):
       if token_.name == 't_line_break':
-        return token_.clone(mutations = { 'value': '\\n' })
+        token_.value = '\\n'
       return token_
     hacked_tokens = [ _hack_token(token) for token in tokens ]
     expected = [

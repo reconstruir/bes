@@ -115,28 +115,21 @@ class btl_lexer_token_deque(object):
           state = STATE_AFTER_FOUND
       elif state == STATE_AFTER_FOUND:
         assert column_delta != None
-        new_token = token.clone_with_moved_horizontal(column_delta)
-        self._tokens[i] = new_token
+        token.move_horizontal(column_delta)
       else:
         assert False, f'unexpected state {state}'
 
   def shift_vertical(self, line_delta):
     check.check_int(line_delta)
 
-    new_tokens = deque()
     for token in self:
-      new_token = token.clone_with_moved_vertical(line_delta)
-      new_tokens.append(new_token)
-    self._tokens = new_tokens
+      token.move_vertical(line_delta)
 
   def set_line(self, line):
     check.check_int(line)
 
-    new_tokens = deque()
     for token in self:
-      new_token = token.clone_moved_to_line(line)
-      new_tokens.append(new_token)
-    self._tokens = new_tokens
+      token.move_to_line(line)
     
   def to_source_string(self):
     buf = io.StringIO()

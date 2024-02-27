@@ -244,7 +244,7 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( t0, d[0] )
     self.assertEqual( t1, d[1] )
     self.assertEqual( t2, d[2] )
-    new_token, _ = t1.clone_replace_value('yellow')
+    new_token = btl_lexer_token( 'color', 'yellow', ( 10, 1 ), 'h_color', None )
     d[1] = new_token
     self.assertEqual( t0, d[0] )
     self.assertEqual( new_token, d[1] )
@@ -429,7 +429,7 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( t0, d[0] )
     self.assertEqual( t1, d[1] )
     self.assertEqual( t2, d[2] )
-    new_token, _ = t1.clone_replace_value('green')
+    new_token = btl_lexer_token( 'color', 'green', ( 10, 1 ), 'h_color', None )
     d.replace_by_index(1, new_token)
     self.assertEqual( t0, d[0] )
     self.assertEqual( new_token, d[1] )

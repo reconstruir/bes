@@ -83,16 +83,16 @@ class btl_parser_base(object):
     tokens = btl_lexer_token_deque()
     last_position = btl_document_position(1, 1)
     for index, token in enumerate(self._lexer.lex_generator(text, options = options.lexer_options)):
-      token_with_index = token.clone_replace_index(index)
-      ts = token_with_index.to_debug_str()
+      token.index = index
+      ts = token.to_debug_str()
       old_state_name = context.state.name
       self.log_i(f'parser: loop: token={ts} old_state_name={old_state_name}')
       context.position = last_position.advanced(' ')
-      new_state_name = context.state.handle_token(context, token_with_index)
-      self._change_state(context, new_state_name, token_with_index)
-      tokens.append(token_with_index)
-      if token_with_index.name != 't_eos':
-        last_position = token_with_index.position
+      new_state_name = context.state.handle_token(context, token)
+      self._change_state(context, new_state_name, token)
+      tokens.append(token)
+      if token.name != 't_eos':
+        last_position = token.position
 
     if context.state != self.end_state:
       raise btl_parser_error(f'The end state is incorrectly "{context.state.name}" instead of "{self.end_state.name}"')

@@ -108,6 +108,6 @@ class bc_ini_document(btl_document):
     old_token = key_value_node.children[1].token
     new_token, horizontal_shift = old_token.clone_replace_value(new_value)
     key_value_node.children[1].token = new_token
-    self._tokens[old_token.index] = new_token.clone()
+    self._tokens[old_token.index] = new_token
 
 check.register_class(bc_ini_document, include_seq = False)
