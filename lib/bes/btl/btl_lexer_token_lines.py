@@ -9,7 +9,7 @@ from ..common.json_util import json_util
 from ..system.check import check
 
 from .btl_lexer_token import btl_lexer_token
-from .btl_lexer_token_deque import btl_lexer_token_deque
+from .btl_lexer_token_list import btl_lexer_token_list
   
 class btl_lexer_token_lines(object):
 
@@ -33,7 +33,7 @@ class btl_lexer_token_lines(object):
       }
   
   def __init__(self, tokens):
-    check.check_btl_lexer_token_deque(tokens)
+    check.check_btl_lexer_token_list(tokens)
     
     self._items = deque()
     self._indeces = {}
@@ -80,7 +80,7 @@ class btl_lexer_token_lines(object):
     
   def insert_line(self, line, tokens):
     check.check_int(line)
-    check.check_btl_lexer_token_deque(tokens)
+    check.check_btl_lexer_token_list(tokens)
     
     STATE_BEFORE_FOUND = 1
     STATE_AFTER_FOUND = 2

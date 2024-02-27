@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from .btl_lexer_token_deque import btl_lexer_token_deque
+from .btl_lexer_token_list import btl_lexer_token_list
 
 class btl_lexer_tester_mixin:
 
@@ -11,8 +11,8 @@ class btl_lexer_tester_mixin:
     lexer = lexer_class()
     actual_tokens = lexer.lex_all(text, options = options)
     actual_json = actual_tokens.to_json()
-    expected_tokens = btl_lexer_token_deque(expected)
-    expected_json = btl_lexer_token_deque(expected).to_json()
+    expected_tokens = btl_lexer_token_list(expected)
+    expected_json = btl_lexer_token_list(expected).to_json()
 
     expected_string = '\n'.join([ token.to_debug_str() for token in expected_tokens ])
     actual_string = '\n'.join([ token.to_debug_str() for token in actual_tokens ])

@@ -7,8 +7,7 @@ from ..system.check import check
 
 from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
-from .btl_lexer_token_deque import btl_lexer_token_deque
-from .btl_lexer_token_lines import btl_lexer_token_lines
+from .btl_lexer_token_list import btl_lexer_token_list
 from .btl_parser_context import btl_parser_context
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
@@ -80,7 +79,7 @@ class btl_parser_base(object):
     self.do_start_commands(context)
     context.state.enter_state(context)
     
-    tokens = btl_lexer_token_deque()
+    tokens = btl_lexer_token_list()
     last_position = btl_document_position(1, 1)
     for index, token in enumerate(self._lexer.lex_generator(text, options = options.lexer_options)):
       token.index = index

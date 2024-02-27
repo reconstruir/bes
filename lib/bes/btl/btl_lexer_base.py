@@ -12,7 +12,7 @@ from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_options import btl_lexer_options
 from .btl_lexer_runtime_error import btl_lexer_runtime_error
 from .btl_lexer_token import btl_lexer_token
-from .btl_lexer_token_deque import btl_lexer_token_deque
+from .btl_lexer_token_list import btl_lexer_token_list
 
 class btl_lexer_base(object):
 
@@ -102,7 +102,7 @@ class btl_lexer_base(object):
   def lex_all(self, text, options = None):
     check.check_btl_lexer_options(options, allow_none = True)
 
-    return btl_lexer_token_deque([ token for token in self.lex_generator(text, options = options) ])
+    return btl_lexer_token_list([ token for token in self.lex_generator(text, options = options) ])
     
   @classmethod
   def _chars_plus_eos(self, text):

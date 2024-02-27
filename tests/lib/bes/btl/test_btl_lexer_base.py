@@ -8,7 +8,7 @@ from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.btl.btl_lexer_tester_mixin import btl_lexer_tester_mixin
-from bes.btl.btl_lexer_token_deque import btl_lexer_token_deque
+from bes.btl.btl_lexer_token_list import btl_lexer_token_list
 from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
 from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
@@ -347,7 +347,7 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
 
   def test_lex_all_multiple_times(self):
     l = _test_lexer()
-    expected_tokens = btl_lexer_token_deque([
+    expected_tokens = btl_lexer_token_list([
       ( 't_key', 'a', ( 1, 1 ), None, None ),
       ( 't_key_value_delimiter', '=', ( 1, 2 ), None, None ),
       ( 't_value', 'k', ( 1, 3 ), None, None ),
@@ -358,7 +358,7 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     actual = '\n'.join([ token.to_debug_str() for token in actual_tokens ])
     self.assertEqual( expected, actual )
 
-    expected_tokens = btl_lexer_token_deque([
+    expected_tokens = btl_lexer_token_list([
       ( 't_key', 'b', ( 1, 1 ), None, None ),
       ( 't_key_value_delimiter', '=', ( 1, 2 ), None, None ),
       ( 't_value', 'z', ( 1, 3 ), None, None ),

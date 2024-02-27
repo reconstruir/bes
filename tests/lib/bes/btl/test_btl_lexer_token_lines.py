@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.btl.btl_lexer_token_deque import btl_lexer_token_deque
+from bes.btl.btl_lexer_token_list import btl_lexer_token_list
 from bes.btl.btl_lexer_token_lines import btl_lexer_token_lines
 from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.btl.btl_error import btl_error
@@ -12,7 +12,7 @@ from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 class test_btl_lexer_token_lines(_test_simple_lexer_mixin, unit_test):
 
   def test_to_source_string(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     actual = lines.to_source_string()
     expected = '''
@@ -22,7 +22,7 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_modify_value(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     lines.modify_value(2, 't_value', 'watermelon')
     actual = lines.to_source_string()
@@ -33,9 +33,9 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_top(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
-    new_tokens = btl_lexer_token_deque([
+    new_tokens = btl_lexer_token_list([
       ( 't_key', 'flavor', ( 1, -1 ), None, None ),
       ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
       ( 't_value', 'tart', ( 8, -1 ), None, None ),
@@ -51,9 +51,9 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_middle(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
-    new_tokens = btl_lexer_token_deque([
+    new_tokens = btl_lexer_token_list([
       ( 't_key', 'flavor', ( 1, -1 ), None, None ),
       ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
       ( 't_value', 'tart', ( 8, -1 ), None, None ),
@@ -69,9 +69,9 @@ color=green
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_end(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
-    new_tokens = btl_lexer_token_deque([
+    new_tokens = btl_lexer_token_list([
       ( 't_key', 'flavor', ( 1, -1 ), None, None ),
       ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
       ( 't_value', 'tart', ( 8, -1 ), None, None ),
@@ -87,9 +87,9 @@ flavor=tart
     self.assertMultiLineEqual( expected, actual )
 
   def test_insert_line_end_negative_one(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
-    new_tokens = btl_lexer_token_deque([
+    new_tokens = btl_lexer_token_list([
       ( 't_key', 'flavor', ( 1, -1 ), None, None ),
       ( 't_key_value_delimiter', '=', ( 7, -1 ), None, None ),
       ( 't_value', 'tart', ( 8, -1 ), None, None ),
@@ -105,7 +105,7 @@ flavor=tart
     self.assertMultiLineEqual( expected, actual )
 
   def test_to_json(self):
-    tokens = btl_lexer_token_deque.parse_json(self._JSON_TEXT)
+    tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
     lines = btl_lexer_token_lines(tokens)
     self.assert_json_equal( '''
 [
