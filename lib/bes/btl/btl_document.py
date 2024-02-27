@@ -5,8 +5,6 @@ from collections import namedtuple
 from ..system.log import logger
 from ..system.check import check
 
-from .btl_lexer_token_deque import btl_lexer_token_deque
-from .btl_lexer_token_lines import btl_lexer_token_lines
 from .btl_parser_desc import btl_parser_desc
 from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
