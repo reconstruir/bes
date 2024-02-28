@@ -101,39 +101,110 @@ class btl_lexer_token_list(type_checked_list):
     dict_list = json.loads(s)
     return clazz.parse_dict_list(dict_list)
 
-  def find_backwards_by_name(self, index, token_name):
-    check.check_int(index)
-    
-    return self.find_backwards(index, lambda token: token.name == token_name)
-
-  def find_forwards_by_name(self, index, token_name):
-    check.check_int(index)
-
-    return self.find_forwards(index, lambda token: token.name == token_name)
-
-  def find_backwards(self, index, func):
+  def find_index_backwards(self, index, func, raise_error = False, error_message = None):
     check.check_int(index)
     check.check_callable(func)
-    
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
     if index < 0:
       index = len(self._values) + index + 1
-    for next_index in reversed(range(0, index)):
+    for next_index in reversed(range(0, index + 1)):
       next_token = self[next_index]
       if func(next_token):
-        return next_token
-    return None
+        return next_index
+    if raise_error:
+      raise IndexError(self._make_find_error_message(index, error_message))
+    return -1
   
-  def find_forwards(self, index, func):
+  def find_index_forwards(self, index, func, raise_error = False, error_message = None):
     check.check_int(index)
     check.check_callable(func)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
     
     if index < 0:
       index = len(self._values) + index + 1
-    for next_index in range(index + 1, len(self) + 1):
+    for next_index in range(index + 0, len(self)):
       next_token = self[next_index]
       if func(next_token):
-        return next_token
-    return None
+        return next_index
+    if raise_error:
+      raise IndexError(self._make_find_error_message(index, error_message))
+    return -1
+  
+  def find_backwards(self, index, func, raise_error = False, error_message = None):
+    check.check_int(index)
+    check.check_callable(func)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    found_index = self.find_index_backwards(index, func, raise_error = raise_error, error_message = error_message)
+    if found_index < 0:
+      return None
+    return self[found_index]
+
+  def find_forwards(self, index, func, raise_error = False, error_message = None):
+    check.check_int(index)
+    check.check_callable(func)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    found_index = self.find_index_forwards(index, func, raise_error = raise_error, error_message = error_message)
+    if found_index < 0:
+      return None
+    return self[found_index]
+  
+  def find_backwards_by_name(self, index, token_name, raise_error = False, error_message = None):
+    check.check_int(index)
+    check.check_string(token_name)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+    
+    return self.find_backwards(index,
+                               lambda token: token.name == token_name,
+                               raise_error = raise_error,
+                               error_message = error_message)
+
+  def find_forwards_by_name(self, index, token_name, raise_error = False, error_message = None):
+    check.check_int(index)
+    check.check_string(token_name)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    return self.find_forwards(index,
+                              lambda token: token.name == token_name,
+                              raise_error = raise_error,
+                              error_message = error_message)
+
+  def find_backwards_by_line(self, index, line, raise_error = False, error_message = None):
+    check.check_int(index)
+    check.check_int(line)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+    
+    return self.find_backwards(index,
+                               lambda token: token.position.line == line,
+                               raise_error = raise_error,
+                               error_message = error_message)
+
+  def find_forwards_by_line(self, index, line, raise_error = False, error_message = None):
+    check.check_int(index)
+    check.check_int(line)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+    
+    return self.find_forwards(index,
+                              lambda token: token.position.line == line,
+                              raise_error = raise_error,
+                              error_message = error_message)
+
+  @classmethod
+  def _make_find_error_message(clazz, index, error_message):
+    msg = f'Token not found from {index}'
+    if error_message:
+      msg = msg + ': ' + error_message
+    return msg
   
   def to_debug_str(self):
     return os.linesep.join([ token.to_debug_str() for token in self ])
