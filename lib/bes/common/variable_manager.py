@@ -43,5 +43,20 @@ class variable_manager(object):
   def _add_system_variables(self):
     self.variables['HOME'] = path.expanduser('~')
     self.variables['USER'] = environment.username()
-  
+
+  def update_variable(self, key, value):
+    check.check_string(key)
+    check.check_string(value)
+    self.variables[key] = value
+    
+  def update_variables(self, variables):
+    if check.is_key_value_list(variables):
+      for kv in variables:
+        self.variables[kv.key] = kv.value
+    elif check.is_dict(variables):
+      for key, value in variables.items():
+        self.variables[key] = value
+    else:
+      raise ValueError('Unknown variables type: %s' % (type(variables)))
+    
 check.register_class(variable_manager, include_seq = False)
