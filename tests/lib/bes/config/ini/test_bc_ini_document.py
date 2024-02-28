@@ -208,6 +208,21 @@ t_done::h=h_done:i=14\
     
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
+  def xtest_add_comment(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+; this is my comment
+smell=stink
+'''
+    doc.add_comment(3, ' this is my comment')
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    
   def test_find_global_section_node(self):
     doc = bc_ini_document('')
     expected = '''

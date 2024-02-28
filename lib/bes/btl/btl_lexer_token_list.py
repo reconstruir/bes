@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 
+import bisect
 import io
 import json
 import os
@@ -126,5 +127,22 @@ class btl_lexer_token_list(type_checked_list):
 
   def to_debug_str(self):
     return os.linesep.join([ token.to_debug_str() for token in self ])
+
+  def first_line_to_index(self, line):
+    check.check_int(line)
+
+    index = self._bisect_by_line(line)
+    print(f'line={line} index={index}')
+    return None
+  
+  def _bisect_by_line(self, line):
+    index = bisect.bisect_left(self._values,
+                               line,
+                               lo = 0,
+                               hi = len(self._values),
+                               key = lambda token: token.position.line == line)
+    if index < len(self._values) and self._index[index].position.line == line:
+        return index
+    return -1
   
 btl_lexer_token_list.register_check_class()  

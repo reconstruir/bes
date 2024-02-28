@@ -1,12 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 from collections import namedtuple
 
 from ..system.log import logger
 from ..system.check import check
 
-from .btl_parser_desc import btl_parser_desc
-from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_options import btl_parser_options
 
@@ -82,11 +82,6 @@ class btl_document(object):
 
     self._text = self._tokens.to_source_string()
 
-  def add_comment_node(self, parent_node, comment_value):
-    pass
-    #token = btl_lexer_token('t_comment',
-    #                          comment_value, position, type_hint, index')):
-
   def add_node_from_text(self, parent_node, text):
     'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
@@ -98,7 +93,7 @@ class btl_document(object):
     parent_node.add_child(new_node)
     self._tokens.insert_values(last_child_index + 1, tokens)
     self._text = self.to_source_string()
-    # reparse the document to fix the indeces.
+    # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
     

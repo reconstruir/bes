@@ -1,5 +1,6 @@
-
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+import os
 
 from bes.system.check import check
 
@@ -107,5 +108,22 @@ class bc_ini_document(btl_document):
   def _key_value_node_modify_value(self, key_value_node, new_value):
     token = key_value_node.children[1].token
     token.replace_value(new_value)
+
+  def add_comment(self, line, comment):
+    check.check_int(line)
+    check.check_string(comment)
+
+    vm = self._parser.lexer.desc.variables.to_variable_manager()
+    print(f'vm={vm}')
+    print(f'variables={self._parser_options.variables}')
+    text = f'; {comment}{os.linesep}'
+    new_node, tokens = self._parse_text(text)
+    self._tokens.insert_values(line, tokens)
+    print(f'text before:\n{self._text}\n')
+    self._text = self.to_source_string()
+    print(f'text  after:\n{self._text}\n')
+    # FIXME: reparse the document to fix the indeces.
+    # obviously this is inefficient.  better would be to renumber
+    self._do_parse()
 
 check.register_class(bc_ini_document, include_seq = False)
