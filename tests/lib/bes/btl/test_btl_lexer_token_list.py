@@ -498,7 +498,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
 ]
 ''', d.to_json() )
 
-  def test_find_backwards(self):
+  def test_find_backwards_by_name(self):
     d = btl_lexer_token_list()
     d.append( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ) )
     d.append( ( 'color', 'red', ( 10, 1 ), 'h_color', None ) )
@@ -507,9 +507,9 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     d.append( ( 'aisle', '42', ( 40, 1 ), None, None ) )
 
     self.assertEqual( ( 'price', 'cheap', ( 30, 1 ), None, None ),
-                      d.find_backwards(4, 'price') )
+                      d.find_backwards_by_name(4, 'price') )
     self.assertEqual( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ),
-                      d.find_backwards(3, 'fruit') )
+                      d.find_backwards_by_name(3, 'fruit') )
 
   def test_find_forewards(self):
     d = btl_lexer_token_list()

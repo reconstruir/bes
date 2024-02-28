@@ -101,7 +101,7 @@ class btl_lexer_token_list(type_checked_list):
     dict_list = json.loads(s)
     return clazz.parse_dict_list(dict_list)
 
-  def find_backwards(self, index, token_name):
+  def find_backwards_by_name(self, index, token_name):
     check.check_int(index)
     
     if index < 0:

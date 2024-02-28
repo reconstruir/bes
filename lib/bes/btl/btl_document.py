@@ -59,13 +59,13 @@ class btl_document(object):
                   include_next_line_break):
     token_index = node.token.index
 
-    first_token = self._tokens.find_backwards(token_index, 't_section_name_begin')
+    first_token = self._tokens.find_backwards_by_name(token_index, 't_section_name_begin')
     first_index = first_token.index
     last_index = node.largest_index()
     last_token = self._tokens[last_index]
     
     if include_previous_line_break:
-      new_line_before_token = self._tokens.find_backwards(first_index, 't_line_break')
+      new_line_before_token = self._tokens.find_backwards_by_name(first_index, 't_line_break')
       if new_line_before_token:
         first_token = new_line_before_token
 
