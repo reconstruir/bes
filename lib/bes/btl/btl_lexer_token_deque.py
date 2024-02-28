@@ -177,7 +177,7 @@ class btl_lexer_token_deque(object):
         return next_token
     return None
 
-  def find_forwards(self, index, token_name):
+  def find_forwards_by_name(self, index, token_name):
     check.check_int(index)
     
     if index < 0:

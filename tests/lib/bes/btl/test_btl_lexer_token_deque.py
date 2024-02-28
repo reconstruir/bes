@@ -520,9 +520,9 @@ class test_btl_lexer_token_deque(_test_simple_lexer_mixin, unit_test):
     d.append( ( 'aisle', '42', ( 40, 1 ), None, None ) )
 
     self.assertEqual( ( 'color', 'red', ( 10, 1 ), 'h_color', None ),
-                      d.find_forwards(0, 'color') )
+                      d.find_forwards_by_name(0, 'color') )
     self.assertEqual( ( 'aisle', '42', ( 40, 1 ), None, None ),
-                      d.find_forwards(0, 'aisle') )
+                      d.find_forwards_by_name(0, 'aisle') )
     
 if __name__ == '__main__':
   unit_test.main()

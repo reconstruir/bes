@@ -70,7 +70,7 @@ class btl_document(object):
         first_token = new_line_before_token
 
     if include_next_line_break:
-      new_line_after_token = self._tokens.find_forwards(last_index, 't_line_break')
+      new_line_after_token = self._tokens.find_forwards_by_name(last_index, 't_line_break')
       if new_line_after_token:
         last_token = new_line_after_token
 
