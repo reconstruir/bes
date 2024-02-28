@@ -12,24 +12,21 @@ from .btl_document_position import btl_document_position
 
 class btl_lexer_token(object):
 
-  def __init__(self, name = None, value = None, position = ( 1, 1 ), type_hint = None, index = None, node = None):
+  def __init__(self, name = None, value = None, position = ( 1, 1 ), type_hint = None, index = None):
     check.check_string(name)
     check.check_string(value, allow_none = True)
     position = check.check_btl_document_position(position, allow_none = True)
     check.check_string(type_hint, allow_none = True)
     check.check_int(index, allow_none = True)
-    from .btl_parser_node import btl_parser_node
-    check.check_btl_parser_node(node, allow_none = True)
 
     self._name = name
     self._value = value
     self._position = position
     self._type_hint = type_hint
     self._index = index
-    self._node = index
 
   def to_tuple(self):
-    return ( self.name, self.value, self.position, self.type_hint, self.index, self.node )
+    return ( self.name, self.value, self.position, self.type_hint, self.index )
 
   def __eq__(self, other):
     if other == None:
@@ -94,10 +91,6 @@ class btl_lexer_token(object):
     
     self._index = index
 
-  @property
-  def node(self):
-    return self._node
-    
   def __eq__(self, other):
     if isinstance(other, btl_lexer_token):
       return self._name == other._name and self._value == other._value and self._position == other._position and self._type_hint == other._type_hint and self._index == other._index
