@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 import io
 import json
+import os
 
 from ..common.json_util import json_util
 from ..common.type_checked_list import type_checked_list
@@ -123,4 +124,7 @@ class btl_lexer_token_list(type_checked_list):
         return next_token
     return None
 
+  def to_debug_str(self):
+    return os.linesep.join([ token.to_debug_str() for token in self ])
+  
 btl_lexer_token_list.register_check_class()  

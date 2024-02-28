@@ -92,19 +92,12 @@ class btl_document(object):
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
 
-    self._log.log_d(f'parent_node={parent_node}')
-    for i, child in enumerate(parent_node.children):
-      self._log.log_d(f'{i}: child={child}')
-    
-    last_child = parent_node.children[-1]
-    self._log.log_d(f'last_child={last_child}')
-    self._log.log_d(f'last_child_token={last_child.token}')
-    #last_child_index = last_child.token.index
-    #self._log.log_d(f'last_child_index={last_child_index}')
+    last_child = parent_node.find_last_node()
+    last_child_index = last_child.token.index
     new_node, tokens = self._parse_text(text)
     parent_node.add_child(new_node)
-#    self._log.log_d(f'root_node={root_node}')
-#    for t in tokens:
-#      self._log.log_d(f'token: {t}')
+    self._tokens.insert_values(last_child_index + 1, tokens)
+    self._text = self.to_source_string()
+    self._do_parse()
     
 check.register_class(btl_document, include_seq = False)

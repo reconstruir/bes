@@ -173,7 +173,39 @@ name=vieux
 smell=stink
 price=cheap
 '''
-    doc.add_node_from_text(doc.find_global_section_node(), 'price=cheap')
+    self.assertMultiLineEqual( '''\
+t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+t_key:name:p=2,1:i=1
+t_key_value_delimiter:=:p=2,5:i=2
+t_value:vieux:p=2,6:i=3
+t_line_break:[NL]:p=2,11:h=h_line_break:i=4
+t_key:smell:p=3,1:i=5
+t_key_value_delimiter:=:p=3,6:i=6
+t_value:stink:p=3,7:i=7
+t_line_break:[NL]:p=3,12:h=h_line_break:i=8
+t_done::h=h_done:i=9\
+''', doc.tokens.to_debug_str() )
+    
+    doc.add_node_from_text(doc.find_global_section_node(), '\nprice=cheap\n')
+
+    self.assertMultiLineEqual( '''\
+t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+t_key:name:p=2,1:i=1
+t_key_value_delimiter:=:p=2,5:i=2
+t_value:vieux:p=2,6:i=3
+t_line_break:[NL]:p=2,11:h=h_line_break:i=4
+t_key:smell:p=3,1:i=5
+t_key_value_delimiter:=:p=3,6:i=6
+t_value:stink:p=3,7:i=7
+t_line_break:[NL]:p=3,12:h=h_line_break:i=8
+t_key:price:p=4,1:i=9
+t_key_value_delimiter:=:p=4,6:i=10
+t_value:cheap:p=4,7:i=11
+t_line_break:[NL]:p=4,12:h=h_line_break:i=12
+t_line_break:[NL]:p=5,1:h=h_line_break:i=13
+t_done::h=h_done:i=14\
+''', doc.tokens.to_debug_str() )
+    
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
   def test_find_global_section_node(self):
