@@ -2,7 +2,6 @@
 
 from collections import OrderedDict
 
-import bisect
 import io
 import json
 import os
@@ -114,7 +113,7 @@ class btl_lexer_token_list(type_checked_list):
       if func(next_token):
         return next_index
     if raise_error:
-      raise IndexError(self._make_find_error_message(index, error_message))
+      raise IndexError(self._make_find_index_error_message(index, error_message))
     return -1
   
   def find_index_forwards(self, index, func, raise_error = False, error_message = None):
@@ -130,7 +129,7 @@ class btl_lexer_token_list(type_checked_list):
       if func(next_token):
         return next_index
     if raise_error:
-      raise IndexError(self._make_find_error_message(index, error_message))
+      raise IndexError(self._make_find_index_error_message(index, error_message))
     return -1
   
   def find_backwards(self, index, func, raise_error = False, error_message = None):
@@ -200,8 +199,15 @@ class btl_lexer_token_list(type_checked_list):
                               error_message = error_message)
 
   @classmethod
-  def _make_find_error_message(clazz, index, error_message):
-    msg = f'Token not found from {index}'
+  def _make_find_index_error_message(clazz, index, error_message):
+    msg = f'Token not found from index {index}'
+    if error_message:
+      msg = msg + ': ' + error_message
+    return msg
+
+  @classmethod
+  def _make_find_line_error_message(clazz, line, error_message):
+    msg = f'Token not found from line {line}'
     if error_message:
       msg = msg + ': ' + error_message
     return msg
@@ -209,21 +215,40 @@ class btl_lexer_token_list(type_checked_list):
   def to_debug_str(self):
     return os.linesep.join([ token.to_debug_str() for token in self ])
 
-  def first_line_to_index(self, line):
+  def first_line_to_index(self, line, raise_error = False, error_message = None):
     check.check_int(line)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
 
     index = self._bisect_by_line(line)
-    print(f'line={line} index={index}')
-    return None
+    if index < 0:
+      if raise_error:
+        raise IndexError(self._make_find_line_error_message(line, error_message))
+
+    result = -1
+    for next_index in reversed(range(0, index + 1)):
+      next_token = self._values[next_index]
+      if next_token.position.line == line:
+        result = next_index
+      else:
+        break
+      
+    return result
   
   def _bisect_by_line(self, line):
-    index = bisect.bisect_left(self._values,
-                               line,
-                               lo = 0,
-                               hi = len(self._values),
-                               key = lambda token: token.position.line == line)
-    if index < len(self._values) and self._index[index].position.line == line:
-        return index
+    left = 0
+    right = len(self._values) - 1
+
+    while left <= right:
+      mid = (left + right) // 2
+      mid_val = self._values[mid]
+      mid_val_line = mid_val.position.line
+      if mid_val_line == line:
+        return mid
+      elif mid_val_line < line:
+        left = mid + 1
+      else:
+        right = mid - 1
     return -1
-  
+
 btl_lexer_token_list.register_check_class()  

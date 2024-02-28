@@ -550,7 +550,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( t5, d.find_forwards_by_line(4, 3) )
     self.assertEqual( None, d.find_forwards_by_line(4, 42) )
     
-  def xtest_first_line_to_index(self):
+  def test_first_line_to_index(self):
     l = btl_lexer_token_list([
       ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
       ( 'color', 'orange', ( 1, 3 ), 'h_color', 1 ),
@@ -561,10 +561,9 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
     self.assertEqual( 0, l.first_line_to_index(1) )
-    return
     self.assertEqual( 2, l.first_line_to_index(2) )
     self.assertEqual( 4, l.first_line_to_index(3) )
-    self.assertEqual( None, l.first_line_to_index(4) )
+    self.assertEqual( -1, l.first_line_to_index(4) )
     self.assertEqual( 5, l.first_line_to_index(5) )
     
   def test___getitem__slice(self):
