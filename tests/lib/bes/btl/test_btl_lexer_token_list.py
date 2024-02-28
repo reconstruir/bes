@@ -555,6 +555,78 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'price', 'cheap', ( 30, 1 ), None, None ),
       ( 'aisle', '42', ( 40, 1 ), None, None ),
     ], d )
+
+  def test_insert_values_middle(self):
+    l1 = btl_lexer_token_list([
+      ( 'fruit', 'dragonfruit', ( 4, 4 ), None, None ),
+      ( 'color', 'orange', ( 23, 4 ), 'h_color', None ),
+      ( 'flavor', 'weird', ( 2, 4 ), None, None ),
+      ( 'price', 'expensive', ( 2, 4 ), None, None ),
+    ])
+
+    l2 = btl_lexer_token_list([
+      ( 'foo', '1', ( 1, 1 ), None, None ),
+      ( 'bar', '2', ( 1, 1 ), None, None ),
+      ( 'baz', '3', ( 1, 1 ), None, None ),
+    ])
+    l1.insert_values(2, l2)
+    self.assertEqual( [
+      ( 'fruit', 'dragonfruit', ( 4, 4 ), None, None ),
+      ( 'color', 'orange', ( 23, 4 ), 'h_color', None ),
+      ( 'foo', '1', ( 1, 1 ), None, None ),
+      ( 'bar', '2', ( 1, 1 ), None, None ),
+      ( 'baz', '3', ( 1, 1 ), None, None ),
+      ( 'flavor', 'weird', ( 2, 4 ), None, None ),
+      ( 'price', 'expensive', ( 2, 4 ), None, None ),
+    ], l1 )
+
+  def test_insert_values_top(self):
+    l1 = btl_lexer_token_list([
+      ( 'fruit', 'dragonfruit', ( 4, 4 ), None, None ),
+      ( 'color', 'orange', ( 23, 4 ), 'h_color', None ),
+      ( 'flavor', 'weird', ( 2, 4 ), None, None ),
+      ( 'price', 'expensive', ( 2, 4 ), None, None ),
+    ])
+
+    l2 = btl_lexer_token_list([
+      ( 'foo', '1', ( 1, 1 ), None, None ),
+      ( 'bar', '2', ( 1, 1 ), None, None ),
+      ( 'baz', '3', ( 1, 1 ), None, None ),
+    ])
+    l1.insert_values(0, l2)
+    self.assertEqual( [
+      ( 'foo', '1', ( 1, 1 ), None, None ),
+      ( 'bar', '2', ( 1, 1 ), None, None ),
+      ( 'baz', '3', ( 1, 1 ), None, None ),
+      ( 'fruit', 'dragonfruit', ( 4, 4 ), None, None ),
+      ( 'color', 'orange', ( 23, 4 ), 'h_color', None ),
+      ( 'flavor', 'weird', ( 2, 4 ), None, None ),
+      ( 'price', 'expensive', ( 2, 4 ), None, None ),
+    ], l1 )
+
+  def test_insert_values_bottom(self):
+    l1 = btl_lexer_token_list([
+      ( 'fruit', 'dragonfruit', ( 4, 4 ), None, None ),
+      ( 'color', 'orange', ( 23, 4 ), 'h_color', None ),
+      ( 'flavor', 'weird', ( 2, 4 ), None, None ),
+      ( 'price', 'expensive', ( 2, 4 ), None, None ),
+    ])
+
+    l2 = btl_lexer_token_list([
+      ( 'foo', '1', ( 1, 1 ), None, None ),
+      ( 'bar', '2', ( 1, 1 ), None, None ),
+      ( 'baz', '3', ( 1, 1 ), None, None ),
+    ])
+    l1.insert_values(-1, l2)
+    self.assertEqual( [
+      ( 'fruit', 'dragonfruit', ( 4, 4 ), None, None ),
+      ( 'color', 'orange', ( 23, 4 ), 'h_color', None ),
+      ( 'flavor', 'weird', ( 2, 4 ), None, None ),
+      ( 'price', 'expensive', ( 2, 4 ), None, None ),
+      ( 'foo', '1', ( 1, 1 ), None, None ),
+      ( 'bar', '2', ( 1, 1 ), None, None ),
+      ( 'baz', '3', ( 1, 1 ), None, None ),
+    ], l1 )
     
 if __name__ == '__main__':
   unit_test.main()

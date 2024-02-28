@@ -9,41 +9,62 @@ from bes.compat.zip import zip
 from bes.common.algorithm import algorithm
 from ..system.check import check
 
+from ..property.cached_class_property import cached_class_property
+
 class type_checked_list(object):
 
   def __init__(self, values = None):
-    self._value_type = self.value_type()
     self._assign(values)
 
+  def __repr__(self):
+    return repr(self._values)
+    
   @classmethod
   def cast_value(clazz, value):
     return value
 
-  @classmethod
+  @cached_class_property
   def value_type(clazz):
     value_type = getattr(clazz, '__value_type__', None)
     if not value_type:
       raise TypeError('No __value_type__ attribute found in %s' % (str(clazz)))
     check.check(value_type, ( type, tuple ))
     return value_type
-  
-  def __repr__(self):
-    return repr(self._values)
 
-  def _check_value(self, v):
-    check_method = None
-    value_type_name = getattr(self._value_type, '__name__', None)
-    #print(f'_value_type={self._value_type} value_type_name={value_type_name}')
-    if value_type_name:
-      check_method_name = f'check_{value_type_name}'
-      check_method = getattr(check, check_method_name, None)
+  @cached_class_property
+  def _check_value_method(clazz):
+    value_type_name = getattr(clazz.value_type, '__name__', None)
+    if not value_type_name:
+      return None
+    check_method_name = f'check_{value_type_name}'
+    return getattr(check, check_method_name, None)
+
+  @classmethod
+  def _check_value(clazz, v):
+    check_method = clazz._check_value_method
     if check_method:
-      #print(f'check_method={check_method}')
       v = check_method(v)
     else:
-      v = self.cast_value(v)
-      v = check.check(v, self._value_type)
+      v = clazz.cast_value(v)
+      v = check.check(v, clazz.value_type)
     return v
+
+  @cached_class_property
+  def _check_list_method(clazz):
+    list_type_name = getattr(clazz, '__name__', None)
+    if not list_type_name:
+      return None
+    check_method_name = f'check_{list_type_name}'
+    return getattr(check, check_method_name, None)
+
+  @classmethod
+  def _check_list(clazz, l):
+    check_method = clazz._check_list_method
+    if check_method:
+      l = check_method(l)
+    else:
+      l = check.check(l, clazz)
+    return l
   
   def _assign(self, values):
     self._values = []
@@ -110,7 +131,11 @@ class type_checked_list(object):
   def __setitem__(self, i, v):
     check.check(i, ( int, slice ))
 
-    v = self._check_value(v)
+    if isinstance(i, slice):
+      v = self._check_list(v)
+    else:
+      assert isinstance(i, int)
+      v = self._check_value(v)
     self._values[i] = v
 
   def __contains__(self, v):
@@ -146,7 +171,7 @@ class type_checked_list(object):
     self._values = algorithm.unique(self._values)
 
   def remove_in_set(self, s):
-    check.check_set(s, self._value_type)
+    check.check_set(s, self.value_type)
 
     self._values = [ item for item in self._values if item not in s ]
 
@@ -223,6 +248,17 @@ class type_checked_list(object):
       index = len(self._values) + index + 1    
     
     self._values.insert(index, value)
+
+  def insert_values(self, index, values):
+    check.check_int(index)
+    values = self._check_list(values)
+
+    if index < 0:
+      index = len(self._values) + index + 1    
+    
+    top = self[0:index]
+    bottom = self[index:]
+    self._values = top + values + bottom
     
   def clear(self):
     self._values = []
