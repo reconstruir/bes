@@ -98,6 +98,8 @@ class btl_document(object):
     parent_node.add_child(new_node)
     self._tokens.insert_values(last_child_index + 1, tokens)
     self._text = self.to_source_string()
+    # reparse the document to fix the indeces.
+    # obviously this is inefficient.  better would be to renumber
     self._do_parse()
     
 check.register_class(btl_document, include_seq = False)
