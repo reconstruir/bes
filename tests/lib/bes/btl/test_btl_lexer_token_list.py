@@ -523,6 +523,38 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
                       d.find_forwards(0, 'color') )
     self.assertEqual( ( 'aisle', '42', ( 40, 1 ), None, None ),
                       d.find_forwards(0, 'aisle') )
+
+  def test___getitem__slice(self):
+    d = btl_lexer_token_list()
+    d.append( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ) )
+    d.append( ( 'color', 'red', ( 10, 1 ), 'h_color', None ) )
+    d.append( ( 'flavor', 'tart', ( 20, 1 ), None, None ) )
+    d.append( ( 'price', 'cheap', ( 30, 1 ), None, None ) )
+    d.append( ( 'aisle', '42', ( 40, 1 ), None, None ) )
+
+    self.assertEqual( [
+      ( 'fruit', 'kiwi', ( 1, 1 ), None, None ),
+      ( 'color', 'red', ( 10, 1 ), 'h_color', None ),
+    ], d[0:2] )
+
+  def test___setitem__slice(self):
+    d = btl_lexer_token_list()
+    d.append( ( 'fruit', 'kiwi', ( 1, 1 ), None, None ) )
+    d.append( ( 'color', 'red', ( 10, 1 ), 'h_color', None ) )
+    d.append( ( 'flavor', 'tart', ( 20, 1 ), None, None ) )
+    d.append( ( 'price', 'cheap', ( 30, 1 ), None, None ) )
+    d.append( ( 'aisle', '42', ( 40, 1 ), None, None ) )
+    d[0:2] = [
+      ( 'cheese', 'brie', ( 2, 2 ), None, None ),
+      ( 'flavor', 'yum', ( 20, 2 ), 'h_cheese', None ),
+    ]
+    self.assertEqual( [
+      ( 'cheese', 'brie', ( 2, 2 ), None, None ),
+      ( 'flavor', 'yum', ( 20, 2 ), 'h_cheese', None ),
+      ( 'flavor', 'tart', ( 20, 1 ), None, None ),
+      ( 'price', 'cheap', ( 30, 1 ), None, None ),
+      ( 'aisle', '42', ( 40, 1 ), None, None ),
+    ], d )
     
 if __name__ == '__main__':
   unit_test.main()

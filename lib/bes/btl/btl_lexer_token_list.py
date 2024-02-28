@@ -6,72 +6,17 @@ import io
 import json
 
 from ..common.json_util import json_util
+from ..common.type_checked_list import type_checked_list
 from ..system.check import check
 
 from .btl_lexer_token import btl_lexer_token
 
-class btl_lexer_token_list(object):
+class btl_lexer_token_list(type_checked_list):
 
-  def __init__(self, tokens = None):
-    self._tokens = []
-    for token in (tokens or []):
-      self.append(token)
-
-  def __len__(self):
-    return len(self._tokens)
-
-  def __iter__(self):
-    return iter(self._tokens)
-
-  def __getitem__(self, index):
-    return self._tokens[index]
-
-  def __setitem__(self, index, token):
-    token = check.check_btl_lexer_token(token)
-
-    self._tokens[index] = token
+  __value_type__ = btl_lexer_token
   
-  def replace_by_index(self, index, token):
-    check.check_int(index)
-    token = check.check_btl_lexer_token(token)
-    
-    old_token = self._tokens[index]
-    self._tokens[index] = token
-    return old_token
-
-  def remove_by_index(self, index):
-    check.check_int(index)
-    
-    removed_token = self._tokens.pop(index)
-    return removed_token
-    
-  def clear(self):
-    self._tokens = []
-  
-  def append(self, token):
-    token = check.check_btl_lexer_token(token)
-
-    self._tokens.append(token)
-
-  def extend(self, tokens):
-    self._tokens.extend(tokens)
-
-  def prepend(self, token):
-    token = check.check_btl_lexer_token(token)
-
-    self._tokens.insert(0, token)
-
-  def insert(self, index, token):
-    check.check_int(index)
-    token = check.check_btl_lexer_token(token)
-
-    if index < 0:
-      index = len(self._tokens) + index + 1    
-    
-    self._tokens.insert(index, token)
-    
   def to_line_break_ordered_dict(self):
-    if not self._tokens:
+    if not self._values:
       return OrderedDict()
     result = OrderedDict()
 
@@ -131,9 +76,6 @@ class btl_lexer_token_list(object):
   def to_dict_list(self):
     return [ token.to_dict() for token in self ]
 
-  def to_list(self):
-    return [ token for token in self ]
-
   def sort_by_column(self):
     sorted_tokens = sorted(self.to_list(), key = lambda token: token.position.column)
     self.clear()
@@ -161,7 +103,7 @@ class btl_lexer_token_list(object):
     check.check_int(index)
     
     if index < 0:
-      index = len(self._tokens) + index + 1
+      index = len(self._values) + index + 1
 
     for next_index in reversed(range(0, index)):
       next_token = self[next_index]
@@ -173,12 +115,12 @@ class btl_lexer_token_list(object):
     check.check_int(index)
     
     if index < 0:
-      index = len(self._tokens) + index + 1
+      index = len(self._values) + index + 1
 
     for next_index in range(index + 1, len(self) + 1):
       next_token = self[next_index]
       if next_token.name == token_name:
         return next_token
     return None
-  
-check.register_class(btl_lexer_token_list, include_seq = False)
+
+btl_lexer_token_list.register_check_class()  

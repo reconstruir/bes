@@ -5,6 +5,7 @@ import os
 from ..common.json_util import json_util
 from ..system.check import check
 from ..text.line_numbers import line_numbers
+from ..compat.cmp import cmp
 
 from .btl_debug import btl_debug
 from .btl_document_position import btl_document_position
@@ -27,6 +28,34 @@ class btl_lexer_token(object):
     self._index = index
     self._node = index
 
+  def to_tuple(self):
+    return ( self.name, self.value, self.position, self.type_hint, self.index, self.node )
+
+  def __eq__(self, other):
+    if other == None:
+      return False
+    return self.compare(other) == 0
+
+  def __ne__(self, other):
+    return self.compare(other) != 0
+
+  def __lt__(self, other):
+    return self.compare(other) < 0
+
+  def __le__(self, other):
+    return self.compare(other) <= 0
+
+  def __gt__(self, other):
+    return self.compare(other) > 0
+
+  def __ge__(self, other):
+    return self.compare(other) >= 0
+
+  def compare(self, other):
+    other = check.check_btl_lexer_token(other)
+
+    return cmp(self.to_tuple(), other.to_tuple())
+  
   @property
   def name(self):
     return self._name
@@ -64,7 +93,11 @@ class btl_lexer_token(object):
     check.check_int(index, allow_none = True)
     
     self._index = index
-  
+
+  @property
+  def node(self):
+    return self._node
+    
   def __eq__(self, other):
     if isinstance(other, btl_lexer_token):
       return self._name == other._name and self._value == other._value and self._position == other._position and self._type_hint == other._type_hint and self._index == other._index
@@ -221,6 +254,6 @@ class btl_lexer_token(object):
       return left, right
     elif left == 'i':
       return left, int(right)
-      
+    
 check.register_class(btl_lexer_token, include_seq = False, cast_func = btl_lexer_token._check_cast_func)
   

@@ -33,10 +33,12 @@ class type_checked_list(object):
   def _check_value(self, v):
     check_method = None
     value_type_name = getattr(self._value_type, '__name__', None)
+    #print(f'_value_type={self._value_type} value_type_name={value_type_name}')
     if value_type_name:
       check_method_name = f'check_{value_type_name}'
       check_method = getattr(check, check_method_name, None)
     if check_method:
+      #print(f'check_method={check_method}')
       v = check_method(v)
     else:
       v = self.cast_value(v)
@@ -99,14 +101,16 @@ class type_checked_list(object):
     return iter(self._values)
 
   def __getitem__(self, i):
+    check.check(i, ( int, slice ))
+    
     if isinstance(i, slice):
       return self.__class__(self._values[i])
     return self._values[i]
   
   def __setitem__(self, i, v):
-    check.check_int(i)
-    v = self._check_value(v)
+    check.check(i, ( int, slice ))
 
+    v = self._check_value(v)
     self._values[i] = v
 
   def __contains__(self, v):
@@ -205,3 +209,34 @@ class type_checked_list(object):
     check.register_class(clazz,
                          include_seq = False,
                          cast_func = clazz.check_cast_func)
+
+  def prepend(self, value):
+    value = self._check_value(value)
+
+    self._values.insert(0, value)
+
+  def insert(self, index, value):
+    check.check_int(index)
+    value = self._check_value(value)
+
+    if index < 0:
+      index = len(self._values) + index + 1    
+    
+    self._values.insert(index, value)
+    
+  def clear(self):
+    self._values = []
+
+  def remove_by_index(self, index):
+    check.check_int(index)
+    
+    removed_value = self._values.pop(index)
+    return removed_value
+    
+  def replace_by_index(self, index, value):
+    check.check_int(index)
+    v = self._check_value(value)
+    
+    old_value = self._values[index]
+    self._values[index] = value
+    return old_value
