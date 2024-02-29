@@ -237,6 +237,20 @@ smell=stink ; this is my comment
 '''
     doc.add_comment(3, ' this is my comment', 'end_of_line')
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_add_comment_start_of_line(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+;smell=stink
+'''
+    doc.add_comment(3, '', 'start_of_line')
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
     
   def test_add_comment_new_line_with_begin_char(self):
     text = '''

@@ -127,7 +127,13 @@ class btl_document(object):
       self._tokens.insert_values(last_line_index - 0, tokens)
       pass
     elif position == position.START_OF_LINE:
-      pass
+      text = f'{self.comment_begin_char}{comment}'
+      new_node, tokens = self._parse_text(text)
+      # remove the t_done token
+      tokens.remove_by_index(-1)
+      first_line_index = self._tokens.first_line_to_index(line)
+      assert first_line_index >= 0
+      self._tokens.insert_values(first_line_index - 0, tokens)
     
     self._text = self.to_source_string()
     # FIXME: reparse the document to fix the indeces.
