@@ -209,6 +209,98 @@ t_done::h=h_done:i=14\
     
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
+  def test_section_add_node_from_text(self):
+    text = '''
+[fruit]
+name=kiwi
+color=green
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+[fruit]
+name=kiwi
+color=green
+price=cheap
+
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    self.assertMultiLineEqual( '''\
+t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+t_section_name_begin:[:p=2,1:i=1
+t_section_name:fruit:p=2,2:i=2
+t_section_name_end:]:p=2,7:i=3
+t_line_break:[NL]:p=2,8:h=h_line_break:i=4
+t_key:name:p=3,1:i=5
+t_key_value_delimiter:=:p=3,5:i=6
+t_value:kiwi:p=3,6:i=7
+t_line_break:[NL]:p=3,10:h=h_line_break:i=8
+t_key:color:p=4,1:i=9
+t_key_value_delimiter:=:p=4,6:i=10
+t_value:green:p=4,7:i=11
+t_line_break:[NL]:p=4,12:h=h_line_break:i=12
+t_line_break:[NL]:p=5,1:h=h_line_break:i=13
+t_section_name_begin:[:p=6,1:i=14
+t_section_name:cheese:p=6,2:i=15
+t_section_name_end:]:p=6,8:i=16
+t_line_break:[NL]:p=6,9:h=h_line_break:i=17
+t_key:name:p=7,1:i=18
+t_key_value_delimiter:=:p=7,5:i=19
+t_value:vieux:p=7,6:i=20
+t_line_break:[NL]:p=7,11:h=h_line_break:i=21
+t_key:smell:p=8,1:i=22
+t_key_value_delimiter:=:p=8,6:i=23
+t_value:stink:p=8,7:i=24
+t_line_break:[NL]:p=8,12:h=h_line_break:i=25
+t_done::h=h_done:i=26\
+''', doc.tokens.to_debug_str() )
+    
+    doc.add_node_from_text(doc.find_section_node('fruit'), '\nprice=cheap\n')
+
+    self.assertMultiLineEqual( '''\
+t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+t_section_name_begin:[:p=2,1:i=1
+t_section_name:fruit:p=2,2:i=2
+t_section_name_end:]:p=2,7:i=3
+t_line_break:[NL]:p=2,8:h=h_line_break:i=4
+t_key:name:p=3,1:i=5
+t_key_value_delimiter:=:p=3,5:i=6
+t_value:kiwi:p=3,6:i=7
+t_line_break:[NL]:p=3,10:h=h_line_break:i=8
+t_key:color:p=4,1:i=9
+t_key_value_delimiter:=:p=4,6:i=10
+t_value:green:p=4,7:i=11
+t_line_break:[NL]:p=4,12:h=h_line_break:i=12
+t_key:price:p=5,1:i=13
+t_key_value_delimiter:=:p=5,6:i=14
+t_value:cheap:p=5,7:i=15
+t_line_break:[NL]:p=5,12:h=h_line_break:i=16
+t_line_break:[NL]:p=6,1:h=h_line_break:i=17
+t_line_break:[NL]:p=7,1:h=h_line_break:i=18
+t_section_name_begin:[:p=8,1:i=19
+t_section_name:cheese:p=8,2:i=20
+t_section_name_end:]:p=8,8:i=21
+t_line_break:[NL]:p=8,9:h=h_line_break:i=22
+t_key:name:p=9,1:i=23
+t_key_value_delimiter:=:p=9,5:i=24
+t_value:vieux:p=9,6:i=25
+t_line_break:[NL]:p=9,11:h=h_line_break:i=26
+t_key:smell:p=10,1:i=27
+t_key_value_delimiter:=:p=10,6:i=28
+t_value:stink:p=10,7:i=29
+t_line_break:[NL]:p=10,12:h=h_line_break:i=30
+t_done::h=h_done:i=31\
+''', doc.tokens.to_debug_str() )
+    
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    
   def test_add_comment_new_line(self):
     text = '''
 name=vieux
