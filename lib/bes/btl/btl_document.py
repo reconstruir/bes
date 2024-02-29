@@ -108,33 +108,21 @@ class btl_document(object):
     check.check_string(comment)
     position = check.check_btl_comment_position(position)
 
-    
     if position == position.NEW_LINE:
       text = f'{self.comment_begin_char}{comment}{os.linesep}'
-      new_node, tokens = self._parse_text(text)
-      # remove the t_done token
-      tokens.remove_by_index(-1)
-      first_line_index = self._tokens.first_line_to_index(line)
-      assert first_line_index >= 0
-      self._tokens.insert_values(first_line_index - 0, tokens)
+      insert_index = self._tokens.first_line_to_index(line)
     elif position == position.END_OF_LINE:
       text = f' {self.comment_begin_char}{comment}'
-      new_node, tokens = self._parse_text(text)
-      # remove the t_done token
-      tokens.remove_by_index(-1)
-      last_line_index = self._tokens.last_line_to_index(line)
-      assert last_line_index >= 0
-      self._tokens.insert_values(last_line_index - 0, tokens)
-      pass
+      insert_index = self._tokens.last_line_to_index(line)
     elif position == position.START_OF_LINE:
       text = f'{self.comment_begin_char}{comment}'
-      new_node, tokens = self._parse_text(text)
-      # remove the t_done token
-      tokens.remove_by_index(-1)
-      first_line_index = self._tokens.first_line_to_index(line)
-      assert first_line_index >= 0
-      self._tokens.insert_values(first_line_index - 0, tokens)
-    
+      insert_index = self._tokens.first_line_to_index(line)
+
+    new_node, tokens = self._parse_text(text)
+    # remove the t_done token
+    tokens.remove_by_index(-1)
+    assert insert_index >= 0
+    self._tokens.insert_values(insert_index, tokens)
     self._text = self.to_source_string()
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
