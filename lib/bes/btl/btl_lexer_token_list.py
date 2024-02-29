@@ -228,11 +228,10 @@ class btl_lexer_token_list(type_checked_list):
     result = -1
     for next_index in reversed(range(0, index + 1)):
       next_token = self._values[next_index]
-      if next_token.position.line == line:
+      if next_token.position and next_token.position.line == line:
         result = next_index
       else:
         break
-      
     return result
 
   def last_line_to_index(self, line, raise_error = False, error_message = None):
@@ -248,11 +247,10 @@ class btl_lexer_token_list(type_checked_list):
     result = -1
     for next_index in range(index, len(self)):
       next_token = self._values[next_index]
-      if next_token.position.line == line:
+      if next_token.position and next_token.position.line == line:
         result = next_index
       else:
         break
-      
     return result
   
   def _bisect_by_line(self, line):

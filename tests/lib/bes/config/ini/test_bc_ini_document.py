@@ -3,6 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 
+from bes.btl.btl_parser_options import btl_parser_options
 from bes.config.ini.bc_ini_document import bc_ini_document
 
 class test_bc_ini_document(unit_test):
@@ -208,7 +209,7 @@ t_done::h=h_done:i=14\
     
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
-  def xtest_add_comment(self):
+  def test_add_comment(self):
     text = '''
 name=vieux
 smell=stink
@@ -218,6 +219,23 @@ smell=stink
     expected = '''
 name=vieux
 ; this is my comment
+smell=stink
+'''
+    doc.add_comment(3, ' this is my comment')
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_add_comment_custom_comment_begin_char(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    variables = { 'v_comment_begin': '#' }
+    options = btl_parser_options(variables = variables)
+    doc = bc_ini_document(text, parser_options = options)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+# this is my comment
 smell=stink
 '''
     doc.add_comment(3, ' this is my comment')

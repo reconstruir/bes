@@ -114,14 +114,16 @@ class bc_ini_document(btl_document):
     check.check_string(comment)
 
     vm = self._parser.lexer.desc.variables.to_variable_manager()
-    print(f'vm={vm}')
-    print(f'variables={self._parser_options.variables}')
-    text = f'; {comment}{os.linesep}'
+    variables = self._parser_options.variables
+    comment_begin_char = variables.get('v_comment_begin', vm.variables.get('v_comment_begin'))
+    text = f'{comment_begin_char}{comment}{os.linesep}'
     new_node, tokens = self._parse_text(text)
-    self._tokens.insert_values(line, tokens)
-    print(f'text before:\n{self._text}\n')
+    first_line_index = self._tokens.first_line_to_index(line)
+    assert first_line_index >= 0
+    # remove the t_done token
+    tokens.remove_by_index(-1)
+    self._tokens.insert_values(first_line_index - 0, tokens)
     self._text = self.to_source_string()
-    print(f'text  after:\n{self._text}\n')
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
