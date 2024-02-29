@@ -33,6 +33,31 @@ class test_btl_lexer_desc_function(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( ( 'kiwi', ( 'color', 'taste' ) ), f('kiwi(color, taste) ') )
     self.assertEqual( ( 'kiwi', () ), f('kiwi()') )
     self.assertEqual( None, f('kiwi') )
+
+  def test_parse_node(self):
+    functions_node = self._simple_lexer_desc_tree_section('functions')
+    lexer_node = functions_node.children[0]
+    self.assertEqual( {
+      'args': ['token_name'],
+      'commands': [
+        {
+          'action': '${token_name}',
+          'args': {},
+          'name': 'emit'
+        },
+        {
+          'action': 'reset',
+          'args': {}, 'name':
+          'buffer'
+        },
+        {
+          'action': 't_done',
+          'args': {},
+          'name': 'emit'
+        },
+      ],
+      'name': 'f_handle_eos',
+    }, btl_lexer_desc_function.parse_node(lexer_node).to_dict() )
     
   def xtest_generate_code(self):
     char_map = btl_lexer_desc_char_map()

@@ -9,11 +9,13 @@ from .btl_lexer_desc_state_transition_command_list import btl_lexer_desc_state_t
 
 class btl_desc_function_base(object):
   
-  def __init__(self, name, commands):
+  def __init__(self, name, args, commands):
     check.check_string(name)
+    check.check_tuple(args, check.STRING_TYPES)
     commands = check.check_btl_lexer_desc_state_transition_command_list(commands)
 
     self._name = name
+    self._args = args
     self._commands = commands
 
   @property
@@ -21,26 +23,31 @@ class btl_desc_function_base(object):
     return self._name
 
   @property
+  def args(self):
+    return self._args
+  
+  @property
   def commands(self):
     return self._commands
   
   def to_dict(self):
     return {
       'name': self.name,
+      'args': list(self.args),
       'commands': self.commands.to_dict_list(),
     }
 
   def to_tuple(self):
-    return ( self.name, self.commands )
+    return ( self.name, self.args, self.commands )
   
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)
     check.check_string(source)
-    
-    name = n.data.text.strip()
+
+    declaration = clazz._parse_declaration(n.data.text.strip())
     commands = btl_lexer_desc_state_transition_command_list.parse_node(n, source = source)
-    return clazz(name, commands)
+    return clazz(declaration.name, declaration.args, commands)
 
   @classmethod
   def _is_valid_first_char(clazz, c):
