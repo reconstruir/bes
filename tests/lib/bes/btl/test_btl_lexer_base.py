@@ -25,8 +25,7 @@ class _test_lexer(btl_lexer_base):
     T_VALUE = 't_value'
 
   class e_unexpected_char(btl_lexer_runtime_error):
-    def __init__(self, message = None):
-      super().__init__(message = message)
+    pass
 
   
   class _state_s_start(btl_lexer_state_base):
@@ -56,10 +55,8 @@ class _test_lexer(btl_lexer_base):
         context.buffer_write(c)
       else:
         new_state_name = 's_done'
-        state_name = self.name
-        char = c
-        msg = f'In state "{self.name}" unexpected character: "{c}"'
-        raise self.lexer.e_unexpected_char(message = msg)
+        message = f'In state "{self.name}" unexpected character: "{c}"'
+        raise self.lexer.e_unexpected_char(context, message)
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -77,7 +74,7 @@ class _test_lexer(btl_lexer_base):
       if self.char_in(c, 'c_keyval_key', context):
         new_state_name = 's_key'
         context.buffer_write(c)
-      elif self.char_in(c, 'c_equal', context):
+      elif self.char_in(c, 'c_key_value_delimiter', context):
         new_state_name = 's_value'
         tokens.append(self.make_token(context, 't_key', args = {}))
         context.buffer_reset()
@@ -171,9 +168,20 @@ tokens
 errors
   e_unexpected_char: In state "{self.name}" unexpected character: "{c}"
 
+variables
+  v_key_value_delimiter: =
+
 chars
   c_keyval_key_first: c_underscore | c_alpha
   c_keyval_key: c_keyval_key_first | c_numeric
+  c_key_value_delimiter: ${v_key_value_delimiter}
+
+functions
+
+  f_handle_eos(token_name)
+    emit ${token_name}
+    buffer reset
+    emit t_done
 
 states
 
@@ -194,7 +202,7 @@ states
   s_key
     c_keyval_key: s_key
       buffer write
-    c_equal: s_value
+    c_key_value_delimiter: s_value
       emit t_key
       buffer reset
       buffer write
