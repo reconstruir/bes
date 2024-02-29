@@ -12,10 +12,22 @@ class btl_desc_command(object):
     check.check_string(action)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
 
-    self.name = name
-    self.action = action
-    self.args = args
-    
+    self._name = name
+    self._action = action
+    self._args = args
+
+  @property
+  def name(self):
+    return self._name
+
+  @property
+  def action(self):
+    return self._action
+
+  @property
+  def args(self):
+    return self._args
+  
   def to_dict(self):
     return {
       'name': self.name,
