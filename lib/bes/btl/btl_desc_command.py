@@ -3,18 +3,17 @@
 from ..system.check import check
 from ..common.string_util import string_util
 
-# FIXME: commands are used in parser too but the excetion is lexer
 from .btl_lexer_error import btl_lexer_error
 
 class btl_desc_command(object):
   
-  def __init__(self, name, commands, args):
+  def __init__(self, name, action, args):
     check.check_string(name)
-    check.check_string(commands)
+    check.check_string(action)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
 
     self._name = name
-    self._commands = commands
+    self._action = action
     self._args = args
 
   @property
@@ -22,8 +21,8 @@ class btl_desc_command(object):
     return self._name
 
   @property
-  def commands(self):
-    return self._commands
+  def action(self):
+    return self._action
 
   @property
   def args(self):
@@ -32,12 +31,12 @@ class btl_desc_command(object):
   def to_dict(self):
     return {
       'name': self.name,
-      'commands': self.commands,
+      'action': self.action,
       'args': self.args,
     }
 
   def to_tuple(self):
-    return ( self.name, self.commands, self.args )
+    return ( self.name, self.action, self.args )
   
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
@@ -48,9 +47,9 @@ class btl_desc_command(object):
     name = parts.pop(0)
     if not parts:
       raise btl_lexer_error(f'Missing arguments for command: "{name}" - line {n.data.line_number}')
-    commands = parts.pop(0)
+    action = parts.pop(0)
     args = clazz._parse_key_values(parts)
-    return clazz(name, commands, args)
+    return clazz(name, action, args)
   
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)
