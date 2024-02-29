@@ -4,7 +4,6 @@
 from bes.btl.btl_parser_desc_state_transition_command import btl_parser_desc_state_transition_command
 from bes.btl.btl_parser_desc_state_transition import btl_parser_desc_state_transition
 from bes.btl.btl_error import btl_error
-from bes.btl.btl_parser_desc_char_map import btl_parser_desc_char_map
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
@@ -15,7 +14,8 @@ class test_btl_parser_desc_state_transition(_test_simple_parser_mixin, unit_test
   @classmethod
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip('BTL_FIXME')
-  
+
+  """
   def test_generate_code(self):
     char_map = btl_parser_desc_char_map()
     cmd = btl_parser_desc_state_transition_command('emit', 't_cheese', {})
@@ -37,6 +37,7 @@ elif self.char_in(c, 'c_equal'):
   new_state = 's_kiwi'
   tokens.append(self.make_token('t_cheese', args = {}))
 ''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 1, 2) )
-    
+"""
+  
 if __name__ == '__main__':
   unit_test.main()

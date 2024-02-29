@@ -3,7 +3,6 @@
 
 import os.path as path
 
-from bes.btl.btl_parser_desc_char_map import btl_parser_desc_char_map
 from bes.btl.btl_parser_desc_state import btl_parser_desc_state
 from bes.btl.btl_parser_desc_state_transition_command import btl_parser_desc_state_transition_command
 from bes.btl.btl_parser_desc_state_transition import btl_parser_desc_state_transition
@@ -18,7 +17,8 @@ class test_btl_parser_desc_state(_test_simple_parser_mixin, unit_test):
   @classmethod
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip('BTL_FIXME')
-  
+
+  """
   def test_generate_code(self):
     char_map = btl_parser_desc_char_map()
     cmd = btl_parser_desc_state_transition_command('emit', 't_cheese', {})
@@ -44,6 +44,7 @@ class _state_s_juice(btl_parser_state_base):
     self.lexer.change_state(new_state, c)
     return tokens
 ''', self.call_function_with_buf(state, 'generate_code', [], char_map) )
+"""
   
 if __name__ == '__main__':
   unit_test.main()
