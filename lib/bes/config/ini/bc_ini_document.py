@@ -109,23 +109,4 @@ class bc_ini_document(btl_document):
     token = key_value_node.children[1].token
     token.replace_value(new_value)
 
-  def add_comment(self, line, comment):
-    check.check_int(line)
-    check.check_string(comment)
-
-    vm = self._parser.lexer.desc.variables.to_variable_manager()
-    variables = self._parser_options.variables
-    comment_begin_char = variables.get('v_comment_begin', vm.variables.get('v_comment_begin'))
-    text = f'{comment_begin_char}{comment}{os.linesep}'
-    new_node, tokens = self._parse_text(text)
-    first_line_index = self._tokens.first_line_to_index(line)
-    assert first_line_index >= 0
-    # remove the t_done token
-    tokens.remove_by_index(-1)
-    self._tokens.insert_values(first_line_index - 0, tokens)
-    self._text = self.to_source_string()
-    # FIXME: reparse the document to fix the indeces.
-    # obviously this is inefficient.  better would be to renumber
-    self._do_parse()
-
 check.register_class(bc_ini_document, include_seq = False)

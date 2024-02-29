@@ -2,11 +2,11 @@
 
 import os
 
-from collections import namedtuple
-
 from ..system.log import logger
 from ..system.check import check
+from ..property.cached_property import cached_property
 
+from .btl_comment_position import btl_comment_position
 from .btl_parser_node import btl_parser_node
 from .btl_parser_options import btl_parser_options
 
@@ -92,6 +92,28 @@ class btl_document(object):
     new_node, tokens = self._parse_text(text)
     parent_node.add_child(new_node)
     self._tokens.insert_values(last_child_index + 1, tokens)
+    self._text = self.to_source_string()
+    # FIXME: reparse the document to fix the indeces.
+    # obviously this is inefficient.  better would be to renumber
+    self._do_parse()
+
+  @cached_property
+  def comment_begin_char(self):
+    vm = self._parser.lexer.desc.variables.to_variable_manager()
+    variables = self._parser_options.variables
+    return variables.get('v_comment_begin', vm.variables.get('v_comment_begin'))
+    
+  def add_comment(self, line, comment):
+    check.check_int(line)
+    check.check_string(comment)
+
+    text = f'{self.comment_begin_char}{comment}{os.linesep}'
+    new_node, tokens = self._parse_text(text)
+    first_line_index = self._tokens.first_line_to_index(line)
+    assert first_line_index >= 0
+    # remove the t_done token
+    tokens.remove_by_index(-1)
+    self._tokens.insert_values(first_line_index - 0, tokens)
     self._text = self.to_source_string()
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
