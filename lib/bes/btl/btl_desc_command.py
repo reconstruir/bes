@@ -3,6 +3,7 @@
 from ..system.check import check
 from ..common.string_util import string_util
 
+# FIXME: commands are used in parser too but the excetion is lexer
 from .btl_lexer_error import btl_lexer_error
 
 class btl_desc_command(object):
