@@ -16,19 +16,21 @@ from .btl_error import btl_error
 from .btl_lexer_desc_char import btl_lexer_desc_char
 from .btl_lexer_desc_char_map import btl_lexer_desc_char_map
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
+from .btl_lexer_desc_function_list import btl_lexer_desc_function_list
 from .btl_lexer_desc_header import btl_lexer_desc_header
 from .btl_lexer_desc_mermaid import btl_lexer_desc_mermaid
 from .btl_lexer_desc_state_list import btl_lexer_desc_state_list
 from .btl_lexer_desc_token_list import btl_lexer_desc_token_list
 from .btl_lexer_desc_variable_list import btl_lexer_desc_variable_list
 
-class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, variables, char_map, states, source_text')):
+class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, variables, functions, char_map, states, source_text')):
   
-  def __new__(clazz, header, tokens, errors, variables, char_map, states, source_text = None):
+  def __new__(clazz, header, tokens, errors, variables, functions, char_map, states, source_text = None):
     header = check.check_btl_lexer_desc_header(header)
     tokens = check.check_btl_lexer_desc_token_list(tokens)
     errors = check.check_btl_lexer_desc_error_list(errors)
     variables = check.check_btl_lexer_desc_variable_list(variables)
+    functions = check.check_btl_lexer_desc_function_list(functions)
     check.check_btl_lexer_desc_char_map(char_map)
     states = check.check_btl_lexer_desc_state_list(states)
     check.check_string(source_text, allow_none = True)
@@ -39,6 +41,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
                                       tokens,
                                       errors,
                                       variables,
+                                      functions,
                                       char_map,
                                       states,
                                       source_text)
@@ -49,6 +52,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
       'tokens': self.tokens.to_dict_list(),
       'errors': self.errors.to_dict_list(),
       'variables': self.variables.to_dict_list(),
+      'functions': self.functions.to_dict_list(),
       'char_map': self.char_map.to_dict(),
       'states': self.states.to_dict_list(),
     }
@@ -97,6 +101,10 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
     variables_node = root.find_tree_section('variables', source, raise_error = False)
     variables = btl_lexer_desc_variable_list.parse_node(variables_node, source)
     #print(variables)
+
+    functions_node = root.find_tree_section('functions', source, raise_error = False)
+    functions = btl_lexer_desc_function_list.parse_node(functions_node, source)
+    #print(functions)
     
     chars_node = root.find_tree_section('chars', source, raise_error = False)
     char_map = clazz._parse_char_map(chars_node, variables.to_variable_manager(), source)
@@ -106,6 +114,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
                           tokens,
                           errors,
                           variables,
+                          functions,
                           char_map,
                           states,
                           source_text = text)

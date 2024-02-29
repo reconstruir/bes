@@ -10,24 +10,26 @@ class test_btl_lexer_desc_function_list(_test_simple_lexer_mixin, unit_test):
 
   def test_parse_node(self):
     functions_node = self._simple_lexer_desc_tree_section('functions')
-
-#    d = btl_lexer_desc_function_list.parse_node(functions_node).to_dict()
-#    import pprint
-#    print(pprint.pformat(d))
-    
     self.assertEqual( {
       'f_handle_eos': {
-        'args': ['token_name'],
+        'args': [ 'token_name' ],
         'commands': [
-          {'action': '${token_name}',
-           'args': {},
-           'name': 'emit'},
-          {'action': 'reset',
-           'args': {},
-           'name': 'buffer'},
-          {'action': 't_done',
-           'args': {},
-           'name': 'emit'}],
+          {
+            'action': '${token_name}',
+            'args': {},
+            'name': 'emit'
+          },
+          {
+            'action': 'reset',
+            'args': {},
+            'name': 'buffer'
+          },
+          {
+            'action': 't_done',
+            'args': {},
+            'name': 'emit'
+          }
+        ],
         'name': 'f_handle_eos'
       }
     }, btl_lexer_desc_function_list.parse_node(functions_node).to_dict() )

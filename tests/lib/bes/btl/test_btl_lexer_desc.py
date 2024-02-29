@@ -433,6 +433,31 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "default_value": "="
     }
   ],
+  "functions": [
+    {
+      "name": "f_handle_eos",
+      "args": [
+        "token_name"
+      ],
+      "commands": [
+        {
+          "name": "emit",
+          "action": "${token_name}",
+          "args": {}
+        },
+        {
+          "name": "buffer",
+          "action": "reset",
+          "args": {}
+        },
+        {
+          "name": "emit",
+          "action": "t_done",
+          "args": {}
+        }
+      ]
+    }
+  ],
   "char_map": {
     "c_keyval_key_first": {
       "name": "c_keyval_key_first", 
