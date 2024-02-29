@@ -219,6 +219,13 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
         context.buffer_write(c)
+      elif self.char_in(c, 'c_comment_begin', context):
+        new_state_name = 's_comment'
+        tokens.append(self.make_token(context, 't_space', args = {}))
+        context.buffer_reset()
+        context.buffer_write(c)
+        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        context.buffer_reset()
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space', args = {}))
@@ -580,6 +587,12 @@ states
   s_before_key_space
     c_ws: s_before_key_space
       buffer write
+    c_comment_begin: s_comment
+      emit t_space
+      buffer reset
+      buffer write
+      emit t_comment_begin
+      buffer reset
     c_line_break: s_start
       emit t_space
       buffer reset

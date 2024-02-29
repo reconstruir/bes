@@ -139,6 +139,12 @@ states
   s_before_key_space
     c_ws: s_before_key_space
       buffer write
+    c_comment_begin: s_comment
+      emit t_space
+      buffer reset
+      buffer write
+      emit t_comment_begin
+      buffer reset
     c_line_break: s_start
       emit t_space
       buffer reset

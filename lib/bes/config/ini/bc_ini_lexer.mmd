@@ -38,6 +38,7 @@ stateDiagram-v2
 
   %% s_before_key_space state
   s_before_key_space --> s_before_key_space: c_ws
+  s_before_key_space --> s_comment: c_comment_begin
   s_before_key_space --> s_start: c_line_break
   s_before_key_space --> s_key: c_keyval_key_first
   s_before_key_space --> s_done: default
