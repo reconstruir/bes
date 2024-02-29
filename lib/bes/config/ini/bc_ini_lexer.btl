@@ -39,7 +39,7 @@ chars
   
 functions
 
-  handle_comment_begin
+  f_handle_comment_begin(arg1, arg2)
     body
       emit t_space
       buffer reset

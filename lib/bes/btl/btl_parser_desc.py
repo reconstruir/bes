@@ -12,7 +12,6 @@ from ..version.semantic_version import semantic_version
 from .btl_code_gen_buffer import btl_code_gen_buffer
 from .btl_desc_text_node import btl_desc_text_node
 from .btl_error import btl_error
-from .btl_parser_desc_char import btl_parser_desc_char
 from .btl_parser_desc_error_list import btl_parser_desc_error_list
 from .btl_parser_desc_header import btl_parser_desc_header
 from .btl_parser_desc_mermaid import btl_parser_desc_mermaid
