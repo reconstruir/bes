@@ -49,6 +49,6 @@ class btl_desc_function_list_base(type_checked_list):
 
   def to_dict(self):
     result = {}
-    for var in self:
-      result[var.name] = var.default_value
+    for func in self:
+      result[func.name] = func.to_dict()
     return result

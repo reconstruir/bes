@@ -29,6 +29,8 @@ class btl_lexer_desc_state_transition_command(btl_desc_command):
         raise btl_lexer_error(f'Unknown error: {self.action}')
       buf.write_line(f"""message = f'{error.message}'""")
       buf.write_line(f'raise self.lexer.{error.error_class_name}(context, message)')
+    elif self.name == 'function':
+      assert False
     else:
       raise btl_lexer_error(f'Unknown command: {self.name}')
         
