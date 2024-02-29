@@ -11,6 +11,29 @@ from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 
 class test_btl_lexer_desc_function(_test_simple_lexer_mixin, unit_test):
 
+  def test__is_valid_identifier(self):
+    f = btl_lexer_desc_function._is_valid_identifier
+    self.assertEqual( True, f('k') )
+    self.assertEqual( True, f('_') )
+    self.assertEqual( True, f('kiwi') )
+    self.assertEqual( True, f('_kiwi') )
+    self.assertEqual( True, f('kiwi_green') )
+    self.assertEqual( True, f('kiwi2') )
+    self.assertEqual( False, f('2kiwi') )
+    self.assertEqual( False, f('kiw!') )
+    self.assertEqual( False, f('ki wi') )
+
+  def test__parse_declaration(self):
+    f = btl_lexer_desc_function._parse_declaration
+    self.assertEqual( ( 'kiwi', ( 'color', 'taste' ) ), f('kiwi(color, taste)') )
+    self.assertEqual( ( 'kiwi2', ( 'color2', 'taste2' ) ), f('kiwi2(color2, taste2)') )
+    self.assertEqual( ( 'kiwi', ( 'color', 'taste' ) ), f('kiwi(   color,   taste   )') )
+    self.assertEqual( ( 'kiwi', ( 'color', 'taste' ) ), f('kiwi   (color, taste)') )
+    self.assertEqual( ( 'kiwi', ( 'color', 'taste' ) ), f(' kiwi(color, taste)') )
+    self.assertEqual( ( 'kiwi', ( 'color', 'taste' ) ), f('kiwi(color, taste) ') )
+    self.assertEqual( ( 'kiwi', () ), f('kiwi()') )
+    self.assertEqual( None, f('kiwi') )
+    
   def xtest_generate_code(self):
     char_map = btl_lexer_desc_char_map()
     cmd = btl_lexer_desc_function_command('emit', 't_cheese', {})

@@ -39,13 +39,12 @@ chars
   
 functions
 
-  f_handle_comment_begin
-    commands
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+  f_handle_comment_begin()
+    emit t_space
+    buffer reset
+    buffer write
+    emit t_comment_begin
+    buffer reset
 
 states
 

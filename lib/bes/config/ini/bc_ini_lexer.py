@@ -487,13 +487,12 @@ chars
   
 functions
 
-  handle_comment_begin
-    body
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+  f_handle_comment_begin()
+    emit t_space
+    buffer reset
+    buffer write
+    emit t_comment_begin
+    buffer reset
 
 states
 
