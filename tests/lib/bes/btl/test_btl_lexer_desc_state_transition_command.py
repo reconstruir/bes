@@ -18,6 +18,12 @@ class test_btl_lexer_desc_state_transition_command(_test_simple_lexer_mixin, uni
 tokens.append(self.make_token(context, 't_cheese', args = {}))
 ''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
+  def test_generate_code_with_emit_and_variable(self):
+    cmd = btl_lexer_desc_state_transition_command('emit', '${token_name}', {})
+    self.assert_python_code_text_equal( '''
+tokens.append(self.make_token(context, token_name, args = {}))
+''', self.call_function_with_buf(cmd, 'generate_code', []) )
+    
   def test_generate_code_with_buffer_write(self):
     cmd = btl_lexer_desc_state_transition_command('buffer', 'write', {})
     self.assert_python_code_text_equal( '''

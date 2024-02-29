@@ -2,6 +2,7 @@
 
 from ..system.check import check
 from ..common.string_util import string_util
+from ..common.variable import variable
 
 # FIXME: commands are used in parser too but the excetion is lexer
 from .btl_lexer_error import btl_lexer_error
@@ -25,6 +26,14 @@ class btl_desc_command(object):
   def action(self):
     return self._action
 
+  @property
+  def action_resolved(self):
+    vl = variable.find_variables(self.action)
+    if not vl:
+      return f"'{self.action}'"
+    assert len(vl) == 1
+    return variable.substitute(self.action, { vl[0]: vl[0] })
+  
   @property
   def args(self):
     return self._args

@@ -28,6 +28,7 @@ class btl_lexer_context(object):
     self._options = options or btl_lexer_options()
     self._char_map = char_map
     self._state = lexer.start_state
+    self._functions = lexer.desc.functions
     self._last_char = None
     self._last_position = btl_document_position(1, 0)
     self._position = btl_document_position(1, 0)
@@ -120,7 +121,7 @@ class btl_lexer_context(object):
 
     NUM_CONTEXT_LINES = 5
 
-    position = self.position or btl_document_position(666, 666)
+    position = self.position or btl_document_position(0, 0)
     
     numbered_text = line_numbers.add_line_numbers(text, delimiter = '|')
     delim_col = numbered_text.find('|')
@@ -131,5 +132,8 @@ class btl_lexer_context(object):
     marker = f'{indent}^^^ {message}'
     error_lines = top + [ marker ] + bottom
     return os.linesep.join(error_lines).rstrip()
+
+  def call_function(self, function_name, *args):
+    pass
   
 check.register_class(btl_lexer_context, include_seq = False)

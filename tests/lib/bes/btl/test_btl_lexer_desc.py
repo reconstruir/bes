@@ -157,6 +157,7 @@ if __name__ == '__main__':
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
+from bes.btl.btl_function_base import btl_function_base
 from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base

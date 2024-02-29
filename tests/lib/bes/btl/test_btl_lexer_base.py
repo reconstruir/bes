@@ -12,6 +12,7 @@ from bes.btl.btl_lexer_token_list import btl_lexer_token_list
 from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
 from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
+from bes.btl.btl_function_base import btl_function_base
 
 class _test_lexer(btl_lexer_base):
 
@@ -27,6 +28,12 @@ class _test_lexer(btl_lexer_base):
   class e_unexpected_char(btl_lexer_runtime_error):
     pass
 
+  class _f_handle_eos(btl_function_base):
+
+    def call(self, context, tokens, token_name):
+      tokens.append(self.make_token(context, token_name, args = {}))
+      context.buffer_reset()
+      tokens.append(self.make_token(context, 't_done', args = {}))
   
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
@@ -83,9 +90,7 @@ class _test_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_key', args = {}))
-        context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        self.lexer._f_handle_eos(self).call(context, tokens, 't_key')
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -109,9 +114,7 @@ class _test_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_value', args = {}))
-        context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        self.lexer._f_handle_eos(self).call(context, tokens, 't_value')
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
