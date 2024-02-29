@@ -234,6 +234,26 @@ class btl_lexer_token_list(type_checked_list):
         break
       
     return result
+
+  def last_line_to_index(self, line, raise_error = False, error_message = None):
+    check.check_int(line)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    index = self._bisect_by_line(line)
+    if index < 0:
+      if raise_error:
+        raise IndexError(self._make_find_line_error_message(line, error_message))
+
+    result = -1
+    for next_index in range(index, len(self)):
+      next_token = self._values[next_index]
+      if next_token.position.line == line:
+        result = next_index
+      else:
+        break
+      
+    return result
   
   def _bisect_by_line(self, line):
     left = 0
