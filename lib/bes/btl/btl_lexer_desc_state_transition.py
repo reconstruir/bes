@@ -16,6 +16,7 @@ class btl_lexer_desc_state_transition(namedtuple('btl_lexer_desc_state_transitio
     check.check_string(to_state)
     check.check_string(char_name)
     commands = check.check_btl_lexer_desc_state_transition_command_list(commands)
+
     return clazz.__bases__[0].__new__(clazz, to_state, char_name, commands)
 
   def to_dict(self):

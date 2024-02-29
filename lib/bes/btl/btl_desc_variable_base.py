@@ -1,9 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from ..system.check import check
-from ..common.string_util import string_util
-
-from .btl_lexer_error import btl_lexer_error
 
 class btl_desc_variable_base(object):
   

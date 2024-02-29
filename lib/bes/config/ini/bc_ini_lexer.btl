@@ -39,8 +39,8 @@ chars
   
 functions
 
-  f_handle_comment_begin(arg1, arg2)
-    body
+  f_handle_comment_begin
+    commands
       emit t_space
       buffer reset
       buffer write
