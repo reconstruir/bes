@@ -4,9 +4,9 @@ from ..system.check import check
 
 from .btl_lexer_desc_variable import btl_lexer_desc_variable
 
-from .btl_desc_variable_list import btl_desc_variable_list
+from .btl_desc_variable_base_list import btl_desc_variable_base_list
 
-class btl_lexer_desc_variable_list(btl_desc_variable_list):
+class btl_lexer_desc_variable_list(btl_desc_variable_base_list):
 
   __value_type__ = btl_lexer_desc_variable
   

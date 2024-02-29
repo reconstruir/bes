@@ -6,9 +6,9 @@ from ..common.string_util import string_util
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-from .btl_desc_variable import btl_desc_variable
+from .btl_desc_variable_base import btl_desc_variable_base
 
-class btl_lexer_desc_variable(btl_desc_variable):
+class btl_lexer_desc_variable(btl_desc_variable_base):
   
   def generate_code(self, buf, errors):
     check.check_btl_code_gen_buffer(buf)

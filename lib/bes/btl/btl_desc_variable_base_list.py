@@ -9,7 +9,7 @@ from ..common.variable_manager import variable_manager
 
 from .btl_lexer_desc_error_list import btl_lexer_desc_error_list
 
-class btl_desc_variable_list(type_checked_list):
+class btl_desc_variable_base_list(type_checked_list):
 
   def __init__(self, values = None):
     super().__init__(values = values)

@@ -5,7 +5,7 @@ from ..common.string_util import string_util
 
 from .btl_lexer_error import btl_lexer_error
 
-class btl_desc_variable(object):
+class btl_desc_variable_base(object):
   
   def __init__(self, name, default_value):
     check.check_string(name)
