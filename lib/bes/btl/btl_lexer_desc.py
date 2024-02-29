@@ -133,12 +133,12 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
     buf.write_line(f'''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.system.check import check
 from bes.btl.btl_function_base import btl_function_base
 from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
 from bes.btl.btl_lexer_token import btl_lexer_token
-from bes.system.check import check
 ''')
 
     buf.write_line(f'class {namespace}_{name}(btl_lexer_base):')
@@ -147,6 +147,8 @@ from bes.system.check import check
       self.tokens.generate_code(buf)
       buf.write_linesep()
       self.errors.generate_code(buf)
+      buf.write_linesep()
+      self.functions.generate_code(buf, self.errors)
       buf.write_linesep()
       self.states.generate_code(buf, self.errors, self.char_map)
 

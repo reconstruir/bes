@@ -178,6 +178,13 @@ class _fruit_kiwi_lexer(btl_lexer_base):
     pass
 
   
+  class _function_f_handle_eos(btl_function_base):
+    def call(self, context, tokens, token_name):
+      tokens.append(self.make_token(context, token_name, args = {}))
+      context.buffer_reset()
+      tokens.append(self.make_token(context, 't_done', args = {}))
+
+  
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_start'

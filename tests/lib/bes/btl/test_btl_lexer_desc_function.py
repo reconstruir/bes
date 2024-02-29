@@ -58,28 +58,19 @@ class test_btl_lexer_desc_function(_test_simple_lexer_mixin, unit_test):
       ],
       'name': 'f_handle_eos',
     }, btl_lexer_desc_function.parse_node(lexer_node).to_dict() )
-    
-  def xtest_generate_code(self):
-    char_map = btl_lexer_desc_char_map()
-    cmd = btl_lexer_desc_function_command('emit', 't_cheese', {})
-    transition = btl_lexer_desc_function('s_kiwi', 'c_equal', [ cmd ])
-    
-    self.assert_python_code_text_equal('''
-if self.char_in(c, 'c_equal', context):
-  new_state_name = 's_kiwi'
-  tokens.append(self.make_token(context, 't_cheese', args = {}))
-''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 0, 2) )
 
-  def xtest_generate_code_with_index_non_zero(self):
-    char_map = btl_lexer_desc_char_map()
-    cmd = btl_lexer_desc_function_command('emit', 't_cheese', {})
-    transition = btl_lexer_desc_function('s_kiwi', 'c_equal', [ cmd ])
-    
+  def test_generate_code(self):
+    functions_node = self._simple_lexer_desc_tree_section('functions')
+    lexer_node = functions_node.children[0]
+    function = btl_lexer_desc_function.parse_node(lexer_node)
+
     self.assert_python_code_text_equal('''
-elif self.char_in(c, 'c_equal', context):
-  new_state_name = 's_kiwi'
-  tokens.append(self.make_token(context, 't_cheese', args = {}))
-''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 1, 2) )
+class _function_f_handle_eos(btl_function_base):
+  def call(self, context, tokens, token_name):
+    tokens.append(self.make_token(context, token_name, args = {}))
+    context.buffer_reset()
+    tokens.append(self.make_token(context, 't_done', args = {}))
+''', self.call_function_with_buf(function, 'generate_code', []) )
     
 if __name__ == '__main__':
   unit_test.main()
