@@ -63,10 +63,7 @@ states
       emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
-      # function f_handle_eos t_key
-      emit t_key
-      buffer reset
-      emit t_done
+      function f_handle_eos 't_key'
       
   s_value
     c_line_break: s_start
@@ -76,10 +73,7 @@ states
       emit t_line_break
       buffer reset
     c_eos: s_done
-      # function f_handle_eos t_value
-      emit t_value
-      buffer reset
-      emit t_done
+      function f_handle_eos 't_value'
     default: s_value
       buffer write
       

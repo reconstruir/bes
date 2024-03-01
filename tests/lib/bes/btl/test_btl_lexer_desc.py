@@ -240,9 +240,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_key'))
-        context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done'))
+        self.lexer._function_f_handle_eos(self).call(context, tokens, 't_key')
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -266,9 +264,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_value'))
-        context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done'))
+        self.lexer._function_f_handle_eos(self).call(context, tokens, 't_value')
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
@@ -366,9 +362,7 @@ states
       emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
-      emit t_key
-      buffer reset
-      emit t_done
+      function f_handle_eos 't_key'
       
   s_value
     c_line_break: s_start
@@ -378,9 +372,7 @@ states
       emit t_line_break
       buffer reset
     c_eos: s_done
-      emit t_value
-      buffer reset
-      emit t_done
+      function f_handle_eos 't_value'
     default: s_value
       buffer write
       
@@ -434,38 +426,38 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
       "name": "e_unexpected_char", 
       "message": "In state \"{self.name}\" unexpected character: \"{c}\""
     }
-  ],
+  ], 
   "variables": [
     {
-      "name": "v_key_value_delimiter",
+      "name": "v_key_value_delimiter", 
       "default_value": "="
     }
-  ],
+  ], 
   "functions": [
     {
-      "name": "f_handle_eos",
+      "name": "f_handle_eos", 
       "args": [
         "token_name"
-      ],
+      ], 
       "commands": [
         {
-          "name": "emit",
-          "action": "${token_name}",
+          "name": "emit", 
+          "action": "${token_name}", 
           "args": []
-        },
+        }, 
         {
-          "name": "buffer",
-          "action": "reset",
+          "name": "buffer", 
+          "action": "reset", 
           "args": []
-        },
+        }, 
         {
-          "name": "emit",
-          "action": "t_done",
+          "name": "emit", 
+          "action": "t_done", 
           "args": []
         }
       ]
     }
-  ],
+  ], 
   "char_map": {
     "c_keyval_key_first": {
       "name": "c_keyval_key_first", 
@@ -592,13 +584,13 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
         "y", 
         "z"
       ]
-    },
+    }, 
     "c_key_value_delimiter": {
-      "name": "c_key_value_delimiter",
+      "name": "c_key_value_delimiter", 
       "chars": [
         "${v_key_value_delimiter}"
       ]
-    }  
+    }
   }, 
   "states": [
     {
@@ -721,19 +713,11 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_eos", 
           "commands": [
             {
-              "name": "emit", 
-              "action": "t_key", 
-              "args": []
-            }, 
-            {
-              "name": "buffer", 
-              "action": "reset", 
-              "args": []
-            }, 
-            {
-              "name": "emit", 
-              "action": "t_done", 
-              "args": []
+              "name": "function", 
+              "action": "f_handle_eos", 
+              "args": [
+                "'t_key'"
+              ]
             }
           ]
         }
@@ -778,19 +762,11 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "char_name": "c_eos", 
           "commands": [
             {
-              "name": "emit", 
-              "action": "t_value", 
-              "args": []
-            }, 
-            {
-              "name": "buffer", 
-              "action": "reset", 
-              "args": []
-            }, 
-            {
-              "name": "emit", 
-              "action": "t_done", 
-              "args": []
+              "name": "function", 
+              "action": "f_handle_eos", 
+              "args": [
+                "'t_value'"
+              ]
             }
           ]
         }, 

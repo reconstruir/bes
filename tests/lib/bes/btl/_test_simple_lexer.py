@@ -85,9 +85,7 @@ class _test_simple_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_key'))
-        context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done'))
+        self.lexer._function_f_handle_eos(self).call(context, tokens, 't_key')
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -111,9 +109,7 @@ class _test_simple_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_value'))
-        context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done'))
+        self.lexer._function_f_handle_eos(self).call(context, tokens, 't_value')
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
@@ -211,10 +207,7 @@ states
       emit t_key_value_delimiter
       buffer reset
     c_eos: s_done
-      # function f_handle_eos t_key
-      emit t_key
-      buffer reset
-      emit t_done
+      function f_handle_eos 't_key'
       
   s_value
     c_line_break: s_start
@@ -224,10 +217,7 @@ states
       emit t_line_break
       buffer reset
     c_eos: s_done
-      # function f_handle_eos t_value
-      emit t_value
-      buffer reset
-      emit t_done
+      function f_handle_eos 't_value'
     default: s_value
       buffer write
       
