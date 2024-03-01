@@ -42,17 +42,17 @@ class test_btl_lexer_desc_function(_test_simple_lexer_mixin, unit_test):
       'commands': [
         {
           'action': '${token_name}',
-          'args': {},
+          'args': [],
           'name': 'emit'
         },
         {
           'action': 'reset',
-          'args': {}, 'name':
+          'args': [], 'name':
           'buffer'
         },
         {
           'action': 't_done',
-          'args': {},
+          'args': [],
           'name': 'emit'
         },
       ],
@@ -67,9 +67,9 @@ class test_btl_lexer_desc_function(_test_simple_lexer_mixin, unit_test):
     self.assert_python_code_text_equal('''
 class _function_f_handle_eos(btl_function_base):
   def call(self, context, tokens, token_name):
-    tokens.append(self.make_token(context, token_name, args = {}))
+    tokens.append(self.make_token(context, token_name))
     context.buffer_reset()
-    tokens.append(self.make_token(context, 't_done', args = {}))
+    tokens.append(self.make_token(context, 't_done'))
 ''', self.call_function_with_buf(function, 'generate_code', []) )
     
 if __name__ == '__main__':

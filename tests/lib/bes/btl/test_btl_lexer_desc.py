@@ -180,9 +180,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
   class _function_f_handle_eos(btl_function_base):
     def call(self, context, tokens, token_name):
-      tokens.append(self.make_token(context, token_name, args = {}))
+      tokens.append(self.make_token(context, token_name))
       context.buffer_reset()
-      tokens.append(self.make_token(context, 't_done', args = {}))
+      tokens.append(self.make_token(context, 't_done'))
 
   
   class _state_s_start(btl_lexer_state_base):
@@ -198,15 +198,15 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         context.buffer_write(c)
@@ -233,16 +233,16 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_key_value_delimiter', context):
         new_state_name = 's_value'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
+        tokens.append(self.make_token(context, 't_key_value_delimiter'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -259,16 +259,16 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
@@ -451,17 +451,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
         {
           "name": "emit",
           "action": "${token_name}",
-          "args": {}
+          "args": []
         },
         {
           "name": "buffer",
           "action": "reset",
-          "args": {}
+          "args": []
         },
         {
           "name": "emit",
           "action": "t_done",
-          "args": {}
+          "args": []
         }
       ]
     }
@@ -611,7 +611,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "emit", 
               "action": "t_done", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -622,17 +622,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "buffer", 
               "action": "write", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "emit", 
               "action": "t_line_break", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -643,7 +643,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "emit", 
               "action": "t_space", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -654,7 +654,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "buffer", 
               "action": "write", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -665,7 +665,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "error", 
               "action": "e_unexpected_char", 
-              "args": {}
+              "args": []
             }
           ]
         }
@@ -681,7 +681,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "buffer", 
               "action": "write", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -692,27 +692,27 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "emit", 
               "action": "t_key", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "write", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "emit", 
               "action": "t_key_value_delimiter", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -723,17 +723,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "emit", 
               "action": "t_key", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "emit", 
               "action": "t_done", 
-              "args": {}
+              "args": []
             }
           ]
         }
@@ -749,27 +749,27 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "emit", 
               "action": "t_value", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "write", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "emit", 
               "action": "t_line_break", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -780,17 +780,17 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "emit", 
               "action": "t_value", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "buffer", 
               "action": "reset", 
-              "args": {}
+              "args": []
             }, 
             {
               "name": "emit", 
               "action": "t_done", 
-              "args": {}
+              "args": []
             }
           ]
         }, 
@@ -801,7 +801,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "buffer", 
               "action": "write", 
-              "args": {}
+              "args": []
             }
           ]
         }

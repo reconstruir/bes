@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
+from bes.btl.btl_function_base import btl_function_base
 from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
@@ -29,6 +30,15 @@ class bc_ini_lexer(btl_lexer_base):
     pass
 
   
+  class _function_f_handle_comment_begin(btl_function_base):
+    def call(self, context, tokens):
+      tokens.append(self.make_token(context, 't_space'))
+      context.buffer_reset()
+      context.buffer_write(c)
+      tokens.append(self.make_token(context, 't_comment_begin'))
+      context.buffer_reset()
+
+  
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_start'
@@ -45,11 +55,11 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        tokens.append(self.make_token(context, 't_comment_begin'))
         context.buffer_reset()
       elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
@@ -57,12 +67,12 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_open_bracket', context):
         new_state_name = 's_section_name'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_section_name_begin', args = {}))
+        tokens.append(self.make_token(context, 't_section_name_begin'))
         context.buffer_reset()
       else:
         new_state_name = 's_done'
@@ -84,16 +94,16 @@ class bc_ini_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_comment', args = {}))
+        tokens.append(self.make_token(context, 't_comment'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_comment', args = {}))
+        tokens.append(self.make_token(context, 't_comment'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_comment'
         context.buffer_write(c)
@@ -116,10 +126,10 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_close_bracket', context):
         new_state_name = 's_after_section_name'
-        tokens.append(self.make_token(context, 't_section_name', args = {}))
+        tokens.append(self.make_token(context, 't_section_name'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_section_name_end', args = {}))
+        tokens.append(self.make_token(context, 't_section_name_end'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
@@ -149,17 +159,17 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        tokens.append(self.make_token(context, 't_comment_begin'))
         context.buffer_reset()
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
@@ -183,21 +193,21 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        tokens.append(self.make_token(context, 't_comment_begin'))
         context.buffer_reset()
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
@@ -221,21 +231,21 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        tokens.append(self.make_token(context, 't_comment_begin'))
         context.buffer_reset()
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
       else:
@@ -261,14 +271,14 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_key_value_delimiter', context):
         new_state_name = 's_expecting_value'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
+        tokens.append(self.make_token(context, 't_key_value_delimiter'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
@@ -292,24 +302,24 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_space', args = {}))
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        tokens.append(self.make_token(context, 't_comment_begin'))
         context.buffer_reset()
       else:
         new_state_name = 's_value'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
       
@@ -331,11 +341,11 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
@@ -358,19 +368,19 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_key_value_delimiter', context):
         new_state_name = 's_expecting_value'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
+        tokens.append(self.make_token(context, 't_key_value_delimiter'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_key_space'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
       
@@ -389,22 +399,22 @@ class bc_ini_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin', args = {}))
+        tokens.append(self.make_token(context, 't_comment_begin'))
         context.buffer_reset()
       else:
         new_state_name = 's_value'

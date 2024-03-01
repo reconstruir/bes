@@ -60,5 +60,5 @@ class btl_lexer_state_base(object):
   def char_to_string(clazz, c):
     return btl_lexer_token.make_debug_str(c)
 
-  def make_token(self, context, name, args = None):
-    return self._lexer.make_token(context, name, args = args)
+  def make_token(self, context, name):
+    return self._lexer.make_token(context, name)

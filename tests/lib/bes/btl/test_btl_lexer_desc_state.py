@@ -16,7 +16,7 @@ class test_btl_lexer_desc_state(_test_simple_lexer_mixin, unit_test):
 
   def test_generate_code(self):
     char_map = btl_lexer_desc_char_map()
-    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', {})
+    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', ())
     transition = btl_lexer_desc_state_transition('s_juice', 'c_equal', [ cmd ])
     state = btl_lexer_desc_state('s_juice', [ transition ])
 
@@ -34,7 +34,7 @@ class _state_s_juice(btl_lexer_state_base):
 
     if self.char_in(c, 'c_equal', context):
       new_state_name = 's_juice'
-      tokens.append(self.make_token(context, 't_cheese', args = {}))
+      tokens.append(self.make_token(context, 't_cheese'))
     
     return self._handle_char_result(new_state_name, tokens)
 ''', self.call_function_with_buf(state, 'generate_code', [], char_map) )

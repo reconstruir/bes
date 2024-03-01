@@ -12,7 +12,7 @@ class btl_desc_command(object):
   def __init__(self, name, action, args):
     check.check_string(name)
     check.check_string(action)
-    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    check.check_tuple(args, check.STRING_TYPES)
 
     self._name = name
     self._action = action
@@ -42,7 +42,7 @@ class btl_desc_command(object):
     return {
       'name': self.name,
       'action': self.action,
-      'args': self.args,
+      'args': list(self.args),
     }
 
   def to_tuple(self):
@@ -58,7 +58,7 @@ class btl_desc_command(object):
     if not parts:
       raise btl_lexer_error(f'Missing arguments for command: "{name}" - line {n.data.line_number}')
     action = parts.pop(0)
-    args = clazz._parse_key_values(parts)
+    args = tuple(parts)
     return clazz(name, action, args)
   
   def generate_code(self, buf, errors):

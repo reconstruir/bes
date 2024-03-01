@@ -15,7 +15,7 @@ class btl_lexer_desc_state_transition_command(btl_desc_command):
     errors = check.check_btl_lexer_desc_error_list(errors)
 
     if self.name == 'emit':
-      buf.write_line(f'tokens.append(self.make_token(context, {self.action_resolved}, args = {self.args}))')
+      buf.write_line(f'tokens.append(self.make_token(context, {self.action_resolved}))')
     elif self.name == 'buffer':
       if self.action == 'write':
         buf.write_line(f'context.buffer_write(c)')

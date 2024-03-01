@@ -13,24 +13,24 @@ class test_btl_lexer_desc_state_transition(_test_simple_lexer_mixin, unit_test):
 
   def test_generate_code(self):
     char_map = btl_lexer_desc_char_map()
-    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', {})
+    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', ())
     transition = btl_lexer_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
     
     self.assert_python_code_text_equal('''
 if self.char_in(c, 'c_equal', context):
   new_state_name = 's_kiwi'
-  tokens.append(self.make_token(context, 't_cheese', args = {}))
+  tokens.append(self.make_token(context, 't_cheese'))
 ''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 0, 2) )
 
   def test_generate_code_with_index_non_zero(self):
     char_map = btl_lexer_desc_char_map()
-    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', {})
+    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', ())
     transition = btl_lexer_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
     
     self.assert_python_code_text_equal('''
 elif self.char_in(c, 'c_equal', context):
   new_state_name = 's_kiwi'
-  tokens.append(self.make_token(context, 't_cheese', args = {}))
+  tokens.append(self.make_token(context, 't_cheese'))
 ''', self.call_function_with_buf(transition, 'generate_code', [], char_map, 1, 2) )
     
 if __name__ == '__main__':

@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
+from bes.btl.btl_function_base import btl_function_base
 from bes.btl.btl_lexer_base import btl_lexer_base
 from bes.btl.btl_lexer_runtime_error import btl_lexer_runtime_error
 from bes.btl.btl_lexer_state_base import btl_lexer_state_base
@@ -21,6 +22,7 @@ class _test_keyval_lexer(btl_lexer_base):
   class e_unexpected_char(btl_lexer_runtime_error):
     pass
 
+
   
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
@@ -35,11 +37,11 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
@@ -70,14 +72,14 @@ class _test_keyval_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
       else:
@@ -103,14 +105,14 @@ class _test_keyval_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_equal', context):
         new_state_name = 's_expecting_value'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
+        tokens.append(self.make_token(context, 't_key_value_delimiter'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
@@ -134,19 +136,19 @@ class _test_keyval_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_value'
-        tokens.append(self.make_token(context, 't_space', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_space', args = {}))
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_space'))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
@@ -170,11 +172,11 @@ class _test_keyval_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_value'
@@ -202,19 +204,19 @@ class _test_keyval_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_equal', context):
         new_state_name = 's_expecting_value'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_key_value_delimiter', args = {}))
+        tokens.append(self.make_token(context, 't_key_value_delimiter'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_key_space'
-        tokens.append(self.make_token(context, 't_key', args = {}))
+        tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
       
@@ -233,16 +235,16 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
         context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break', args = {}))
+        tokens.append(self.make_token(context, 't_line_break'))
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        tokens.append(self.make_token(context, 't_value', args = {}))
+        tokens.append(self.make_token(context, 't_value'))
         context.buffer_reset()
-        tokens.append(self.make_token(context, 't_done', args = {}))
+        tokens.append(self.make_token(context, 't_done'))
       else:
         new_state_name = 's_value'
         context.buffer_write(c)

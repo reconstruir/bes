@@ -125,12 +125,11 @@ class btl_lexer_base(object):
         yield c
     yield self.EOS
     
-  def make_token(self, context, name, args = None):
+  def make_token(self, context, name):
     check.check_btl_lexer_context(context)
     check.check_string(name)
-    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
 
-    token_args = self._make_token_args(name, args)
+    token_args = self._make_token_args(name)
     
     assert context.buffer_start_position != None
     token_position = context.buffer_start_position
@@ -148,12 +147,11 @@ class btl_lexer_base(object):
                             type_hint = type_hint)
     return token
 
-  def _make_token_args(self, name, args):
+  def _make_token_args(self, name):
     check.check_string(name)
-    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
 
     result = {}
-    token_args = args or {}
+    token_args = {}
     token_desc = self._desc.tokens.find_token(name)
     if not token_desc:
       raise btl_lexer_error(f'No token description found: "{name}"')

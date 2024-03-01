@@ -13,31 +13,31 @@ from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 class test_btl_lexer_desc_state_transition_command(_test_simple_lexer_mixin, unit_test):
 
   def test_generate_code_with_emit(self):
-    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', {})
+    cmd = btl_lexer_desc_state_transition_command('emit', 't_cheese', ())
     self.assert_python_code_text_equal( '''
-tokens.append(self.make_token(context, 't_cheese', args = {}))
+tokens.append(self.make_token(context, 't_cheese'))
 ''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
   def test_generate_code_with_emit_and_variable(self):
-    cmd = btl_lexer_desc_state_transition_command('emit', '${token_name}', {})
+    cmd = btl_lexer_desc_state_transition_command('emit', '${token_name}', ())
     self.assert_python_code_text_equal( '''
-tokens.append(self.make_token(context, token_name, args = {}))
+tokens.append(self.make_token(context, token_name))
 ''', self.call_function_with_buf(cmd, 'generate_code', []) )
     
   def test_generate_code_with_buffer_write(self):
-    cmd = btl_lexer_desc_state_transition_command('buffer', 'write', {})
+    cmd = btl_lexer_desc_state_transition_command('buffer', 'write', ())
     self.assert_python_code_text_equal( '''
 context.buffer_write(c)
 ''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
   def test_generate_code_with_buffer_reset(self):
-    cmd = btl_lexer_desc_state_transition_command('buffer', 'reset', {})
+    cmd = btl_lexer_desc_state_transition_command('buffer', 'reset', ())
     self.assert_python_code_text_equal( '''
 context.buffer_reset()
 ''', self.call_function_with_buf(cmd, 'generate_code', []) )
 
   def test_generate_code_with_buffer_unknown_action(self):
-    cmd = btl_lexer_desc_state_transition_command('buffer', 'notthere', {})
+    cmd = btl_lexer_desc_state_transition_command('buffer', 'notthere', ())
 
     with self.assertRaises(btl_lexer_error) as ctx:
       self.call_function_with_buf(cmd, 'generate_code', [])
