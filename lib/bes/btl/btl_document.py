@@ -123,20 +123,22 @@ class btl_document(metaclass = ABCMeta):
     self._log.log_d(f'add_node_from_text: last_child_index={last_child_index}')
     new_root_node, new_tokens = self._parse_text(text)
     self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
-    self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
 
     new_node = new_root_node.find_child_by_path(path)
     if not new_node:
       path_flat = ', '.join(list(path))
       raise btl_document_error(f'Failed to find node with path: "{path_flat}"')
-      
+
+    self._log.log_d(f'add_node_from_text: self.root_node before:\n====\n{str(self.root_node)}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: self.tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)    
     self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
     parent_node.add_child(new_node)
-    self._log.log_d(f'add_node_from_text: root_node:\n====\n{str(self.root_node)}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: self.root_node after:\n====\n{str(self.root_node)}\n====', multi_line = True)
     insert_index = last_child_index + 1
     self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     self._tokens.insert_values(insert_index, new_tokens)
-    self._log.log_d(f'add_node_from_text: self._tokens:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: self.tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
     new_text = self.to_source_string()
     self._log.log_d(f'add_node_from_text: new_text:\n====\n{new_text}\n====', multi_line = True)
     self._text = new_text

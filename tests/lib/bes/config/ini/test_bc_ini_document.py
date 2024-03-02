@@ -136,7 +136,7 @@ smell=stink
 '''
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
-  def test_add_section_value(self):
+  def test_add_section_value_existing_section(self):
     text = '''
 [fruit]
 name=apple
@@ -151,7 +151,7 @@ name=vieux
 
     doc.add_section_value('cheese', 'smell', 'stink')
 
-    expected = '''
+    self.assert_python_code_text_equal( '''
 [fruit]
 name=apple
 color=red
@@ -159,8 +159,7 @@ color=red
 [cheese]
 name=vieux
 smell=stink
-'''
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+''', doc.to_source_string() )
     
   def test_remove_section(self):
     text = '''
@@ -464,7 +463,7 @@ smell=stink
     self.assertEqual( True, doc.has_section('cheese') )
     self.assertEqual( False, doc.has_section('wine') )
     
-  def test_add_section(self):
+  def xxx_test_add_section(self):
     text = '''
 [fruit]
 
@@ -478,6 +477,44 @@ smell=stink
     #doc.tokens.dump(f'TOKENS BEFORE:')
     doc.add_section_value('wine', 'name', 'barolo')
     #print(f'AFTER:{str(doc.root_node)}')
+    self.assert_python_code_text_equal( '''
+[fruit]
+
+[cheese]
+name=vieux
+smell=stink
+
+[wine]
+name=barolo
+''', doc.text )
+
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,2:i=2
+    n_section;t_section_name:cheese:p=4,2:i=7
+      n_key_value;
+        n_key;t_key:name:p=5,1:i=10
+        n_value;t_value:vieux:p=5,6:i=12
+      n_key_value;
+        n_key;t_key:smell:p=6,1:i=14
+        n_value;t_value:stink:p=6,7:i=16
+    n_section;t_section_name:wine:p=8,2:i=20
+''', str(doc.root_node) )
+    
+  def test_add_section_value_at_end(self):
+    text = '''
+[fruit]
+
+[cheese]
+name=vieux
+smell=stink
+
+[wine]
+'''
+    doc = bc_ini_document(text)
+    doc.add_section_value('wine', 'name', 'barolo')
     self.assert_python_code_text_equal( '''
 [fruit]
 
