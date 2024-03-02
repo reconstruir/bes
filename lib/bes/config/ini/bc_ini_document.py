@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import os.path as path
 
 from bes.system.check import check
 
 from bes.btl.btl_document import btl_document
+from bes.btl.btl_parser_options import btl_parser_options
 
 from .bc_ini_lexer import bc_ini_lexer
 from .bc_ini_parser import bc_ini_parser
@@ -12,11 +14,17 @@ from .bc_ini_error import bc_ini_error
 
 class bc_ini_document(btl_document):
 
-  def __init__(self, text, parser_options = None):
-    lexer = bc_ini_lexer()
-    parser = bc_ini_parser(lexer)
-    super().__init__(parser, text, parser_options = parser_options)
+  @classmethod
+  #@abstractmethod
+  def lexer_class(clazz):
+    return bc_ini_lexer
 
+  @classmethod
+  #@abstractmethod
+  def parser_class(clazz):
+    return bc_ini_parser
+    
+      
   def get_value(self, key):
     check.check_string(key)
     
@@ -32,6 +40,12 @@ class bc_ini_document(btl_document):
     
   def remove_value(self, key):
     check.check_string(key)
+
+  def has_section(self, section_name):
+    check.check_string(section_name)
+
+    section_node = self.find_section_node(section_name, raise_error = False)
+    return section_node != None
     
   def get_section_value(self, section_name, key):
     check.check_string(section_name)
@@ -45,12 +59,21 @@ class bc_ini_document(btl_document):
     check.check_string(key)
     check.check_string(value)
 
-    kv_node = self._find_section_key_value_node(section_name, key, raise_error = True)
-    self._key_value_node_modify_value(kv_node, value)
+    kv_node = self._find_section_key_value_node(section_name, key, raise_error = False)
+    if kv_node:
+      self._key_value_node_modify_value(kv_node, value)
+    else:
+      section_node = self.find_section_node(section_name, raise_error = False)
+      if not section_node:
+        section_node = self.add_section(section_name)
+      kv_node = self.add_node_from_text(section_node.find_last_node(), f'\n{key}={value}')
     
   def add_section(self, section_name):
     check.check_string(section_name)
 
+    sections_node = self.root_node.find_child_by_name('n_sections')
+    return self.add_node_from_text(sections_node, f'\n\n[{section_name}]\n')
+    
   def remove_section_value(self, section_name, key):
     check.check_string(section_name)
     check.check_string(key)

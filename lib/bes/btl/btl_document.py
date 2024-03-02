@@ -5,27 +5,47 @@ import os
 from ..system.log import logger
 from ..system.check import check
 from ..property.cached_property import cached_property
+from ..files.bf_file_ops import bf_file_ops
+from ..files.bf_check import bf_check
 
 from .btl_comment_position import btl_comment_position
 from .btl_parser_node import btl_parser_node
 from .btl_parser_options import btl_parser_options
 
-class btl_document(object):
+from abc import abstractmethod
+from abc import ABCMeta
+
+class btl_document(metaclass = ABCMeta):
 
   _log = logger('btl_document')
   
-  def __init__(self, parser, text, parser_options = None):
-    check.check_btl_parser(parser)
+  def __init__(self, text, parser_options = None):
     check.check_string(text)
     check.check_btl_parser_options(parser_options, allow_none = True)
 
+    lexer_class = self.lexer_class()
+    parser_class = self.parser_class()
+    check.check_class(lexer_class)
+    check.check_class(parser_class)
+    
+    lexer = lexer_class()
     self._parser_options = parser_options or btl_parser_options()
-    self._parser = parser
+    self._parser = parser_class(lexer)
     self._text = text
     self._root_node = None
     self._tokens = None
     self._do_parse()
 
+  @classmethod
+  @abstractmethod
+  def lexer_class(clazz):
+    raise NotImplementedError(f'not implemented: "lexer_class"')
+
+  @classmethod
+  @abstractmethod
+  def parser_class(clazz):
+    raise NotImplementedError(f'not implemented: "parser_class"')
+  
   @property
   def root_node(self):
     return self._root_node
@@ -36,7 +56,11 @@ class btl_document(object):
   
   def to_source_string(self):
     return self._tokens.to_source_string()
-    
+
+  @property
+  def text(self):
+    return self._text
+  
   def _do_parse(self):
     self._root_node, self._tokens = self._parse_text(self._text)
     #self._log.log_d(f'=====:text:=====')
@@ -96,6 +120,7 @@ class btl_document(object):
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
+    return new_node
 
   @cached_property
   def comment_begin_char(self):
@@ -128,4 +153,36 @@ class btl_document(object):
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
 
+  def save_file(self, filename, encoding = 'utf-8', backup = True, perm = None):
+    check.check_string(encoding)
+    check.check_bool(backup)
+    
+    new_text = self.to_source_string()
+    if path.exists(filename):
+      filename = bf_check.check_file(filename)
+      old_text = bf_file_ops.read(filename, codec = codec)
+      if old_text == new_text:
+        return
+      if backup:
+        bf_file_ops.backup(filename)
+      filename = bf_check.check_file(filename)
+    else:
+      filename = path.abspath(filename)
+    bf_file_ops.save(filename, content = new_text, encoding = encoding, perm = None)
+    
+  @classmethod
+  def load_file(clazz, filename, parser_options = None, codec = 'utf-8'):
+    check.check_btl_parser_options(parser_options)
+    
+    if path.exists(filename):
+      filename = bf_check.check_file(filename)
+      text = bf_file_ops.read(filename, codec = codec)
+    else:
+      filename = path.abspath(filename)
+      text = ''
+      
+    parser_options = parser_options or btl_parser_options()
+    parser_options.source = filename
+    return bc_ini_document(text, parser_options = parser_options)
+    
 check.register_class(btl_document, include_seq = False)

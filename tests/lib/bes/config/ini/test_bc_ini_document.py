@@ -387,6 +387,67 @@ n_root;
   n_sections;
 '''
     self.assert_python_code_text_equal( expected, str(doc.root_node) )
+
+  def test_has_section(self):
+    text = '''
+[fruit]
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assertEqual( True, doc.has_section('fruit') )
+    self.assertEqual( True, doc.has_section('cheese') )
+    self.assertEqual( False, doc.has_section('wine') )
+    
+  def test_add_section(self):
+    text = '''
+[fruit]
+
+[cheese]
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    doc.add_section('wine')
+    #doc.set_section_value('wine', 'name', 'barolo')
+    self.assert_python_code_text_equal( '''
+[fruit]
+
+[cheese]
+name=vieux
+smell=stink
+
+[wine]
+''', doc.text )
+
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:fruit:p=2,2:i=2
+    n_section;t_section_name:cheese:p=4,2:i=7
+      n_key_value;
+        n_key;t_key:name:p=5,1:i=10
+        n_value;t_value:vieux:p=5,6:i=12
+      n_key_value;
+        n_key;t_key:smell:p=6,1:i=14
+        n_value;t_value:stink:p=6,7:i=16
+    n_section;t_section_name:wine:p=8,2:i=20
+''', str(doc.root_node) )
+    
+#name=barolo
+#where=piemonte
+    
+  def xtest_save_file(self):
+    doc = bc_ini_document('')
+    expected = '''
+n_root;
+  n_global_section;
+  n_sections;
+'''
+    self.assert_python_code_text_equal( expected, str(doc.root_node) )
     
 if __name__ == '__main__':
   unit_test.main()
