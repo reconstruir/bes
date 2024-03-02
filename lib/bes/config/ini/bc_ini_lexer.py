@@ -44,6 +44,12 @@ class bc_ini_lexer(btl_lexer_base):
       context.buffer_write(c)
       tokens.append(self.make_token(context, 't_line_break'))
       context.buffer_reset()
+  
+  class _function_f_handle_eos(btl_function_base):
+    def call(self, context, tokens, c, current_token_name):
+      tokens.append(self.make_token(context, current_token_name))
+      context.buffer_reset()
+      tokens.append(self.make_token(context, 't_done'))
 
   
   class _state_s_start(btl_lexer_state_base):
@@ -485,6 +491,11 @@ functions
     buffer write
     emit t_line_break
     buffer reset
+
+  f_handle_eos(current_token_name)
+    emit ${current_token_name}
+    buffer reset
+    emit t_done
 
 states
 
