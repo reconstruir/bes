@@ -23,7 +23,6 @@ class bc_ini_document(btl_document):
   #@abstractmethod
   def parser_class(clazz):
     return bc_ini_parser
-    
       
   def get_value(self, key):
     check.check_string(key)
@@ -37,7 +36,15 @@ class bc_ini_document(btl_document):
 
     kv_node = self._find_global_key_value_node(key, raise_error = True)
     self._key_value_node_modify_value(kv_node, value)
-    
+
+  def add_value(self, key, value):
+    check.check_string(key)
+    check.check_string(value)
+
+    global_section_node = self._find_global_section_node()
+    text = f'{os.linesep}{key}={value}'
+    return self.add_node_from_text(global_section_node, text)
+
   def remove_value(self, key):
     check.check_string(key)
 
@@ -67,7 +74,16 @@ class bc_ini_document(btl_document):
       if not section_node:
         section_node = self.add_section(section_name)
       kv_node = self.add_node_from_text(section_node.find_last_node(), f'\n{key}={value}')
-    
+
+  def add_section_value(self, section_name, key, value):
+    check.check_string(section_name)
+    check.check_string(key)
+    check.check_string(value)
+
+    section_node = self.find_section_node(section_name, raise_error = True)
+    text = f'{os.linesep}{key}={value}'
+    return self.add_node_from_text(section_node, text)
+      
   def add_section(self, section_name):
     check.check_string(section_name)
 
@@ -116,10 +132,14 @@ class bc_ini_document(btl_document):
       raise bc_ini_error(f'key value not found in section "{section_name}": "{key}"')
     return key_value_node
 
-  def _find_global_key_value_node(self, key, raise_error = True):
+  def _find_global_section_node(self):
     global_section_node = self.root_node.find_child_by_name('n_global_section')
     if not global_section_node:
       raise bc_ini_error(f'missing node: "n_global_section"')
+    return global_section_node
+  
+  def _find_global_key_value_node(self, key, raise_error = True):
+    global_section_node = self._find_global_section_node()
     key_value_node = global_section_node.find_grandchild_by_token('n_key_value',
                                                                   'n_key',
                                                                   't_key',

@@ -213,7 +213,8 @@ class btl_lexer_token_list(type_checked_list):
     return msg
   
   def to_debug_str(self):
-    return os.linesep.join([ token.to_debug_str() for token in self ])
+    max_index_length = len(str(len(self) - 1))
+    return os.linesep.join([ f'{i:>{max_index_length}}: {token.to_debug_str()}' for i, token in enumerate(self) ])
 
   def first_line_to_index(self, line, raise_error = False, error_message = None):
     check.check_int(line)
@@ -269,4 +270,10 @@ class btl_lexer_token_list(type_checked_list):
         right = mid - 1
     return -1
 
+  def dump(self, label):
+    check.check_string(label)
+
+    print(label)
+    print(self.to_debug_str())
+  
 btl_lexer_token_list.register_check_class()  

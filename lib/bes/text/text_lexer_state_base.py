@@ -11,7 +11,8 @@ class text_lexer_state_base(object):
   
   def __init__(self, lexer):
     self.name = self.__class__.__name__[1:]
-    tag = f'{lexer.__class__.__name__}.{self.name}'
+    #tag = f'{lexer.__class__.__name__}.{self.name}'
+    tag = self.name[-20:]
     log.add_logging(self, tag = tag)
     self.lexer = lexer
   
