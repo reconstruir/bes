@@ -46,6 +46,12 @@ functions
     emit t_comment_begin
     buffer reset
 
+  f_handle_line_break()
+    buffer reset
+    buffer write
+    emit t_line_break
+    buffer reset
+
 states
 
   s_start
@@ -73,10 +79,7 @@ states
   s_comment
     c_line_break: s_start
       emit t_comment
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_comment
       buffer reset 
@@ -106,10 +109,7 @@ states
       emit t_comment_begin
       buffer reset
     c_line_break: s_start
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_done
     default: s_done
@@ -122,10 +122,7 @@ states
       function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_done
     default: s_done
@@ -138,10 +135,7 @@ states
       function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_keyval_key_first: s_key
       emit t_space
       buffer reset
@@ -213,10 +207,7 @@ states
   s_value
     c_line_break: s_start
       emit t_value
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_value
       buffer reset

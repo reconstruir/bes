@@ -37,6 +37,13 @@ class bc_ini_lexer(btl_lexer_base):
       context.buffer_write(c)
       tokens.append(self.make_token(context, 't_comment_begin'))
       context.buffer_reset()
+  
+  class _function_f_handle_line_break(btl_function_base):
+    def call(self, context, tokens, c):
+      context.buffer_reset()
+      context.buffer_write(c)
+      tokens.append(self.make_token(context, 't_line_break'))
+      context.buffer_reset()
 
   
   class _state_s_start(btl_lexer_state_base):
@@ -95,10 +102,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_comment'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_line_break(self).call(context, tokens, c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_comment'))
@@ -163,10 +167,7 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_line_break(self).call(context, tokens, c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done'))
@@ -197,10 +198,7 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_line_break(self).call(context, tokens, c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done'))
@@ -231,10 +229,7 @@ class bc_ini_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_line_break(self).call(context, tokens, c)
       elif self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         tokens.append(self.make_token(context, 't_space'))
@@ -388,10 +383,7 @@ class bc_ini_lexer(btl_lexer_base):
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_value'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_line_break'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_line_break(self).call(context, tokens, c)
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_value'))
@@ -488,6 +480,12 @@ functions
     emit t_comment_begin
     buffer reset
 
+  f_handle_line_break()
+    buffer reset
+    buffer write
+    emit t_line_break
+    buffer reset
+
 states
 
   s_start
@@ -515,10 +513,7 @@ states
   s_comment
     c_line_break: s_start
       emit t_comment
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_comment
       buffer reset 
@@ -548,10 +543,7 @@ states
       emit t_comment_begin
       buffer reset
     c_line_break: s_start
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_done
     default: s_done
@@ -564,10 +556,7 @@ states
       function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_done
     default: s_done
@@ -580,10 +569,7 @@ states
       function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_keyval_key_first: s_key
       emit t_space
       buffer reset
@@ -655,10 +641,7 @@ states
   s_value
     c_line_break: s_start
       emit t_value
-      buffer reset
-      buffer write
-      emit t_line_break
-      buffer reset
+      function f_handle_line_break
     c_eos: s_done
       emit t_value
       buffer reset
