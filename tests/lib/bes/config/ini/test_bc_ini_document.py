@@ -246,7 +246,9 @@ price=cheap
 9: t_done::h=h_done:i=9\
 ''', doc.tokens.to_debug_str() )
     
-    doc.add_node_from_text(doc.find_global_section_node(), '\nprice=cheap\n')
+    doc.add_node_from_text(doc.find_global_section_node(),
+                           '\nprice=cheap\n',
+                           ( 'n_global_section', 'n_key_value' ))
 
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
@@ -321,7 +323,9 @@ smell=stink
 26: t_done::h=h_done:i=26\
 ''', doc.tokens.to_debug_str() )
     
-    doc.add_node_from_text(doc.find_section_node('fruit'), '\nprice=cheap\n')
+    doc.add_node_from_text(doc.find_section_node('fruit'),
+                           '\nprice=cheap\n',
+                           ( 'n_global_section', 'n_key_value' ))
 
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
@@ -460,7 +464,7 @@ smell=stink
     self.assertEqual( True, doc.has_section('cheese') )
     self.assertEqual( False, doc.has_section('wine') )
     
-  def xtest_add_section(self):
+  def test_add_section(self):
     text = '''
 [fruit]
 

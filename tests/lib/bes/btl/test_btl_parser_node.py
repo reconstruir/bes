@@ -59,6 +59,28 @@ n_root;
     root = self.parse_test_tree(tree_text)
     n = root.find_last_node()
     self.assertEqual( 'n_level4;t_value:purple:p=2,2', str(n) )
+
+  def test_find_child_by_path(self):
+    tree_text = '''
+n_root;
+  n_level2;
+    n_level3;
+      n_level4;t_value:apple:p=2,7
+  n_level2;
+    n_level3;
+      n_level4;t_value:red:p=3,7
+  n_level2;
+    n_level3;
+      n_level4;
+        n_level5;
+          n_level6;t_value:green:p=1,1
+  n_level2;
+    n_level3;
+      n_level4;t_value:purple:p=2,2
+'''
+    root = self.parse_test_tree(tree_text)
+    n = root.find_child_by_path(( 'n_level2', 'n_level3', 'n_level4' ))
+    self.assertEqual( 'n_level4;t_value:apple:p=2,7', str(n) )
     
 if __name__ == '__main__':
   unit_test.main()

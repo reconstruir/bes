@@ -43,7 +43,9 @@ class bc_ini_document(btl_document):
 
     global_section_node = self._find_global_section_node()
     text = f'{os.linesep}{key}={value}'
-    return self.add_node_from_text(global_section_node, text)
+    return self.add_node_from_text(global_section_node,
+                                   text,
+                                   ( 'n_global_section', 'n_key_value' ))
 
   def remove_value(self, key):
     check.check_string(key)
@@ -73,7 +75,9 @@ class bc_ini_document(btl_document):
       section_node = self.find_section_node(section_name, raise_error = False)
       if not section_node:
         section_node = self.add_section(section_name)
-      kv_node = self.add_node_from_text(section_node.find_last_node(), f'\n{key}={value}')
+      self.add_node_from_text(section_node,
+                              f'\n{key}={value}',
+                              ( 'n_sections', 'n_key_value', ))
 
   def add_section_value(self, section_name, key, value):
     check.check_string(section_name)
@@ -82,13 +86,17 @@ class bc_ini_document(btl_document):
 
     section_node = self.find_section_node(section_name, raise_error = True)
     text = f'{os.linesep}{key}={value}'
-    return self.add_node_from_text(section_node, text)
+    return self.add_node_from_text(section_node,
+                                   text,
+                                   ( 'n_global_section', 'n_key_value', ))
       
   def add_section(self, section_name):
     check.check_string(section_name)
 
     sections_node = self.root_node.find_child_by_name('n_sections')
-    return self.add_node_from_text(sections_node, f'\n\n[{section_name}]\n')
+    return self.add_node_from_text(sections_node,
+                                   f'\n[{section_name}]\n',
+                                   ( 'n_sections', 'n_section' ))
     
   def remove_section_value(self, section_name, key):
     check.check_string(section_name)

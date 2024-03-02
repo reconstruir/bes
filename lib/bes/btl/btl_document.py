@@ -9,6 +9,7 @@ from ..files.bf_file_ops import bf_file_ops
 from ..files.bf_check import bf_check
 
 from .btl_comment_position import btl_comment_position
+from .btl_document_error import btl_document_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_options import btl_parser_options
 
@@ -110,19 +111,28 @@ class btl_document(metaclass = ABCMeta):
 
     self._text = self._tokens.to_source_string()
 
-  def add_node_from_text(self, parent_node, text):
+  def add_node_from_text(self, parent_node, text, path):
     'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
+    check.check_tuple(path, check.STRING_TYPES)
 
     self._log.log_d(f'add_node_from_text: text:\n====\n{text}\n====', multi_line = True)
     last_child = parent_node.find_last_node()
     last_child_index = last_child.token.index
     self._log.log_d(f'add_node_from_text: last_child_index={last_child_index}')
-    new_node, new_tokens = self._parse_text(text)
-    self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
+    new_root_node, new_tokens = self._parse_text(text)
+    self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
+
+    new_node = new_root_node.find_child_by_path(path)
+    if not new_node:
+      path_flat = ', '.join(list(path))
+      raise btl_document_error(f'Failed to find node with path: "{path_flat}"')
+      
+    self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
     parent_node.add_child(new_node)
+    self._log.log_d(f'add_node_from_text: root_node:\n====\n{str(self.root_node)}\n====', multi_line = True)
     insert_index = last_child_index + 1
     self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     self._tokens.insert_values(insert_index, new_tokens)

@@ -69,9 +69,9 @@ class btl_parser_node(object):
   def num_children(self):
     return len(self.children)
 
-  def find_child_by_name(self, name):
+  def find_child_by_name(self, name, recurse = True):
     func = lambda node: node.name == name
-    return self.find_child(func)
+    return self.find_child(func, recurse = recurse)
 
   def find_child_by_token(self, node_name, token_name, token_value):
     func = lambda node: node.name == node_name and node.token.name == token_name and node.token.value == token_value
@@ -114,25 +114,17 @@ class btl_parser_node(object):
         result += child._find_children(func, depth + 1, recurse)
     return result
 
-#  def ensure_path(self, path):
-#    current_node = self
-#    for part in path:
-#      current_node = current_node.ensure_child(part)
-#    return current_node
-
-  def find_child_by_path(self, path, func):
-    current_node = self
-    for part in path:
-      func2 = lambda n: func(n, part)
-      current_node = current_node.find_child(func2, recurse = False)
-      if current_node == None:
-        return None
-    return current_node
-
-  def find_child_by_path_data(self, path):
-    func = lambda n, part: n.data == part
-    return self.find_child_by_path(path, func)
-
+  def find_child_by_path(self, path):
+    if not path:
+      return None
+    target_name = path[0]
+    for child in self._children:
+      if child._name == target_name:
+        if len(path) == 1:
+          return child
+        else:
+          return child.find_child_by_path(path[1:])
+        
   def visit_children(self, func, recurse = True):
     for child in self.children:
       func(child)
