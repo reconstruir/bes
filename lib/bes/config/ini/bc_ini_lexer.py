@@ -31,8 +31,8 @@ class bc_ini_lexer(btl_lexer_base):
 
   
   class _function_f_handle_comment_begin(btl_function_base):
-    def call(self, context, tokens):
-      tokens.append(self.make_token(context, 't_space'))
+    def call(self, context, tokens, c, current_token_name):
+      tokens.append(self.make_token(context, current_token_name))
       context.buffer_reset()
       context.buffer_write(c)
       tokens.append(self.make_token(context, 't_comment_begin'))
@@ -193,11 +193,7 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_space'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_comment_begin(self).call(context, tokens, c, 't_space')
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space'))
@@ -231,11 +227,7 @@ class bc_ini_lexer(btl_lexer_base):
         context.buffer_write(c)
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_space'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_comment_begin(self).call(context, tokens, c, 't_space')
       elif self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_space'))
@@ -312,11 +304,7 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_space'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_comment_begin(self).call(context, tokens, c, 't_space')
       else:
         new_state_name = 's_value'
         tokens.append(self.make_token(context, 't_space'))
@@ -411,11 +399,7 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_done'))
       elif self.char_in(c, 'c_comment_begin', context):
         new_state_name = 's_comment'
-        tokens.append(self.make_token(context, 't_value'))
-        context.buffer_reset()
-        context.buffer_write(c)
-        tokens.append(self.make_token(context, 't_comment_begin'))
-        context.buffer_reset()
+        self.lexer._function_f_handle_comment_begin(self).call(context, tokens, c, 't_value')
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
@@ -497,8 +481,8 @@ chars
   
 functions
 
-  f_handle_comment_begin()
-    emit t_space
+  f_handle_comment_begin(current_token_name)
+    emit ${current_token_name}
     buffer reset
     buffer write
     emit t_comment_begin
@@ -577,11 +561,7 @@ states
     c_ws: s_after_section_name_space
       buffer write
     c_comment_begin: s_comment
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
       buffer reset
@@ -597,11 +577,7 @@ states
     c_ws: s_before_key_space
       buffer write
     c_comment_begin: s_comment
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
       buffer reset
@@ -641,11 +617,7 @@ states
       emit t_space
       emit t_done
     c_comment_begin: s_comment
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_space'
     default: s_value
       emit t_space
       buffer reset
@@ -692,11 +664,7 @@ states
       buffer reset
       emit t_done
     c_comment_begin: s_comment
-      emit t_value
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_value'
     default: s_value
       buffer write
 

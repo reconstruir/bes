@@ -39,8 +39,8 @@ chars
   
 functions
 
-  f_handle_comment_begin()
-    emit t_space
+  f_handle_comment_begin(current_token_name)
+    emit ${current_token_name}
     buffer reset
     buffer write
     emit t_comment_begin
@@ -119,11 +119,7 @@ states
     c_ws: s_after_section_name_space
       buffer write
     c_comment_begin: s_comment
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
       buffer reset
@@ -139,11 +135,7 @@ states
     c_ws: s_before_key_space
       buffer write
     c_comment_begin: s_comment
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_space'
     c_line_break: s_start
       emit t_space
       buffer reset
@@ -183,11 +175,7 @@ states
       emit t_space
       emit t_done
     c_comment_begin: s_comment
-      emit t_space
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_space'
     default: s_value
       emit t_space
       buffer reset
@@ -234,11 +222,7 @@ states
       buffer reset
       emit t_done
     c_comment_begin: s_comment
-      emit t_value
-      buffer reset
-      buffer write
-      emit t_comment_begin
-      buffer reset
+      function f_handle_comment_begin 't_value'
     default: s_value
       buffer write
 

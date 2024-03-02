@@ -66,7 +66,7 @@ class test_btl_lexer_desc_function(_test_simple_lexer_mixin, unit_test):
 
     self.assert_python_code_text_equal('''
 class _function_f_handle_eos(btl_function_base):
-  def call(self, context, tokens, token_name):
+  def call(self, context, tokens, c, token_name):
     tokens.append(self.make_token(context, token_name))
     context.buffer_reset()
     tokens.append(self.make_token(context, 't_done'))

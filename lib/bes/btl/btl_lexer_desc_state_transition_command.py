@@ -35,7 +35,7 @@ class btl_lexer_desc_state_transition_command(btl_desc_command):
         args_part = f', {flat_args}'
       else:
         args_part = f''
-      buf.write_line(f'self.lexer._function_{self.action}(self).call(context, tokens{args_part})')
+      buf.write_line(f'self.lexer._function_{self.action}(self).call(context, tokens, c{args_part})')
     else:
       raise btl_lexer_error(f'Unknown command: {self.name}')
         

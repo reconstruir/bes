@@ -30,7 +30,7 @@ class _test_lexer(btl_lexer_base):
 
   class _function_f_handle_eos(btl_function_base):
 
-    def call(self, context, tokens, token_name):
+    def call(self, context, tokens, c, token_name):
       tokens.append(self.make_token(context, token_name))
       context.buffer_reset()
       tokens.append(self.make_token(context, 't_done'))
@@ -90,7 +90,7 @@ class _test_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        self.lexer._function_f_handle_eos(self).call(context, tokens, 't_key')
+        self.lexer._function_f_handle_eos(self).call(context, tokens, c, 't_key')
       
       return self._handle_char_result(new_state_name, tokens)
   
@@ -114,7 +114,7 @@ class _test_lexer(btl_lexer_base):
         context.buffer_reset()
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
-        self.lexer._function_f_handle_eos(self).call(context, tokens, 't_value')
+        self.lexer._function_f_handle_eos(self).call(context, tokens, c, 't_value')
       else:
         new_state_name = 's_value'
         context.buffer_write(c)

@@ -21,7 +21,7 @@ class btl_lexer_desc_function(btl_desc_function_base):
 
     buf.write_lines(f'''
 class _function_{self.name}(btl_function_base):
-  def call(self, context, tokens{args_part}):
+  def call(self, context, tokens, c{args_part}):
 ''')
     with buf.indent_pusher(depth = 2) as _:
       self.commands.generate_code(buf, errors)
