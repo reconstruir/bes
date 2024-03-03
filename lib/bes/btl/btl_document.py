@@ -112,22 +112,22 @@ class btl_document(metaclass = ABCMeta):
     self._text = self._tokens.to_source_string()
 
   @classmethod
-  def _default_insertion_index_finder(clazz, parent_node, tokens):
+  def _default_insert_index(clazz, parent_node, tokens):
     last_child = parent_node.find_last_node()
     last_child_index = last_child.token.index
-    clazz._log.log_d(f'_default_insertion_index_finder: last_child_index={last_child_index}')
+    clazz._log.log_d(f'_default_insert_index: last_child_index={last_child_index}')
     insert_index = last_child_index + 1
     return insert_index
     
-  def add_node_from_text(self, parent_node, text, path, insertion_index_finder = None):
+  def add_node_from_text(self, parent_node, text, path, insert_index = None):
     'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
     check.check_tuple(path, check.STRING_TYPES)
-    check.check_callable(insertion_index_finder, allow_none = True)
-    
-    insertion_index_finder = insertion_index_finder or self._default_insertion_index_finder
-    insert_index = insertion_index_finder(parent_node, self._tokens)
+    check.check_int(insert_index, allow_none = True)
+
+    if insert_index == None:
+      insert_index = self._default_insert_index(parent_node, self._tokens)
     self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     
     self._log.log_d(f'add_node_from_text: text:\n====\n{text}\n====', multi_line = True)

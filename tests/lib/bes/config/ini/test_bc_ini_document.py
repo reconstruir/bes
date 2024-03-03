@@ -515,8 +515,10 @@ smell=stink
 '''
     doc = bc_ini_document(text)
     doc.add_section_value('wine', 'name', 'barolo')
+    doc.add_section_value('fruit', 'name', 'pear')
     self.assert_python_code_text_equal( '''
 [fruit]
+name=pear
 
 [cheese]
 name=vieux
@@ -531,18 +533,21 @@ n_root;
   n_global_section;
   n_sections;
     n_section;t_section_name:fruit:p=2,2:i=2
-    n_section;t_section_name:cheese:p=4,2:i=7
       n_key_value;
-        n_key;t_key:name:p=5,1:i=10
-        n_value;t_value:vieux:p=5,6:i=12
+        n_key;t_key:name:p=3,1:i=5
+        n_value;t_value:pear:p=3,6:i=7
+    n_section;t_section_name:cheese:p=5,2:i=11
       n_key_value;
-        n_key;t_key:smell:p=6,1:i=14
-        n_value;t_value:stink:p=6,7:i=16
-    n_section;t_section_name:wine:p=8,2:i=20
+        n_key;t_key:name:p=6,1:i=14
+        n_value;t_value:vieux:p=6,6:i=16
+      n_key_value;
+        n_key;t_key:smell:p=7,1:i=18
+        n_value;t_value:stink:p=7,7:i=20
+    n_section;t_section_name:wine:p=9,2:i=24
+      n_key_value;
+        n_key;t_key:name:p=10,1:i=27
+        n_value;t_value:barolo:p=10,6:i=29    
 ''', str(doc.root_node) )
-    
-#name=barolo
-#where=piemonte
     
   def xtest_save_file(self):
     doc = bc_ini_document('')

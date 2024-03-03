@@ -86,9 +86,18 @@ class bc_ini_document(btl_document):
 
     section_node = self.find_section_node(section_name, raise_error = True)
     text = f'{os.linesep}{key}={value}'
+
+    last_index = section_node.find_last_node().token.index
+    if section_node.children:
+      insert_index = last_index + 1
+    else:
+      section_end_token = self._tokens.find_forwards_by_name(last_index, 't_section_name_end')
+      insert_index = section_end_token.index + 1
+    
     return self.add_node_from_text(section_node,
                                    text,
-                                   ( 'n_global_section', 'n_key_value', ))
+                                   ( 'n_global_section', 'n_key_value'),
+                                   insert_index = insert_index)
       
   def add_section(self, section_name):
     check.check_string(section_name)
