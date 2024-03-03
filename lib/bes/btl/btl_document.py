@@ -12,6 +12,7 @@ from .btl_comment_position import btl_comment_position
 from .btl_document_error import btl_document_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_options import btl_parser_options
+from .btl_lexer_token import btl_lexer_token
 
 from abc import abstractmethod
 from abc import ABCMeta
@@ -114,9 +115,14 @@ class btl_document(metaclass = ABCMeta):
   @classmethod
   def _default_insert_index(clazz, parent_node, tokens):
     last_child = parent_node.find_last_node()
-    last_child_index = last_child.token.index
-    clazz._log.log_d(f'_default_insert_index: last_child_index={last_child_index}')
-    insert_index = last_child_index + 1
+    if last_child and last_child.token:
+      last_child_index = last_child.token.index
+      clazz._log.log_d(f'_default_insert_index: last_child_index={last_child_index}')
+      insert_index = last_child_index + 1
+    elif parent_node.token:
+      insert_index = parent_node.token.index + 1
+    else:
+      insert_index = 0
     return insert_index
     
   def add_node_from_text(self, parent_node, text, path, insert_index = None):
@@ -153,7 +159,7 @@ class btl_document(metaclass = ABCMeta):
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
-    return new_node
+    return insert_index
 
   @cached_property
   def comment_begin_char(self):
@@ -184,12 +190,24 @@ class btl_document(metaclass = ABCMeta):
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
 
+  def add_line_break(self, line, count = 1):
+    check.check_int(line)
+    check.check_int(count)
+
+    insert_index = self._tokens.last_line_to_index(line)
+    tokens = count * [ btl_lexer_token(name = 't_line_break', value = os.linesep) ]
+    self._tokens.insert_values(insert_index, tokens)
+    self._text = self.to_source_string()
+    # FIXME: reparse the document to fix the indeces.
+    # obviously this is inefficient.  better would be to renumber
+    self._do_parse()
+    
   def save_file(self, filename, encoding = 'utf-8', backup = True, perm = None):
     check.check_string(encoding)
     check.check_bool(backup)
     
     new_text = self.to_source_string()
-    if path.exists(filename):
+    if os.path.exists(filename):
       filename = bf_check.check_file(filename)
       old_text = bf_file_ops.read(filename, codec = codec)
       if old_text == new_text:
@@ -198,18 +216,18 @@ class btl_document(metaclass = ABCMeta):
         bf_file_ops.backup(filename)
       filename = bf_check.check_file(filename)
     else:
-      filename = path.abspath(filename)
+      filename = os.path.abspath(filename)
     bf_file_ops.save(filename, content = new_text, encoding = encoding, perm = None)
     
   @classmethod
   def load_file(clazz, filename, parser_options = None, codec = 'utf-8'):
     check.check_btl_parser_options(parser_options)
     
-    if path.exists(filename):
+    if os.path.exists(filename):
       filename = bf_check.check_file(filename)
       text = bf_file_ops.read(filename, codec = codec)
     else:
-      filename = path.abspath(filename)
+      filename = os.path.abspath(filename)
       text = ''
       
     parser_options = parser_options or btl_parser_options()

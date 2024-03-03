@@ -549,14 +549,55 @@ n_root;
         n_value;t_value:barolo:p=10,6:i=29    
 ''', str(doc.root_node) )
     
-  def xtest_save_file(self):
+  def test_save_file(self):
     doc = bc_ini_document('')
-    expected = '''
-n_root;
-  n_global_section;
-  n_sections;
+    doc.add_section('cheese')
+    doc.add_section_value('cheese', 'name', 'cheddar')
+
+    doc.add_section('wine')
+    i = doc.add_section_value('wine', 'name', 'barolo')
+    print(f'i={i}')
+
+    tmp = self.make_temp_file(suffix = '.config', non_existent = True)
+    doc.save_file(tmp)
+
+    self.assert_text_file_equal('''
+[cheese]
+name=cheddar
+[wine]
+name=barolo
+''', tmp )
+
+  def test_add_line_break(self):
+    text = '''
+name=vieux
+smell=stink
 '''
-    self.assert_python_code_text_equal( expected, str(doc.root_node) )
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+
+smell=stink
+'''
+    doc.add_line_break(2)
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_add_line_break_with_count(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    expected = '''
+name=vieux
+
+
+smell=stink
+'''
+    doc.add_line_break(2, count = 2)
+    self.assert_python_code_text_equal( expected, doc.to_source_string() )
     
 if __name__ == '__main__':
   unit_test.main()

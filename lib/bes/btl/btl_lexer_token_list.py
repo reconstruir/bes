@@ -275,5 +275,5 @@ class btl_lexer_token_list(type_checked_list):
 
     print(label)
     print(self.to_debug_str())
-  
+
 btl_lexer_token_list.register_check_class()  
