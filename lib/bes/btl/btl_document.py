@@ -159,7 +159,7 @@ class btl_document(metaclass = ABCMeta):
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
-    return insert_index
+    return self._tokens[insert_index].position.line
 
   @cached_property
   def comment_begin_char(self):
@@ -195,12 +195,17 @@ class btl_document(metaclass = ABCMeta):
     check.check_int(count)
 
     insert_index = self._tokens.last_line_to_index(line)
+    self._log.log_d(f'add_line_break: insert_index={insert_index}')
+    self._log.log_d(f'add_line_break: tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)        
     tokens = count * [ btl_lexer_token(name = 't_line_break', value = os.linesep) ]
     self._tokens.insert_values(insert_index, tokens)
+    
     self._text = self.to_source_string()
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
+    self._log.log_d(f'add_line_break: tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
+    return self._tokens[insert_index].position.line
     
   def save_file(self, filename, encoding = 'utf-8', backup = True, perm = None):
     check.check_string(encoding)

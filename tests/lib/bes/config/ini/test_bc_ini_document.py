@@ -553,20 +553,36 @@ n_root;
     doc = bc_ini_document('')
     doc.add_section('cheese')
     doc.add_section_value('cheese', 'name', 'cheddar')
+    line1 = doc.add_section_value('cheese', 'color', 'yellow')
 
     doc.add_section('wine')
-    i = doc.add_section_value('wine', 'name', 'barolo')
-    print(f'i={i}')
+    doc.add_section_value('wine', 'name', 'barolo')
+    line2 = doc.add_section_value('wine', 'color', 'red')
 
+    doc.add_section('fruit')
+    doc.add_section_value('fruit', 'name', 'kiwi')
+    doc.add_section_value('fruit', 'color', 'green')
+
+    doc.add_line_break(line1 + 1, count = 1)
+    doc.add_line_break(line2 + 2, count = 2)
+    
     tmp = self.make_temp_file(suffix = '.config', non_existent = True)
     doc.save_file(tmp)
 
     self.assert_text_file_equal('''
 [cheese]
 name=cheddar
+color=yellow
+
 [wine]
 name=barolo
-''', tmp )
+color=red
+
+
+[fruit]
+name=kiwi
+color=green
+''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
 
   def test_add_line_break(self):
     text = '''
