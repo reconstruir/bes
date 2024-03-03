@@ -111,16 +111,26 @@ class btl_document(metaclass = ABCMeta):
 
     self._text = self._tokens.to_source_string()
 
-  def add_node_from_text(self, parent_node, text, path):
+  @classmethod
+  def _default_insertion_index_finder(clazz, parent_node, tokens):
+    last_child = parent_node.find_last_node()
+    last_child_index = last_child.token.index
+    clazz._log.log_d(f'_default_insertion_index_finder: last_child_index={last_child_index}')
+    insert_index = last_child_index + 1
+    return insert_index
+    
+  def add_node_from_text(self, parent_node, text, path, insertion_index_finder = None):
     'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
     check.check_tuple(path, check.STRING_TYPES)
-
+    check.check_callable(insertion_index_finder, allow_none = True)
+    
+    insertion_index_finder = insertion_index_finder or self._default_insertion_index_finder
+    insert_index = insertion_index_finder(parent_node, self._tokens)
+    self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
+    
     self._log.log_d(f'add_node_from_text: text:\n====\n{text}\n====', multi_line = True)
-    last_child = parent_node.find_last_node()
-    last_child_index = last_child.token.index
-    self._log.log_d(f'add_node_from_text: last_child_index={last_child_index}')
     new_root_node, new_tokens = self._parse_text(text)
     self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
 
@@ -135,8 +145,6 @@ class btl_document(metaclass = ABCMeta):
     self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
     parent_node.add_child(new_node)
     self._log.log_d(f'add_node_from_text: self.root_node after:\n====\n{str(self.root_node)}\n====', multi_line = True)
-    insert_index = last_child_index + 1
-    self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     self._tokens.insert_values(insert_index, new_tokens)
     self._log.log_d(f'add_node_from_text: self.tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
     new_text = self.to_source_string()
