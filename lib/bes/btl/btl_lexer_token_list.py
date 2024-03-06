@@ -113,7 +113,8 @@ class btl_lexer_token_list(type_checked_list):
     for next_index in reversed(range(0, index + 1)):
       next_token = self[next_index]
       func_result = func(next_token)
-      func_result = not func_result if negate else func_result
+      if negate:
+        nc_result = not nc_result
       if func_result:
         return next_index
     if raise_error:
@@ -132,7 +133,8 @@ class btl_lexer_token_list(type_checked_list):
     for next_index in range(index + 0, len(self)):
       next_token = self[next_index]
       func_result = func(next_token)
-      func_result = not func_result if negate else func_result
+      if negate:
+        nc_result = not nc_result
       if func_result:
         return next_index
     if raise_error:
@@ -145,9 +147,7 @@ class btl_lexer_token_list(type_checked_list):
                                             negate = negate,
                                             raise_error = raise_error,
                                             error_message = error_message)
-    if found_index < 0:
-      return None
-    return self[found_index]
+    return None if found_index < 0 else self[found_index]
 
   def find_forwards(self, index, func, negate = False, raise_error = False, error_message = None):
     found_index = self.find_index_forwards(index,
@@ -155,20 +155,28 @@ class btl_lexer_token_list(type_checked_list):
                                            negate = negate,
                                            raise_error = raise_error,
                                            error_message = error_message)
-    if found_index < 0:
-      return None
-    return self[found_index]
+    return None if found_index < 0 else self[found_index]
 
+  @classmethod
+  def _make_token_names_set(clazz, token_name):
+    if check.is_string(token_name):
+      token_names = set([ token_name ])
+    else:
+      token_names = set([ t for t in token_name ])
+    return token_names
+  
   def find_index_backwards_by_name(self, index, token_name, negate = False, raise_error = False, error_message = None):
+    token_names = self._make_token_names_set(token_name)
     return self.find_index_backwards(index,
-                                     lambda token: token.name == token_name,
+                                     lambda token: token.name in token_names,
                                      negate = negate,
                                      raise_error = raise_error,
                                      error_message = error_message)
-  
+
   def find_index_forwards_by_name(self, index, token_name, negate = False, raise_error = False, error_message = None):
+    token_names = self._make_token_names_set(token_name)
     return self.find_index_forwards(index,
-                                    lambda token: token.name == token_name,
+                                    lambda token: token.name in token_names,
                                     negate = negate,
                                     raise_error = raise_error,
                                     error_message = error_message)
@@ -203,6 +211,32 @@ class btl_lexer_token_list(type_checked_list):
                               raise_error = raise_error,
                               error_message = error_message)
 
+  def skip_index_forwards(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
+    check.check_int(num)
+    
+    if index < 0:
+      index = len(self._values) + index + 1
+    token_names = self._make_token_names_set(token_name)
+    tokens = self._values[index:]
+    next_index = index
+    last_index = -1
+    count = 0
+    for token in tokens:
+      name_result = token.name in token_names
+      if negate:
+        name_result = not name_result
+      if name_result:
+        count += 1
+        if num > 0 and count == num:
+          return next_index
+      else:
+        if num < 0:
+          return last_index
+        return -1
+      last_index = next_index
+      next_index += 1
+    return -1
+  
   @classmethod
   def _make_find_index_error_message(clazz, index, error_message):
     msg = f'Token not found from index {index}'

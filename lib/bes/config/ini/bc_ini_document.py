@@ -76,16 +76,33 @@ class bc_ini_document(btl_document):
       if not section_node:
         section_node = self.add_section(section_name)
       self.add_node_from_text(section_node,
-                              f'\n{key}={value}',
+                              f'{self.line_break_str}{key}={value}',
                               ( 'n_sections', 'n_key_value', ))
 
   def _determine_section_value_insert_index(self, section_node):
     last_index = section_node.find_last_node().token.index
+    self._log.log_d(f'_determine_section_value_insert_index: last_index={last_index}')
     if section_node.children:
-      insert_index = last_index + 1
+      #print(f'poto={poto} section={section_node.name}')
+      #print(f'-----')
+      #for t in self._tokens[last_index + 1:]:
+      #  print(t.to_debug_str())
+      #print(f'-----')
+#      poto = self._tokens.find_index_forwards_by_name(last_index + 1, 't_line_break', raise_error = False)
+      #def find_index_forwards_by_name(self, index, token_name, negate = False, raise_error = False, error_message = None):
+      #skip_index_forwards(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
+      poto = self._tokens.skip_index_forwards(last_index + 1, 't_line_break', -1, raise_error = False)
+      self._log.log_d(f'_determine_section_value_insert_index: 1 poto={poto}')
+      insert_index = poto
     else:
       section_end_token = self._tokens.find_forwards_by_name(last_index, 't_section_name_end')
       insert_index = section_end_token.index + 1
+      poto = self._tokens.skip_index_forwards(insert_index, 't_line_break', -1, raise_error = False)
+      self._log.log_d(f'_determine_section_value_insert_index: 2 poto={poto}')
+      insert_index = poto + 1
+      
+    self._log.log_d(f'_determine_section_value_insert_index: insert_index={insert_index}')
+    self._log.log_d(f'_determine_section_value_insert_index: tokens={self._tokens.to_debug_str()}', multi_line = True)
     return insert_index
       
   def add_section_value(self, section_name, key, value):
@@ -100,14 +117,55 @@ class bc_ini_document(btl_document):
                                    text,
                                    ( 'n_global_section', 'n_key_value'),
                                    insert_index = insert_index)
+
+  def _determine_section_insert_index(self, section_node):
+    last_node = section_node.find_last_node()
+    self._log.log_e(f'_determine_section_insert_index: last_node={last_node}')
+    if not last_node.token:
+      return -1 #section_node.token.index
+    self._log.log_e(f'_determine_section_insert_index: last_node_token={last_node.token}')
+    last_index = last_node.token.index
+    self._log.log_d(f'_determine_section_insert_index: last_index={last_index}')
+    if section_node.children:
+      #print(f'poto={poto} section={section_node.name}')
+      #print(f'-----')
+      #for t in self._tokens[last_index + 1:]:
+      #  print(t.to_debug_str())
+      #print(f'-----')
+#      poto = self._tokens.find_index_forwards_by_name(last_index + 1, 't_line_break', raise_error = False)
+      #def find_index_forwards_by_name(self, index, token_name, negate = False, raise_error = False, error_message = None):
+      #skip_index_forwards(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
+      poto = self._tokens.skip_index_forwards(last_index + 1, 't_line_break', -1, raise_error = False)
+      self._log.log_d(f'_determine_section_insert_index: 1 poto={poto}')
+      insert_index = poto
+    else:
+      section_end_token = self._tokens.find_forwards_by_name(last_index, 't_section_name_end')
+      insert_index = section_end_token.index + 1
+      poto = self._tokens.skip_index_forwards(insert_index, 't_line_break', -1, raise_error = False)
+      self._log.log_d(f'_determine_section_insert_index: 2 poto={poto}')
+      insert_index = poto + 1
       
-  def add_section(self, section_name):
+    self._log.log_d(f'_determine_section_insert_index: insert_index={insert_index}')
+    self._log.log_d(f'_determine_section_insert_index: tokens={self._tokens.to_debug_str()}', multi_line = True)
+    return insert_index
+  
+  def add_section(self, section_name, line_break_before = True, line_break_after = True):
     check.check_string(section_name)
 
     sections_node = self.root_node.find_child_by_name('n_sections')
+    insert_index = self._determine_section_insert_index(sections_node)
+
+    parts = []
+    if line_break_before:
+      parts.append(self.line_break_str)
+    parts.append(f'[{section_name}]')
+    if line_break_after:
+      parts.append(self.line_break_str)
+    text = ''.join(parts)
     return self.add_node_from_text(sections_node,
-                                   f'\n[{section_name}]\n',
-                                   ( 'n_sections', 'n_section' ))
+                                   text,
+                                   ( 'n_sections', 'n_section' ),
+                                   insert_index = insert_index)
     
   def remove_section_value(self, section_name, key):
     check.check_string(section_name)

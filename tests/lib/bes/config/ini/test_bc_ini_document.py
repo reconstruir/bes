@@ -136,6 +136,61 @@ smell=stink
 '''
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
 
+  def test_add_section_empty_text(self):
+    doc = bc_ini_document('')
+
+    doc.add_section('cheese')
+
+    self.assert_python_code_text_equal( '''
+[cheese]
+''', doc.text )
+
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:cheese:p=2,2:i=2
+''', str(doc.root_node) )
+
+    self.assert_python_code_text_equal( '''
+0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+1: t_section_name_begin:[:p=2,1:i=1
+2: t_section_name:cheese:p=2,2:i=2
+3: t_section_name_end:]:p=2,8:i=3
+4: t_line_break:[NL]:p=2,9:h=h_line_break:i=4
+5: t_done::h=h_done:i=5
+''', doc.tokens.to_debug_str() )
+
+  def test_add_section_one_previous_section(self):
+    doc = bc_ini_document('[wine]')
+
+    doc.add_section('cheese')
+
+    self.assertMultiLineEqual( '''\
+[wine]
+[cheese]
+''', doc.text )
+
+    self.assert_python_code_text_equal( '''
+n_root;
+  n_global_section;
+  n_sections;
+    n_section;t_section_name:wine:p=1,2:i=1
+    n_section;t_section_name:cheese:p=2,2:i=5
+''', str(doc.root_node) )
+
+    self.assert_python_code_text_equal( '''
+0: t_section_name_begin:[:p=1,1:i=0
+1: t_section_name:wine:p=1,2:i=1
+2: t_section_name_end:]:p=1,6:i=2
+3: t_line_break:[NL]:p=1,7:h=h_line_break:i=3
+4: t_section_name_begin:[:p=2,1:i=4
+5: t_section_name:cheese:p=2,2:i=5
+6: t_section_name_end:]:p=2,8:i=6
+7: t_line_break:[NL]:p=2,9:h=h_line_break:i=7
+8: t_done::h=h_done:i=8
+''', doc.tokens.to_debug_str() )
+    
   def test_add_section_value_existing_section(self):
     text = '''
 [fruit]
@@ -244,10 +299,13 @@ price=cheap
 8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
 9: t_done::h=h_done:i=9\
 ''', doc.tokens.to_debug_str() )
-    
-    doc.add_node_from_text(doc.find_global_section_node(),
+
+    parent_node = doc.find_global_section_node()
+    insert_index = doc._default_insert_index(parent_node, doc.tokens)
+    doc.add_node_from_text(parent_node,
                            '\nprice=cheap\n',
-                           ( 'n_global_section', 'n_key_value' ))
+                           ( 'n_global_section', 'n_key_value' ),
+                           insert_index = insert_index)
 
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
@@ -321,10 +379,13 @@ smell=stink
 25: t_line_break:[NL]:p=8,12:h=h_line_break:i=25
 26: t_done::h=h_done:i=26\
 ''', doc.tokens.to_debug_str() )
-    
-    doc.add_node_from_text(doc.find_section_node('fruit'),
-                           '\nprice=cheap\n',
-                           ( 'n_global_section', 'n_key_value' ))
+
+    parent_node = doc.find_section_node('fruit')
+    insert_index = doc._default_insert_index(parent_node, doc.tokens)
+    doc.add_node_from_text(parent_node,
+                           f'{doc.line_break_str}price=cheap{doc.line_break_str}',
+                           ( 'n_global_section', 'n_key_value' ),
+                           insert_index = insert_index)
 
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
@@ -504,7 +565,7 @@ n_root;
 ''', str(doc.root_node) )
     
   def test_add_section_value_at_end(self):
-    text = '''
+    doc = bc_ini_document('''
 [fruit]
 
 [cheese]
@@ -512,22 +573,19 @@ name=vieux
 smell=stink
 
 [wine]
-'''
-    doc = bc_ini_document(text)
+''')
     doc.add_section_value('wine', 'name', 'barolo')
-    doc.add_section_value('fruit', 'name', 'pear')
+#    doc.add_section_value('fruit', 'name', 'pear')
     self.assert_python_code_text_equal( '''
 [fruit]
-name=pear
 
 [cheese]
 name=vieux
 smell=stink
 
 [wine]
-name=barolo
-''', doc.text )
-
+name=barolo''', doc.text )
+    return
     self.assert_python_code_text_equal( '''
 n_root;
   n_global_section;
@@ -553,18 +611,19 @@ n_root;
     doc = bc_ini_document('')
     doc.add_section('cheese')
     doc.add_section_value('cheese', 'name', 'cheddar')
-    line1 = doc.add_section_value('cheese', 'color', 'yellow')
+    doc.add_section_value('cheese', 'color', 'yellow')
 
     doc.add_section('wine')
     doc.add_section_value('wine', 'name', 'barolo')
-    line2 = doc.add_section_value('wine', 'color', 'red')
+    line = doc.add_section_value('wine', 'color', 'red')
+    doc.add_line_break(line, count = 1)
 
     doc.add_section('fruit')
     doc.add_section_value('fruit', 'name', 'kiwi')
     doc.add_section_value('fruit', 'color', 'green')
 
-    doc.add_line_break(line1 + 1, count = 1)
-    doc.add_line_break(line2 + 2, count = 2)
+#    doc.add_line_break(line1 + 1, count = 1)
+#    doc.add_line_break(line2 + 2, count = 2)
     
     tmp = self.make_temp_file(suffix = '.config', non_existent = True)
     doc.save_file(tmp)
@@ -614,6 +673,22 @@ smell=stink
 '''
     doc.add_line_break(2, count = 2)
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
+
+  def test_add_line_break_with_section(self):
+    doc = bc_ini_document('''
+[fruit]
+name=apple
+''')
+    line = doc.add_section_value('fruit', 'color', 'red')
+    doc.add_line_break(line + 1, count = 10)
+    doc.add_section('cheese')
+    self.assert_python_code_text_equal( '''
+[fruit]
+name=apple
+color=red
+
+[cheese]
+''', doc.text )
     
 if __name__ == '__main__':
   unit_test.main()

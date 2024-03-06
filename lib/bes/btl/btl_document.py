@@ -7,6 +7,7 @@ from ..system.check import check
 from ..property.cached_property import cached_property
 from ..files.bf_file_ops import bf_file_ops
 from ..files.bf_check import bf_check
+from ..text.line_numbers import line_numbers
 
 from .btl_comment_position import btl_comment_position
 from .btl_document_error import btl_document_error
@@ -33,7 +34,7 @@ class btl_document(metaclass = ABCMeta):
     lexer = lexer_class()
     self._parser_options = parser_options or btl_parser_options()
     self._parser = parser_class(lexer)
-    self._text = text
+    self.text = text
     self._root_node = None
     self._tokens = None
     self._do_parse()
@@ -62,6 +63,27 @@ class btl_document(metaclass = ABCMeta):
   @property
   def text(self):
     return self._text
+
+  @text.setter
+  def text(self, text):
+    self._text = text
+    self._line_break_str = self._determine_line_break_str(self._text)
+  
+  @property
+  def line_break_str(self):
+    return self._line_break_str
+
+  @classmethod
+  def _determine_line_break_str(clazz, text):
+    if '\r\n' in text:
+      return '\r\n'
+    elif '\n' in text:
+      return '\n'
+    else:
+      return os.linesep
+  
+  def text_to_debug_str(self):
+    return line_numbers.add_line_numbers(self.text)
   
   def _do_parse(self):
     self._root_node, self._tokens = self._parse_text(self._text, include_done = True)
@@ -72,7 +94,7 @@ class btl_document(metaclass = ABCMeta):
     #self._log.log_d(f'=====:source:=====')
     #self._log.log_d(source_string)
     #self._log.log_d(f'================')
-    assert self._text == self.to_source_string()
+    assert self.text == self.to_source_string()
 
   def _parse_text(self, text, include_done = False):
     new_node, new_tokens = self._parser.parse(text, options = self._parser_options)
@@ -110,7 +132,7 @@ class btl_document(metaclass = ABCMeta):
 
     parent_node.remove_child(node)
 
-    self._text = self._tokens.to_source_string()
+    self.text = self._tokens.to_source_string()
 
   @classmethod
   def _default_insert_index(clazz, parent_node, tokens):
@@ -132,11 +154,13 @@ class btl_document(metaclass = ABCMeta):
     check.check_tuple(path, check.STRING_TYPES)
     check.check_int(insert_index, allow_none = True)
 
+    assert insert_index != None
+    
+    self._log.log_d(f'add_node_from_text: insert_index={insert_index} text:\n====\n{text}\n====', multi_line = True)
     if insert_index == None:
       insert_index = self._default_insert_index(parent_node, self._tokens)
     self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     
-    self._log.log_d(f'add_node_from_text: text:\n====\n{text}\n====', multi_line = True)
     new_root_node, new_tokens = self._parse_text(text)
     self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
 
@@ -151,15 +175,16 @@ class btl_document(metaclass = ABCMeta):
     self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
     parent_node.add_child(new_node)
     self._log.log_d(f'add_node_from_text: self.root_node after:\n====\n{str(self.root_node)}\n====', multi_line = True)
-    self._tokens.insert_values(insert_index, new_tokens)
+    real_insert_index = self._tokens.insert_values(insert_index, new_tokens)
+    self._log.log_d(f'add_node_from_text: real_insert_index={real_insert_index}')
     self._log.log_d(f'add_node_from_text: self.tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
     new_text = self.to_source_string()
     self._log.log_d(f'add_node_from_text: new_text:\n====\n{new_text}\n====', multi_line = True)
-    self._text = new_text
+    self.text = new_text
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
-    return self._tokens[insert_index].position.line
+    return self._tokens[real_insert_index].position.line
 
   @cached_property
   def comment_begin_char(self):
@@ -173,7 +198,7 @@ class btl_document(metaclass = ABCMeta):
     position = check.check_btl_comment_position(position)
 
     if position == position.NEW_LINE:
-      text = f'{self.comment_begin_char}{comment}{os.linesep}'
+      text = f'{self.comment_begin_char}{comment}{self.line_break_str}'
       insert_index = self._tokens.first_line_to_index(line)
     elif position == position.END_OF_LINE:
       text = f' {self.comment_begin_char}{comment}'
@@ -185,7 +210,7 @@ class btl_document(metaclass = ABCMeta):
     new_node, tokens = self._parse_text(text)
     assert insert_index >= 0
     self._tokens.insert_values(insert_index, tokens)
-    self._text = self.to_source_string()
+    self.text = self.to_source_string()
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
@@ -195,17 +220,19 @@ class btl_document(metaclass = ABCMeta):
     check.check_int(count)
 
     insert_index = self._tokens.last_line_to_index(line)
-    self._log.log_d(f'add_line_break: insert_index={insert_index}')
+    self._log.log_d(f'add_line_break: line={line} insert_index={insert_index}')
     self._log.log_d(f'add_line_break: tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)        
-    tokens = count * [ btl_lexer_token(name = 't_line_break', value = os.linesep) ]
+    tokens = count * [ btl_lexer_token(name = 't_line_break', value = self.line_break_str) ]
     self._tokens.insert_values(insert_index, tokens)
     
-    self._text = self.to_source_string()
+    self.text = self.to_source_string()
     # FIXME: reparse the document to fix the indeces.
     # obviously this is inefficient.  better would be to renumber
     self._do_parse()
     self._log.log_d(f'add_line_break: tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
-    return self._tokens[insert_index].position.line
+    insert_line = self._tokens[insert_index].position.line
+    self._log.log_d(f'add_line_break: insert_line={insert_line}')
+    return insert_line
     
   def save_file(self, filename, encoding = 'utf-8', backup = True, perm = None):
     check.check_string(encoding)

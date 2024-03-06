@@ -248,6 +248,7 @@ class type_checked_list(object):
       index = len(self._values) + index + 1    
     
     self._values.insert(index, value)
+    return index
 
   def insert_values(self, index, values):
     check.check_int(index)
@@ -259,6 +260,7 @@ class type_checked_list(object):
     top = self[0:index]
     bottom = self[index:]
     self._values = top + values + bottom
+    return index
     
   def clear(self):
     self._values = []
