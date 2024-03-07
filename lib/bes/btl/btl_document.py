@@ -97,11 +97,11 @@ class btl_document(metaclass = ABCMeta):
     assert self.text == self.to_source_string()
 
   def _parse_text(self, text, include_done = False):
-    new_node, new_tokens = self._parser.parse(text, options = self._parser_options)
+    rv = self._parser.parse(text, options = self._parser_options)
     if not include_done:
-      assert len(new_tokens) > 0
-      new_tokens.remove_by_index(-1)
-    return new_node, new_tokens
+      assert len(rv.tokens) > 0
+      rv.tokens.remove_by_index(-1)
+    return rv.root_node, rv.tokens
     
   def reitre_node(self,
                   parent_node,

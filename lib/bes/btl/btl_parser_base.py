@@ -3,8 +3,6 @@
 from abc import abstractmethod
 from abc import ABCMeta
 
-from collections import namedtuple
-
 from ..system.log import log
 from ..system.check import check
 from ..property.cached_class_property import cached_class_property
@@ -18,6 +16,7 @@ from .btl_parser_error import btl_parser_error
 from .btl_parser_node import btl_parser_node
 from .btl_parser_node_creator import btl_parser_node_creator
 from .btl_parser_options import btl_parser_options
+from .btl_parser_result import btl_parser_result
 
 class btl_parser_base(object):
 
@@ -84,7 +83,6 @@ class btl_parser_base(object):
     context.state = new_state
     context.state.enter_state(context)
 
-  _parse_result = namedtuple('_parse_result', 'root_node, tokens')
   def parse(self, text, options = None):
     check.check_string(text)
     check.check_btl_parser_options(options, allow_none = True)
@@ -122,6 +120,6 @@ class btl_parser_base(object):
       orphaned_str = ' '.join(node_names)
       nodes_str = str(context.node_creator)
       raise btl_parser_error(f'Orphaned nodes found in end state: {orphaned_str}\nnodes:\n{nodes_str}')
-    return self._parse_result(root_node, tokens)
+    return btl_parser_result(root_node, tokens)
 
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)
