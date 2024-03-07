@@ -5,6 +5,7 @@ import io
 
 from ..system.check import check
 from ..text.bindent import bindent
+from ..text.line_numbers import line_numbers
 
 from .btl_code_gen_error import btl_code_gen_error
 
@@ -36,12 +37,23 @@ class btl_code_gen_buffer(object):
       raise btl_code_gen_error(f'indent_width should be >= 0')
     
     value = self._buffer.getvalue()
-    if eof_line_sep and not value.endswith(os.linesep):
+    value_ends_with_linesep = value.endswith(os.linesep)
+    value = self._fix_empty_lines(value)
+    if (eof_line_sep or value_ends_with_linesep) and not value.endswith(os.linesep):
       value += os.linesep
     if indent_width == 0:
       return value
     return bindent.indent(value, indent_width)
 
+  @classmethod
+  def _fix_empty_lines(clazz, text):
+    lines = text.splitlines(keepends = False)
+    for i, line in enumerate(lines):
+      stripped_line = line.strip()
+      if not stripped_line:
+        lines[i] = ''
+    return os.linesep.join(lines)
+  
   def write(self, s):
     check.check_string(s)
 

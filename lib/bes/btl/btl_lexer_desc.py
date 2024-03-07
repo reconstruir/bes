@@ -192,15 +192,7 @@ def desc_text(clazz):
   def generate_code_to_str(self, namespace, name):
     buf = btl_code_gen_buffer()
     self.generate_code(buf, namespace, name)
-    code_text = buf.get_value()
-    code_lines = []
-    for line in code_text.splitlines():
-      stripped_line = line.strip()
-      if stripped_line:
-        code_lines.append(line)
-      else:
-        code_lines.append('')
-    return os.linesep.join(code_lines)
+    return buf.get_value()
     
   def write_code(self, output_filename, namespace, name, indent_width = 2):
     check.check_string(output_filename)
