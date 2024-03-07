@@ -297,7 +297,7 @@ price=cheap
 6: t_key_value_delimiter:=:p=3,6:i=6
 7: t_value:stink:p=3,7:i=7
 8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
-9: t_done::h=h_done:i=9\
+9: t_done::h=h_done:i=9
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_global_section_node()
@@ -322,7 +322,7 @@ price=cheap
 11: t_value:cheap:p=4,7:i=11
 12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
 13: t_line_break:[NL]:p=5,1:h=h_line_break:i=13
-14: t_done::h=h_done:i=14\
+14: t_done::h=h_done:i=14
 ''', doc.tokens.to_debug_str() )
     
     self.assert_python_code_text_equal( expected, doc.to_source_string() )
@@ -377,7 +377,7 @@ smell=stink
 23: t_key_value_delimiter:=:p=8,6:i=23
 24: t_value:stink:p=8,7:i=24
 25: t_line_break:[NL]:p=8,12:h=h_line_break:i=25
-26: t_done::h=h_done:i=26\
+26: t_done::h=h_done:i=26
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_section_node('fruit')
@@ -419,7 +419,7 @@ smell=stink
 28: t_key_value_delimiter:=:p=10,6:i=28
 29: t_value:stink:p=10,7:i=29
 30: t_line_break:[NL]:p=10,12:h=h_line_break:i=30
-31: t_done::h=h_done:i=31\
+31: t_done::h=h_done:i=31
 ''', doc.tokens.to_debug_str() )
     
     self.assert_python_code_text_equal( expected, doc.to_source_string() )

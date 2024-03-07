@@ -718,6 +718,52 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 1, l.skip_index_forwards(0, 'fruit', 2) )
     self.assertEqual( -1, l.skip_index_forwards(0, 'fruit', 3) )
     self.assertEqual( 1, l.skip_index_forwards(0, 'fruit', -1) )
+
+  def test_reorder_index_only(self):
+    l = btl_lexer_token_list([
+      ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
+      ( 'fruit', 'orange', ( 1, 1 ), None, 0 ),
+      ( 'color', 'orange', ( 1, 3 ), 'h_color', 1 ),
+      ( 'flavor', 'weird', ( 2, 1 ), None, 2 ),
+      ( 'price', 'expensive', ( 2, 4 ), None, 3 ),
+      ( 'foo', '1', ( 3, 1 ), None, 4 ),
+      ( 'bar', '2', ( 5, 1 ), None, 5 ),
+      ( 'baz', '3', ( 5, 6 ), None, 6 ),
+    ])
+    l.reorder(9, 0)
+    self.assertMultiLineEqual('''\
+0: fruit:dragonfruit:p=1,1:i=9
+1: fruit:orange:p=1,1:i=9
+2: color:orange:p=1,3:h=h_color:i=10
+3: flavor:weird:p=2,1:i=11
+4: price:expensive:p=2,4:i=12
+5: foo:1:p=3,1:i=13
+6: bar:2:p=5,1:i=14
+7: baz:3:p=5,6:i=15
+''', l.to_debug_str() )
+
+  def test_reorder_line_only(self):
+    l = btl_lexer_token_list([
+      ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
+      ( 'fruit', 'orange', ( 1, 1 ), None, 0 ),
+      ( 'color', 'orange', ( 1, 3 ), 'h_color', 1 ),
+      ( 'flavor', 'weird', ( 2, 1 ), None, 2 ),
+      ( 'price', 'expensive', ( 2, 4 ), None, 3 ),
+      ( 'foo', '1', ( 3, 1 ), None, 4 ),
+      ( 'bar', '2', ( 5, 1 ), None, 5 ),
+      ( 'baz', '3', ( 5, 6 ), None, 6 ),
+    ])
+    l.reorder(0, 9)
+    self.assertMultiLineEqual('''\
+0: fruit:dragonfruit:p=10,1:i=0
+1: fruit:orange:p=10,1:i=0
+2: color:orange:p=10,3:h=h_color:i=1
+3: flavor:weird:p=11,1:i=2
+4: price:expensive:p=11,4:i=3
+5: foo:1:p=12,1:i=4
+6: bar:2:p=14,1:i=5
+7: baz:3:p=14,6:i=6
+''', l.to_debug_str() )
     
 if __name__ == '__main__':
   unit_test.main()
