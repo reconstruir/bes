@@ -26,15 +26,15 @@ from _test_simple_lexer_mixin import _test_simple_lexer_mixin
 class test_btl_lexer_desc(_test_simple_lexer_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    #print(btl_lexer_desc.parse_text(self._simple_lexer_desc_text).to_json())
+    #print(self._make_simple_lexer_desc().to_json())
     #return
     self.assert_json_equal(
       self._DESC_JSON,
-      btl_lexer_desc.parse_text(self._simple_lexer_desc_text).to_json()
+      self._make_simple_lexer_desc().to_json()
     )
 
   def test_to_mermaid_diagram(self):
-    #print(btl_lexer_desc.parse_text(self._simple_lexer_desc_text).to_mermaid_diagram())
+    #print(self._make_simple_lexer_desc().to_mermaid_diagram())
     #return
     self.assert_string_equal_fuzzy( '''\
 stateDiagram-v2
@@ -60,11 +60,16 @@ stateDiagram-v2
 
   %% s_done state
   s_done --> [*]
-''', btl_lexer_desc.parse_text(self._simple_lexer_desc_text).to_mermaid_diagram() )
+''', self._make_simple_lexer_desc().to_mermaid_diagram() )
+
+  def _make_simple_lexer_desc(self):
+    return btl_lexer_desc.parse_text(self._simple_lexer_desc_text,
+                                     os.path.basename(self._simple_lexer_desc_filename))
 
   def test_generate_code(self):
-    desc = btl_lexer_desc.parse_text(self._simple_lexer_desc_text)
-    actual = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
+    desc = self._make_simple_lexer_desc()
+    #actual = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
+    actual = desc.generate_code_to_str('_fruit', 'kiwi_lexer')
     #print(actual)
     #return
     replacements = {}
@@ -73,7 +78,7 @@ stateDiagram-v2
 
   def test_write_code(self):
     tmp = self.make_temp_file(suffix = '.py')
-    desc = btl_lexer_desc.parse_text(self._simple_lexer_desc_text)
+    desc = self._make_simple_lexer_desc()
     desc.write_code(tmp, '_fruit', 'kiwi_lexer')
 
     self.assert_python_code_text_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
@@ -85,7 +90,7 @@ stateDiagram-v2
     return str(p)
       
   def test_use_code(self):
-    desc = btl_lexer_desc.parse_text(self._simple_lexer_desc_text)
+    desc = self._make_simple_lexer_desc()
     lexer_code = self.call_function_with_buf(desc, 'generate_code', '_fruit', 'kiwi_lexer')
     use_code = '''
 import unittest
@@ -143,7 +148,7 @@ if __name__ == '__main__':
     self.assertEqual( 0, rv.exit_code )
 
   def test_to_json(self):
-    desc = btl_lexer_desc.parse_text(self._simple_lexer_desc_text)
+    desc = self._make_simple_lexer_desc()
     actual = desc.to_json()
     #print(actual)
     #return
@@ -152,7 +157,7 @@ if __name__ == '__main__':
   @cached_class_property
   def _EXPECTED_CODE(clazz):
     return clazz._EXPECTED_CODE_TEMPLATE.replace('@@@_DESC_TEXT@@@', clazz._simple_lexer_desc_text)
-    
+
   _EXPECTED_CODE_TEMPLATE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
@@ -177,25 +182,25 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   class e_unexpected_char(btl_lexer_runtime_error):
     pass
 
-  
+
   class _function_f_handle_eos(btl_function_base):
     def call(self, context, tokens, c, token_name):
       tokens.append(self.make_token(context, token_name))
       context.buffer_reset()
       tokens.append(self.make_token(context, 't_done'))
 
-  
+
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_start'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done'))
@@ -214,20 +219,20 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_key(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_key'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_keyval_key', context):
         new_state_name = 's_key'
         context.buffer_write(c)
@@ -241,20 +246,20 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         self.lexer._function_f_handle_eos(self).call(context, tokens, c, 't_key')
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_value(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_value'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_value'))
@@ -268,26 +273,25 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_done(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_done'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
-      
+
+
       return self._handle_char_result(new_state_name, tokens)
 
-  def __init__(self, desc_source = None):
+  def __init__(self):
     log_tag = f'_fruit_kiwi_lexer'
-    desc_text = self._DESC_TEXT
     token = self._token
     states = {
       's_start': self._state_s_start(self, log_tag),
@@ -295,8 +299,17 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)
-  _DESC_TEXT = """
+    super().__init__(log_tag, token, states)
+
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return '_test_simple_lexer.btl'
+
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\\
 #BTL
 #
 # Key Value pair lexer
@@ -351,7 +364,7 @@ states
       buffer write
     default: s_done
       error e_unexpected_char
-      
+
   s_key
     c_keyval_key: s_key
       buffer write
@@ -363,7 +376,7 @@ states
       buffer reset
     c_eos: s_done
       function f_handle_eos 't_key'
-      
+
   s_value
     c_line_break: s_start
       emit t_value
@@ -375,7 +388,7 @@ states
       function f_handle_eos 't_value'
     default: s_value
       buffer write
-      
+
   s_done
 
 """
@@ -806,7 +819,7 @@ chars
   test_plus: +
   test_operator: test_plus | test_minus
 '''
-    desc = btl_lexer_desc.parse_text(desc_text)
+    desc = btl_lexer_desc.parse_text(desc_text, '<unit_test>')
 
   def test_invalild_command_name(self):
     desc_text = '''#BTL
@@ -824,7 +837,7 @@ states
       notgood
 '''
     with self.assertRaises(btl_lexer_error) as ctx:
-      desc = btl_lexer_desc.parse_text(desc_text)
+      desc = btl_lexer_desc.parse_text(desc_text, '<unit_test>')
     self.assertEqual( 'Missing arguments for command: "notgood" - line 13', ctx.exception.message )
 
   def test_invalild_command_action(self):
@@ -844,11 +857,11 @@ states
     default: s_done
       error e_unexpected_char
 '''
-    desc = btl_lexer_desc.parse_text(desc_text)
+    desc = btl_lexer_desc.parse_text(desc_text, '<unit_test>')
     buf = btl_code_gen_buffer()
     with self.assertRaises(btl_lexer_error) as ctx:
       desc.generate_code(buf, 'fruit', 'kiwi')
     self.assertEqual( 'Unknown command action: "notgood"', ctx.exception.message )
-    
+
 if __name__ == '__main__':
   unit_test.main()

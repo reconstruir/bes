@@ -265,9 +265,8 @@ class _test_keyval_lexer(btl_lexer_base):
       
       return self._handle_char_result(new_state_name, tokens)
 
-  def __init__(self, desc_source = None):
+  def __init__(self):
     log_tag = f'_test_keyval_lexer'
-    desc_text = self._DESC_TEXT
     token = self._token
     states = {
       's_start': self._state_s_start(self, log_tag),
@@ -279,8 +278,17 @@ class _test_keyval_lexer(btl_lexer_base):
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)
-  _DESC_TEXT = """
+    super().__init__(log_tag, token, states)
+  
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return '_test_keyval_lexer.btl'
+  
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\
 #BTL
 #
 # Key Value pair lexer

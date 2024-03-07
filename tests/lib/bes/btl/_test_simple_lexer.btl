@@ -52,7 +52,7 @@ states
       buffer write
     default: s_done
       error e_unexpected_char
-      
+
   s_key
     c_keyval_key: s_key
       buffer write
@@ -64,7 +64,7 @@ states
       buffer reset
     c_eos: s_done
       function f_handle_eos 't_key'
-      
+
   s_value
     c_line_break: s_start
       emit t_value
@@ -76,5 +76,5 @@ states
       function f_handle_eos 't_value'
     default: s_value
       buffer write
-      
+
   s_done

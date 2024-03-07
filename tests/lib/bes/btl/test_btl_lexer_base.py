@@ -135,18 +135,25 @@ class _test_lexer(btl_lexer_base):
       
       return self._handle_char_result(new_state_name, tokens)
 
-  def __init__(self, desc_source = None):
-    log_tag = f'_test_simple_lexer'
-    desc_text = self._DESC_TEXT
-    token = self._token
+  def __init__(self):
+    log_tag = '_test_simple_lexer'
     states = {
       's_start': self._state_s_start(self, log_tag),
       's_key': self._state_s_key(self, log_tag),
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)
-  _DESC_TEXT = """
+    super().__init__(log_tag, self._token, states)
+
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return 'test_btl_lexer_base.py'
+    
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\
 #BTL
 #
 # Key Value pair lexer
@@ -379,6 +386,32 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
     actual_tokens = l.lex_all('b=z')
     actual = '\n'.join([ token.to_debug_str() for token in actual_tokens ])
     self.assertEqual( expected, actual )
+
+  def test_two_lexers_in_parallel(self):
+    l1 = _test_lexer()
+    l2 = _test_lexer()
+
+    zipped_tokens = zip(l1.lex_generator('fruit=kiwi'), l2.lex_generator('cheese=brie'))
+
+    actual_tokens1 = btl_lexer_token_list()
+    actual_tokens2 = btl_lexer_token_list()
+    for token1, token2 in zipped_tokens:
+      actual_tokens1.append(token1)
+      actual_tokens2.append(token2)
+    expected_tokens1 = btl_lexer_token_list([
+      ( 't_key', 'fruit', ( 1, 1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 1, 6 ), None, None ),
+      ( 't_value', 'kiwi', ( 1, 7 ), None, None ),
+      ( 't_done', None, None, 'h_done', None ),
+    ])
+    expected_tokens2 = btl_lexer_token_list([
+      ( 't_key', 'cheese', ( 1, 1 ), None, None ),
+      ( 't_key_value_delimiter', '=', ( 1, 7 ), None, None ),
+      ( 't_value', 'brie', ( 1, 8 ), None, None ),
+      ( 't_done', None, None, 'h_done', None ),
+    ])
+    self.assertMultiLineEqual( expected_tokens1.to_debug_str(), actual_tokens1.to_debug_str() )
+    self.assertMultiLineEqual( expected_tokens2.to_debug_str(), actual_tokens2.to_debug_str() )
     
 if __name__ == '__main__':
   unit_test.main()

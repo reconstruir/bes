@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import io
-
-from ..system.log import log
+from ..property.cached_class_property import cached_class_property
 from ..system.check import check
+from ..system.log import log
+
+from abc import abstractmethod
+from abc import ABCMeta
 
 from .btl_document_position import btl_document_position
 from .btl_lexer_context import btl_lexer_context
@@ -14,30 +16,36 @@ from .btl_lexer_runtime_error import btl_lexer_runtime_error
 from .btl_lexer_token import btl_lexer_token
 from .btl_lexer_token_list import btl_lexer_token_list
 
-class btl_lexer_base(object):
+class btl_lexer_base(metaclass = ABCMeta):
 
   EOS = '\0'
-  
-  def __init__(self, log_tag, desc_text, token, states, desc_source = None):
+
+  def __init__(self, log_tag, token, states):
     check.check_string(log_tag)
-    check.check_string(desc_text)
-    check.check_string(desc_source, allow_none = True)
-    
+  
     self._log_tag = log_tag
     log.add_logging(self, tag = self._log_tag)
-    self._desc_source = desc_source or '<unknown>'
-    self._desc = btl_lexer_desc.parse_text(desc_text, source = self._desc_source)
-    self._token = token
     self._states = states
+    self._token = token
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
 
+  @classmethod
+  @abstractmethod
+  def desc_source(clazz):
+    raise NotImplementedError(f'desc_source')
+  
+  @classmethod
+  @abstractmethod
+  def desc_text(clazz):
+    raise NotImplementedError(f'desc_text')
+
+  @cached_class_property
+  def desc(clazz):
+    return btl_lexer_desc.parse_text(clazz.desc_text(), clazz.desc_source())
+  
   @property
   def desc_source(self):
     return self._desc_source
-
-  @property
-  def desc(self):
-    return self._desc
 
   @property
   def token(self):
@@ -45,11 +53,11 @@ class btl_lexer_base(object):
 
   @property
   def start_state(self):
-    return self._find_state(self._desc.header.start_state)
+    return self._find_state(self.desc.header.start_state)
 
   @property
   def end_state(self):
-    return self._find_state(self._desc.header.end_state)
+    return self._find_state(self.desc.header.end_state)
   
   def _find_state(self, state_name):
     return self._states[state_name]
@@ -76,8 +84,8 @@ class btl_lexer_base(object):
     if self.EOS in text:
       raise btl_lexer_error(f'Invalid text. NULL character (\\0) not allowed')
 
-    vm = self._desc.make_variable_manager(options.variables if options else {})
-    char_map = self._desc.char_map.substituted_variables(vm)
+    vm = self.desc.make_variable_manager(options.variables if options else {})
+    char_map = self.desc.char_map.substituted_variables(vm)
     context = btl_lexer_context(self, self._log_tag, text, char_map, options)
     self.log_i(f' lexer: run: options={context.options}')
     self.log_d(f' lexer: run: text=\"{text}\"')
@@ -152,7 +160,7 @@ class btl_lexer_base(object):
 
     result = {}
     token_args = {}
-    token_desc = self._desc.tokens.find_token(name)
+    token_desc = self.desc.tokens.find_token(name)
     if not token_desc:
       raise btl_lexer_error(f'No token description found: "{name}"')
     desc_args = token_desc.args or {}

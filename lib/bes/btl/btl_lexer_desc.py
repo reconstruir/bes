@@ -1,5 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import os.path as path
+
 from collections import namedtuple
 
 from ..common.json_util import json_util
@@ -23,9 +26,9 @@ from .btl_lexer_desc_state_list import btl_lexer_desc_state_list
 from .btl_lexer_desc_token_list import btl_lexer_desc_token_list
 from .btl_lexer_desc_variable_list import btl_lexer_desc_variable_list
 
-class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, variables, functions, char_map, states, source_text')):
+class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, variables, functions, char_map, states, desc_text, desc_source')):
   
-  def __new__(clazz, header, tokens, errors, variables, functions, char_map, states, source_text = None):
+  def __new__(clazz, header, tokens, errors, variables, functions, char_map, states, desc_text, desc_source):
     header = check.check_btl_lexer_desc_header(header)
     tokens = check.check_btl_lexer_desc_token_list(tokens)
     errors = check.check_btl_lexer_desc_error_list(errors)
@@ -33,9 +36,9 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
     functions = check.check_btl_lexer_desc_function_list(functions)
     check.check_btl_lexer_desc_char_map(char_map)
     states = check.check_btl_lexer_desc_state_list(states)
-    check.check_string(source_text, allow_none = True)
+    check.check_string(desc_text)
+    check.check_string(desc_source)
 
-    source_text = source_text or ''
     return clazz.__bases__[0].__new__(clazz,
                                       header,
                                       tokens,
@@ -44,7 +47,8 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
                                       functions,
                                       char_map,
                                       states,
-                                      source_text)
+                                      desc_text,
+                                      desc_source)
 
   def to_dict(self):
     return {
@@ -73,41 +77,41 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
     return result
   
   @classmethod
-  def parse_text(clazz, text, source = '<unknown>'):
-    check.check_string(text)
-    check.check_string(source)
+  def parse_text(clazz, desc_text, desc_source):
+    check.check_string(desc_text)
+    check.check_string(desc_source)
 
-    root = tree_text_parser.parse(text,
+    root = tree_text_parser.parse(desc_text,
                                   strip_comments = True,
                                   root_name = 'btl_lexer_desc',
                                   node_class = btl_desc_text_node)
 
-    lexer_node = root.find_tree_section('lexer', source)
-    header = btl_lexer_desc_header.parse_node(lexer_node, source)
+    lexer_node = root.find_tree_section('lexer', desc_source)
+    header = btl_lexer_desc_header.parse_node(lexer_node, desc_source)
     #print(header)
 
-    tokens_node = root.find_tree_section('tokens', source, raise_error = False)
-    tokens = btl_lexer_desc_token_list.parse_node(tokens_node, source)
+    tokens_node = root.find_tree_section('tokens', desc_source, raise_error = False)
+    tokens = btl_lexer_desc_token_list.parse_node(tokens_node, desc_source)
     #print(tokens)
 
-    errors_node = root.find_tree_section('errors', source, raise_error = False)
-    errors = btl_lexer_desc_error_list.parse_node(errors_node, source)
+    errors_node = root.find_tree_section('errors', desc_source, raise_error = False)
+    errors = btl_lexer_desc_error_list.parse_node(errors_node, desc_source)
     #print(errors)
 
-    states_node = root.find_tree_section('states', source, raise_error = False)
-    states = btl_lexer_desc_state_list.parse_node(states_node, source)
+    states_node = root.find_tree_section('states', desc_source, raise_error = False)
+    states = btl_lexer_desc_state_list.parse_node(states_node, desc_source)
     #print(states)
 
-    variables_node = root.find_tree_section('variables', source, raise_error = False)
-    variables = btl_lexer_desc_variable_list.parse_node(variables_node, source)
+    variables_node = root.find_tree_section('variables', desc_source, raise_error = False)
+    variables = btl_lexer_desc_variable_list.parse_node(variables_node, desc_source)
     #print(variables)
 
-    functions_node = root.find_tree_section('functions', source, raise_error = False)
-    functions = btl_lexer_desc_function_list.parse_node(functions_node, source)
+    functions_node = root.find_tree_section('functions', desc_source, raise_error = False)
+    functions = btl_lexer_desc_function_list.parse_node(functions_node, desc_source)
     #print(functions)
     
-    chars_node = root.find_tree_section('chars', source, raise_error = False)
-    char_map = clazz._parse_char_map(chars_node, variables.to_variable_manager(), source)
+    chars_node = root.find_tree_section('chars', desc_source, raise_error = False)
+    char_map = clazz._parse_char_map(chars_node, variables.to_variable_manager(), desc_source)
     #print(char_map)
 
     return btl_lexer_desc(header,
@@ -117,13 +121,14 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
                           functions,
                           char_map,
                           states,
-                          source_text = text)
+                          desc_text = desc_text,
+                          desc_source = desc_source)
 
   @classmethod
   def parse_file(clazz, filename):
     filename = file_check.check_file(filename)
-    text = file_util.read(filename, codec = 'utf-8')
-    return clazz.parse_text(text, source = filename)
+    desc_text = file_util.read(filename, codec = 'utf-8')
+    return clazz.parse_text(desc_text, path.basename(filename))
 
   def generate_code(self, buf, namespace, name):
     check.check_btl_code_gen_buffer(buf)
@@ -152,10 +157,10 @@ from bes.btl.btl_lexer_token import btl_lexer_token
       buf.write_linesep()
       self.states.generate_code(buf, self.errors, self.char_map)
 
-    buf.write_lines(f'''
-  def __init__(self, desc_source = None):
+    buf.write_linesep()
+    buf.write_lines(f'''\
+  def __init__(self):
     log_tag = f'{namespace}_{name}'
-    desc_text = self._DESC_TEXT
     token = self._token
 ''')
     with buf.indent_pusher(depth = 2) as _:
@@ -165,24 +170,46 @@ from bes.btl.btl_lexer_token import btl_lexer_token
           state_class_name = f'_state_{state.name}'
           buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
       buf.write_line('}')
-      buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)')
+      buf.write_lines(f'super().__init__(log_tag, token, states)')
 
     with buf.indent_pusher(depth = 1) as _:
-      desc_text = self.source_text or ''
-      buf.write_line(f'_DESC_TEXT = """')
-    buf.write_line(f'{self.source_text}')
+      buf.write_lines(f'''
+@classmethod
+#@abstractmethod
+def desc_source(clazz):
+  return '{self.desc_source}'
+
+@classmethod
+#@abstractmethod
+def desc_text(clazz):
+''')
+    with buf.indent_pusher(depth = 2) as _:
+      buf.write_line(f'return """\\')
+    buf.write_line(f'{self.desc_text}')
     buf.write_line(f'"""')
     buf.write_line(f'check.register_class({namespace}_{name}, include_seq = False)')
-      
+
+  def generate_code_to_str(self, namespace, name):
+    buf = btl_code_gen_buffer()
+    self.generate_code(buf, namespace, name)
+    code_text = buf.get_value()
+    code_lines = []
+    for line in code_text.splitlines():
+      stripped_line = line.strip()
+      if stripped_line:
+        code_lines.append(line)
+      else:
+        code_lines.append('')
+    return os.linesep.join(code_lines)
+    
   def write_code(self, output_filename, namespace, name, indent_width = 2):
     check.check_string(output_filename)
     check.check_string(namespace)
     check.check_string(name)
     check.check_int(indent_width)
 
-    buf = btl_code_gen_buffer(indent_width = indent_width)
-    self.generate_code(buf, namespace, name)
-    file_util.save(output_filename, content = buf.get_value())
+    code_text = self.generate_code_to_str(namespace, name)
+    file_util.save(output_filename, content = code_text)
 
   def make_variable_manager(self, variables):
     check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)

@@ -42,12 +42,12 @@ class btl_document(metaclass = ABCMeta):
   @classmethod
   @abstractmethod
   def lexer_class(clazz):
-    raise NotImplementedError(f'not implemented: "lexer_class"')
+    raise NotImplementedError(f'lexer_class')
 
   @classmethod
   @abstractmethod
   def parser_class(clazz):
-    raise NotImplementedError(f'not implemented: "parser_class"')
+    raise NotImplementedError(f'parser_class')
   
   @property
   def root_node(self):

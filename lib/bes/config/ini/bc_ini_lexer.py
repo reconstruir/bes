@@ -418,9 +418,8 @@ class bc_ini_lexer(btl_lexer_base):
       
       return self._handle_char_result(new_state_name, tokens)
 
-  def __init__(self, desc_source = None):
+  def __init__(self):
     log_tag = f'bc_ini_lexer'
-    desc_text = self._DESC_TEXT
     token = self._token
     states = {
       's_start': self._state_s_start(self, log_tag),
@@ -436,8 +435,17 @@ class bc_ini_lexer(btl_lexer_base):
       's_value': self._state_s_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, desc_text, token, states, desc_source = desc_source)
-  _DESC_TEXT = """
+    super().__init__(log_tag, token, states)
+  
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return 'bc_ini_lexer.btl'
+  
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\
 #BTL
 #
 lexer
