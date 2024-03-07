@@ -307,6 +307,15 @@ n_root;
 17: t_line_break:[NL]:p=6,12:h=h_line_break:i=17
 18: t_done::h=h_done:i=18
 ''', result.tokens.to_debug_str() )
-    
+
+    tree_token_ids = set()
+    def _visitor(node):
+      if node.token:
+        tree_token_ids.add(id(node.token))
+    result.root_node.visit_children(_visitor, recurse = True)
+    list_token_ids = set([ id(token) for token in result.tokens ])
+    for token_id in tree_token_ids:
+      self.assertEqual( True, token_id in list_token_ids )
+      
 if __name__ == '__main__':
   unit_test.main()
