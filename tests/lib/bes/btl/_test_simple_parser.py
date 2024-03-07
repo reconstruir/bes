@@ -11,18 +11,18 @@ class _test_simple_parser(btl_parser_base):
   class e_unexpected_token(btl_parser_runtime_error):
     pass
 
-  
+
   class _state_s_start(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_start'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_start: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_start: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -44,20 +44,20 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{state_name}" unexpected token: "{token}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_expecting_delimiter(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_expecting_delimiter'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_expecting_delimiter: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_expecting_delimiter: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -69,20 +69,20 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{state_name}" unexpected token: "{token}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_expecting_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_expecting_value'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_expecting_value: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_expecting_value: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -98,20 +98,20 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{state_name}" unexpected token: "{token}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_after_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_after_value'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_after_value: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_after_value: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -127,29 +127,29 @@ class _test_simple_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{state_name}" unexpected token: "{token}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_done(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_done'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_done: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_done: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
-      
+
       return new_state_name
 
   def __init__(self, lexer):
     check.check_btl_lexer(lexer)
-    
+
     log_tag = f'_test_simple_parser'
     states = {
       's_start': self._state_s_start(self, log_tag),
@@ -158,15 +158,24 @@ class _test_simple_parser(btl_parser_base):
       's_after_value': self._state_s_after_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, lexer, self._DESC_TEXT, states)
-  
+    super().__init__(log_tag, lexer, states)
+
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.create_root()
-  
+
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
-  _DESC_TEXT = """
+
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return '_test_simple_parser.btp'
+
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\
 #BTP
 #
 # Key Value pair parser

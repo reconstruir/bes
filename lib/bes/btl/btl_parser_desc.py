@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 from collections import namedtuple
 
 from ..common.json_util import json_util
@@ -18,7 +20,7 @@ from .btl_parser_desc_mermaid import btl_parser_desc_mermaid
 from .btl_parser_desc_state_command_list import btl_parser_desc_state_command_list
 from .btl_parser_desc_state_list import btl_parser_desc_state_list
 
-class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, start_commands, end_commands, source_text')):
+class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, start_commands, end_commands, desc_text, desc_source')):
   
   def __new__(clazz,
               header,
@@ -26,22 +28,24 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
               states,
               start_commands,
               end_commands,
-              source_text = None):
+              desc_text,
+              desc_source):
     header = check.check_btl_parser_desc_header(header)
     errors = check.check_btl_parser_desc_error_list(errors)
     states = check.check_btl_parser_desc_state_list(states)
     start_commands = check.check_btl_parser_desc_state_command_list(start_commands)
     end_commands = check.check_btl_parser_desc_state_command_list(end_commands)
-    check.check_string(source_text, allow_none = True)
+    check.check_string(desc_text)
+    check.check_string(desc_source)
 
-    source_text = source_text or ''
     return clazz.__bases__[0].__new__(clazz,
                                       header,
                                       errors,
                                       states,
                                       start_commands,
                                       end_commands,
-                                      source_text)
+                                      desc_text,
+                                      desc_source)
 
   def to_dict(self):
     return {
@@ -59,45 +63,46 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
     return btl_parser_desc_mermaid.desc_to_mermain_diagram(self)
   
   @classmethod
-  def parse_text(clazz, text, source = '<unknown>'):
-    check.check_string(text)
-    check.check_string(source)
+  def parse_text(clazz, desc_text, desc_source):
+    check.check_string(desc_text)
+    check.check_string(desc_source)
 
-    root = tree_text_parser.parse(text,
+    root = tree_text_parser.parse(desc_text,
                                   strip_comments = True,
                                   root_name = 'btl_parser_desc',
                                   node_class = btl_desc_text_node)
 
-    parser_node = root.find_tree_section('parser', source)
-    header = btl_parser_desc_header.parse_node(parser_node, source)
+    parser_node = root.find_tree_section('parser', desc_source)
+    header = btl_parser_desc_header.parse_node(parser_node, desc_source)
     #print(header)
 
-    errors_node = root.find_tree_section('errors', source, raise_error = False)
-    errors = btl_parser_desc_error_list.parse_node(errors_node, source)
+    errors_node = root.find_tree_section('errors', desc_source, raise_error = False)
+    errors = btl_parser_desc_error_list.parse_node(errors_node, desc_source)
     #print(errors)
 
-    states_node = root.find_tree_section('states', source, raise_error = False)
-    states = btl_parser_desc_state_list.parse_node(states_node, source)
+    states_node = root.find_tree_section('states', desc_source, raise_error = False)
+    states = btl_parser_desc_state_list.parse_node(states_node, desc_source)
     #print(states)
 
-    start_commands_node = root.find_tree_section('start_commands', source, raise_error = False)
-    start_commands = btl_parser_desc_state_command_list.parse_node(start_commands_node, source)
+    start_commands_node = root.find_tree_section('start_commands', desc_source, raise_error = False)
+    start_commands = btl_parser_desc_state_command_list.parse_node(start_commands_node, desc_source)
 
-    end_commands_node = root.find_tree_section('end_commands', source, raise_error = False)
-    end_commands = btl_parser_desc_state_command_list.parse_node(end_commands_node, source)
+    end_commands_node = root.find_tree_section('end_commands', desc_source, raise_error = False)
+    end_commands = btl_parser_desc_state_command_list.parse_node(end_commands_node, desc_source)
     
     return btl_parser_desc(header,
                            errors,
                            states,
                            start_commands,
                            end_commands,
-                           source_text = text)
+                           desc_text,
+                           desc_source)
 
   @classmethod
   def parse_file(clazz, filename):
     filename = file_check.check_file(filename)
     text = file_util.read(filename, codec = 'utf-8')
-    return clazz.parse_text(text, source = filename)
+    return clazz.parse_text(text, os.path.basename(filename))
 
   def generate_code(self, buf, namespace, name):
     check.check_btl_code_gen_buffer(buf)
@@ -133,7 +138,7 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
           state_class_name = f'_state_{state.name}'
           buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
       buf.write_line('}')
-      buf.write_lines(f'super().__init__(log_tag, lexer, self._DESC_TEXT, states)')
+      buf.write_lines(f'super().__init__(log_tag, lexer, states)')
 
     with buf.indent_pusher(depth = 1) as _:
       buf.write_lines(f'''
@@ -149,12 +154,27 @@ def do_end_commands(self, context):
 ''')
       with buf.indent_pusher(depth = 1) as _1:
         self.end_commands.generate_code(buf, self.errors)
-      
+
     with buf.indent_pusher(depth = 1) as _:
-      desc_text = self.source_text or ''
-      buf.write_line(f'_DESC_TEXT = """')
-    buf.write_line(f'{self.source_text}')
+      buf.write_lines(f'''
+@classmethod
+#@abstractmethod
+def desc_source(clazz):
+  return '{self.desc_source}'
+
+@classmethod
+#@abstractmethod
+def desc_text(clazz):
+''')
+    with buf.indent_pusher(depth = 2) as _:
+      buf.write_line(f'return """\\')
+    buf.write_line(f'{self.desc_text}')
     buf.write_line(f'"""')
+#    with buf.indent_pusher(depth = 1) as _:
+#      desc_text = self.desc_text or ''
+#      buf.write_line(f'_DESC_TEXT = """')
+#    buf.write_line(f'{self.desc_text}')
+#    buf.write_line(f'"""')
     buf.write_line(f'check.register_class({namespace}_{name}, include_seq = False)')
       
   def write_code(self, output_filename, namespace, name, indent_width = 2):

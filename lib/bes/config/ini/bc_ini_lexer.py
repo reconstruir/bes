@@ -29,7 +29,7 @@ class bc_ini_lexer(btl_lexer_base):
   class e_unexpected_eos(btl_lexer_runtime_error):
     pass
 
-  
+
   class _function_f_handle_comment_begin(btl_function_base):
     def call(self, context, tokens, c, current_token_name):
       tokens.append(self.make_token(context, current_token_name))
@@ -37,32 +37,32 @@ class bc_ini_lexer(btl_lexer_base):
       context.buffer_write(c)
       tokens.append(self.make_token(context, 't_comment_begin'))
       context.buffer_reset()
-  
+
   class _function_f_handle_line_break(btl_function_base):
     def call(self, context, tokens, c):
       context.buffer_reset()
       context.buffer_write(c)
       tokens.append(self.make_token(context, 't_line_break'))
       context.buffer_reset()
-  
+
   class _function_f_handle_eos(btl_function_base):
     def call(self, context, tokens, c, current_token_name):
       tokens.append(self.make_token(context, current_token_name))
       context.buffer_reset()
       tokens.append(self.make_token(context, 't_done'))
 
-  
+
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_start'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_keyval_key_first', context):
         new_state_name = 's_key'
         context.buffer_write(c)
@@ -91,20 +91,20 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_comment(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_comment'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_comment'))
@@ -117,20 +117,20 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_comment'
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_section_name(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_section_name'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_section_name', context):
         new_state_name = 's_section_name'
         context.buffer_write(c)
@@ -149,20 +149,20 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_after_section_name(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_after_section_name'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_section_name_space'
         context.buffer_write(c)
@@ -181,20 +181,20 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_after_section_name_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_after_section_name_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_section_name_space'
         context.buffer_write(c)
@@ -212,20 +212,20 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_before_key_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_before_key_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
         context.buffer_write(c)
@@ -245,20 +245,20 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_after_key_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_after_key_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_key_space'
         context.buffer_write(c)
@@ -276,20 +276,20 @@ class bc_ini_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_before_value_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_before_value_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_value_space'
         context.buffer_write(c)
@@ -311,20 +311,20 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_space'))
         context.buffer_reset()
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_expecting_value(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_expecting_value'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_value_space'
         context.buffer_write(c)
@@ -338,20 +338,20 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_key(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_key'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_keyval_key', context):
         new_state_name = 's_key'
         context.buffer_write(c)
@@ -372,20 +372,20 @@ class bc_ini_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_value(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_value'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_value'))
@@ -401,21 +401,21 @@ class bc_ini_lexer(btl_lexer_base):
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_done(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_done'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
-      
+
+
       return self._handle_char_result(new_state_name, tokens)
 
   def __init__(self):
@@ -436,12 +436,12 @@ class bc_ini_lexer(btl_lexer_base):
       's_done': self._state_s_done(self, log_tag),
     }
     super().__init__(log_tag, token, states)
-  
+
   @classmethod
   #@abstractmethod
   def desc_source(clazz):
     return 'bc_ini_lexer.btl'
-  
+
   @classmethod
   #@abstractmethod
   def desc_text(clazz):
@@ -484,7 +484,7 @@ chars
   c_section_name: c_underscore | c_alpha | c_numeric | c_period
   c_comment_begin: ${v_comment_begin}
   c_key_value_delimiter: c_equal
-  
+
 functions
 
   f_handle_comment_begin(current_token_name)
@@ -656,7 +656,7 @@ states
       emit t_key
       buffer reset
       buffer write
-      
+
   s_value
     c_line_break: s_start
       emit t_value

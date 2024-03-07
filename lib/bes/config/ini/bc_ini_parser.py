@@ -11,18 +11,18 @@ class bc_ini_parser(btl_parser_base):
   class e_unexpected_token(btl_parser_runtime_error):
     pass
 
-  
+
   class _state_s_global_start(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_global_start'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_global_start: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_global_start: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -48,20 +48,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_global_expecting_delimiter(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_global_expecting_delimiter'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_global_expecting_delimiter: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_global_expecting_delimiter: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -73,20 +73,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_global_expecting_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_global_expecting_value'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_global_expecting_value: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_global_expecting_value: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -122,20 +122,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_global_after_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_global_after_value'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_global_after_value: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_global_after_value: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -153,20 +153,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_expecting_key(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_key'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_expecting_key: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_expecting_key: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -192,20 +192,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_expecting_name(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_name'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_expecting_name: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_expecting_name: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -218,20 +218,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_expecting_name_end(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_name_end'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_expecting_name_end: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_expecting_name_end: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -241,20 +241,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_after_section_name(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_after_section_name'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_after_section_name: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_after_section_name: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -270,20 +270,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_expecting_delimiter(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_delimiter'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_expecting_delimiter: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_expecting_delimiter: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -295,20 +295,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_expecting_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_expecting_value'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_expecting_value: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_expecting_value: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -344,20 +344,20 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_section_after_value(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_section_after_value'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_section_after_value: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_section_after_value: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
@@ -375,29 +375,29 @@ class bc_ini_parser(btl_parser_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected token: "{token.name}"'
         raise self.parser.e_unexpected_token(token, context, message)
-      
+
       return new_state_name
-  
+
   class _state_s_done(btl_parser_state_base):
     def __init__(self, parser, log_tag):
       name = 's_done'
       super().__init__(parser, name, log_tag)
-  
+
     def enter_state(self, context):
       self.log_d(f's_done: enter_state')
-  
+
     def leave_state(self, context):
       self.log_d(f's_done: leave_state')
-  
+
     def handle_token(self, context, token):
       self.log_handle_token(token)
       new_state_name = None
-      
+
       return new_state_name
 
   def __init__(self, lexer):
     check.check_btl_lexer(lexer)
-    
+
     log_tag = f'bc_ini_parser'
     states = {
       's_global_start': self._state_s_global_start(self, log_tag),
@@ -413,20 +413,29 @@ class bc_ini_parser(btl_parser_base):
       's_section_after_value': self._state_s_section_after_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, lexer, self._DESC_TEXT, states)
-  
+    super().__init__(log_tag, lexer, states)
+
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.create_root()
     context.node_creator.create('n_global_section')
     context.node_creator.create('n_sections')
-  
+
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.add_child('n_root', 'n_global_section')
     context.node_creator.add_child_if_it_exists('n_sections', 'n_section')
     context.node_creator.add_child('n_root', 'n_sections')
-  _DESC_TEXT = """
+
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return 'bc_ini_parser.btp'
+
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\
 #BTL
 #
 parser
@@ -449,7 +458,7 @@ functions
       node set_token_empty_value n_value
       node add_child n_key_value n_value
       node add_child ${section} n_key_value
-      
+
   create_value_node
     args
       section

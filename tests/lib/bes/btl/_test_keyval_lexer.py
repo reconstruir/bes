@@ -23,18 +23,18 @@ class _test_keyval_lexer(btl_lexer_base):
     pass
 
 
-  
+
   class _state_s_start(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_start'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_eos', context):
         new_state_name = 's_done'
         tokens.append(self.make_token(context, 't_done'))
@@ -53,20 +53,20 @@ class _test_keyval_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_before_key_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_before_key_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_key_space'
         context.buffer_write(c)
@@ -86,20 +86,20 @@ class _test_keyval_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_after_key_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_after_key_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_after_key_space'
         context.buffer_write(c)
@@ -117,20 +117,20 @@ class _test_keyval_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_before_value_space(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_before_value_space'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_value_key_space'
         context.buffer_write(c)
@@ -153,20 +153,20 @@ class _test_keyval_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_expecting_value(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_expecting_value'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_ws', context):
         new_state_name = 's_before_value_space'
         context.buffer_write(c)
@@ -185,20 +185,20 @@ class _test_keyval_lexer(btl_lexer_base):
         new_state_name = 's_done'
         message = f'In state "{self.name}" unexpected character: "{c}"'
         raise self.lexer.e_unexpected_char(context, message)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_key(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_key'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_keyval_key', context):
         new_state_name = 's_key'
         context.buffer_write(c)
@@ -219,20 +219,20 @@ class _test_keyval_lexer(btl_lexer_base):
         tokens.append(self.make_token(context, 't_key'))
         context.buffer_reset()
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_value(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_value'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
+
       if self.char_in(c, 'c_line_break', context):
         new_state_name = 's_start'
         tokens.append(self.make_token(context, 't_value'))
@@ -248,21 +248,21 @@ class _test_keyval_lexer(btl_lexer_base):
       else:
         new_state_name = 's_value'
         context.buffer_write(c)
-      
+
       return self._handle_char_result(new_state_name, tokens)
-  
+
   class _state_s_done(btl_lexer_state_base):
     def __init__(self, lexer, log_tag):
       name = 's_done'
       super().__init__(lexer, name, log_tag)
-  
+
     def handle_char(self, context, c):
       self.log_handle_char(context, c)
-  
+
       new_state_name = None
       tokens = []
-  
-      
+
+
       return self._handle_char_result(new_state_name, tokens)
 
   def __init__(self):
@@ -279,12 +279,12 @@ class _test_keyval_lexer(btl_lexer_base):
       's_done': self._state_s_done(self, log_tag),
     }
     super().__init__(log_tag, token, states)
-  
+
   @classmethod
   #@abstractmethod
   def desc_source(clazz):
     return '_test_keyval_lexer.btl'
-  
+
   @classmethod
   #@abstractmethod
   def desc_text(clazz):
@@ -412,7 +412,7 @@ states
       emit t_key
       buffer reset
       buffer write
-      
+
   s_value
     c_line_break: s_start
       emit t_value
@@ -426,7 +426,7 @@ states
       emit t_done
     default: s_value
       buffer write
-      
+
   s_done
 
 """

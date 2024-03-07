@@ -1,11 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from abc import abstractmethod
+from abc import ABCMeta
+
 from ..property.cached_class_property import cached_class_property
 from ..system.check import check
 from ..system.log import log
-
-from abc import abstractmethod
-from abc import ABCMeta
 
 from .btl_document_position import btl_document_position
 from .btl_lexer_context import btl_lexer_context
@@ -43,10 +43,6 @@ class btl_lexer_base(metaclass = ABCMeta):
   def desc(clazz):
     return btl_lexer_desc.parse_text(clazz.desc_text(), clazz.desc_source())
   
-  @property
-  def desc_source(self):
-    return self._desc_source
-
   @property
   def token(self):
     return self._token

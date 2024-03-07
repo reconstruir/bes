@@ -170,7 +170,7 @@ class _test_parser(btl_parser_base):
       's_after_value': self._state_s_after_value(self, log_tag),
       's_done': self._state_s_done(self, log_tag),
     }
-    super().__init__(log_tag, lexer, self._DESC_TEXT, states)
+    super().__init__(log_tag, lexer, states)
 
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
@@ -179,10 +179,15 @@ class _test_parser(btl_parser_base):
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
 
-  def desc(self):
-    self.log_d(f'do_start_commands:')
+  @classmethod
+  #@abstractmethod
+  def desc_source(clazz):
+    return 'test_btl_parser_base.py'
     
-  _DESC_TEXT = """
+  @classmethod
+  #@abstractmethod
+  def desc_text(clazz):
+    return """\
 #BTP
 #
 # Key Value pair parser
