@@ -142,6 +142,7 @@ from bes.btl.btl_parser_state_base import btl_parser_state_base
 
     with buf.indent_pusher(depth = 1) as _:
       buf.write_lines(f'''
+#@abstractmethod      
 def do_start_commands(self, context):
   self.log_d(f'do_start_commands:')
 ''')
@@ -149,6 +150,7 @@ def do_start_commands(self, context):
         self.start_commands.generate_code(buf, self.errors)
 
       buf.write_lines(f'''
+#@abstractmethod      
 def do_end_commands(self, context):
   self.log_d(f'do_start_commands:')
 ''')

@@ -415,12 +415,14 @@ class bc_ini_parser(btl_parser_base):
     }
     super().__init__(log_tag, lexer, states)
 
+  #@abstractmethod      
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.create_root()
     context.node_creator.create('n_global_section')
     context.node_creator.create('n_sections')
 
+  #@abstractmethod      
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.add_child('n_root', 'n_global_section')

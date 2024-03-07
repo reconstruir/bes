@@ -41,6 +41,14 @@ class btl_parser_base(object):
   def desc_text(clazz):
     raise NotImplementedError(f'desc_text')
 
+  @abstractmethod
+  def do_start_commands(self, context):
+    raise NotImplementedError(f'do_start_commands')
+
+  @abstractmethod
+  def do_end_commands(self, context):
+    raise NotImplementedError(f'do_end_commands')
+  
   @cached_class_property
   def desc(clazz):
     return btl_parser_desc.parse_text(clazz.desc_text(), clazz.desc_source())
@@ -116,13 +124,4 @@ class btl_parser_base(object):
       raise btl_parser_error(f'Orphaned nodes found in end state: {orphaned_str}\nnodes:\n{nodes_str}')
     return self._parse_result(root_node, tokens)
 
-  def do_start_commands(self, context):
-    raise btl_parser_error(f'{self.name}: unhandled do_start_commands')
-
-  def do_end_commands(self, context):
-    raise btl_parser_error(f'{self.name}: unhandled do_end_commands')
-
-#  def desc(self):
-#    raise btl_parser_error(f'{self.name}: unhandled desc')
-  
 check.register_class(btl_parser_base, name = 'btl_parser', include_seq = False)

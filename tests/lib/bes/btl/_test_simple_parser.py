@@ -160,10 +160,12 @@ class _test_simple_parser(btl_parser_base):
     }
     super().__init__(log_tag, lexer, states)
 
+  #@abstractmethod      
   def do_start_commands(self, context):
     self.log_d(f'do_start_commands:')
     context.node_creator.create_root()
 
+  #@abstractmethod      
   def do_end_commands(self, context):
     self.log_d(f'do_start_commands:')
 
