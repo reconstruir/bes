@@ -285,6 +285,28 @@ n_root;
     n_key;t_key:color:p=6,1:i=14
     n_value;t_value:green:p=6,7:i=16
 ''', str(result.root_node) )
+
+    self.assertMultiLineEqual('''\
+ 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+ 1: t_key:fruit:p=2,1:i=1
+ 2: t_key_value_delimiter:=:p=2,6:i=2
+ 3: t_value:apple:p=2,7:i=3
+ 4: t_line_break:[NL]:p=2,12:h=h_line_break:i=4
+ 5: t_key:color:p=3,1:i=5
+ 6: t_key_value_delimiter:=:p=3,6:i=6
+ 7: t_value:red:p=3,7:i=7
+ 8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
+ 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
+10: t_key:fruit:p=5,1:i=10
+11: t_key_value_delimiter:=:p=5,6:i=11
+12: t_value:kiwi:p=5,7:i=12
+13: t_line_break:[NL]:p=5,11:h=h_line_break:i=13
+14: t_key:color:p=6,1:i=14
+15: t_key_value_delimiter:=:p=6,6:i=15
+16: t_value:green:p=6,7:i=16
+17: t_line_break:[NL]:p=6,12:h=h_line_break:i=17
+18: t_done::h=h_done:i=18
+''', result.tokens.to_debug_str() )
     
 if __name__ == '__main__':
   unit_test.main()
