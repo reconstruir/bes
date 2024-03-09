@@ -42,7 +42,28 @@ color=red
 9: t_done::h=h_done:i=9
 ''', doc.tokens.to_debug_str() )
 
-# 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
+    new_token = btl_lexer_token('t_line_break', '\n', ( 1, 1 ), 'h_line_break', 666)
+    doc.insert_token(5, new_token)
+
+    self.assertMultiLineEqual('''
+name=apple
+
+color=red
+''', doc.text )
+    
+    self.assert_python_code_text_equal( '''
+ 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+ 1: t_key:name:p=2,1:i=1
+ 2: t_key_value_delimiter:=:p=2,5:i=2
+ 3: t_value:apple:p=2,6:i=3
+ 4: t_line_break:[NL]:p=2,11:h=h_line_break:i=4
+ 5: t_line_break:[NL]:p=3,1:h=h_line_break:i=5
+ 6: t_key:color:p=4,1:i=6
+ 7: t_key_value_delimiter:=:p=4,6:i=7
+ 8: t_value:red:p=4,7:i=8
+ 9: t_line_break:[NL]:p=4,10:h=h_line_break:i=9
+10: t_done::h=h_done:i=10
+''', doc.tokens.to_debug_str() )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -8,6 +8,7 @@ import json
 import os
 
 from ..common.json_util import json_util
+from ..system.log import logger
 from ..common.type_checked_list import type_checked_list
 from ..system.check import check
 
@@ -16,6 +17,21 @@ from .btl_lexer_token import btl_lexer_token
 class btl_lexer_token_list(type_checked_list):
 
   __value_type__ = btl_lexer_token
+
+  _log = logger('btl_lexer_token_list')
+  @property
+  def first_line(self):
+    for token in self:
+      if token.name != 't_done':
+        return token.position.line
+    return None
+
+  @property
+  def last_line(self):
+    for token in reversed(self):
+      if token.name != 't_done':
+        return token.position.line
+    return None
   
   def to_line_break_ordered_dict(self):
     if not self._values:
@@ -280,6 +296,9 @@ class btl_lexer_token_list(type_checked_list):
     check.check_bool(raise_error)
     check.check_string(error_message, allow_none = True)
 
+    if line < 0:
+      line = self.last_line + line + 1
+    
     index = self._bisect_by_line(line)
     if index < 0:
       if raise_error:
@@ -316,13 +335,57 @@ class btl_lexer_token_list(type_checked_list):
     print(label)
     print(self.to_debug_str())
 
-  def reorder(self, delta_index, delta_line):
-    check.check_int(delta_index)
+  def reorder(self, delta_line, starting_index):
     check.check_int(delta_line)
+    check.check_int(starting_index)
 
     for token in self:
-      token.index += delta_index
+      token.index = starting_index
+      starting_index += 1
       if delta_line and token.position:
         token.position = token.position.moved_vertical(delta_line)
 
+  def count_lines(self):
+    lines = set()
+    for token in self:
+      if token.position:
+        lines.add(token.position.line)
+    return len(lines)
+
+  def insert_token(self, index, token):
+    check.check_int(index)
+    token = check.check_btl_lexer_token(token)
+
+    return self.insert_tokens(index, [ token ])
+
+  def insert_tokens(self, index, new_tokens):
+    check.check_int(index)
+    new_tokens = check.check_btl_lexer_token_list(new_tokens)
+
+    self._log.log_d(f'insert_tokens: new_tokens:\n{new_tokens.to_debug_str()}')
+    
+    self._log.log_d(f'insert_tokens: tokens before:\n{self.to_debug_str()}')
+    top, bottom = self.partition_for_insert(index)
+
+    new_tokens_line_delta = top.last_line
+    new_tokens_starting_index = len(top) + 0
+    self._log.log_d(f'insert_tokens: new_tokens_line_delta={new_tokens_line_delta} new_tokens_starting_index={new_tokens_starting_index}')
+    new_tokens.reorder(new_tokens_line_delta, new_tokens_starting_index)
+
+    bottom_line_delta = new_tokens.last_line - bottom.first_line + 1
+    bottom_starting_index = len(top) + len(new_tokens) + 0
+    self._log.log_d(f'insert_tokens: bottom_line_delta={bottom_line_delta} bottom_starting_index={bottom_starting_index}')
+    bottom.reorder(bottom_line_delta, bottom_starting_index)
+
+    self._values = top + new_tokens + bottom
+    self._log.log_d(f'insert_tokens: tokens after:\n{self.to_debug_str()}')
+    return index
+
+  def reorder_indeces(self, starting_index):
+    check.check_int(starting_index)
+
+    for token in self:
+      token.index = starting_index
+      starting_index += 1
+  
 btl_lexer_token_list.register_check_class()  

@@ -3,6 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 
+from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.btl.btl_parser_options import btl_parser_options
 from bes.config.ini.bc_ini_document import bc_ini_document
 
@@ -58,7 +59,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     doc.set_value('name', 'restaurant')
     doc.set_value('version', '2.0')
     expected = '''
@@ -73,7 +74,7 @@ color=red
 name=vieux
 smell=stink
 '''
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def broken_test_add_value(self):
     text = '''
@@ -89,7 +90,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     doc.add_value('price', 'expensive')
     doc.add_value('style', 'seafood')
     expected = '''
@@ -120,7 +121,7 @@ smell=stink
 '''
     doc = bc_ini_document(text)
 
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
 
     doc.set_section_value('fruit', 'name', 'lemon')
     doc.set_section_value('fruit', 'color', 'yellow')
@@ -134,7 +135,7 @@ color=yellow
 name=vieux
 smell=stink
 '''
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_add_section_empty_text(self):
     doc = bc_ini_document('')
@@ -161,7 +162,7 @@ n_root;
 5: t_done::h=h_done:i=5
 ''', doc.tokens.to_debug_str() )
 
-  def test_add_section_one_previous_section(self):
+  def test_add_section_one_previous_empty_section(self):
     doc = bc_ini_document('[wine]')
 
     doc.add_section('cheese')
@@ -191,6 +192,23 @@ n_root;
 8: t_done::h=h_done:i=8
 ''', doc.tokens.to_debug_str() )
     
+  def test_add_section_one_previous_non_empty_section(self):
+    doc = bc_ini_document('''
+[fruit]
+name=apple
+color=red
+''')
+    doc.add_section('cheese')
+    doc.add_line_break(-1)
+
+    self.assertMultiLineEqual( '''
+[fruit]
+name=apple
+color=red
+[cheese]
+
+''', doc.text )
+
   def test_add_section_value_existing_section(self):
     text = '''
 [fruit]
@@ -202,7 +220,7 @@ name=vieux
 '''
     doc = bc_ini_document(text)
 
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
 
     doc.add_section_value('cheese', 'smell', 'stink')
 
@@ -214,7 +232,7 @@ color=red
 [cheese]
 name=vieux
 smell=stink
-''', doc.to_source_string() )
+''', doc.text )
     
   def test_remove_section(self):
     text = '''
@@ -230,7 +248,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=grocery
 version=1.0
@@ -240,7 +258,7 @@ name=vieux
 smell=stink
 '''
     doc.remove_section('fruit')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_remove_empty_section(self):
     text = '''
@@ -251,7 +269,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
     
 [cheese]
@@ -259,7 +277,7 @@ name=vieux
 smell=stink
 '''
     doc.remove_section('fruit')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_remove_top_section(self):
     text = '''[fruit]
@@ -267,13 +285,13 @@ smell=stink
 name=vieux
 smell=stink'''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''[cheese]
 name=vieux
 smell=stink
 '''
     doc.remove_section('fruit')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_global_add_node_from_text(self):
     text = '''
@@ -281,7 +299,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 smell=stink
@@ -325,7 +343,7 @@ price=cheap
 14: t_done::h=h_done:i=14
 ''', doc.tokens.to_debug_str() )
     
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_section_add_node_from_text(self):
     text = '''
@@ -338,7 +356,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 [fruit]
 name=kiwi
@@ -422,7 +440,7 @@ smell=stink
 31: t_done::h=h_done:i=31
 ''', doc.tokens.to_debug_str() )
     
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
     
   def test_add_comment_new_line(self):
     text = '''
@@ -430,14 +448,14 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 ; this is my comment
 smell=stink
 '''
     doc.add_comment(3, ' this is my comment', 'new_line')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_add_comment_end_of_line(self):
     text = '''
@@ -445,13 +463,13 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 smell=stink ; this is my comment
 '''
     doc.add_comment(3, ' this is my comment', 'end_of_line')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_add_comment_start_of_line(self):
     text = '''
@@ -459,13 +477,13 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 ;smell=stink
 '''
     doc.add_comment(3, '', 'start_of_line')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
     
   def test_add_comment_new_line_with_begin_char(self):
     text = '''
@@ -475,14 +493,14 @@ smell=stink
     variables = { 'v_comment_begin': '#' }
     options = btl_parser_options(variables = variables)
     doc = bc_ini_document(text, parser_options = options)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 # this is my comment
 smell=stink
 '''
     doc.add_comment(3, ' this is my comment', 'new_line')
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
     
   def test_find_global_section_node(self):
     doc = bc_ini_document('')
@@ -649,14 +667,14 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 
 smell=stink
 '''
     doc.add_line_break(2)
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_add_line_break_with_count(self):
     text = '''
@@ -664,7 +682,7 @@ name=vieux
 smell=stink
 '''
     doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.to_source_string() )
+    self.assert_python_code_text_equal( text, doc.text )
     expected = '''
 name=vieux
 
@@ -672,7 +690,7 @@ name=vieux
 smell=stink
 '''
     doc.add_line_break(2, count = 2)
-    self.assert_python_code_text_equal( expected, doc.to_source_string() )
+    self.assert_python_code_text_equal( expected, doc.text )
 
   def broken_test_add_line_break_with_section(self):
     doc = bc_ini_document('''
@@ -689,6 +707,33 @@ color=red
 
 [cheese]
 ''', doc.text )
+
+  def test_insert_one_token(self):
+    doc = bc_ini_document('''
+[fruit]
+name=apple
+color=red
+''')
+
+    self.assert_python_code_text_equal( '''
+ 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+ 1: t_section_name_begin:[:p=2,1:i=1
+ 2: t_section_name:fruit:p=2,2:i=2
+ 3: t_section_name_end:]:p=2,7:i=3
+ 4: t_line_break:[NL]:p=2,8:h=h_line_break:i=4
+ 5: t_key:name:p=3,1:i=5
+ 6: t_key_value_delimiter:=:p=3,5:i=6
+ 7: t_value:apple:p=3,6:i=7
+ 8: t_line_break:[NL]:p=3,11:h=h_line_break:i=8
+ 9: t_key:color:p=4,1:i=9
+10: t_key_value_delimiter:=:p=4,6:i=10
+11: t_value:red:p=4,7:i=11
+12: t_line_break:[NL]:p=4,10:h=h_line_break:i=12
+13: t_done::h=h_done:i=13
+''', doc.tokens.to_debug_str() )
+
+    #token = btl_lexer_token(
+# 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
     
 if __name__ == '__main__':
   unit_test.main()

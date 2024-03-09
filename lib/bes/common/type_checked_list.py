@@ -254,14 +254,20 @@ class type_checked_list(object):
     check.check_int(index)
     values = self._check_list(values)
 
+    top, bottom = self.partition_for_insert(index)
+    self._values = top + values + bottom
+    return index
+
+  def partition_for_insert(self, index):
+    check.check_int(index)
+
     if index < 0:
       index = len(self._values) + index + 1    
     
     top = self[0:index]
     bottom = self[index:]
-    self._values = top + values + bottom
-    return index
-    
+    return top, bottom
+  
   def clear(self):
     self._values = []
 

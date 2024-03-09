@@ -265,5 +265,15 @@ class btl_document(metaclass = ABCMeta):
     parser_options = parser_options or btl_parser_options()
     parser_options.source = filename
     return bc_ini_document(text, parser_options = parser_options)
-    
+
+  def insert_token(self, index, value):
+    insert_index = self._tokens.insert_token(index, value)
+    self.text = self.to_source_string()
+    return insert_index
+
+  def insert_tokens(self, index, values):
+    insert_index = self._tokens.insert_tokens(index, values)
+    self.text = self.to_source_string()
+    return insert_index
+  
 check.register_class(btl_document, include_seq = False)
