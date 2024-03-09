@@ -31,9 +31,9 @@ class btl_document(metaclass = ABCMeta):
     check.check_class(lexer_class)
     check.check_class(parser_class)
     
-    lexer = lexer_class()
+    self._lexer = lexer_class()
     self._parser_options = parser_options or btl_parser_options()
-    self._parser = parser_class(lexer)
+    self._parser = parser_class(self._lexer)
     self.text = text
     self._root_node = None
     self._tokens = None
@@ -68,6 +68,14 @@ class btl_document(metaclass = ABCMeta):
   def text(self, text):
     self._text = text
     self._line_break_str = self._determine_line_break_str(self._text)
+
+  @property
+  def lexer(self):
+    return self._lexer
+
+  @property
+  def parser(self):
+    return self._parser
   
   @property
   def line_break_str(self):
