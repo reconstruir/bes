@@ -124,5 +124,40 @@ color=red
 14: t_done::h=h_done:i=14
 ''', doc.tokens.to_debug_str() )
     
+  def test_insert_many_tokens_empty_doc(self):
+    doc = _test_document('')
+
+    self.assert_python_code_text_equal( '''
+0: t_done::h=h_done:i=0
+''', doc.tokens.to_debug_str() )
+
+    new_tokens = doc.lexer.lex_all('''
+price=cheap
+''')
+    new_tokens.pop(-1)    
+
+    self.assert_python_code_text_equal( '''
+0: t_line_break:[NL]:p=1,1:h=h_line_break
+1: t_key:price:p=2,1
+2: t_key_value_delimiter:=:p=2,6
+3: t_value:cheap:p=2,7
+4: t_line_break:[NL]:p=2,12:h=h_line_break
+''', new_tokens.to_debug_str() )
+
+    doc.insert_tokens(0, new_tokens)
+    
+    self.assertMultiLineEqual('''
+price=cheap
+''', doc.text )
+
+    self.assert_python_code_text_equal( '''
+0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+1: t_key:price:p=2,1:i=1
+2: t_key_value_delimiter:=:p=2,6:i=2
+3: t_value:cheap:p=2,7:i=3
+4: t_line_break:[NL]:p=2,12:h=h_line_break:i=4
+5: t_done::h=h_done:i=5
+''', doc.tokens.to_debug_str() )
+    
 if __name__ == '__main__':
   unit_test.main()

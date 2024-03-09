@@ -368,11 +368,16 @@ class btl_lexer_token_list(type_checked_list):
     top, bottom = self.partition_for_insert(index)
 
     new_tokens_line_delta = top.last_line
+    if new_tokens_line_delta == None:
+      new_tokens_line_delta = 0
     new_tokens_starting_index = len(top) + 0
     self._log.log_d(f'insert_tokens: new_tokens_line_delta={new_tokens_line_delta} new_tokens_starting_index={new_tokens_starting_index}')
     new_tokens.reorder(new_tokens_line_delta, new_tokens_starting_index)
 
-    bottom_line_delta = new_tokens.last_line - bottom.first_line + 1
+    if bottom.first_line:
+      bottom_line_delta = new_tokens.last_line - bottom.first_line + 1
+    else:
+      bottom_line_delta = new_tokens.last_line + 1
     bottom_starting_index = len(top) + len(new_tokens) + 0
     self._log.log_d(f'insert_tokens: bottom_line_delta={bottom_line_delta} bottom_starting_index={bottom_starting_index}')
     bottom.reorder(bottom_line_delta, bottom_starting_index)
