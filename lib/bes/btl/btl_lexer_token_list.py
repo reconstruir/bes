@@ -386,11 +386,4 @@ class btl_lexer_token_list(type_checked_list):
     self._log.log_d(f'insert_tokens: tokens after:\n{self.to_debug_str()}')
     return index
 
-  def reorder_indeces(self, starting_index):
-    check.check_int(starting_index)
-
-    for token in self:
-      token.index = starting_index
-      starting_index += 1
-  
 btl_lexer_token_list.register_check_class()  

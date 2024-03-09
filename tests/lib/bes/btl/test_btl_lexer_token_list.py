@@ -730,16 +730,16 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    l.reorder(9, 0)
+    l.reorder(0, 9)
     self.assertMultiLineEqual('''\
 0: fruit:dragonfruit:p=1,1:i=9
-1: fruit:orange:p=1,1:i=9
-2: color:orange:p=1,3:h=h_color:i=10
-3: flavor:weird:p=2,1:i=11
-4: price:expensive:p=2,4:i=12
-5: foo:1:p=3,1:i=13
-6: bar:2:p=5,1:i=14
-7: baz:3:p=5,6:i=15
+1: fruit:orange:p=1,1:i=10
+2: color:orange:p=1,3:h=h_color:i=11
+3: flavor:weird:p=2,1:i=12
+4: price:expensive:p=2,4:i=13
+5: foo:1:p=3,1:i=14
+6: bar:2:p=5,1:i=15
+7: baz:3:p=5,6:i=16
 ''', l.to_debug_str() )
 
   def test_reorder_line_only(self):
@@ -753,16 +753,16 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    l.reorder(0, 9)
+    l.reorder(9, 0)
     self.assertMultiLineEqual('''\
 0: fruit:dragonfruit:p=10,1:i=0
-1: fruit:orange:p=10,1:i=0
-2: color:orange:p=10,3:h=h_color:i=1
-3: flavor:weird:p=11,1:i=2
-4: price:expensive:p=11,4:i=3
-5: foo:1:p=12,1:i=4
-6: bar:2:p=14,1:i=5
-7: baz:3:p=14,6:i=6
+1: fruit:orange:p=10,1:i=1
+2: color:orange:p=10,3:h=h_color:i=2
+3: flavor:weird:p=11,1:i=3
+4: price:expensive:p=11,4:i=4
+5: foo:1:p=12,1:i=5
+6: bar:2:p=14,1:i=6
+7: baz:3:p=14,6:i=7
 ''', l.to_debug_str() )
     
 if __name__ == '__main__':

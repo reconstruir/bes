@@ -661,37 +661,6 @@ name=kiwi
 color=green
 ''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
 
-  def test_add_line_break(self):
-    text = '''
-name=vieux
-smell=stink
-'''
-    doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.text )
-    expected = '''
-name=vieux
-
-smell=stink
-'''
-    doc.add_line_break(2)
-    self.assert_python_code_text_equal( expected, doc.text )
-
-  def test_add_line_break_with_count(self):
-    text = '''
-name=vieux
-smell=stink
-'''
-    doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.text )
-    expected = '''
-name=vieux
-
-
-smell=stink
-'''
-    doc.add_line_break(2, count = 2)
-    self.assert_python_code_text_equal( expected, doc.text )
-
   def broken_test_add_line_break_with_section(self):
     doc = bc_ini_document('''
 [fruit]

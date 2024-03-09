@@ -158,6 +158,37 @@ price=cheap
 4: t_line_break:[NL]:p=2,12:h=h_line_break:i=4
 5: t_done::h=h_done:i=5
 ''', doc.tokens.to_debug_str() )
+
+  def test_add_line_break(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = _test_document(text)
+    self.assert_python_code_text_equal( text, doc.text )
+    expected = '''
+name=vieux
+
+smell=stink
+'''
+    doc.add_line_break(2)
+    self.assert_python_code_text_equal( expected, doc.text )
+
+  def test_add_line_break_with_count(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = _test_document(text)
+    self.assert_python_code_text_equal( text, doc.text )
+    expected = '''
+name=vieux
+
+
+smell=stink
+'''
+    doc.add_line_break(2, count = 2)
+    self.assert_python_code_text_equal( expected, doc.text )
     
 if __name__ == '__main__':
   unit_test.main()
