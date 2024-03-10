@@ -48,6 +48,10 @@ class btl_document(metaclass = ABCMeta):
   @abstractmethod
   def parser_class(clazz):
     raise NotImplementedError(f'parser_class')
+
+#  @abstractmethod
+#  def determine_insert_index(self, parent_node):
+#    raise NotImplementedError(f'determine_insert_index')
   
   @property
   def root_node(self):

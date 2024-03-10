@@ -71,7 +71,7 @@ class btl_parser_node_creator(object):
     self.log_d(f'parser: node set_token {node_name} {token.to_debug_str()}')
     self.check_has_node(node_name)
     node = self._nodes[node_name]
-    node.token = token #.clone()
+    node.token = token
 
   def set_token_empty_value(self, node_name, token_name, position):
     check.check_string(node_name)

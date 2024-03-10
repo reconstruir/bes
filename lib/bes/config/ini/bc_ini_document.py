@@ -98,14 +98,14 @@ class bc_ini_document(btl_document):
       #print(f'-----')
 #      poto = self._tokens.find_index_forwards_by_name(last_index + 1, 't_line_break', raise_error = False)
       #def find_index_forwards_by_name(self, index, token_name, negate = False, raise_error = False, error_message = None):
-      #skip_index_forwards(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
-      poto = self._tokens.skip_index_forwards(last_index + 1, 't_line_break', -1, raise_error = False)
+      #skip_index_forwards_by_name(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
+      poto = self._tokens.skip_index_forwards_by_name(last_index + 1, 't_line_break', -1, raise_error = False)
       self._log.log_d(f'_determine_section_value_insert_index: 1 poto={poto}')
       insert_index = poto
     else:
       section_end_token = self._tokens.find_forwards_by_name(last_index, 't_section_name_end')
       insert_index = section_end_token.index + 1
-      poto = self._tokens.skip_index_forwards(insert_index, 't_line_break', -1, raise_error = False)
+      poto = self._tokens.skip_index_forwards_by_name(insert_index, 't_line_break', -1, raise_error = False)
       self._log.log_d(f'_determine_section_value_insert_index: 2 poto={poto}')
       insert_index = poto + 1
       
@@ -142,14 +142,14 @@ class bc_ini_document(btl_document):
       #print(f'-----')
 #      poto = self._tokens.find_index_forwards_by_name(last_index + 1, 't_line_break', raise_error = False)
       #def find_index_forwards_by_name(self, index, token_name, negate = False, raise_error = False, error_message = None):
-      #skip_index_forwards(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
-      poto = self._tokens.skip_index_forwards(last_index + 1, 't_line_break', -1, raise_error = False)
+      #skip_index_forwards_by_name(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
+      poto = self._tokens.skip_index_forwards_by_name(last_index + 1, 't_line_break', -1, raise_error = False)
       self._log.log_d(f'_determine_section_insert_index: 1 poto={poto}')
       insert_index = poto
     else:
       section_end_token = self._tokens.find_forwards_by_name(last_index, 't_section_name_end')
       insert_index = section_end_token.index + 1
-      poto = self._tokens.skip_index_forwards(insert_index, 't_line_break', -1, raise_error = False)
+      poto = self._tokens.skip_index_forwards_by_name(insert_index, 't_line_break', -1, raise_error = False)
       self._log.log_d(f'_determine_section_insert_index: 2 poto={poto}')
       insert_index = poto + 1
       

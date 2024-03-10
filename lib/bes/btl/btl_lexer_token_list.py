@@ -227,7 +227,7 @@ class btl_lexer_token_list(type_checked_list):
                               raise_error = raise_error,
                               error_message = error_message)
 
-  def skip_index_forwards(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
+  def skip_index_forwards_by_name(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
     check.check_int(num)
     
     if index < 0:
