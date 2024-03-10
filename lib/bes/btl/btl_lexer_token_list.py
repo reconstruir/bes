@@ -13,6 +13,7 @@ from ..common.type_checked_list import type_checked_list
 from ..system.check import check
 
 from .btl_lexer_token import btl_lexer_token
+from .btl_lexer_token_list_skip import btl_lexer_token_list_skip
 
 class btl_lexer_token_list(type_checked_list):
 
@@ -227,6 +228,44 @@ class btl_lexer_token_list(type_checked_list):
                               raise_error = raise_error,
                               error_message = error_message)
 
+  def skip_index_right(self, starting_index, func, skip, negate = False, raise_error = False, error_message = None):
+    check.check_int(starting_index)
+    check.check_callable(func)
+    skip = check.check_btl_lexer_token_list_skip(skip)
+    check.check_bool(negate)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    self._log.log_d(f'skip_index_right: starting_index={starting_index} skip={skip.name}')
+    
+    if starting_index < 0:
+      starting_index = len(self._values) + starting_index + 1
+    #token_names = self._make_token_names_set(token_name)
+    tokens = self._values[starting_index:]
+    last_index = -1
+    count = 0
+    for next_index, token in enumerate(tokens, start = starting_index):
+      if skip == skip.ONE and count == 1:
+        return next_index
+      self._log.log_d(f'skip_index_right: next_index={next_index} count={count} token={token.to_debug_str()}')
+      token_result = func(token)
+      if negate:
+        token_result = not token_result
+      if token_result:
+        count += 1
+        self._log.log_d(f'skip_index_right: token_result={token_result} count={count}')
+      else:
+        self._log.log_d(f'skip_index_right: token_result={token_result} count={count}')
+        if skip in ( skip.ONE, skip.ONE_OR_MORE ):
+          if count >= 1:
+            return next_index
+          else:
+            return -1
+        elif skip == skip.ZERO_OR_MORE:
+          return next_index
+      last_index = next_index
+    return -1
+  
   def skip_index_forwards_by_name(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
     check.check_int(num)
     
