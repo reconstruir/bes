@@ -39,7 +39,6 @@ color=red
 6: t_key_value_delimiter:=:p=3,6:i=6
 7: t_value:red:p=3,7:i=7
 8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
-9: t_done::h=h_done:i=9
 ''', doc.tokens.to_debug_str() )
 
     new_token = btl_lexer_token('t_line_break', '\n', ( 1, 1 ), 'h_line_break', 666)
@@ -52,17 +51,16 @@ color=red
 ''', doc.text )
     
     self.assert_python_code_text_equal( '''
- 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
- 1: t_key:name:p=2,1:i=1
- 2: t_key_value_delimiter:=:p=2,5:i=2
- 3: t_value:apple:p=2,6:i=3
- 4: t_line_break:[NL]:p=2,11:h=h_line_break:i=4
- 5: t_line_break:[NL]:p=3,1:h=h_line_break:i=5
- 6: t_key:color:p=4,1:i=6
- 7: t_key_value_delimiter:=:p=4,6:i=7
- 8: t_value:red:p=4,7:i=8
- 9: t_line_break:[NL]:p=4,10:h=h_line_break:i=9
-10: t_done::h=h_done:i=10
+0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+1: t_key:name:p=2,1:i=1
+2: t_key_value_delimiter:=:p=2,5:i=2
+3: t_value:apple:p=2,6:i=3
+4: t_line_break:[NL]:p=2,11:h=h_line_break:i=4
+5: t_line_break:[NL]:p=3,1:h=h_line_break:i=5
+6: t_key:color:p=4,1:i=6
+7: t_key_value_delimiter:=:p=4,6:i=7
+8: t_value:red:p=4,7:i=8
+9: t_line_break:[NL]:p=4,10:h=h_line_break:i=9
 ''', doc.tokens.to_debug_str() )
 
   def test_insert_many_tokens(self):
@@ -81,7 +79,6 @@ color=red
 6: t_key_value_delimiter:=:p=3,6:i=6
 7: t_value:red:p=3,7:i=7
 8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
-9: t_done::h=h_done:i=9
 ''', doc.tokens.to_debug_str() )
 
     new_tokens = doc.lexer.lex_all('''
@@ -121,14 +118,12 @@ color=red
 11: t_key_value_delimiter:=:p=5,6:i=11
 12: t_value:red:p=5,7:i=12
 13: t_line_break:[NL]:p=5,10:h=h_line_break:i=13
-14: t_done::h=h_done:i=14
 ''', doc.tokens.to_debug_str() )
     
   def test_insert_many_tokens_empty_doc(self):
     doc = _test_document('')
 
     self.assert_python_code_text_equal( '''
-0: t_done::h=h_done:i=0
 ''', doc.tokens.to_debug_str() )
 
     new_tokens = doc.lexer.lex_all('''
@@ -156,7 +151,6 @@ price=cheap
 2: t_key_value_delimiter:=:p=2,6:i=2
 3: t_value:cheap:p=2,7:i=3
 4: t_line_break:[NL]:p=2,12:h=h_line_break:i=4
-5: t_done::h=h_done:i=5
 ''', doc.tokens.to_debug_str() )
 
   def test_add_line_break(self):
@@ -189,6 +183,6 @@ smell=stink
 '''
     doc.add_line_break(2, count = 2)
     self.assert_python_code_text_equal( expected, doc.text )
-    
+
 if __name__ == '__main__':
   unit_test.main()

@@ -362,8 +362,7 @@ class btl_lexer_token_list(type_checked_list):
     check.check_int(index)
     new_tokens = check.check_btl_lexer_token_list(new_tokens)
 
-    self._log.log_d(f'insert_tokens: new_tokens:\n{new_tokens.to_debug_str()}')
-    
+    self._log.log_d(f'insert_tokens: index={index} new_tokens:\n{new_tokens.to_debug_str()}')
     self._log.log_d(f'insert_tokens: tokens before:\n{self.to_debug_str()}')
     top, bottom = self.partition_for_insert(index)
 

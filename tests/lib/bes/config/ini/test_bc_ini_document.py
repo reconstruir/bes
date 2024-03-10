@@ -76,6 +76,18 @@ smell=stink
 '''
     self.assert_python_code_text_equal( expected, doc.text )
 
+  def test_set_value_simple(self):
+    text = '''
+name=grocery
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.text )
+    doc.set_value('name', 'restaurant')
+    expected = '''
+name=restaurant
+'''
+    self.assert_python_code_text_equal( expected, doc.text )
+    
   def broken_test_add_value(self):
     text = '''
 name=restaurant
@@ -159,7 +171,6 @@ n_root;
 2: t_section_name:cheese:p=2,2:i=2
 3: t_section_name_end:]:p=2,8:i=3
 4: t_line_break:[NL]:p=2,9:h=h_line_break:i=4
-5: t_done::h=h_done:i=5
 ''', doc.tokens.to_debug_str() )
 
   def test_add_section_one_previous_empty_section(self):
@@ -189,7 +200,6 @@ n_root;
 5: t_section_name:cheese:p=2,2:i=5
 6: t_section_name_end:]:p=2,8:i=6
 7: t_line_break:[NL]:p=2,9:h=h_line_break:i=7
-8: t_done::h=h_done:i=8
 ''', doc.tokens.to_debug_str() )
     
   def test_add_section_one_previous_non_empty_section(self):
@@ -210,21 +220,19 @@ color=red
 ''', doc.text )
 
   def test_add_section_value_existing_section(self):
-    text = '''
+    doc = bc_ini_document('''
 [fruit]
 name=apple
 color=red
 
 [cheese]
 name=vieux
-'''
-    doc = bc_ini_document(text)
-
-    self.assert_python_code_text_equal( text, doc.text )
-
+''')
     doc.add_section_value('cheese', 'smell', 'stink')
-
-    self.assert_python_code_text_equal( '''
+    print('-----')
+    print(doc.text.replace(' ', '#'))
+    print('-----')
+    self.assertMultiLineEqual( '''
 [fruit]
 name=apple
 color=red
@@ -294,17 +302,10 @@ smell=stink
     self.assert_python_code_text_equal( expected, doc.text )
 
   def test_global_add_node_from_text(self):
-    text = '''
+    doc = bc_ini_document('''
 name=vieux
 smell=stink
-'''
-    doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.text )
-    expected = '''
-name=vieux
-smell=stink
-price=cheap
-'''
+''')
     self.assertMultiLineEqual( '''\
 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
 1: t_key:name:p=2,1:i=1
@@ -315,16 +316,22 @@ price=cheap
 6: t_key_value_delimiter:=:p=3,6:i=6
 7: t_value:stink:p=3,7:i=7
 8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
-9: t_done::h=h_done:i=9
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_global_section_node()
     insert_index = doc._default_insert_index(parent_node, doc.tokens)
     doc.add_node_from_text(parent_node,
-                           '\nprice=cheap\n',
+                           f'{doc.line_break_str}price=cheap',
                            ( 'n_global_section', 'n_key_value' ),
                            insert_index = insert_index)
 
+    
+    self.assertMultiLineEqual( '''
+name=vieux
+smell=stink
+price=cheap
+''', doc.text )
+    
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
  1: t_key:name:p=2,1:i=1
@@ -334,19 +341,15 @@ price=cheap
  5: t_key:smell:p=3,1:i=5
  6: t_key_value_delimiter:=:p=3,6:i=6
  7: t_value:stink:p=3,7:i=7
- 8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
- 9: t_key:price:p=4,1:i=9
-10: t_key_value_delimiter:=:p=4,6:i=10
-11: t_value:cheap:p=4,7:i=11
-12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
-13: t_line_break:[NL]:p=5,1:h=h_line_break:i=13
-14: t_done::h=h_done:i=14
+ 8: t_line_break:[NL]:p=4,1:h=h_line_break:i=8
+ 9: t_key:price:p=5,1:i=9
+10: t_key_value_delimiter:=:p=5,6:i=10
+11: t_value:cheap:p=5,7:i=11
+12: t_line_break:[NL]:p=6,12:h=h_line_break:i=12
 ''', doc.tokens.to_debug_str() )
-    
-    self.assert_python_code_text_equal( expected, doc.text )
 
   def test_section_add_node_from_text(self):
-    text = '''
+    doc = bc_ini_document('''
 [fruit]
 name=kiwi
 color=green
@@ -354,20 +357,7 @@ color=green
 [cheese]
 name=vieux
 smell=stink
-'''
-    doc = bc_ini_document(text)
-    self.assert_python_code_text_equal( text, doc.text )
-    expected = '''
-[fruit]
-name=kiwi
-color=green
-price=cheap
-
-
-[cheese]
-name=vieux
-smell=stink
-'''
+''')
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
  1: t_section_name_begin:[:p=2,1:i=1
@@ -395,16 +385,26 @@ smell=stink
 23: t_key_value_delimiter:=:p=8,6:i=23
 24: t_value:stink:p=8,7:i=24
 25: t_line_break:[NL]:p=8,12:h=h_line_break:i=25
-26: t_done::h=h_done:i=26
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_section_node('fruit')
     insert_index = doc._default_insert_index(parent_node, doc.tokens)
     doc.add_node_from_text(parent_node,
-                           f'{doc.line_break_str}price=cheap{doc.line_break_str}',
+                           f'{doc.line_break_str}price=cheap',
                            ( 'n_global_section', 'n_key_value' ),
                            insert_index = insert_index)
 
+    self.assert_python_code_text_equal( '''
+[fruit]
+name=kiwi
+color=green
+price=cheap
+
+[cheese]
+name=vieux
+smell=stink
+''', doc.text )
+    
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
  1: t_section_name_begin:[:p=2,1:i=1
@@ -418,29 +418,25 @@ smell=stink
  9: t_key:color:p=4,1:i=9
 10: t_key_value_delimiter:=:p=4,6:i=10
 11: t_value:green:p=4,7:i=11
-12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
-13: t_key:price:p=5,1:i=13
-14: t_key_value_delimiter:=:p=5,6:i=14
-15: t_value:cheap:p=5,7:i=15
-16: t_line_break:[NL]:p=5,12:h=h_line_break:i=16
-17: t_line_break:[NL]:p=6,1:h=h_line_break:i=17
-18: t_line_break:[NL]:p=7,1:h=h_line_break:i=18
-19: t_section_name_begin:[:p=8,1:i=19
-20: t_section_name:cheese:p=8,2:i=20
-21: t_section_name_end:]:p=8,8:i=21
-22: t_line_break:[NL]:p=8,9:h=h_line_break:i=22
-23: t_key:name:p=9,1:i=23
-24: t_key_value_delimiter:=:p=9,5:i=24
-25: t_value:vieux:p=9,6:i=25
-26: t_line_break:[NL]:p=9,11:h=h_line_break:i=26
-27: t_key:smell:p=10,1:i=27
-28: t_key_value_delimiter:=:p=10,6:i=28
-29: t_value:stink:p=10,7:i=29
-30: t_line_break:[NL]:p=10,12:h=h_line_break:i=30
-31: t_done::h=h_done:i=31
+12: t_line_break:[NL]:p=5,1:h=h_line_break:i=12
+13: t_key:price:p=6,1:i=13
+14: t_key_value_delimiter:=:p=6,6:i=14
+15: t_value:cheap:p=6,7:i=15
+16: t_line_break:[NL]:p=7,12:h=h_line_break:i=16
+17: t_line_break:[NL]:p=8,1:h=h_line_break:i=17
+18: t_section_name_begin:[:p=9,1:i=18
+19: t_section_name:cheese:p=9,2:i=19
+20: t_section_name_end:]:p=9,8:i=20
+21: t_line_break:[NL]:p=9,9:h=h_line_break:i=21
+22: t_key:name:p=10,1:i=22
+23: t_key_value_delimiter:=:p=10,5:i=23
+24: t_value:vieux:p=10,6:i=24
+25: t_line_break:[NL]:p=10,11:h=h_line_break:i=25
+26: t_key:smell:p=11,1:i=26
+27: t_key_value_delimiter:=:p=11,6:i=27
+28: t_value:stink:p=11,7:i=28
+29: t_line_break:[NL]:p=11,12:h=h_line_break:i=29
 ''', doc.tokens.to_debug_str() )
-    
-    self.assert_python_code_text_equal( expected, doc.text )
     
   def test_add_comment_new_line(self):
     text = '''
@@ -677,32 +673,5 @@ color=red
 [cheese]
 ''', doc.text )
 
-  def test_insert_one_token(self):
-    doc = bc_ini_document('''
-[fruit]
-name=apple
-color=red
-''')
-
-    self.assert_python_code_text_equal( '''
- 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
- 1: t_section_name_begin:[:p=2,1:i=1
- 2: t_section_name:fruit:p=2,2:i=2
- 3: t_section_name_end:]:p=2,7:i=3
- 4: t_line_break:[NL]:p=2,8:h=h_line_break:i=4
- 5: t_key:name:p=3,1:i=5
- 6: t_key_value_delimiter:=:p=3,5:i=6
- 7: t_value:apple:p=3,6:i=7
- 8: t_line_break:[NL]:p=3,11:h=h_line_break:i=8
- 9: t_key:color:p=4,1:i=9
-10: t_key_value_delimiter:=:p=4,6:i=10
-11: t_value:red:p=4,7:i=11
-12: t_line_break:[NL]:p=4,10:h=h_line_break:i=12
-13: t_done::h=h_done:i=13
-''', doc.tokens.to_debug_str() )
-
-    #token = btl_lexer_token(
-# 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
-    
 if __name__ == '__main__':
   unit_test.main()

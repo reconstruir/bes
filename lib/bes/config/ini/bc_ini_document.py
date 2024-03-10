@@ -34,8 +34,14 @@ class bc_ini_document(btl_document):
     check.check_string(key)
     check.check_string(value)
 
+    self._log.log_d(f'set_value: key="{key}" value="{value}"')
+    self._log.log_d(f'set_value: tokens before:\n{self._tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'set_value: root_node before:\n{str(self._root_node)}', multi_line = True)
     kv_node = self._find_global_key_value_node(key, raise_error = True)
     self._key_value_node_modify_value(kv_node, value)
+    self._update_text()
+    self._log.log_d(f'set_value: tokens after:\n{self._tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'set_value: root_node after:\n{str(self._root_node)}', multi_line = True)
 
   def add_value(self, key, value):
     check.check_string(key)
@@ -43,9 +49,10 @@ class bc_ini_document(btl_document):
 
     global_section_node = self._find_global_section_node()
     text = f'{os.linesep}{key}={value}'
-    return self.add_node_from_text(global_section_node,
-                                   text,
-                                   ( 'n_global_section', 'n_key_value' ))
+    result = self.add_node_from_text(global_section_node,
+                                     text,
+                                     ( 'n_global_section', 'n_key_value' ))
+    return result
 
   def remove_value(self, key):
     check.check_string(key)
@@ -78,6 +85,7 @@ class bc_ini_document(btl_document):
       self.add_node_from_text(section_node,
                               f'{self.line_break_str}{key}={value}',
                               ( 'n_sections', 'n_key_value', ))
+    self._update_text()
 
   def _determine_section_value_insert_index(self, section_node):
     last_index = section_node.find_last_node().token.index

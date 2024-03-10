@@ -94,7 +94,7 @@ class btl_document(metaclass = ABCMeta):
     return line_numbers.add_line_numbers(self.text)
   
   def _do_parse(self):
-    self._root_node, self._tokens = self._parse_text(self._text, include_done = True)
+    self._root_node, self._tokens = self._parse_text(self._text)
     #self._log.log_d(f'=====:text:=====')
     #self._log.log_d(self._text)
     #self._log.log_d(f'================')
@@ -104,12 +104,16 @@ class btl_document(metaclass = ABCMeta):
     #self._log.log_d(f'================')
     assert self.text == self.to_source_string()
 
-  def _parse_text(self, text, include_done = False):
-    rv = self._parser.parse(text, options = self._parser_options)
-    if not include_done:
-      assert len(rv.tokens) > 0
-      rv.tokens.remove_by_index(-1)
-    return rv.root_node, rv.tokens
+  def _update_text(self):
+    new_text = self.to_source_string()
+    self.text = new_text
+    self._log.log_d(f'_update_text: new_text:\n====\n{new_text}\n====', multi_line = True)
+    
+  def _parse_text(self, text):
+    parser_result = self._parser.parse(text, options = self._parser_options)
+    assert parser_result.tokens[-1].name == 't_done'
+    parser_result.tokens.pop(-1)
+    return parser_result.root_node, parser_result.tokens
     
   def reitre_node(self,
                   parent_node,
@@ -140,7 +144,7 @@ class btl_document(metaclass = ABCMeta):
 
     parent_node.remove_child(node)
 
-    self.text = self._tokens.to_source_string()
+    self._update_text()
 
   @classmethod
   def _default_insert_index(clazz, parent_node, tokens):
@@ -168,10 +172,9 @@ class btl_document(metaclass = ABCMeta):
     if insert_index == None:
       insert_index = self._default_insert_index(parent_node, self._tokens)
     self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
-    
+
     new_root_node, new_tokens = self._parse_text(text)
     self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
-
     new_node = new_root_node.find_child_by_path(path)
     if not new_node:
       path_flat = ', '.join(list(path))
@@ -183,15 +186,10 @@ class btl_document(metaclass = ABCMeta):
     self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
     parent_node.add_child(new_node)
     self._log.log_d(f'add_node_from_text: self.root_node after:\n====\n{str(self.root_node)}\n====', multi_line = True)
-    real_insert_index = self._tokens.insert_values(insert_index, new_tokens)
+    real_insert_index = self._tokens.insert_tokens(insert_index, new_tokens)
     self._log.log_d(f'add_node_from_text: real_insert_index={real_insert_index}')
     self._log.log_d(f'add_node_from_text: self.tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
-    new_text = self.to_source_string()
-    self._log.log_d(f'add_node_from_text: new_text:\n====\n{new_text}\n====', multi_line = True)
-    self.text = new_text
-    # FIXME: reparse the document to fix the indeces.
-    # obviously this is inefficient.  better would be to renumber
-    self._do_parse()
+    self._update_text()
     return self._tokens[real_insert_index].position.line
 
   @cached_property
@@ -217,11 +215,9 @@ class btl_document(metaclass = ABCMeta):
 
     new_node, tokens = self._parse_text(text)
     assert insert_index >= 0
-    self._tokens.insert_values(insert_index, tokens)
+    insert_index = self._tokens.insert_tokens(insert_index, tokens)
     self.text = self.to_source_string()
-    # FIXME: reparse the document to fix the indeces.
-    # obviously this is inefficient.  better would be to renumber
-    self._do_parse()
+    return self._tokens[insert_index].position.line
 
   def add_line_break(self, line, count = 1):
     check.check_int(line)
@@ -231,12 +227,9 @@ class btl_document(metaclass = ABCMeta):
     self._log.log_d(f'add_line_break: line={line} insert_index={insert_index}')
     self._log.log_d(f'add_line_break: tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)        
     tokens = count * [ btl_lexer_token(name = 't_line_break', value = self.line_break_str) ]
-    self._tokens.insert_values(insert_index, tokens)
+    self._tokens.insert_tokens(insert_index, tokens)
     
     self.text = self.to_source_string()
-    # FIXME: reparse the document to fix the indeces.
-    # obviously this is inefficient.  better would be to renumber
-    self._do_parse()
     self._log.log_d(f'add_line_break: tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
     insert_line = self._tokens[insert_index].position.line
     self._log.log_d(f'add_line_break: insert_line={insert_line}')
