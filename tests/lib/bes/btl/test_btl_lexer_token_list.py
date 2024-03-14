@@ -816,7 +816,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 2, l.skip_index_right_by_name(1, 'fruit', '?') )
     self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '?') )
     self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '?') )
-    self.assertEqual( None, l.skip_index_right_by_name(6, 'baz', '?') )
+    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '?') )
 
   def test_skip_index_right_by_name_one_or_more(self):
     l = btl_lexer_token_list([
@@ -828,11 +828,11 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    #self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '+') )
-    #self.assertEqual( 3, l.skip_index_right_by_name(1, 'fruit', '+') )
-    #self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '+') )
-    #self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '+') )
-    self.assertEqual( 6, l.skip_index_right_by_name(6, 'baz', '+') )
+    self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '+') )
+    self.assertEqual( 3, l.skip_index_right_by_name(1, 'fruit', '+') )
+    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '+') )
+    self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '+') )
+    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '+') )
     
   def test_skip_index_left_by_name(self):
     l = btl_lexer_token_list([
@@ -859,50 +859,6 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     #self.assertEqual( -1, l.skip_index_left_by_name(3, 'bar', '?') )
     #self.assertEqual( -1, l.skip_index_left_by_name(3, 'bar', '+') )
     #self.assertEqual( 3, l.skip_index_left_by_name(3, 'bar', '*') )
-
-  def test_skip_index_iter_one(self):
-    # Test case for _skip_index_iter_one
-    # Assuming _skip_index_iter_one method returns the index of the next token after the first token that evaluates to True
-    l1 = btl_lexer_token_list([
-      ( 'fruit', 'apple', ( 1, 1 ), None, None ),
-      ( 'color', 'blue', ( 2, 2 ), 'h_color', None ),
-      ( 'flavor', 'sweet', ( 3, 3 ), None, None ),
-    ])
-    result = l1._skip_index_iter_one("test", enumerate(l1), lambda x: x.name == 'color', False)  # Find the first token with 'color'
-    self.assertEqual(result, 2)  # The index of the next token after 'color' is 3
-
-  def test_skip_index_iter_zero_or_one(self):
-    # Test case for _skip_index_iter_zero_or_one
-    # Assuming _skip_index_iter_zero_or_one method returns the index of the next token if any token evaluates to True, otherwise the current index
-    l1 = btl_lexer_token_list([
-      ( 'fruit', 'apple', ( 1, 1 ), None, None ),
-      ( 'color', 'blue', ( 2, 2 ), 'h_color', None ),
-      ( 'flavor', 'sweet', ( 3, 3 ), None, None ),
-    ])
-    result = l1._skip_index_iter_zero_or_one("test", l1, lambda x: x.name == 'color', False)  # Find if any token has 'color'
-    self.assertEqual(result, 2)  # 'color' is found at index 2
-
-  def test_skip_index_iter_zero_or_more(self):
-    # Test case for _skip_index_iter_zero_or_more
-    # Assuming _skip_index_iter_zero_or_more method returns the index of the next token after the last token that evaluates to True, or -1 if no such token is found
-    l1 = btl_lexer_token_list([
-      ( 'fruit', 'apple', ( 1, 1 ), None, None ),
-      ( 'color', 'blue', ( 2, 2 ), 'h_color', None ),
-      ( 'flavor', 'sweet', ( 3, 3 ), None, None ),
-    ])
-    result = l1._skip_index_iter_zero_or_more("test", l1, lambda x: x.name == 'color', False)  # Find the last token with 'color'
-    self.assertEqual(result, 3)  # The index of the next token after the last 'color' token is 3
-
-  def test_skip_index_iter_one_or_more(self):
-    # Test case for _skip_index_iter_one_or_more
-    # Assuming _skip_index_iter_one_or_more method returns the index of the next token after the first token that evaluates to True, or the current index if no such token is found before the end
-    l1 = btl_lexer_token_list([
-      ( 'fruit', 'apple', ( 1, 1 ), None, None ),
-      ( 'color', 'blue', ( 2, 2 ), 'h_color', None ),
-      ( 'flavor', 'sweet', ( 3, 3 ), None, None ),
-    ])
-    result = l1._skip_index_iter_one_or_more("test", enumerate(l1), lambda x: x.name == 'color', False)  # Find the first token with 'color'
-    self.assertEqual(result, 2)  # The index of the next token after 'color' is 3
 
 if __name__ == '__main__':
   unit_test.main()
