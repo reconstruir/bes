@@ -765,27 +765,6 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
 7: baz:3:p=14,6:i=7
 ''', l.to_debug_str() )
 
-  def xtest_skip_index_right_by_name(self):
-    l = btl_lexer_token_list([
-      ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
-      ( 'fruit', 'kiwi', ( 1, 3 ), 'h_color', 1 ),
-      ( 'fruit', 'blueberry', ( 2, 1 ), None, 2 ),
-      ( 'price', 'expensive', ( 2, 4 ), None, 3 ),
-      ( 'foo', '1', ( 3, 1 ), None, 4 ),
-      ( 'bar', '2', ( 5, 1 ), None, 5 ),
-      ( 'baz', '3', ( 5, 6 ), None, 6 ),
-    ])
-    self.assertEqual( 1, l.skip_index_right_by_name(0, 'fruit', '?') )
-    self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '+') )
-    self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '*') )
-    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '?') )
-    self.assertEqual( -1, l.skip_index_right_by_name(3, 'bar', '?') )
-    self.assertEqual( -1, l.skip_index_right_by_name(3, 'bar', '+') )
-    self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '*') )
-
-#  ONE_OR_MORE = '+'
-#  ZERO_OR_MORE = '*'
-    
   def test_skip_index_right_by_name_one(self):
     l = btl_lexer_token_list([
       ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
@@ -800,7 +779,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 2, l.skip_index_right_by_name(1, 'fruit', '1') )
     self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '1') )
     self.assertEqual( -1, l.skip_index_right_by_name(3, 'bar', '1') )
-    self.assertEqual( None, l.skip_index_right_by_name(6, 'baz', '1') )
+    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '1') )
 
   def test_skip_index_right_by_name_zero_or_one(self):
     l = btl_lexer_token_list([
@@ -817,6 +796,22 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '?') )
     self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '?') )
     self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '?') )
+    
+  def test_skip_index_right_by_name_zero_or_more(self):
+    l = btl_lexer_token_list([
+      ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
+      ( 'fruit', 'kiwi', ( 1, 3 ), 'h_color', 1 ),
+      ( 'fruit', 'blueberry', ( 2, 1 ), None, 2 ),
+      ( 'price', 'expensive', ( 2, 4 ), None, 3 ),
+      ( 'foo', '1', ( 3, 1 ), None, 4 ),
+      ( 'bar', '2', ( 5, 1 ), None, 5 ),
+      ( 'baz', '3', ( 5, 6 ), None, 6 ),
+    ])
+    self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '*') )
+    self.assertEqual( 3, l.skip_index_right_by_name(1, 'fruit', '*') )
+    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '*') )
+    self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '*') )
+    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '*') )
 
   def test_skip_index_right_by_name_one_or_more(self):
     l = btl_lexer_token_list([
@@ -833,32 +828,6 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '+') )
     self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '+') )
     self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '+') )
-    
-  def test_skip_index_left_by_name(self):
-    l = btl_lexer_token_list([
-      ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
-      ( 'fruit', 'kiwi', ( 1, 3 ), 'h_color', 1 ),
-      ( 'fruit', 'blueberry', ( 2, 1 ), None, 2 ),
-      ( 'price', 'expensive', ( 2, 4 ), None, 3 ),
-      ( 'foo', '1', ( 3, 1 ), None, 4 ),
-      ( 'bar', '2', ( 5, 1 ), None, 5 ),
-      ( 'baz', '3', ( 5, 6 ), None, 6 ),
-    ])
-    self.assertEqual( -1, l.skip_index_left_by_name(3, 'notthere', '*') )
-    return
-    self.assertEqual( 1, l.skip_index_left_by_name(2, 'fruit', '?') )
-    self.assertEqual( 0, l.skip_index_left_by_name(2, 'fruit', '*') )
-    self.assertEqual( 0, l.skip_index_left_by_name(2, 'fruit', '+') )
-    self.assertEqual( 2, l.skip_index_left_by_name(3, 'price', '?') )
-    self.assertEqual( -1, l.skip_index_left_by_name(3, 'notthere', '?') )
-    self.assertEqual( -1, l.skip_index_left_by_name(3, 'notthere', '*') )
-    self.assertEqual( -1, l.skip_index_left_by_name(3, 'notthere', '+') )
-    #self.assertEqual( 3, l.skip_index_left_by_name(0, 'fruit', '+') )
-    #self.assertEqual( 3, l.skip_index_left_by_name(0, 'fruit', '*') )
-    #self.assertEqual( 4, l.skip_index_left_by_name(3, 'price', '?') )
-    #self.assertEqual( -1, l.skip_index_left_by_name(3, 'bar', '?') )
-    #self.assertEqual( -1, l.skip_index_left_by_name(3, 'bar', '+') )
-    #self.assertEqual( 3, l.skip_index_left_by_name(3, 'bar', '*') )
 
 if __name__ == '__main__':
   unit_test.main()
