@@ -32,7 +32,7 @@ class bc_ini_document(btl_document_base):
   #@abstractmethod
   def determine_insert_index(self, parent_node, child_node, new_tokens):
     self._log.log_d(f'determine_insert_index: parent_node="{parent_node}" new_tokens="{new_tokens}"')
-    return self._default_insert_index(parent_node, self._tokens)
+    return self.default_insert_index(parent_node, self._tokens)
   
   def get_value(self, key):
     check.check_string(key)
@@ -131,7 +131,6 @@ class bc_ini_document(btl_document_base):
 
     section_node = self.find_section_node(section_name, raise_error = True)
     text = f'{os.linesep}{key}={value}'
-#    insert_index = self._determine_section_value_insert_index(section_node)
     return self.add_node_from_text(section_node,
                                    text,
                                    ( 'n_global_section', 'n_key_value'))
@@ -171,8 +170,6 @@ class bc_ini_document(btl_document_base):
     check.check_string(section_name)
 
     sections_node = self.root_node.find_child_by_name('n_sections')
-#    insert_index = self._determine_section_insert_index(sections_node)
-
     parts = []
     if line_break_before:
       parts.append(self.line_break_str)

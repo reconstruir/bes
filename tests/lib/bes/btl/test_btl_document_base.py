@@ -39,7 +39,8 @@ class _test_document(btl_document_base):
 
   #@abstractmethod
   def determine_insert_index(self, parent_node, child_node, new_tokens):
-    return self._default_insert_index(parent_node, self._tokens)
+    insert_index = self.default_insert_index(parent_node, self._tokens)
+    return insert_index
 
   def get_value(self, key):
     check.check_string(key)
@@ -289,6 +290,22 @@ color=red
 price=cheap
 ''', doc.text )
 
+  def xtest_add_value_with_line_breaks(self):
+    doc = _test_document('''
+name=apple
+color=red
+
+
+''')
+    doc.add_value('price', 'cheap')
+    self.assertMultiLineEqual('''
+name=apple
+color=red
+
+
+price=cheap
+''', doc.text )
+    
   def test_set_value(self):
     doc = _test_document('''
 name=apple

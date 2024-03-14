@@ -157,11 +157,11 @@ class btl_document_base(metaclass = ABCMeta):
     self._update_text()
 
   @classmethod
-  def _default_insert_index(clazz, parent_node, tokens):
+  def default_insert_index(clazz, parent_node, tokens):
     last_child = parent_node.find_last_node()
     if last_child and last_child.token:
       last_child_index = last_child.token.index
-      clazz._log.log_d(f'_default_insert_index: last_child_index={last_child_index}')
+      clazz._log.log_d(f'default_insert_index: last_child_index={last_child_index}')
       insert_index = last_child_index + 1
     elif parent_node.token:
       insert_index = parent_node.token.index + 1
