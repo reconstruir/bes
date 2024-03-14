@@ -5,14 +5,14 @@ import os.path as path
 
 from bes.system.check import check
 
-from bes.btl.btl_document import btl_document
+from bes.btl.btl_document_base import btl_document_base
 from bes.btl.btl_parser_options import btl_parser_options
 
 from .bc_ini_lexer import bc_ini_lexer
 from .bc_ini_parser import bc_ini_parser
 from .bc_ini_error import bc_ini_error
 
-class bc_ini_document(btl_document):
+class bc_ini_document(btl_document_base):
 
   @classmethod
   #@abstractmethod

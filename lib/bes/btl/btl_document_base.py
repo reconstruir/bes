@@ -18,9 +18,9 @@ from .btl_lexer_token import btl_lexer_token
 from abc import abstractmethod
 from abc import ABCMeta
 
-class btl_document(metaclass = ABCMeta):
+class btl_document_base(metaclass = ABCMeta):
 
-  _log = logger('btl_document')
+  _log = logger('btl_document_base')
   
   def __init__(self, text, parser_options = None):
     check.check_string(text)
@@ -281,4 +281,4 @@ class btl_document(metaclass = ABCMeta):
     self.text = self.to_source_string()
     return insert_index
   
-check.register_class(btl_document, include_seq = False)
+check.register_class(btl_document_base, include_seq = False)

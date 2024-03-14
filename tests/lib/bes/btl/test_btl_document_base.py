@@ -4,12 +4,12 @@
 from bes.testing.unit_test import unit_test
 
 from bes.btl.btl_lexer_token import btl_lexer_token
-from bes.btl.btl_document import btl_document
+from bes.btl.btl_document_base import btl_document_base
 
 from _test_simple_lexer import _test_simple_lexer
 from _test_simple_parser import _test_simple_parser
 
-class _test_document(btl_document):
+class _test_document(btl_document_base):
 
   @classmethod
   #@abstractmethod
@@ -21,7 +21,7 @@ class _test_document(btl_document):
   def parser_class(clazz):
     return _test_simple_parser
 
-class test_btl_document(unit_test):
+class test_btl_document_base(unit_test):
 
   def test_insert_one_token(self):
     doc = _test_document('''
