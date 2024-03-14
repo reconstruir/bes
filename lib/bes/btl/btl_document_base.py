@@ -20,10 +20,10 @@ from abc import ABCMeta
 
 class btl_document_base(metaclass = ABCMeta):
 
-  _log = logger('btl_document_base')
+  _log = logger('btl_document')
   
-  def __init__(self, text, parser_options = None):
-    check.check_string(text)
+  def __init__(self, text = None, parser_options = None):
+    check.check_string(text, allow_none = True)
     check.check_btl_parser_options(parser_options, allow_none = True)
 
     lexer_class = self.lexer_class()
@@ -34,7 +34,8 @@ class btl_document_base(metaclass = ABCMeta):
     self._lexer = lexer_class()
     self._parser_options = parser_options or btl_parser_options()
     self._parser = parser_class(self._lexer)
-    self.text = text
+    self._exception_class = self.exception_class()
+    self.text = text or ''
     self._root_node = None
     self._tokens = None
     self._do_parse()
@@ -49,10 +50,15 @@ class btl_document_base(metaclass = ABCMeta):
   def parser_class(clazz):
     raise NotImplementedError(f'parser_class')
 
-#  @abstractmethod
-#  def determine_insert_index(self, parent_node):
-#    raise NotImplementedError(f'determine_insert_index')
+  @classmethod
+  @abstractmethod
+  def exception_class(clazz):
+    raise NotImplementedError(f'exception_class')
   
+  @abstractmethod
+  def determine_insert_index(self, parent_node, child_node, new_tokens):
+    raise NotImplementedError(f'determine_insert_index')
+
   @property
   def root_node(self):
     return self._root_node
@@ -163,27 +169,24 @@ class btl_document_base(metaclass = ABCMeta):
       insert_index = 0
     return insert_index
     
-  def add_node_from_text(self, parent_node, text, path, insert_index = None):
+  def add_node_from_text(self, parent_node, text, path):
     'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
     check.check_string(text)
     check.check_tuple(path, check.STRING_TYPES)
-    check.check_int(insert_index, allow_none = True)
 
-    assert insert_index != None
+    path_flat = '/'.join(list(path))
     
-    self._log.log_d(f'add_node_from_text: insert_index={insert_index} text:\n====\n{text}\n====', multi_line = True)
-    if insert_index == None:
-      insert_index = self._default_insert_index(parent_node, self._tokens)
-    self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
-
+    self._log.log_d(f'add_node_from_text: path={path_flat} text:\n====\n{text}\n====', multi_line = True)
+    
     new_root_node, new_tokens = self._parse_text(text)
     self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
     new_node = new_root_node.find_child_by_path(path)
     if not new_node:
-      path_flat = ', '.join(list(path))
-      raise btl_document_error(f'Failed to find node with path: "{path_flat}"')
-
+      raise self._exception_class(f'Failed to find node with path: "{path_flat}"')
+    
+    insert_index = self.determine_insert_index(parent_node, new_node, new_tokens)
+    self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     self._log.log_d(f'add_node_from_text: self.root_node before:\n====\n{str(self.root_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: self.tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)    
     self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
@@ -258,7 +261,7 @@ class btl_document_base(metaclass = ABCMeta):
     
   @classmethod
   def load_file(clazz, filename, parser_options = None, codec = 'utf-8'):
-    check.check_btl_parser_options(parser_options)
+    check.check_btl_parser_options(parser_options, allow_none = True)
     
     if os.path.exists(filename):
       filename = bf_check.check_file(filename)
@@ -269,7 +272,7 @@ class btl_document_base(metaclass = ABCMeta):
       
     parser_options = parser_options or btl_parser_options()
     parser_options.source = filename
-    return bc_ini_document(text, parser_options = parser_options)
+    return clazz(text, parser_options = parser_options)
 
   def insert_token(self, index, value):
     insert_index = self._tokens.insert_token(index, value)

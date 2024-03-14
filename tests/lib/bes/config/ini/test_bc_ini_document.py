@@ -319,11 +319,9 @@ smell=stink
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_global_section_node()
-    insert_index = doc._default_insert_index(parent_node, doc.tokens)
     doc.add_node_from_text(parent_node,
                            f'{doc.line_break_str}price=cheap',
-                           ( 'n_global_section', 'n_key_value' ),
-                           insert_index = insert_index)
+                           ( 'n_global_section', 'n_key_value' ))
 
     
     self.assertMultiLineEqual( '''
@@ -388,11 +386,9 @@ smell=stink
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_section_node('fruit')
-    insert_index = doc._default_insert_index(parent_node, doc.tokens)
     doc.add_node_from_text(parent_node,
                            f'{doc.line_break_str}price=cheap',
-                           ( 'n_global_section', 'n_key_value' ),
-                           insert_index = insert_index)
+                           ( 'n_global_section', 'n_key_value' ))
 
     self.assert_python_code_text_equal( '''
 [fruit]
@@ -621,42 +617,6 @@ n_root;
         n_value;t_value:barolo:p=10,6:i=29    
 ''', str(doc.root_node) )
     
-  def broken_test_save_file(self):
-    doc = bc_ini_document('')
-    doc.add_section('cheese')
-    doc.add_section_value('cheese', 'name', 'cheddar')
-    doc.add_section_value('cheese', 'color', 'yellow')
-
-    doc.add_section('wine')
-    doc.add_section_value('wine', 'name', 'barolo')
-    line = doc.add_section_value('wine', 'color', 'red')
-    doc.add_line_break(line, count = 1)
-
-    doc.add_section('fruit')
-    doc.add_section_value('fruit', 'name', 'kiwi')
-    doc.add_section_value('fruit', 'color', 'green')
-
-#    doc.add_line_break(line1 + 1, count = 1)
-#    doc.add_line_break(line2 + 2, count = 2)
-    
-    tmp = self.make_temp_file(suffix = '.config', non_existent = True)
-    doc.save_file(tmp)
-
-    self.assert_text_file_equal('''
-[cheese]
-name=cheddar
-color=yellow
-
-[wine]
-name=barolo
-color=red
-
-
-[fruit]
-name=kiwi
-color=green
-''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
-
   def broken_test_add_line_break_with_section(self):
     doc = bc_ini_document('''
 [fruit]
