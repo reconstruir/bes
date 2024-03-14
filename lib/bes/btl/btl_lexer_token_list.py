@@ -273,6 +273,7 @@ class btl_lexer_token_list(type_checked_list):
         result = item.next_index
       else:
         return item.current_index
+    assert result != -1
     return result
 
   def _skip_index_iter_one_or_more(self, label, tokens, direction, func, negate):
@@ -282,15 +283,12 @@ class btl_lexer_token_list(type_checked_list):
     return item.next_index
 
   def skip_index(self, starting_index, direction, func, skip,
-                 negate = False, raise_error = False,
-                 error_message = None, label = None):
+                 negate = False, label = None):
     check.check_int(starting_index)
     direction = check.check_btl_lexer_token_list_direction(direction)
     check.check_callable(func)
     skip = check.check_btl_lexer_token_list_skip(skip)
     check.check_bool(negate)
-    check.check_bool(raise_error)
-    check.check_string(error_message, allow_none = True)
     check.check_string(label, allow_none = True, default_value = 'skip_index')
 
     self._log.log_d(f'{label}: starting_index={starting_index} direction={direction.name} skip={skip.name}')
@@ -309,47 +307,15 @@ class btl_lexer_token_list(type_checked_list):
     }
     return m[skip](label, tokens, direction, func, negate)
   
-  def skip_index_right(self, starting_index, func, skip, negate = False, raise_error = False, error_message = None):
-    return self.skip_index(starting_index, btl_lexer_token_list_direction.RIGHT, func, skip,
-                           negate = negate, raise_error = raise_error,
-                           error_message = error_message, label = 'skip_index_right')
-
-  def skip_index_left(self, starting_index, func, skip, negate = False, raise_error = False, error_message = None):
-    return self.skip_index(starting_index, btl_lexer_token_list_direction.LEFT, func, skip,
-                           negate = negate, raise_error = raise_error,
-                           error_message = error_message, label = 'skip_index_left')
-  
-  def skip_index_right_by_name(self, starting_index, token_name, skip, negate = False, raise_error = False, error_message = None):
-    check.check_int(starting_index)
-    check.check_string(token_name)
-    skip = check.check_btl_lexer_token_list_skip(skip)
-    check.check_bool(negate)
-    check.check_bool(raise_error)
-    check.check_string(error_message, allow_none = True)
-
+  def skip_index_by_name(self, starting_index, direction, token_name, skip,
+                         negate = False, label = None):
     token_names = self._make_token_names_set(token_name)
-    return self.skip_index_right(starting_index,
-                                 lambda token: token.name in token_names,
-                                 skip,
-                                 negate = negate,
-                                 raise_error = raise_error,
-                                 error_message = error_message)
-
-  def skip_index_left_by_name(self, starting_index, token_name, skip, negate = False, raise_error = False, error_message = None):
-    check.check_int(starting_index)
-    check.check_string(token_name)
-    skip = check.check_btl_lexer_token_list_skip(skip)
-    check.check_bool(negate)
-    check.check_bool(raise_error)
-    check.check_string(error_message, allow_none = True)
-
-    token_names = self._make_token_names_set(token_name)
-    return self.skip_index_left(starting_index,
-                                lambda token: token.name in token_names,
-                                skip,
-                                negate = negate,
-                                raise_error = raise_error,
-                                error_message = error_message)
+    return self.skip_index(starting_index,
+                           direction,
+                           lambda token: token.name in token_names,
+                           skip,
+                           negate = negate,
+                           label = 'skip_index_by_name')
   
   @classmethod
   def _make_find_index_error_message(clazz, index, error_message):

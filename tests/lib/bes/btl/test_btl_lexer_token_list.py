@@ -759,11 +759,11 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    self.assertEqual( 1, l.skip_index_right_by_name(0, 'fruit', '1') )
-    self.assertEqual( 2, l.skip_index_right_by_name(1, 'fruit', '1') )
-    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '1') )
-    self.assertEqual( -1, l.skip_index_right_by_name(3, 'bar', '1') )
-    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '1') )
+    self.assertEqual( 1, l.skip_index_by_name(0, 'right', 'fruit', '1') )
+    self.assertEqual( 2, l.skip_index_by_name(1, 'right', 'fruit', '1') )
+    self.assertEqual( 4, l.skip_index_by_name(3, 'right', 'price', '1') )
+    self.assertEqual( -1, l.skip_index_by_name(3, 'right', 'bar', '1') )
+    self.assertEqual( 7, l.skip_index_by_name(6, 'right', 'baz', '1') )
 
   def test_skip_index_right_by_name_zero_or_one(self):
     l = btl_lexer_token_list([
@@ -775,11 +775,11 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    self.assertEqual( 1, l.skip_index_right_by_name(0, 'fruit', '?') )
-    self.assertEqual( 2, l.skip_index_right_by_name(1, 'fruit', '?') )
-    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '?') )
-    self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '?') )
-    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '?') )
+    self.assertEqual( 1, l.skip_index_by_name(0, 'right', 'fruit', '?') )
+    self.assertEqual( 2, l.skip_index_by_name(1, 'right', 'fruit', '?') )
+    self.assertEqual( 4, l.skip_index_by_name(3, 'right', 'price', '?') )
+    self.assertEqual( 3, l.skip_index_by_name(3, 'right', 'bar', '?') )
+    self.assertEqual( 7, l.skip_index_by_name(6, 'right', 'baz', '?') )
     
   def test_skip_index_right_by_name_zero_or_more(self):
     l = btl_lexer_token_list([
@@ -791,11 +791,11 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '*') )
-    self.assertEqual( 3, l.skip_index_right_by_name(1, 'fruit', '*') )
-    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '*') )
-    self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '*') )
-    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '*') )
+    self.assertEqual( 3, l.skip_index_by_name(0, 'right', 'fruit', '*') )
+    self.assertEqual( 3, l.skip_index_by_name(1, 'right', 'fruit', '*') )
+    self.assertEqual( 4, l.skip_index_by_name(3, 'right', 'price', '*') )
+    self.assertEqual( 3, l.skip_index_by_name(3, 'right', 'bar', '*') )
+    self.assertEqual( 7, l.skip_index_by_name(6, 'right', 'baz', '*') )
 
   def test_skip_index_right_by_name_one_or_more(self):
     l = btl_lexer_token_list([
@@ -807,11 +807,11 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'bar', '2', ( 5, 1 ), None, 5 ),
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
-    self.assertEqual( 3, l.skip_index_right_by_name(0, 'fruit', '+') )
-    self.assertEqual( 3, l.skip_index_right_by_name(1, 'fruit', '+') )
-    self.assertEqual( 4, l.skip_index_right_by_name(3, 'price', '+') )
-    self.assertEqual( 3, l.skip_index_right_by_name(3, 'bar', '+') )
-    self.assertEqual( 7, l.skip_index_right_by_name(6, 'baz', '+') )
+    self.assertEqual( 3, l.skip_index_by_name(0, 'right', 'fruit', '+') )
+    self.assertEqual( 3, l.skip_index_by_name(1, 'right', 'fruit', '+') )
+    self.assertEqual( 4, l.skip_index_by_name(3, 'right', 'price', '+') )
+    self.assertEqual( 3, l.skip_index_by_name(3, 'right', 'bar', '+') )
+    self.assertEqual( 7, l.skip_index_by_name(6, 'right', 'baz', '+') )
 
 if __name__ == '__main__':
   unit_test.main()
