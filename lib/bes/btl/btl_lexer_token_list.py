@@ -251,12 +251,13 @@ class btl_lexer_token_list(type_checked_list):
     drained = [ ( i, token ) for i, token in it ]
     length = len(drained)
     for i, n in enumerate(drained):
-      if length > 1 and i < (length - 1):
+      if i < (length - 1):
         next_index = drained[i + 1][0]
       else:
-        next_index = None
+        next_index = next_index
       current_index, token = n
       yield token, current_index, last_index, next_index
+      last_index = current_index
     
   def _skip_index_iter_one(self, label, it, func, negate):
     for token, current_index, last_index, next_index in self._call_iter(label, it):
@@ -286,17 +287,12 @@ class btl_lexer_token_list(type_checked_list):
     return next_index
 
   def _skip_index_iter_one_or_more(self, label, it, func, negate):
-    first_iteration = True
     for token, current_index, last_index, next_index in self._call_iter(label, it):
       func_result = self._call_func(label, func, token, negate)
-      if func_result:
-        if first_iteration:
-          first_iteration = False
-        else:
-          return next_index
-      elif not first_iteration:
+      self._log.log_d(f'{label}: func_result={func_result} current_index={current_index} last_index={last_index} next_index={next_index} token={token.to_debug_str()}')      
+      if not func_result:
         return current_index
-    return -1
+    return last_index
   
   def skip_index_right(self, starting_index, func, skip, negate = False, raise_error = False, error_message = None):
     check.check_int(starting_index)
