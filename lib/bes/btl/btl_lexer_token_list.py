@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 from collections import OrderedDict
+from collections.abc import Iterator
 
 import io
 import json
@@ -228,6 +229,75 @@ class btl_lexer_token_list(type_checked_list):
                               raise_error = raise_error,
                               error_message = error_message)
 
+  def _skip_index_iter(self, label, it, func, skip, negate):
+    m = {
+      skip.ONE: self._skip_index_iter_one,
+      skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
+      skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
+      skip.ONE_OR_MORE: self._skip_index_iter_one_or_more,
+    }
+    return m[skip](label, it, func, negate)
+    
+  def _call_func(self, label, func, token, negate):
+    func_result = func(token)
+    if negate:
+      func_result = not func_result
+    #self._log.log_d(f'{label}: func_result={func_result}')
+    return func_result
+
+  def _call_iter(self, label, it):
+    last_index = None
+    next_index = None
+    drained = [ ( i, token ) for i, token in it ]
+    length = len(drained)
+    for i, n in enumerate(drained):
+      if length > 1 and i < (length - 1):
+        next_index = drained[i + 1][0]
+      else:
+        next_index = None
+      current_index, token = n
+      yield token, current_index, last_index, next_index
+    
+  def _skip_index_iter_one(self, label, it, func, negate):
+    for token, current_index, last_index, next_index in self._call_iter(label, it):
+      func_result = self._call_func(label, func, token, negate)
+      if func_result:
+        return next_index
+      else:
+        break
+    return -1
+
+  def _skip_index_iter_zero_or_one(self, label, it, func, negate):
+    for token, current_index, last_index, next_index in self._call_iter(label, it):
+      func_result = self._call_func(label, func, token, negate)
+      self._log.log_d(f'{label}: func_result={func_result} current_index={current_index} last_index={last_index} next_index={next_index} token={token.to_debug_str()}')      
+      if func_result:
+        return next_index
+      else:
+        return current_index
+    return -1
+
+  def _skip_index_iter_zero_or_more(self, label, it, func, negate):
+    next_index = -1
+    for token, current_index, last_index, next_index in self._call_iter(label, it):
+      func_result = self._call_func(label, func, token, negate)
+      if func_result:
+        next_index = next_index
+    return next_index
+
+  def _skip_index_iter_one_or_more(self, label, it, func, negate):
+    first_iteration = True
+    for token, current_index, last_index, next_index in self._call_iter(label, it):
+      func_result = self._call_func(label, func, token, negate)
+      if func_result:
+        if first_iteration:
+          first_iteration = False
+        else:
+          return next_index
+      elif not first_iteration:
+        return current_index
+    return -1
+  
   def skip_index_right(self, starting_index, func, skip, negate = False, raise_error = False, error_message = None):
     check.check_int(starting_index)
     check.check_callable(func)
@@ -240,31 +310,67 @@ class btl_lexer_token_list(type_checked_list):
     
     if starting_index < 0:
       starting_index = len(self._values) + starting_index + 1
-    #token_names = self._make_token_names_set(token_name)
+    indeces = range(starting_index, len(self._values))
     tokens = self._values[starting_index:]
-    last_index = -1
-    count = 0
-    for next_index, token in enumerate(tokens, start = starting_index):
-      if skip == skip.ONE and count == 1:
-        return next_index
-      self._log.log_d(f'skip_index_right: next_index={next_index} count={count} token={token.to_debug_str()}')
-      token_result = func(token)
-      if negate:
-        token_result = not token_result
-      if token_result:
-        count += 1
-        self._log.log_d(f'skip_index_right: token_result={token_result} count={count}')
-      else:
-        self._log.log_d(f'skip_index_right: token_result={token_result} count={count}')
-        if skip in ( skip.ONE, skip.ONE_OR_MORE ):
-          if count >= 1:
-            return next_index
-          else:
-            return -1
-        elif skip == skip.ZERO_OR_MORE:
-          return next_index
-      last_index = next_index
-    return -1
+    assert len(indeces) == len(tokens)
+    return self._skip_index_iter('skip_index_right',
+                                 zip(indeces, tokens),
+                                 func,
+                                 skip,
+                                 negate)
+
+  def skip_index_left(self, starting_index, func, skip, negate = False, raise_error = False, error_message = None):
+    check.check_int(starting_index)
+    check.check_callable(func)
+    skip = check.check_btl_lexer_token_list_skip(skip)
+    check.check_bool(negate)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    self._log.log_d(f'skip_index_left: starting_index={starting_index} skip={skip.name}')
+    
+    if starting_index < 0:
+      starting_index = len(self._values) + starting_index + 1
+    indeces = reversed(range(0, starting_index + 1))
+    tokens = reversed(self._values[0:starting_index  +1])
+    assert len(indeces) == len(tokens)
+    return self._skip_index_iter('skip_index_left',
+                                 zip(indeces, tokens),
+                                 func,
+                                 skip,
+                                 negate)
+  
+  def skip_index_right_by_name(self, starting_index, token_name, skip, negate = False, raise_error = False, error_message = None):
+    check.check_int(starting_index)
+    check.check_string(token_name)
+    skip = check.check_btl_lexer_token_list_skip(skip)
+    check.check_bool(negate)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    token_names = self._make_token_names_set(token_name)
+    return self.skip_index_right(starting_index,
+                                 lambda token: token.name in token_names,
+                                 skip,
+                                 negate = negate,
+                                 raise_error = raise_error,
+                                 error_message = error_message)
+
+  def skip_index_left_by_name(self, starting_index, token_name, skip, negate = False, raise_error = False, error_message = None):
+    check.check_int(starting_index)
+    check.check_string(token_name)
+    skip = check.check_btl_lexer_token_list_skip(skip)
+    check.check_bool(negate)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    token_names = self._make_token_names_set(token_name)
+    return self.skip_index_left(starting_index,
+                                lambda token: token.name in token_names,
+                                skip,
+                                negate = negate,
+                                raise_error = raise_error,
+                                error_message = error_message)
   
   def skip_index_forwards_by_name(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
     check.check_int(num)

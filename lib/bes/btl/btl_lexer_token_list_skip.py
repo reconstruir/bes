@@ -3,8 +3,9 @@
 from ..enum_util.checked_enum import checked_enum
 
 class btl_lexer_token_list_skip(checked_enum):
-  ONE = '?'
+  ONE = '1'
   ONE_OR_MORE = '+'
   ZERO_OR_MORE = '*'
+  ZERO_OR_ONE = '?'
 
 btl_lexer_token_list_skip.register_check_class()
