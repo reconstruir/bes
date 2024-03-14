@@ -351,32 +351,6 @@ class btl_lexer_token_list(type_checked_list):
                                 raise_error = raise_error,
                                 error_message = error_message)
   
-  def skip_index_forwards_by_name(self, index, token_name, num, negate = False, raise_error = False, error_message = None):
-    check.check_int(num)
-    
-    if index < 0:
-      index = len(self._values) + index + 1
-    token_names = self._make_token_names_set(token_name)
-    tokens = self._values[index:]
-    next_index = index
-    last_index = -1
-    count = 0
-    for token in tokens:
-      name_result = token.name in token_names
-      if negate:
-        name_result = not name_result
-      if name_result:
-        count += 1
-        if num > 0 and count == num:
-          return next_index
-      else:
-        if num < 0:
-          return last_index
-        return -1
-      last_index = next_index
-      next_index += 1
-    return -1
-  
   @classmethod
   def _make_find_index_error_message(clazz, index, error_message):
     msg = f'Token not found from index {index}'

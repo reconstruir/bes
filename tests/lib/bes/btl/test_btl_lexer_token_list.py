@@ -703,22 +703,6 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( None, l.first_line_to_index(4) )
     self.assertEqual( 5, l.first_line_to_index(5) )
     
-  def test_skip_index_forwards_by_name(self):
-    l = btl_lexer_token_list([
-      ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
-      ( 'fruit', 'orange', ( 1, 1 ), None, 0 ),
-      ( 'color', 'orange', ( 1, 3 ), 'h_color', 1 ),
-      ( 'flavor', 'weird', ( 2, 1 ), None, 2 ),
-      ( 'price', 'expensive', ( 2, 4 ), None, 3 ),
-      ( 'foo', '1', ( 3, 1 ), None, 4 ),
-      ( 'bar', '2', ( 5, 1 ), None, 5 ),
-      ( 'baz', '3', ( 5, 6 ), None, 6 ),
-    ])
-    self.assertEqual( 0, l.skip_index_forwards_by_name(0, 'fruit', 1) )
-    self.assertEqual( 1, l.skip_index_forwards_by_name(0, 'fruit', 2) )
-    self.assertEqual( -1, l.skip_index_forwards_by_name(0, 'fruit', 3) )
-    self.assertEqual( 1, l.skip_index_forwards_by_name(0, 'fruit', -1) )
-
   def test_reorder_index_only(self):
     l = btl_lexer_token_list([
       ( 'fruit', 'dragonfruit', ( 1, 1 ), None, 0 ),
