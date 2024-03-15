@@ -38,11 +38,11 @@ class _test_document(btl_document_base):
     return _test_document_error
 
   #@abstractmethod
-  def determine_insert_index(self, parent_node, child_node, new_tokens):
+  def insertion_instruction(self, parent_node, child_node, new_tokens):
     insert_index = self.default_insert_index(parent_node, self._tokens)
-    self._log.log_d(f'determine_insert_index: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'insertion_instruction: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
     skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
-    self._log.log_d(f'determine_insert_index: skipped_insert_index={skipped_insert_index}')
+    self._log.log_d(f'insertion_instruction: skipped_insert_index={skipped_insert_index}')
     return skipped_insert_index
 
   def get_value(self, key):

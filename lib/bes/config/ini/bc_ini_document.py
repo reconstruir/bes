@@ -30,8 +30,8 @@ class bc_ini_document(btl_document_base):
     return bc_ini_error
 
   #@abstractmethod
-  def determine_insert_index(self, parent_node, child_node, new_tokens):
-    self._log.log_d(f'determine_insert_index: parent_node="{parent_node}" new_tokens="{new_tokens}"')
+  def insertion_instruction(self, parent_node, child_node, new_tokens):
+    self._log.log_d(f'insertion_instruction: parent_node="{parent_node}" new_tokens="{new_tokens}"')
     return self.default_insert_index(parent_node, self._tokens)
   
   def get_value(self, key):

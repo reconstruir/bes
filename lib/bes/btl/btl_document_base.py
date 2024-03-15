@@ -56,8 +56,8 @@ class btl_document_base(metaclass = ABCMeta):
     raise NotImplementedError(f'exception_class')
   
   @abstractmethod
-  def determine_insert_index(self, parent_node, child_node, new_tokens):
-    raise NotImplementedError(f'determine_insert_index')
+  def insertion_instruction(self, parent_node, child_node, new_tokens):
+    raise NotImplementedError(f'insertion_instruction')
 
   @property
   def root_node(self):
@@ -185,7 +185,7 @@ class btl_document_base(metaclass = ABCMeta):
     if not new_node:
       raise self._exception_class(f'Failed to find node with path: "{path_flat}"')
     
-    insert_index = self.determine_insert_index(parent_node, new_node, new_tokens)
+    insert_index = self.insertion_instruction(parent_node, new_node, new_tokens)
     self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
     self._log.log_d(f'add_node_from_text: self.root_node before:\n====\n{str(self.root_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: self.tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)    
