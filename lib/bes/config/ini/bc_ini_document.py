@@ -7,6 +7,7 @@ from bes.system.check import check
 
 from bes.btl.btl_document_base import btl_document_base
 from bes.btl.btl_parser_options import btl_parser_options
+from bes.btl.btl_document_insertion import btl_document_insertion
 
 from .bc_ini_lexer import bc_ini_lexer
 from .bc_ini_parser import bc_ini_parser
@@ -30,9 +31,10 @@ class bc_ini_document(btl_document_base):
     return bc_ini_error
 
   #@abstractmethod
-  def insertion_instruction(self, parent_node, child_node, new_tokens):
-    self._log.log_d(f'insertion_instruction: parent_node="{parent_node}" new_tokens="{new_tokens}"')
-    return self.default_insert_index(parent_node, self._tokens)
+  def determine_insertion(self, parent_node, child_node, new_tokens):
+    self._log.log_d(f'determine_insertion: parent_node="{parent_node}" new_tokens="{new_tokens}"')
+    insert_index = self.default_insert_index(parent_node, self._tokens)
+    return btl_document_insertion(insert_index, True, True)
   
   def get_value(self, key):
     check.check_string(key)

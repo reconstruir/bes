@@ -5,7 +5,7 @@ from collections import namedtuple
 from ..common.tuple_util import tuple_util
 from ..system.check import check
     
-class btl_document_insert_instruction(namedtuple('btl_document_insert_instruction', 'index, left_line_break, right_line_break')):
+class btl_document_insertion(namedtuple('btl_document_insertion', 'index, left_line_break, right_line_break')):
 
   def __new__(clazz, index, left_line_break, right_line_break):
     check.check_int(index)
@@ -14,4 +14,4 @@ class btl_document_insert_instruction(namedtuple('btl_document_insert_instructio
     
     return clazz.__bases__[0].__new__(clazz, index, left_line_break, right_line_break)
 
-check.register_class(btl_document_insert_instruction, cast_func = btl_document_insert_instruction._check_cast_func)
+check.register_class(btl_document_insertion) #, cast_func = btl_document_insertion._check_cast_func)

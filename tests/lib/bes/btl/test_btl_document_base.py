@@ -7,6 +7,7 @@ from bes.testing.unit_test import unit_test
 
 from bes.btl.btl_lexer_token import btl_lexer_token
 from bes.btl.btl_document_base import btl_document_base
+from bes.btl.btl_document_insertion import btl_document_insertion
 
 from _test_simple_lexer import _test_simple_lexer
 from _test_simple_parser import _test_simple_parser
@@ -38,12 +39,12 @@ class _test_document(btl_document_base):
     return _test_document_error
 
   #@abstractmethod
-  def insertion_instruction(self, parent_node, child_node, new_tokens):
+  def determine_insertion(self, parent_node, child_node, new_tokens):
     insert_index = self.default_insert_index(parent_node, self._tokens)
-    self._log.log_d(f'insertion_instruction: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'determine_insertion: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
     skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
-    self._log.log_d(f'insertion_instruction: skipped_insert_index={skipped_insert_index}')
-    return skipped_insert_index
+    self._log.log_d(f'determine_insertion: skipped_insert_index={skipped_insert_index}')
+    return btl_document_insertion(skipped_insert_index, True, True)
 
   def get_value(self, key):
     check.check_string(key)
@@ -302,7 +303,6 @@ color=red
     self.assertMultiLineEqual('''
 name=apple
 color=red
-
 
 
 price=cheap''', doc.text )

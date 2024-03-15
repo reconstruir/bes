@@ -11,9 +11,10 @@ from ..text.line_numbers import line_numbers
 
 from .btl_comment_position import btl_comment_position
 from .btl_document_error import btl_document_error
+from .btl_document_insertion import btl_document_insertion
+from .btl_lexer_token import btl_lexer_token
 from .btl_parser_node import btl_parser_node
 from .btl_parser_options import btl_parser_options
-from .btl_lexer_token import btl_lexer_token
 
 from abc import abstractmethod
 from abc import ABCMeta
@@ -56,8 +57,8 @@ class btl_document_base(metaclass = ABCMeta):
     raise NotImplementedError(f'exception_class')
   
   @abstractmethod
-  def insertion_instruction(self, parent_node, child_node, new_tokens):
-    raise NotImplementedError(f'insertion_instruction')
+  def determine_insertion(self, parent_node, child_node, new_tokens):
+    raise NotImplementedError(f'determine_insertion')
 
   @property
   def root_node(self):
@@ -185,15 +186,15 @@ class btl_document_base(metaclass = ABCMeta):
     if not new_node:
       raise self._exception_class(f'Failed to find node with path: "{path_flat}"')
     
-    insert_index = self.insertion_instruction(parent_node, new_node, new_tokens)
-    self._log.log_d(f'add_node_from_text: insert_index={insert_index}')
+    insertion = self.determine_insertion(parent_node, new_node, new_tokens)
+    self._log.log_d(f'add_node_from_text: insertion={insertion}')
     self._log.log_d(f'add_node_from_text: self.root_node before:\n====\n{str(self.root_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: self.tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)    
     self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
     parent_node.add_child(new_node)
     self._log.log_d(f'add_node_from_text: self.root_node after:\n====\n{str(self.root_node)}\n====', multi_line = True)
-    real_insert_index = self._tokens.insert_tokens(insert_index, new_tokens)
+    real_insert_index = self._tokens.insert_tokens(insertion.index, new_tokens)
     self._log.log_d(f'add_node_from_text: real_insert_index={real_insert_index}')
     self._log.log_d(f'add_node_from_text: self.tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
     self._update_text()
