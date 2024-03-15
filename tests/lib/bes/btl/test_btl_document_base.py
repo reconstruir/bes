@@ -40,7 +40,10 @@ class _test_document(btl_document_base):
   #@abstractmethod
   def determine_insert_index(self, parent_node, child_node, new_tokens):
     insert_index = self.default_insert_index(parent_node, self._tokens)
-    return insert_index
+    self._log.log_d(f'determine_insert_index: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
+    skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
+    self._log.log_d(f'determine_insert_index: skipped_insert_index={skipped_insert_index}')
+    return skipped_insert_index
 
   def get_value(self, key):
     check.check_string(key)
@@ -68,11 +71,9 @@ class _test_document(btl_document_base):
     check.check_string(key)
     check.check_string(value)
 
-    text = f'{os.linesep}{key}={value}'
-    result = self.add_node_from_text(self.root_node,
-                                     text,
-                                     ( 'n_key_value', ))
-    return result
+    return self.add_node_from_text(self.root_node,
+                                   f'{key}={value}',
+                                   ( 'n_key_value', ))
 
   def remove_value(self, key):
     check.check_string(key)
@@ -290,7 +291,7 @@ color=red
 price=cheap
 ''', doc.text )
 
-  def xtest_add_value_with_line_breaks(self):
+  def test_add_value_with_line_breaks(self):
     doc = _test_document('''
 name=apple
 color=red
@@ -303,8 +304,8 @@ name=apple
 color=red
 
 
-price=cheap
-''', doc.text )
+
+price=cheap''', doc.text )
     
   def test_set_value(self):
     doc = _test_document('''
