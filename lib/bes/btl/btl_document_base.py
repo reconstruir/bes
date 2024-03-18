@@ -10,6 +10,7 @@ from ..files.bf_check import bf_check
 from ..text.line_numbers import line_numbers
 
 from .btl_comment_position import btl_comment_position
+from .btl_debug import btl_debug
 from .btl_document_error import btl_document_error
 from .btl_document_insertion import btl_document_insertion
 from .btl_lexer_token import btl_lexer_token
@@ -169,7 +170,30 @@ class btl_document_base(metaclass = ABCMeta):
     else:
       insert_index = 0
     return insert_index
-    
+
+  def _call_parse_text(self, parent_node, text, path):
+    path_flat = '/'.join(list(path))
+    new_root_node, new_tokens = self._parse_text(text)
+    new_node = new_root_node.find_child_by_path(path)
+    if not new_node:
+      raise self._exception_class(f'Failed to find node with path: "{path_flat}"')
+    insertion = self.determine_insertion(parent_node, new_node, new_tokens)
+
+    new_text = text
+    if insertion.left_line_break:
+      new_text = self.line_break_str + new_text
+    if insertion.right_line_break:
+      new_text = new_text + self.line_break_str
+    if text != new_text:
+      old_text_debug = btl_debug.make_debug_str(text)
+      new_text_debug = btl_debug.make_debug_str(new_text)
+      self._log.log_d(f'_call_parse_text: old_text={old_text_debug} new_text={new_text_debug}')
+      new_root_node, new_tokens = self._parse_text(new_text)
+      new_node = new_root_node.find_child_by_path(path)
+      if not new_node:
+        raise self._exception_class(f'Failed to find node with path: "{path_flat}"')
+    return insertion, new_node, new_tokens
+  
   def add_node_from_text(self, parent_node, text, path):
     'Parse text to a node tree and add that as a child of parent_node'
     check.check_btl_parser_node(parent_node)
@@ -179,14 +203,10 @@ class btl_document_base(metaclass = ABCMeta):
     path_flat = '/'.join(list(path))
     
     self._log.log_d(f'add_node_from_text: path={path_flat} text:\n====\n{text}\n====', multi_line = True)
+
+    insertion, new_node, new_tokens = self._call_parse_text(parent_node, text, path)
+    self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
     
-    new_root_node, new_tokens = self._parse_text(text)
-    self._log.log_d(f'add_node_from_text: new_root_node:\n====\n{str(new_root_node)}\n====', multi_line = True)
-    new_node = new_root_node.find_child_by_path(path)
-    if not new_node:
-      raise self._exception_class(f'Failed to find node with path: "{path_flat}"')
-    
-    insertion = self.determine_insertion(parent_node, new_node, new_tokens)
     self._log.log_d(f'add_node_from_text: insertion={insertion}')
     self._log.log_d(f'add_node_from_text: self.root_node before:\n====\n{str(self.root_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: self.tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)    
@@ -227,6 +247,9 @@ class btl_document_base(metaclass = ABCMeta):
     self.text = self.to_source_string()
     return self._tokens[insert_index].position.line
 
+  def _make_line_break_token(self):
+    return btl_lexer_token(name = 't_line_break', value = self.line_break_str)
+  
   def add_line_break(self, line, count = 1):
     check.check_int(line)
     check.check_int(count)
@@ -234,7 +257,7 @@ class btl_document_base(metaclass = ABCMeta):
     insert_index = self._tokens.last_line_to_index(line)
     self._log.log_d(f'add_line_break: line={line} insert_index={insert_index}')
     self._log.log_d(f'add_line_break: tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)        
-    tokens = count * [ btl_lexer_token(name = 't_line_break', value = self.line_break_str) ]
+    tokens = count * [ self._make_line_break_token() ]
     self._tokens.insert_tokens(insert_index, tokens)
     
     self.text = self.to_source_string()

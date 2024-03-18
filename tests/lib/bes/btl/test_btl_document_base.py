@@ -40,7 +40,12 @@ class _test_document(btl_document_base):
 
   #@abstractmethod
   def determine_insertion(self, parent_node, child_node, new_tokens):
+    if len(self.tokens) == 0:
+      return btl_document_insertion(0, False, True)
     insert_index = self.default_insert_index(parent_node, self._tokens)
+    if insert_index == len(self.tokens):
+      return btl_document_insertion(insert_index, False, False)
+    self._log.log_d(f'determine_insertion: self.tokens:\n{self.tokens.to_debug_str()}', multi_line = True)
     self._log.log_d(f'determine_insertion: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
     skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
     self._log.log_d(f'determine_insertion: skipped_insert_index={skipped_insert_index}')
@@ -249,30 +254,6 @@ name=vieux
 smell=stink
 ''', doc.text )
 
-  def test_save_file(self):
-    doc = _test_document()
-    doc.set_value('name', 'apple')
-    doc.set_value('color', 'red')
-    tmp = self.make_temp_file(suffix = '.config', non_existent = True)
-    doc.save_file(tmp)
-
-    self.assert_text_file_equal('''
-name=apple
-color=red
-''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
-
-  def test_load_file(self):
-    text = '''
-name=apple
-color=red
-'''    
-    tmp = self.make_temp_file(suffix = '.config', content = text)
-    doc = _test_document.load_file(tmp)
-    self.assertMultiLineEqual('''
-name=apple
-color=red
-''', doc.text )
-    
   def test_get_value(self):
     doc = _test_document('''
 name=apple
@@ -329,6 +310,32 @@ name=apple
 color=red
 price=cheap
 ''', doc.text )
+
+  def test_load_file(self):
+    text = '''
+name=apple
+color=red
+'''    
+    tmp = self.make_temp_file(suffix = '.config', content = text)
+    doc = _test_document.load_file(tmp)
+    self.assertMultiLineEqual('''
+name=apple
+color=red
+''', doc.text )
+    
+  def test_save_file(self):
+    doc = _test_document()
+    doc.set_value('name', 'apple')
+    doc.set_value('color', 'red')
+    tmp = self.make_temp_file(suffix = '.config', non_existent = True)
+    doc.save_file(tmp)
+
+    print(f'doc=_{doc.text}_')
+    
+    self.assert_text_file_equal('''\
+name=apple
+color=red
+''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
     
 if __name__ == '__main__':
   unit_test.main()

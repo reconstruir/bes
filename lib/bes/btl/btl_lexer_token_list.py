@@ -267,6 +267,7 @@ class btl_lexer_token_list(type_checked_list):
     return -1
 
   def _skip_index_iter_zero_or_more(self, label, tokens, direction, func, negate):
+    assert len(tokens) > 0
     result = -1
     for item in self._call_iter(label, tokens, direction, func, negate):
       if item.func_result:
@@ -296,16 +297,22 @@ class btl_lexer_token_list(type_checked_list):
     if starting_index < 0:
       starting_index = len(self._values) + starting_index + 1
     if direction == direction.RIGHT:
-      tokens = self._values[starting_index:]
+      tokens = btl_lexer_token_list(self._values[starting_index:])
     else:
-      tokens = [ n for n in reversed(self._values[0:starting_index + 1]) ]
+      tokens = btl_lexer_token_list([ n for n in reversed(self._values[0:starting_index + 1]) ])
+
+    self._log.log_d(f'{label}: self.tokens:\n{self.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'{label}: tokens for skip:\n{tokens.to_debug_str()}', multi_line = True)
+      
     m = {
       skip.ONE: self._skip_index_iter_one,
       skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
       skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
       skip.ONE_OR_MORE: self._skip_index_iter_one_or_more,
     }
-    return m[skip](label, tokens, direction, func, negate)
+    result = m[skip](label, tokens, direction, func, negate)
+    self._log.log_d(f'{label}: result={result}')
+    return result
   
   def skip_index_by_name(self, starting_index, direction, token_name, skip,
                          negate = False, label = None):
@@ -426,8 +433,8 @@ class btl_lexer_token_list(type_checked_list):
     check.check_int(index)
     new_tokens = check.check_btl_lexer_token_list(new_tokens)
 
-    self._log.log_d(f'insert_tokens: index={index} new_tokens:\n{new_tokens.to_debug_str()}')
-    self._log.log_d(f'insert_tokens: tokens before:\n{self.to_debug_str()}')
+    self._log.log_d(f'insert_tokens: index={index} new_tokens:\n{new_tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'insert_tokens: tokens before:\n{self.to_debug_str()}', multi_line = True)
     top, bottom = self.partition_for_insert(index)
 
     new_tokens_line_delta = top.last_line
