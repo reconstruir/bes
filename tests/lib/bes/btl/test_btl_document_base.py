@@ -336,6 +336,16 @@ color=red
 name=apple
 color=red
 ''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
+
+  def test_add_node_from_text(self):
+    doc = _test_document()
+    line = doc.add_node_from_text(doc.root_node,
+                                  f'name=apple',
+                                  ( 'n_key_value', ))
+    self.assertEqual( 1, line )
+    self.assertMultiLineEqual('''\
+name=apple
+''', doc.text )
     
 if __name__ == '__main__':
   unit_test.main()
