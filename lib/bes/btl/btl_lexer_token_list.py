@@ -267,14 +267,17 @@ class btl_lexer_token_list(type_checked_list):
     return -1
 
   def _skip_index_iter_zero_or_more(self, label, tokens, direction, func, negate):
-    assert len(tokens) > 0
     result = -1
     for item in self._call_iter(label, tokens, direction, func, negate):
       if item.func_result:
         result = item.next_index
       else:
         return item.current_index
-    assert result != -1
+    if result == -1:
+      if direction == direction.RIGHT:
+        result = len(tokens)
+      else:
+        result = 0
     return result
 
   def _skip_index_iter_one_or_more(self, label, tokens, direction, func, negate):

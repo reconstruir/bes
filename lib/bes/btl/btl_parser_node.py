@@ -26,15 +26,16 @@ class btl_parser_node(object):
   def __repr__(self):
     return self.to_string(0)
   
-  def to_string(self, depth = 0, indent = 2, rstrip = True):
+  def to_string(self, depth = 0, indent = 2, rstrip = True, recurse = True):
     buf = io.StringIO()
     buf.write(' ' * depth)
     token_str = str(self.token) if self.token else ''
     data_str = f'{self._name};{token_str}'
     buf.write(data_str)
     buf.write(os.linesep)
-    for child in self.children:
-      buf.write(child.to_string(depth + indent, rstrip = False))
+    if recurse:
+      for child in self.children:
+        buf.write(child.to_string(depth + indent, rstrip = False))
     result = buf.getvalue()
     if rstrip:
       result = result.rstrip()

@@ -877,6 +877,15 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 4, l.skip_index_by_name(3, 'left', 'price', '+') )
     self.assertEqual( 3, l.skip_index_by_name(3, 'left', 'bar', '+') )
     self.assertEqual( 7, l.skip_index_by_name(6, 'left', 'baz', '+') )
-    
+
+  def test_skip_index_by_name_zero_or_more_boundary(self):
+    l = btl_lexer_token_list([
+      ( 't_line_break', '\n', ( 1, 1 ), 'h_line_break', 0 ),
+      ( 't_line_break', '\n', ( 2, 1 ), 'h_line_break', 1 ),
+    ])
+
+    self.assertEqual( 2, l.skip_index_by_name(1, 'right', 't_line_break', '*') )
+    self.assertEqual( 0, l.skip_index_by_name(0, 'left', 't_line_break', '*') )
+  
 if __name__ == '__main__':
   unit_test.main()

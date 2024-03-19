@@ -104,9 +104,17 @@ class btl_document_base(metaclass = ABCMeta):
   
   def text_to_debug_str(self):
     return line_numbers.add_line_numbers(self.text)
-  
+
+  def _log_nodes(self, label, name, n):
+    self._log.log_d(f'{label}: {name}:\n====\n{str(n)}\n====', multi_line = True)
+
+  def _log_tokens(self, label, name, tokens):
+    self._log.log_d(f'{label}: {name}:\n====\n{tokens.to_debug_str()}\n====', multi_line = True)
+    
   def _do_parse(self):
     self._root_node, self._tokens = self._parse_text(self._text)
+    self._log_nodes('_do_parse', 'root_node', self._root_node)
+    self._log_tokens('_do_parse', 'tokens', self._tokens)
     #self._log.log_d(f'=====:text:=====')
     #self._log.log_d(self._text)
     #self._log.log_d(f'================')
@@ -114,7 +122,10 @@ class btl_document_base(metaclass = ABCMeta):
     #self._log.log_d(f'=====:source:=====')
     #self._log.log_d(source_string)
     #self._log.log_d(f'================')
-    assert self.text == self.to_source_string()
+    if self._text != source_string:
+      debug_text = btl_debug.make_debug_str(self._text)
+      source_text = btl_debug.make_debug_str(source_string)
+      raise self._exception_class(f'Source and text do not match: text="{debug_text}" source="{source_text}"')
 
   def _update_text(self):
     new_text = self.to_source_string()
@@ -158,18 +169,29 @@ class btl_document_base(metaclass = ABCMeta):
 
     self._update_text()
 
-  @classmethod
-  def default_insert_index(clazz, parent_node, tokens):
+  def default_insert_index(self, parent_node, tokens):
     last_child = parent_node.find_last_node()
-    if last_child and last_child.token:
+    parent_node_str = parent_node.to_string(recurse = False)
+    last_child_str = last_child.to_string(recurse = False) if last_child else None
+    self._log.log_d(f'default_insert_index: parent_node={parent_node_str} last_child={last_child_str}')
+
+    result = None
+    if len(self.tokens) == 0:
+      self._log.log_d(f'default_insert_index: case 1: empty tokens')
+      result = 0
+    elif last_child and last_child.token:
+      self._log.log_d(f'default_insert_index: case 2: last child good')
       last_child_index = last_child.token.index
-      clazz._log.log_d(f'default_insert_index: last_child_index={last_child_index}')
-      insert_index = last_child_index + 1
+      self._log.log_d(f'default_insert_index: last_child_index={last_child_index}')
+      result = last_child_index + 1
     elif parent_node.token:
-      insert_index = parent_node.token.index + 1
+      self._log.log_d(f'default_insert_index: case 3: parent token good')
+      result = parent_node.token.index + 1
     else:
-      insert_index = 0
-    return insert_index
+      self._log.log_d(f'default_insert_index: case 4: whatever')
+      result = 0
+    self._log.log_d(f'default_insert_index: result={result}')
+    return result
 
   def _call_parse_text(self, parent_node, text, path):
     path_flat = '/'.join(list(path))
@@ -202,21 +224,18 @@ class btl_document_base(metaclass = ABCMeta):
 
     path_flat = '/'.join(list(path))
     
-    self._log.log_d(f'add_node_from_text: path={path_flat} text:\n====\n{text}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: path="{path_flat}" text:\n====\n{text}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: root_node before insertion:\n====\n{str(self.root_node)}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: tokens before insertion:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
 
     insertion, new_node, new_tokens = self._call_parse_text(parent_node, text, path)
-    self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
-    
-    self._log.log_d(f'add_node_from_text: insertion={insertion}')
-    self._log.log_d(f'add_node_from_text: self.root_node before:\n====\n{str(self.root_node)}\n====', multi_line = True)
-    self._log.log_d(f'add_node_from_text: self.tokens before:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)    
+    self._log.log_d(f'add_node_from_text: insertion={insertion} new_node:\n====\n{str(new_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: new_node:\n====\n{str(new_node)}\n====', multi_line = True)
     self._log.log_d(f'add_node_from_text: new_tokens:\n====\n{new_tokens.to_debug_str()}\n====', multi_line = True)
     parent_node.add_child(new_node)
-    self._log.log_d(f'add_node_from_text: self.root_node after:\n====\n{str(self.root_node)}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: root_node after insertion:\n====\n{str(self.root_node)}\n====', multi_line = True)
     real_insert_index = self._tokens.insert_tokens(insertion.index, new_tokens)
-    self._log.log_d(f'add_node_from_text: real_insert_index={real_insert_index}')
-    self._log.log_d(f'add_node_from_text: self.tokens after:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
+    self._log.log_d(f'add_node_from_text: real_insert_index={real_insert_index} tokens after insertion:\n====\n{self._tokens.to_debug_str()}\n====', multi_line = True)
     self._update_text()
     return self._tokens[real_insert_index].position.line
 

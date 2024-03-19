@@ -40,16 +40,25 @@ class _test_document(btl_document_base):
 
   #@abstractmethod
   def determine_insertion(self, parent_node, child_node, new_tokens):
+    self._log.log_d(f'determine_insertion: parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'determine_insertion: self.tokens=\n{self.tokens.to_debug_str()}', multi_line = True)
+    result = None
     if len(self.tokens) == 0:
-      return btl_document_insertion(0, False, True)
-    insert_index = self.default_insert_index(parent_node, self._tokens)
-    if insert_index == len(self.tokens):
-      return btl_document_insertion(insert_index, False, False)
-    self._log.log_d(f'determine_insertion: self.tokens:\n{self.tokens.to_debug_str()}', multi_line = True)
-    self._log.log_d(f'determine_insertion: insert_index={insert_index} parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
-    skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
-    self._log.log_d(f'determine_insertion: skipped_insert_index={skipped_insert_index}')
-    return btl_document_insertion(skipped_insert_index, True, True)
+      self._log.log_d(f'determine_insertion: empty tokens')
+      result = btl_document_insertion(0, False, True)
+    else:
+      insert_index = self.default_insert_index(parent_node, self._tokens)
+      self._log.log_d(f'determine_insertion: insert_index={insert_index}')
+      if insert_index == len(self.tokens):
+        self._log.log_d(f'determine_insertion: at end of tokens')
+        result = btl_document_insertion(insert_index, False, False)
+      else:
+        skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
+        self._log.log_d(f'determine_insertion: skipped_insert_index={skipped_insert_index}')
+        result = btl_document_insertion(skipped_insert_index, True, True)
+    self._log.log_d(f'determine_insertion: result={result}')
+    assert result != None
+    return result
 
   def get_value(self, key):
     check.check_string(key)
@@ -346,6 +355,29 @@ color=red
     self.assertMultiLineEqual('''\
 name=apple
 ''', doc.text )
+
+  def test_add_node_from_text_existing_new_lines(self):
+    doc = _test_document('\n\n')
+#    print(f'doc:\n{str(doc.root_node)}')
+#    print(f'doc:\n{doc.tokens.to_debug_str()}')
+#    caca = doc.root_node.find_last_node()
+#    print(f'caca:\n{str(caca)}')
+    line = doc.add_node_from_text(doc.root_node,
+                                  f'name=apple',
+                                  ( 'n_key_value', ))
+#    self.assertEqual( 3, line )
+    self.assertMultiLineEqual('''
+
+name=apple
+''', doc.text )
+
+  def _call_default_insert_index(self, text):
+    doc = _test_document(text)
+    return doc.default_insert_index(doc.root_node, doc.tokens)
+  
+  def test_default_insert_index(self):
+    self.assertEqual( 0, self._call_default_insert_index('') )
+    self.assertEqual( 1, self._call_default_insert_index(f'{os.linesep}') )
     
 if __name__ == '__main__':
   unit_test.main()
