@@ -375,9 +375,22 @@ name=apple
     doc = _test_document(text)
     return doc.default_insert_index(doc.root_node, doc.tokens)
   
-  def test_default_insert_index(self):
+  def test_default_insert_index_empty(self):
     self.assertEqual( 0, self._call_default_insert_index('') )
-    self.assertEqual( 1, self._call_default_insert_index(f'{os.linesep}') )
+    
+  def test_default_insert_index_line_breaks_only(self):
+    self.assertEqual( 1, self._call_default_insert_index(f'\n') )
+    self.assertEqual( 2, self._call_default_insert_index(f'\n\n') )
+    self.assertEqual( 3, self._call_default_insert_index(f'\n\n\n') )
+
+  def test_default_insert_index_one_value_without_new_line(self):
+    self.assertEqual( 2, self._call_default_insert_index(f'fruit=apple') )
+    
+  def test_default_insert_index_one_value_with_new_line(self):
+    self.assertEqual( 3, self._call_default_insert_index(f'fruit=apple\n') )
+
+  def test_default_insert_index_two_values_with_new_lines(self):
+    self.assertEqual( 7, self._call_default_insert_index(f'fruit=apple\nflavor=tart\n') )
     
 if __name__ == '__main__':
   unit_test.main()

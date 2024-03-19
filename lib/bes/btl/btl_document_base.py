@@ -174,6 +174,8 @@ class btl_document_base(metaclass = ABCMeta):
     parent_node_str = parent_node.to_string(recurse = False)
     last_child_str = last_child.to_string(recurse = False) if last_child else None
     self._log.log_d(f'default_insert_index: parent_node={parent_node_str} last_child={last_child_str}')
+    self._log_nodes('default_insert_index', 'root_node', self._root_node)
+    self._log_tokens('default_insert_index', 'tokens', self._tokens)
 
     result = None
     if len(self.tokens) == 0:
@@ -189,7 +191,9 @@ class btl_document_base(metaclass = ABCMeta):
       result = parent_node.token.index + 1
     else:
       self._log.log_d(f'default_insert_index: case 4: whatever')
-      result = 0
+      skipped_insert_index = self._tokens.skip_index_by_name(0, 'right', 't_line_break', '*')
+      self._log.log_d(f'default_insert_index: skipped_insert_index={skipped_insert_index}')
+      result = skipped_insert_index
     self._log.log_d(f'default_insert_index: result={result}')
     return result
 
