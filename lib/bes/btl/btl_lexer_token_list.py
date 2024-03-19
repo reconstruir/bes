@@ -459,4 +459,34 @@ class btl_lexer_token_list(type_checked_list):
     self._log.log_d(f'insert_tokens: tokens after:\n{self.to_debug_str()}')
     return index
 
+  def starts_with_line_break(self):
+    if not self._values:
+      return False
+    return self[0].is_line_break()
+
+  def ends_with_line_break(self):
+    if not self._values:
+      return False
+    return self[-1].is_line_break()
+
+  def has_left_line_break(self, index):
+    if len(self) == 0:
+      return None
+    if index < 0:
+      return None
+    if index > len(self):
+      return None
+    if index == 0:
+      return None
+    return self[index - 1].is_line_break()
+
+  def has_right_line_break(self, index):
+    if len(self) == 0:
+      return None
+    if index < -1:
+      return None
+    if index >= (len(self) - 1):
+      return None
+    return self[index + 1].is_line_break()
+  
 btl_lexer_token_list.register_check_class()  

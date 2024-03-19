@@ -40,26 +40,9 @@ class _test_document(btl_document_base):
 
   #@abstractmethod
   def determine_insertion(self, parent_node, child_node, new_tokens):
-    self._log.log_d(f'determine_insertion: parent_node=\n{parent_node}\n new_tokens=\n{new_tokens.to_debug_str()}', multi_line = True)
-    self._log.log_d(f'determine_insertion: self.tokens=\n{self.tokens.to_debug_str()}', multi_line = True)
-    result = None
-    if len(self.tokens) == 0:
-      self._log.log_d(f'determine_insertion: empty tokens')
-      result = btl_document_insertion(0, False, True)
-    else:
-      insert_index = self.default_insert_index(parent_node, self._tokens)
-      self._log.log_d(f'determine_insertion: insert_index={insert_index}')
-      if insert_index == len(self.tokens):
-        self._log.log_d(f'determine_insertion: at end of tokens')
-        result = btl_document_insertion(insert_index, False, False)
-      else:
-        skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
-        self._log.log_d(f'determine_insertion: skipped_insert_index={skipped_insert_index}')
-        result = btl_document_insertion(skipped_insert_index, True, True)
-    self._log.log_d(f'determine_insertion: result={result}')
-    assert result != None
-    return result
-
+    default_insert_index = self.default_insert_index(parent_node, self._tokens)
+    return self.make_insertion(default_insert_index, new_tokens)
+  
   def get_value(self, key):
     check.check_string(key)
 
@@ -295,7 +278,8 @@ name=apple
 color=red
 
 
-price=cheap''', doc.text )
+price=cheap
+''', doc.text )
     
   def test_set_value(self):
     doc = _test_document('''
@@ -384,7 +368,7 @@ name=apple
     self.assertEqual( 3, self._call_default_insert_index(f'\n\n\n') )
 
   def test_default_insert_index_one_value_without_new_line(self):
-    self.assertEqual( 2, self._call_default_insert_index(f'fruit=apple') )
+    self.assertEqual( 3, self._call_default_insert_index(f'fruit=apple') )
     
   def test_default_insert_index_one_value_with_new_line(self):
     self.assertEqual( 3, self._call_default_insert_index(f'fruit=apple\n') )

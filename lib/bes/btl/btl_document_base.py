@@ -170,6 +170,8 @@ class btl_document_base(metaclass = ABCMeta):
     self._update_text()
 
   def default_insert_index(self, parent_node, tokens):
+    self._log.log_d(f'default_insert_index: parent_node=\n{parent_node}\n tokens=\n{tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'default_insert_index: self.tokens=\n{self.tokens.to_debug_str()}', multi_line = True)
     last_child = parent_node.find_last_node()
     parent_node_str = parent_node.to_string(recurse = False)
     last_child_str = last_child.to_string(recurse = False) if last_child else None
@@ -195,6 +197,10 @@ class btl_document_base(metaclass = ABCMeta):
       self._log.log_d(f'default_insert_index: skipped_insert_index={skipped_insert_index}')
       result = skipped_insert_index
     self._log.log_d(f'default_insert_index: result={result}')
+
+    assert result >= 0
+    assert result <= len(self._tokens)
+    
     return result
 
   def _call_parse_text(self, parent_node, text, path):
@@ -330,5 +336,41 @@ class btl_document_base(metaclass = ABCMeta):
     insert_index = self._tokens.insert_tokens(index, values)
     self.text = self.to_source_string()
     return insert_index
+
+  def make_insertion(self, insert_index, new_tokens):
+    result = None
+    if insert_index == len(self._tokens):
+      needs_left = self._need_left_line_break(insert_index, new_tokens)
+      needs_right = self._need_right_line_break(insert_index, new_tokens)
+      result = btl_document_insertion(insert_index, needs_left, needs_right)
+    else:
+      skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
+      self._log.log_d(f'make_insertion: skipped_insert_index={skipped_insert_index}')
+      needs_left = self._need_left_line_break(skipped_insert_index, new_tokens)
+      needs_right = self._need_right_line_break(skipped_insert_index, new_tokens)
+      result = btl_document_insertion(skipped_insert_index, needs_left, needs_right)
+    self._log.log_d(f'make_insertion: result={result}')
+    assert result != None
+    return result
+  
+  def _need_left_line_break(self, insert_index, new_tokens):
+    self._log.log_d(f'_need_left_line_break: insert_index={insert_index}')
+    new_tokens_starts_with_line_break = new_tokens.starts_with_line_break()
+    self._log.log_d(f'_need_left_line_break: new_tokens_starts_with_line_break={new_tokens_starts_with_line_break}')
+    tokens_has_left_line_break = self.tokens.has_left_line_break(insert_index)
+    self._log.log_d(f'_need_left_line_break: tokens_has_left_line_break={tokens_has_left_line_break}')
+    if new_tokens_starts_with_line_break:
+      return False
+    return tokens_has_left_line_break == False
+
+  def _need_right_line_break(self, insert_index, new_tokens):
+    self._log.log_d(f'_need_right_line_break: insert_index={insert_index}')
+    new_tokens_ends_with_line_break = new_tokens.ends_with_line_break()
+    self._log.log_d(f'_need_right_line_break: new_tokens_ends_with_line_break={new_tokens_ends_with_line_break}')
+    tokens_has_right_line_break = self.tokens.has_right_line_break(insert_index)
+    self._log.log_d(f'_need_right_line_break: tokens_has_right_line_break={tokens_has_right_line_break}')
+    if new_tokens_ends_with_line_break:
+      return False
+    return tokens_has_right_line_break in ( False, None )
   
 check.register_class(btl_document_base, include_seq = False)

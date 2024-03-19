@@ -32,9 +32,8 @@ class bc_ini_document(btl_document_base):
 
   #@abstractmethod
   def determine_insertion(self, parent_node, child_node, new_tokens):
-    self._log.log_d(f'determine_insertion: parent_node="{parent_node}" new_tokens="{new_tokens}"')
-    insert_index = self.default_insert_index(parent_node, self._tokens)
-    return btl_document_insertion(insert_index, True, True)
+    default_insert_index = self.default_insert_index(parent_node, self._tokens)
+    return self.make_insertion(default_insert_index, new_tokens)
   
   def get_value(self, key):
     check.check_string(key)

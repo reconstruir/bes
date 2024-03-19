@@ -883,9 +883,26 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 't_line_break', '\n', ( 1, 1 ), 'h_line_break', 0 ),
       ( 't_line_break', '\n', ( 2, 1 ), 'h_line_break', 1 ),
     ])
-
     self.assertEqual( 2, l.skip_index_by_name(1, 'right', 't_line_break', '*') )
     self.assertEqual( 0, l.skip_index_by_name(0, 'left', 't_line_break', '*') )
-  
+
+  def test_has_left_line_break(self):
+    l = btl_lexer_token_list([
+      ( 't_line_break', '\n', ( 1, 1 ), 'h_line_break', 0 ),
+      ( 't_line_break', '\n', ( 2, 1 ), 'h_line_break', 1 ),
+    ])
+    self.assertEqual( None, l.has_left_line_break(0) )
+    self.assertEqual( True, l.has_left_line_break(1) )
+    self.assertEqual( True, l.has_left_line_break(2) )
+
+  def test_has_right_line_break(self):
+    l = btl_lexer_token_list([
+      ( 't_line_break', '\n', ( 1, 1 ), 'h_line_break', 0 ),
+      ( 't_line_break', '\n', ( 2, 1 ), 'h_line_break', 1 ),
+    ])
+    self.assertEqual( True, l.has_right_line_break(-1) )
+    self.assertEqual( True, l.has_right_line_break(0) )
+    self.assertEqual( None, l.has_right_line_break(1) )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -247,6 +247,9 @@ class btl_lexer_token(object):
       return left, right
     elif left == 'i':
       return left, int(right)
+
+  def is_line_break(self):
+    return self.type_hint == 'h_line_break' or self.name == 't_line_break'
     
 check.register_class(btl_lexer_token, include_seq = False, cast_func = btl_lexer_token._check_cast_func)
   
