@@ -286,6 +286,12 @@ class btl_lexer_token_list(type_checked_list):
         return item.current_index
     return item.next_index
 
+  def _skip_index_iter_all_but_one(self, label, tokens, direction, func, negate):
+    for item in self._call_iter(label, tokens, direction, func, negate):
+      if not item.func_result:
+        return item.current_index # - direction.value
+    return item.next_index - direction.value
+
   def skip_index(self, starting_index, direction, func, skip,
                  negate = False, label = None):
     check.check_int(starting_index)
@@ -308,10 +314,11 @@ class btl_lexer_token_list(type_checked_list):
     self._log.log_d(f'{label}: tokens for skip:\n{tokens.to_debug_str()}', multi_line = True)
       
     m = {
+      skip.ALL_BUT_ONE: self._skip_index_iter_all_but_one,
       skip.ONE: self._skip_index_iter_one,
-      skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
-      skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
       skip.ONE_OR_MORE: self._skip_index_iter_one_or_more,
+      skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
+      skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
     }
     result = m[skip](label, tokens, direction, func, negate)
     self._log.log_d(f'{label}: result={result}')

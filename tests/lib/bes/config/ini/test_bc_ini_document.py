@@ -320,7 +320,7 @@ smell=stink
 
     parent_node = doc.find_global_section_node()
     doc.add_node_from_text(parent_node,
-                           f'{doc.line_break_str}price=cheap',
+                           f'price=cheap',
                            ( 'n_global_section', 'n_key_value' ))
 
     
@@ -339,11 +339,11 @@ price=cheap
  5: t_key:smell:p=3,1:i=5
  6: t_key_value_delimiter:=:p=3,6:i=6
  7: t_value:stink:p=3,7:i=7
- 8: t_line_break:[NL]:p=4,1:h=h_line_break:i=8
- 9: t_key:price:p=5,1:i=9
-10: t_key_value_delimiter:=:p=5,6:i=10
-11: t_value:cheap:p=5,7:i=11
-12: t_line_break:[NL]:p=6,12:h=h_line_break:i=12
+ 8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
+ 9: t_key:price:p=4,1:i=9
+10: t_key_value_delimiter:=:p=4,6:i=10
+11: t_value:cheap:p=4,7:i=11
+12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
 ''', doc.tokens.to_debug_str() )
 
   def test_section_add_node_from_text(self):
@@ -387,7 +387,7 @@ smell=stink
 
     parent_node = doc.find_section_node('fruit')
     doc.add_node_from_text(parent_node,
-                           f'{doc.line_break_str}price=cheap',
+                           f'price=cheap',
                            ( 'n_global_section', 'n_key_value' ))
 
     self.assert_python_code_text_equal( '''
@@ -400,7 +400,6 @@ price=cheap
 name=vieux
 smell=stink
 ''', doc.text )
-    
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
  1: t_section_name_begin:[:p=2,1:i=1
@@ -414,24 +413,24 @@ smell=stink
  9: t_key:color:p=4,1:i=9
 10: t_key_value_delimiter:=:p=4,6:i=10
 11: t_value:green:p=4,7:i=11
-12: t_line_break:[NL]:p=5,1:h=h_line_break:i=12
-13: t_key:price:p=6,1:i=13
-14: t_key_value_delimiter:=:p=6,6:i=14
-15: t_value:cheap:p=6,7:i=15
-16: t_line_break:[NL]:p=7,12:h=h_line_break:i=16
-17: t_line_break:[NL]:p=8,1:h=h_line_break:i=17
-18: t_section_name_begin:[:p=9,1:i=18
-19: t_section_name:cheese:p=9,2:i=19
-20: t_section_name_end:]:p=9,8:i=20
-21: t_line_break:[NL]:p=9,9:h=h_line_break:i=21
-22: t_key:name:p=10,1:i=22
-23: t_key_value_delimiter:=:p=10,5:i=23
-24: t_value:vieux:p=10,6:i=24
-25: t_line_break:[NL]:p=10,11:h=h_line_break:i=25
-26: t_key:smell:p=11,1:i=26
-27: t_key_value_delimiter:=:p=11,6:i=27
-28: t_value:stink:p=11,7:i=28
-29: t_line_break:[NL]:p=11,12:h=h_line_break:i=29
+12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
+13: t_key:price:p=5,1:i=13
+14: t_key_value_delimiter:=:p=5,6:i=14
+15: t_value:cheap:p=5,7:i=15
+16: t_line_break:[NL]:p=5,12:h=h_line_break:i=16
+17: t_line_break:[NL]:p=6,1:h=h_line_break:i=17
+18: t_section_name_begin:[:p=7,1:i=18
+19: t_section_name:cheese:p=7,2:i=19
+20: t_section_name_end:]:p=7,8:i=20
+21: t_line_break:[NL]:p=7,9:h=h_line_break:i=21
+22: t_key:name:p=8,1:i=22
+23: t_key_value_delimiter:=:p=8,5:i=23
+24: t_value:vieux:p=8,6:i=24
+25: t_line_break:[NL]:p=8,11:h=h_line_break:i=25
+26: t_key:smell:p=9,1:i=26
+27: t_key_value_delimiter:=:p=9,6:i=27
+28: t_value:stink:p=9,7:i=28
+29: t_line_break:[NL]:p=9,12:h=h_line_break:i=29
 ''', doc.tokens.to_debug_str() )
     
   def test_add_comment_new_line(self):

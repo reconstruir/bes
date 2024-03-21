@@ -187,7 +187,15 @@ class btl_document_base(metaclass = ABCMeta):
       self._log.log_d(f'default_insert_index: case 2: last child good')
       last_child_index = last_child.token.index
       self._log.log_d(f'default_insert_index: last_child_index={last_child_index}')
-      result = last_child_index + 1
+      first_insert_index = last_child_index + 1
+      self._log.log_d(f'default_insert_index: first_insert_index={first_insert_index}')
+      skipped_insert_index = self._tokens.skip_index_by_name(first_insert_index, 'right', 't_line_break', '*')
+      self._log.log_d(f'default_insert_index: skipped_insert_index={skipped_insert_index}')
+      num_skipped = skipped_insert_index - first_insert_index
+      self._log.log_d(f'default_insert_index: num_skipped={num_skipped}')
+      if num_skipped > 1:
+        skipped_insert_index -= 1
+      result = skipped_insert_index
     elif parent_node.token:
       self._log.log_d(f'default_insert_index: case 3: parent token good')
       result = parent_node.token.index + 1
@@ -346,6 +354,9 @@ class btl_document_base(metaclass = ABCMeta):
     else:
       skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
       self._log.log_d(f'make_insertion: skipped_insert_index={skipped_insert_index}')
+      #num_skipped = skipped_insert_index - insert_index
+      #if num_skipped >= 1:
+      #  skipped_insert_index -= 1
       needs_left = self._need_left_line_break(skipped_insert_index, new_tokens)
       needs_right = self._need_right_line_break(skipped_insert_index, new_tokens)
       result = btl_document_insertion(skipped_insert_index, needs_left, needs_right)
