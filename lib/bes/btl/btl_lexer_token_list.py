@@ -238,59 +238,54 @@ class btl_lexer_token_list(type_checked_list):
     #self._log.log_d(f'{label}: func_result={func_result}')
     return func_result
 
-  _iter_item = namedtuple('_iter_item', 'token, func_result, current_index, last_index, next_index')
   @classmethod
-  def _call_iter(clazz, label, tokens, direction, func, negate):
+  def _call_iter(clazz, label, tokens, func, negate):
     for token in tokens:
-      current_index = token.index
-      last_index = current_index - direction.value
-      next_index = current_index + direction.value
       func_result = clazz._call_func(label, func, token, negate)
-      clazz._log.log_d(f'{label}: func_result={func_result} current_index={current_index} last_index={last_index} next_index={next_index} token={token.to_debug_str()}')
-      item = clazz._iter_item(token, func_result, current_index, last_index, next_index)
-      yield item
+      clazz._log.log_d(f'{label}: func_result={func_result} token={token.to_debug_str()}')
+      yield func_result
     
-  def _skip_index_iter_one(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if item.func_result:
-        return item.next_index
+  def _skip_index_iter_one(self, label, tokens, func, negate):
+    result = 0
+    for func_result in self._call_iter(label, tokens, func, negate):
+      if func_result:
+        result = 1
       else:
         break
-    return -1
-
-  def _skip_index_iter_zero_or_one(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if item.func_result:
-        return item.next_index
-      else:
-        return item.current_index
-    return -1
-
-  def _skip_index_iter_zero_or_more(self, label, tokens, direction, func, negate):
-    result = -1
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if item.func_result:
-        result = item.next_index
-      else:
-        return item.current_index
-    if result == -1:
-      if direction == direction.RIGHT:
-        result = len(tokens)
-      else:
-        result = 0
     return result
 
-  def _skip_index_iter_one_or_more(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if not item.func_result:
-        return item.current_index
-    return item.next_index
+  def _skip_index_iter_zero_or_one(self, label, tokens, func, negate):
+    result = 0
+    for func_result in self._call_iter(label, tokens, func, negate):
+      if func_result:
+        result = 1
+      else:
+        result = 0
+      break
+    return result
 
-  def _skip_index_iter_all_but_one(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if not item.func_result:
-        return item.current_index # - direction.value
-    return item.next_index - direction.value
+  def _skip_index_iter_zero_or_more(self, label, tokens, func, negate):
+    result = 0
+    for func_result in self._call_iter(label, tokens, func, negate):
+      if func_result:
+        result += 1
+      else:
+        break
+    return result
+
+  def _skip_index_iter_one_or_more(self, label, tokens, func, negate):
+    result = self._skip_index_iter_zero_or_more(label, tokens, func, negate)
+    if result < 1:
+      return 0
+    return result
+
+  def _skip_index_iter_all_but_one(self, label, tokens, func, negate):
+    result = self._skip_index_iter_zero_or_more(label, tokens, func, negate)
+    if result >= 2:
+      result = result - 1
+    else:
+      result = 0
+    return result
 
   def skip_index(self, starting_index, direction, func, skip,
                  negate = False, label = None):
@@ -320,7 +315,13 @@ class btl_lexer_token_list(type_checked_list):
       skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
       skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
     }
-    result = m[skip](label, tokens, direction, func, negate)
+    num_skipped = m[skip](label, tokens, func, negate)
+    self._log.log_d(f'{label}: num_skipped={num_skipped} len={len(tokens)}')
+    assert num_skipped >= 0
+    assert num_skipped <= len(tokens)
+    result = starting_index + (num_skipped * direction.value)
+    if result == -1:
+      result = 0
     self._log.log_d(f'{label}: result={result}')
     return result
   

@@ -762,7 +762,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
     self.assertEqual( 1, l.skip_index_by_name(0, 'right', 'fruit', '1') )
     self.assertEqual( 2, l.skip_index_by_name(1, 'right', 'fruit', '1') )
     self.assertEqual( 4, l.skip_index_by_name(3, 'right', 'price', '1') )
-    self.assertEqual( -1, l.skip_index_by_name(3, 'right', 'bar', '1') )
+    self.assertEqual( 3, l.skip_index_by_name(3, 'right', 'bar', '1') )
     self.assertEqual( 7, l.skip_index_by_name(6, 'right', 'baz', '1') )
 
   def test_skip_index_right_by_name_zero_or_one(self):
