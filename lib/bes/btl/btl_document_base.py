@@ -185,7 +185,6 @@ class btl_document_base(metaclass = ABCMeta):
       result = 0
     elif last_child and last_child.token:
       self._log.log_d(f'default_insert_index: case 2: last child good')
-      #assert False
       last_child_index = last_child.token.index
       self._log.log_d(f'default_insert_index: last_child_index={last_child_index}')
       first_insert_index = last_child_index + 1

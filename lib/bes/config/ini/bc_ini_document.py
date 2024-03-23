@@ -33,7 +33,13 @@ class bc_ini_document(btl_document_base):
   #@abstractmethod
   def determine_insertion(self, parent_node, child_node, new_tokens):
     default_insert_index = self.default_insert_index(parent_node, self._tokens)
-    return self.make_insertion(default_insert_index, new_tokens)
+    insertion = self.make_insertion(default_insert_index, new_tokens)
+    if parent_node.token and parent_node.token.name == 't_section_name':
+      line_break_boundary_index = self.tokens.skip_index_by_name(insertion.index - 1, 'left', 't_line_break', '*')
+      num_line_breaks = insertion.index - 1 - line_break_boundary_index
+      if num_line_breaks > 1:
+        insertion = insertion.clone_change_index(- (num_line_breaks - 1))
+    return insertion
   
   def get_value(self, key):
     check.check_string(key)

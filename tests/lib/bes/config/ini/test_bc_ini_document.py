@@ -338,7 +338,7 @@ price=cheap
 name=vieux
 ''', doc.text )
     
-  def test_section_add_node_from_text_with_line_break(self):
+  def test_section_add_node_from_text_with_one_line_break(self):
     doc = bc_ini_document('''
 [fruit]
 name=kiwi
@@ -354,8 +354,32 @@ name=vieux
     self.assert_python_code_text_equal( '''
 [fruit]
 name=kiwi
-
 price=cheap
+
+[cheese]
+name=vieux
+''', doc.text )
+
+  def test_section_add_node_from_text_with_two_line_breaks(self):
+    doc = bc_ini_document('''
+[fruit]
+name=kiwi
+
+
+[cheese]
+name=vieux
+''')
+    parent_node = doc.find_section_node('fruit')
+    doc.add_node_from_text(parent_node,
+                           f'price=cheap',
+                           ( 'n_global_section', 'n_key_value' ))
+
+    self.assert_python_code_text_equal( '''
+[fruit]
+name=kiwi
+price=cheap
+
+
 [cheese]
 name=vieux
 ''', doc.text )
