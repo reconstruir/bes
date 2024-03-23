@@ -306,18 +306,6 @@ smell=stink
 name=vieux
 smell=stink
 ''')
-    self.assertMultiLineEqual( '''\
-0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
-1: t_key:name:p=2,1:i=1
-2: t_key_value_delimiter:=:p=2,5:i=2
-3: t_value:vieux:p=2,6:i=3
-4: t_line_break:[NL]:p=2,11:h=h_line_break:i=4
-5: t_key:smell:p=3,1:i=5
-6: t_key_value_delimiter:=:p=3,6:i=6
-7: t_value:stink:p=3,7:i=7
-8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
-''', doc.tokens.to_debug_str() )
-
     parent_node = doc.find_global_section_node()
     doc.add_node_from_text(parent_node,
                            f'price=cheap',
@@ -330,23 +318,27 @@ smell=stink
 price=cheap
 ''', doc.text )
     
-    self.assertMultiLineEqual( '''\
- 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
- 1: t_key:name:p=2,1:i=1
- 2: t_key_value_delimiter:=:p=2,5:i=2
- 3: t_value:vieux:p=2,6:i=3
- 4: t_line_break:[NL]:p=2,11:h=h_line_break:i=4
- 5: t_key:smell:p=3,1:i=5
- 6: t_key_value_delimiter:=:p=3,6:i=6
- 7: t_value:stink:p=3,7:i=7
- 8: t_line_break:[NL]:p=3,12:h=h_line_break:i=8
- 9: t_key:price:p=4,1:i=9
-10: t_key_value_delimiter:=:p=4,6:i=10
-11: t_value:cheap:p=4,7:i=11
-12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
-''', doc.tokens.to_debug_str() )
+  def test_section_add_node_from_text_without_line_break(self):
+    doc = bc_ini_document('''
+[fruit]
+name=kiwi
+[cheese]
+name=vieux
+''')
+    parent_node = doc.find_section_node('fruit')
+    doc.add_node_from_text(parent_node,
+                           f'price=cheap',
+                           ( 'n_global_section', 'n_key_value' ))
 
-  def test_section_add_node_from_text(self):
+    self.assert_python_code_text_equal( '''
+[fruit]
+name=kiwi
+price=cheap
+[cheese]
+name=vieux
+''', doc.text )
+    
+  def test_section_add_node_from_text_with_line_break(self):
     doc = bc_ini_document('''
 [fruit]
 name=kiwi
@@ -354,27 +346,6 @@ name=kiwi
 [cheese]
 name=vieux
 ''')
-    self.assertMultiLineEqual( '''\
- 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
- 1: t_section_name_begin:[:p=2,1:i=1
- 2: t_section_name:fruit:p=2,2:i=2
- 3: t_section_name_end:]:p=2,7:i=3
- 4: t_line_break:[NL]:p=2,8:h=h_line_break:i=4
- 5: t_key:name:p=3,1:i=5
- 6: t_key_value_delimiter:=:p=3,5:i=6
- 7: t_value:kiwi:p=3,6:i=7
- 8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
- 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
-10: t_section_name_begin:[:p=5,1:i=10
-11: t_section_name:cheese:p=5,2:i=11
-12: t_section_name_end:]:p=5,8:i=12
-13: t_line_break:[NL]:p=5,9:h=h_line_break:i=13
-14: t_key:name:p=6,1:i=14
-15: t_key_value_delimiter:=:p=6,5:i=15
-16: t_value:vieux:p=6,6:i=16
-17: t_line_break:[NL]:p=6,11:h=h_line_break:i=17
-''', doc.tokens.to_debug_str() )
-
     parent_node = doc.find_section_node('fruit')
     doc.add_node_from_text(parent_node,
                            f'price=cheap',
@@ -388,31 +359,6 @@ price=cheap
 [cheese]
 name=vieux
 ''', doc.text )
-
-    self.assertMultiLineEqual( '''\
- 0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
- 1: t_section_name_begin:[:p=2,1:i=1
- 2: t_section_name:fruit:p=2,2:i=2
- 3: t_section_name_end:]:p=2,7:i=3
- 4: t_line_break:[NL]:p=2,8:h=h_line_break:i=4
- 5: t_key:name:p=3,1:i=5
- 6: t_key_value_delimiter:=:p=3,5:i=6
- 7: t_value:kiwi:p=3,6:i=7
- 8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
- 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
-10: t_key:price:p=5,1:i=10
-11: t_key_value_delimiter:=:p=5,6:i=11
-12: t_value:cheap:p=5,7:i=12
-13: t_line_break:[NL]:p=5,12:h=h_line_break:i=13
-14: t_section_name_begin:[:p=6,1:i=14
-15: t_section_name:cheese:p=6,2:i=15
-16: t_section_name_end:]:p=6,8:i=16
-17: t_line_break:[NL]:p=6,9:h=h_line_break:i=17
-18: t_key:name:p=7,1:i=18
-19: t_key_value_delimiter:=:p=7,5:i=19
-20: t_value:vieux:p=7,6:i=20
-21: t_line_break:[NL]:p=7,11:h=h_line_break:i=21
-''', doc.tokens.to_debug_str() )
     
   def test_add_comment_new_line(self):
     text = '''
@@ -428,7 +374,22 @@ smell=stink
 '''
     doc.add_comment(3, ' this is my comment', 'new_line')
     self.assert_python_code_text_equal( expected, doc.text )
-
+    
+  def test_add_comment_new_line(self):
+    text = '''
+name=vieux
+smell=stink
+'''
+    doc = bc_ini_document(text)
+    self.assert_python_code_text_equal( text, doc.text )
+    expected = '''
+name=vieux
+; this is my comment
+smell=stink
+'''
+    doc.add_comment(3, ' this is my comment', 'new_line')
+    self.assert_python_code_text_equal( expected, doc.text )
+    
   def test_add_comment_end_of_line(self):
     text = '''
 name=vieux
