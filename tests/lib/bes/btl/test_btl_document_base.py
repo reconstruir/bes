@@ -281,7 +281,7 @@ color=red
 price=cheap
 ''', doc.text )
     
-  def test_set_value(self):
+  def test_set_value_existing_key(self):
     doc = _test_document('''
 name=apple
 color=red
@@ -292,7 +292,7 @@ name=kiwi
 color=red
 ''', doc.text )
 
-  def test_set_value(self):
+  def test_set_value_non_existent_key(self):
     doc = _test_document('''
 name=apple
 color=red
@@ -350,10 +350,7 @@ name=apple
                                   f'name=apple',
                                   ( 'n_key_value', ))
 #    self.assertEqual( 3, line )
-    self.assertMultiLineEqual('''
-
-name=apple
-''', doc.text )
+    self.assertMultiLineEqual('''\n\nname=apple\n''', doc.text )
 
   def _call_default_insert_index(self, text):
     doc = _test_document(text)
@@ -363,9 +360,9 @@ name=apple
     self.assertEqual( 0, self._call_default_insert_index('') )
     
   def test_default_insert_index_line_breaks_only(self):
-    self.assertEqual( 1, self._call_default_insert_index(f'\n') )
-    self.assertEqual( 2, self._call_default_insert_index(f'\n\n') )
-    self.assertEqual( 3, self._call_default_insert_index(f'\n\n\n') )
+    self.assertEqual( 0, self._call_default_insert_index(f'\n') )
+    self.assertEqual( 1, self._call_default_insert_index(f'\n\n') )
+    self.assertEqual( 2, self._call_default_insert_index(f'\n\n\n') )
 
   def test_default_insert_index_one_value_without_new_line(self):
     self.assertEqual( 3, self._call_default_insert_index(f'fruit=apple') )

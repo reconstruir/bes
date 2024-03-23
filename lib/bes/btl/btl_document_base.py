@@ -185,11 +185,12 @@ class btl_document_base(metaclass = ABCMeta):
       result = 0
     elif last_child and last_child.token:
       self._log.log_d(f'default_insert_index: case 2: last child good')
+      #assert False
       last_child_index = last_child.token.index
       self._log.log_d(f'default_insert_index: last_child_index={last_child_index}')
       first_insert_index = last_child_index + 1
       self._log.log_d(f'default_insert_index: first_insert_index={first_insert_index}')
-      skipped_insert_index = self._tokens.skip_index_by_name(first_insert_index, 'right', 't_line_break', '*')
+      skipped_insert_index = self._tokens.skip_index_by_name(first_insert_index, 'right', 't_line_break', '^')
       self._log.log_d(f'default_insert_index: skipped_insert_index={skipped_insert_index}')
       num_skipped = skipped_insert_index - first_insert_index
       self._log.log_d(f'default_insert_index: num_skipped={num_skipped}')
@@ -201,7 +202,7 @@ class btl_document_base(metaclass = ABCMeta):
       result = parent_node.token.index + 1
     else:
       self._log.log_d(f'default_insert_index: case 4: whatever')
-      skipped_insert_index = self._tokens.skip_index_by_name(0, 'right', 't_line_break', '*')
+      skipped_insert_index = self._tokens.skip_index_by_name(0, 'right', 't_line_break', '^')
       self._log.log_d(f'default_insert_index: skipped_insert_index={skipped_insert_index}')
       result = skipped_insert_index
     self._log.log_d(f'default_insert_index: result={result}')
@@ -347,18 +348,22 @@ class btl_document_base(metaclass = ABCMeta):
 
   def make_insertion(self, insert_index, new_tokens):
     result = None
+    self._log.log_d(f'make_insertion: insert_index={insert_index}')
+    self._log_tokens('make_insertion', 'new_tokens', new_tokens)
+    self._log_nodes('make_insertion', 'root_node', self._root_node)
+    self._log_tokens('make_insertion', 'tokens', self._tokens)
     if insert_index == len(self._tokens):
+      self._log.log_d(f'make_insertion: case 1')
       needs_left = self._need_left_line_break(insert_index, new_tokens)
       needs_right = self._need_right_line_break(insert_index, new_tokens)
       result = btl_document_insertion(insert_index, needs_left, needs_right)
     else:
+      self._log.log_d(f'make_insertion: case 2')
       skipped_insert_index = self.tokens.skip_index_by_name(insert_index, 'right', 't_line_break', '*')
       self._log.log_d(f'make_insertion: skipped_insert_index={skipped_insert_index}')
-      #num_skipped = skipped_insert_index - insert_index
-      #if num_skipped >= 1:
-      #  skipped_insert_index -= 1
       needs_left = self._need_left_line_break(skipped_insert_index, new_tokens)
       needs_right = self._need_right_line_break(skipped_insert_index, new_tokens)
+      self._log.log_d(f'make_insertion: needs_left={needs_left} needs_right={needs_right}')
       result = btl_document_insertion(skipped_insert_index, needs_left, needs_right)
     self._log.log_d(f'make_insertion: result={result}')
     assert result != None
@@ -371,8 +376,11 @@ class btl_document_base(metaclass = ABCMeta):
     tokens_has_left_line_break = self.tokens.has_left_line_break(insert_index)
     self._log.log_d(f'_need_left_line_break: tokens_has_left_line_break={tokens_has_left_line_break}')
     if new_tokens_starts_with_line_break:
-      return False
-    return tokens_has_left_line_break == False
+      result = False
+    else:
+      result = tokens_has_left_line_break == False
+    self._log.log_d(f'_need_left_line_break: CACA: result={result}')
+    return result
 
   def _need_right_line_break(self, insert_index, new_tokens):
     self._log.log_d(f'_need_right_line_break: insert_index={insert_index}')
@@ -381,7 +389,10 @@ class btl_document_base(metaclass = ABCMeta):
     tokens_has_right_line_break = self.tokens.has_right_line_break(insert_index)
     self._log.log_d(f'_need_right_line_break: tokens_has_right_line_break={tokens_has_right_line_break}')
     if new_tokens_ends_with_line_break:
-      return False
-    return tokens_has_right_line_break in ( False, None )
+      result = False
+    else:
+      result = tokens_has_right_line_break in ( False, None )
+    self._log.log_d(f'_need_right_line_break: CACA: result={result}')
+    return result
   
 check.register_class(btl_document_base, include_seq = False)

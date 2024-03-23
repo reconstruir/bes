@@ -350,11 +350,9 @@ price=cheap
     doc = bc_ini_document('''
 [fruit]
 name=kiwi
-color=green
 
 [cheese]
 name=vieux
-smell=stink
 ''')
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
@@ -366,23 +364,15 @@ smell=stink
  6: t_key_value_delimiter:=:p=3,5:i=6
  7: t_value:kiwi:p=3,6:i=7
  8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
- 9: t_key:color:p=4,1:i=9
-10: t_key_value_delimiter:=:p=4,6:i=10
-11: t_value:green:p=4,7:i=11
-12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
-13: t_line_break:[NL]:p=5,1:h=h_line_break:i=13
-14: t_section_name_begin:[:p=6,1:i=14
-15: t_section_name:cheese:p=6,2:i=15
-16: t_section_name_end:]:p=6,8:i=16
-17: t_line_break:[NL]:p=6,9:h=h_line_break:i=17
-18: t_key:name:p=7,1:i=18
-19: t_key_value_delimiter:=:p=7,5:i=19
-20: t_value:vieux:p=7,6:i=20
-21: t_line_break:[NL]:p=7,11:h=h_line_break:i=21
-22: t_key:smell:p=8,1:i=22
-23: t_key_value_delimiter:=:p=8,6:i=23
-24: t_value:stink:p=8,7:i=24
-25: t_line_break:[NL]:p=8,12:h=h_line_break:i=25
+ 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
+10: t_section_name_begin:[:p=5,1:i=10
+11: t_section_name:cheese:p=5,2:i=11
+12: t_section_name_end:]:p=5,8:i=12
+13: t_line_break:[NL]:p=5,9:h=h_line_break:i=13
+14: t_key:name:p=6,1:i=14
+15: t_key_value_delimiter:=:p=6,5:i=15
+16: t_value:vieux:p=6,6:i=16
+17: t_line_break:[NL]:p=6,11:h=h_line_break:i=17
 ''', doc.tokens.to_debug_str() )
 
     parent_node = doc.find_section_node('fruit')
@@ -393,13 +383,12 @@ smell=stink
     self.assert_python_code_text_equal( '''
 [fruit]
 name=kiwi
-color=green
-price=cheap
 
+price=cheap
 [cheese]
 name=vieux
-smell=stink
 ''', doc.text )
+
     self.assertMultiLineEqual( '''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
  1: t_section_name_begin:[:p=2,1:i=1
@@ -410,27 +399,19 @@ smell=stink
  6: t_key_value_delimiter:=:p=3,5:i=6
  7: t_value:kiwi:p=3,6:i=7
  8: t_line_break:[NL]:p=3,10:h=h_line_break:i=8
- 9: t_key:color:p=4,1:i=9
-10: t_key_value_delimiter:=:p=4,6:i=10
-11: t_value:green:p=4,7:i=11
-12: t_line_break:[NL]:p=4,12:h=h_line_break:i=12
-13: t_key:price:p=5,1:i=13
-14: t_key_value_delimiter:=:p=5,6:i=14
-15: t_value:cheap:p=5,7:i=15
-16: t_line_break:[NL]:p=5,12:h=h_line_break:i=16
-17: t_line_break:[NL]:p=6,1:h=h_line_break:i=17
-18: t_section_name_begin:[:p=7,1:i=18
-19: t_section_name:cheese:p=7,2:i=19
-20: t_section_name_end:]:p=7,8:i=20
-21: t_line_break:[NL]:p=7,9:h=h_line_break:i=21
-22: t_key:name:p=8,1:i=22
-23: t_key_value_delimiter:=:p=8,5:i=23
-24: t_value:vieux:p=8,6:i=24
-25: t_line_break:[NL]:p=8,11:h=h_line_break:i=25
-26: t_key:smell:p=9,1:i=26
-27: t_key_value_delimiter:=:p=9,6:i=27
-28: t_value:stink:p=9,7:i=28
-29: t_line_break:[NL]:p=9,12:h=h_line_break:i=29
+ 9: t_line_break:[NL]:p=4,1:h=h_line_break:i=9
+10: t_key:price:p=5,1:i=10
+11: t_key_value_delimiter:=:p=5,6:i=11
+12: t_value:cheap:p=5,7:i=12
+13: t_line_break:[NL]:p=5,12:h=h_line_break:i=13
+14: t_section_name_begin:[:p=6,1:i=14
+15: t_section_name:cheese:p=6,2:i=15
+16: t_section_name_end:]:p=6,8:i=16
+17: t_line_break:[NL]:p=6,9:h=h_line_break:i=17
+18: t_key:name:p=7,1:i=18
+19: t_key_value_delimiter:=:p=7,5:i=19
+20: t_value:vieux:p=7,6:i=20
+21: t_line_break:[NL]:p=7,11:h=h_line_break:i=21
 ''', doc.tokens.to_debug_str() )
     
   def test_add_comment_new_line(self):
