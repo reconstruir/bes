@@ -42,6 +42,8 @@ class test_python_virtual_env(unit_test):
     expected_pip_exe = path.join(expected_bin_dir, f'pip{expected_version}.exe')
     expected_path = [ expected_bin_dir ]
     actual_path = venv.installation.PATH
+    actual_exe = venv.installation.python_exe
+    actual_pip_exe = venv.installation.pip_exe
     actual_version = python_exe.version(actual_exe)
     return self._test(expected_version, actual_version, expected_path, actual_path,
                       expected_exe, actual_exe, expected_pip_exe, actual_pip_exe)
