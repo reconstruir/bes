@@ -9,10 +9,12 @@ from bes.fs.dir_cleanup import dir_cleanup
 from bes.fs.file_symlink import file_symlink
 from bes.property.cached_property import cached_property
 from bes.system.env_var import env_var
+from bes.system.env_override import env_override
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env
+from bes.url.url_util import url_util
 
 from .python_error import python_error
 from .python_exe import python_exe
@@ -31,10 +33,26 @@ class python_virtual_env(object):
 
     self._original_exe = exe
     self._original_version = python_exe.version(self._original_exe)
-    if self._original_version < '3.7':
-      raise python_error('Python version "{}" not supported.  Minimum supported version is 3.7.'.format(self._original_version))
+    if self._original_version < '3.8':
+      raise python_error(f'Python version "{self._original_version}" not supported.  Minimum supported version is 3.8')
     self._root_dir = root_dir
     self._create(self._root_dir, exe)
+    self._install_pip()
+    
+  def _install_pip(self):
+    python_exe = self.python_exe
+    tmp_get_pip = self._download_get_pip()
+
+    get_pip_cmd = [
+      python_exe,
+      tmp_get_pip,
+    ]
+    with env_override.temp_home() as _:
+      flat_get_pip_cmd = ' '.join(get_pip_cmd)
+      self._log.log_d(f'_install_pip: calling "{flat_get_pip_cmd}"')
+      rv = execute.execute(get_pip_cmd, raise_error = False)
+      if rv.exit_code != 0:
+        raise python_error(f'failed to install pip: "{flat_get_pip_cmd}" - {rv.stdout}')
     
   @cached_property
   def python_exe(self):
@@ -62,10 +80,11 @@ class python_virtual_env(object):
     if path.isfile(venv_config):
       return
     
-    cmd = [
+    venv_cmd = [
       exe,
       '-m',
       'venv',
+      '--without-pip',
       root_dir,
     ]
     env = os_env.make_clean_env()
@@ -75,13 +94,13 @@ class python_virtual_env(object):
     PYTHONPATH.unset()
     
     clazz._log.log_d('_create: env={}'.format(pprint.pformat(env)))
-    clazz._log.log_d('_create: cmd={}'.format(' '.join(cmd)))
+    clazz._log.log_d('_create: venv_cmd={}'.format(' '.join(venv_cmd)))
 
     with dir_cleanup(tempfile.gettempdir()) as ctx:
-      rv = execute.execute(cmd, env = env, raise_error = False)
-    if rv.exit_code != 0:
-      flat_cmd = ' '.join(cmd)
-      raise python_error(f'failed to init virtual env: "{flat_cmd}" - {rv.stdout}')
+      rv = execute.execute(venv_cmd, env = env, raise_error = False)
+      if rv.exit_code != 0:
+        flat_cmd = ' '.join(venv_cmd)
+        raise python_error(f'failed to init virtual env: "{flat_cmd}" - {rv.stdout}')
     clazz._ensure_versioned_python_exe(root_dir, exe)
     
   @classmethod
@@ -96,3 +115,10 @@ class python_virtual_env(object):
       file_symlink.symlink(path.basename(exe), versioned_exe)
       if not path.isfile(versioned_exe):
         raise python_error('Failed to create versioned python exe symlink: "{}"'.format(versioned_exe))
+
+  @classmethod
+  def _download_get_pip(clazz):
+    url = 'https://bootstrap.pypa.io/get-pip.py'
+    tmp_get_pip = url_util.download_to_temp_file(url, suffix = '_get_pip.py')
+    clazz._log.log_d(f'_download_get_pip: url={url} tmp_get_pip={tmp_get_pip}')
+    return tmp_get_pip

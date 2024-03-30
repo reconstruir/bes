@@ -64,11 +64,11 @@ class test_pip_project(unit_test):
     self.assertEqual( '3.5', project.version('pyinstaller') )
     self.assertTrue( project.needs_upgrade('pyinstaller') )
 
-  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.PYTHON_311, 'test_upgrade - no python3.11 found', warning = True)
   def test_upgrade(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
+                                  python_exe = python_testing._PYTHONS.PYTHON_311,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
     project.install('pyinstaller', version = '3.5')

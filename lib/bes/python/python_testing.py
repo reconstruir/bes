@@ -25,14 +25,6 @@ class python_testing(object):
   class _python_constants(object):
 
     @cached_property
-    def PYTHON_27(self):
-      return python_discovery.find_by_version('2.7')
-
-    @cached_property
-    def PYTHON_37(self):
-      return python_discovery.find_by_version('3.7')
-
-    @cached_property
     def PYTHON_38(self):
       return python_discovery.find_by_version('3.8')
 
@@ -51,6 +43,10 @@ class python_testing(object):
     @cached_property
     def PYTHON_312(self):
       return python_discovery.find_by_version('3.12')
+
+    @cached_property
+    def PYTHON_313(self):
+      return python_discovery.find_by_version('3.13')
     
     @cached_property
     def ALL_PYTHONS(self):
@@ -70,19 +66,18 @@ class python_testing(object):
 
   _PYTHONS = _python_constants()
   if False:
-    _log.log_d('  PYTHON_27: {}'.format(_PYTHONS.PYTHON_27))
-    _log.log_d('  PYTHON_37: {}'.format(_PYTHONS.PYTHON_37))
     _log.log_d('  PYTHON_38: {}'.format(_PYTHONS.PYTHON_38))
     _log.log_d('  PYTHON_39: {}'.format(_PYTHONS.PYTHON_39))
     _log.log_d(' PYTHON_310: {}'.format(_PYTHONS.PYTHON_310))
     _log.log_d(' PYTHON_311: {}'.format(_PYTHONS.PYTHON_311))
     _log.log_d(' PYTHON_312: {}'.format(_PYTHONS.PYTHON_312))
+    _log.log_d(' PYTHON_313: {}'.format(_PYTHONS.PYTHON_313))
     _log.log_d('ALL_PYTHONS: {}'.format(' '.join(_PYTHONS.ALL_PYTHONS)))
     _log.log_d(' ANY_PYTHON: {}'.format(_PYTHONS.ANY_PYTHON))
     _log.log_d('ANY_PYTHON2: {}'.format(_PYTHONS.ANY_PYTHON2))
     _log.log_d('ANY_PYTHON3: {}'.format(_PYTHONS.ANY_PYTHON3))
 
-  PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9', '3.10', '3.11', '3.12' )
+  PYTHON_VERSIONS = ( '3.8', '3.9', '3.10', '3.11', '3.12' )
   @classmethod
   def make_fake_python_installation(clazz, root_dir, py_version, pip_version,
                                     source, system = None):
@@ -296,28 +291,19 @@ echo pip {pip_version} from /foo/site-packages/pip (python {py_version})
 exit /b 0
 '''.format(py_version = py_version, pip_version = pip_version)
     return file_util.save(filename, content = content, mode = 0o0755)
+
+  @staticmethod
+  def skip_if_not(name, is_system, exe, version):
+    not_system = not getattr(host, is_system)()
+    not_found = not exe
+    parts = []
+    if not_system:
+      parts.append(f'not "{is_system}"')
+    if not_found:
+      parts.append(f'"python {version}" not found')
+    message_right = ' and '.join(parts)
+    message = f'{name}: {message_right}'
+    return unit_test_function_skip.skip_if(not_system or not_found,
+                                           message,
+                                           warning = True)
   
-  
-#c:\Program Files\Python37
-#c:\Program Files\Python37\DLLs
-#c:\Program Files\Python37\DLLs\libcrypto-1_1.dll
-#c:\Program Files\Python37\Lib
-#c:\Program Files\Python37\Lib\abc.py
-#c:\Program Files\Python37\Lib\site-packages
-#c:\Program Files\Python37\libs
-#c:\Program Files\Python37\libs\libpython37.a
-#c:\Program Files\Python37\libs\python3.lib
-#c:\Program Files\Python37\libs\python37.lib
-#c:\Program Files\Python37\libs\_tkinter.lib
-#c:\Program Files\Python37\LICENSE.txt
-#c:\Program Files\Python37\NEWS.txt
-#c:\Program Files\Python37\python.exe
-#c:\Program Files\Python37\python3.dll
-#c:\Program Files\Python37\python37.dll
-#c:\Program Files\Python37\pythonw.exe
-#c:\Program Files\Python37\Scripts
-#c:\Program Files\Python37\Scripts\easy_install-3.7.exe
-#c:\Program Files\Python37\Scripts\easy_install.exe
-#c:\Program Files\Python37\Scripts\pip.exe
-#c:\Program Files\Python37\Scripts\pip3.7.exe
-#c:\Program Files\Python37\Scripts\pip3.exe
