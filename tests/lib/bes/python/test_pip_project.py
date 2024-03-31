@@ -37,7 +37,6 @@ class test_pip_project(unit_test):
     project = pip_project(options = options)
     with self.assertRaises(pip_error) as ctx:
       project.install('pyinstaller', version = '666.666.666.666.666')
-    print('ex={}'.format(str(ctx.exception).lower()))
     self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
     
   @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
@@ -58,10 +57,10 @@ class test_pip_project(unit_test):
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
-    project.install('pyinstaller', version = '3.5')
+    project.install('pyinstaller', version = '6.4.0')
     rv = project.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '3.5', rv.stdout.strip() )
-    self.assertEqual( '3.5', project.version('pyinstaller') )
+    self.assertEqual( '6.4.0', rv.stdout.strip() )
+    self.assertEqual( '6.4.0', project.version('pyinstaller') )
     self.assertTrue( project.needs_upgrade('pyinstaller') )
 
   @unit_test_function_skip.skip_if(not python_testing._PYTHONS.PYTHON_311, 'test_upgrade - no python3.11 found', warning = True)
@@ -71,10 +70,10 @@ class test_pip_project(unit_test):
                                   python_exe = python_testing._PYTHONS.PYTHON_311,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
-    project.install('pyinstaller', version = '3.5')
+    project.install('pyinstaller', version = '6.4.0')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     old_version = semantic_version(project.version('pyinstaller'))
-    self.assertEqual( '3.5', old_version )
+    self.assertEqual( '6.4.0', old_version )
     project.upgrade('pyinstaller')
     new_version = semantic_version(project.version('pyinstaller'))
     self.assertTrue( new_version > old_version )
@@ -86,13 +85,13 @@ class test_pip_project(unit_test):
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
     p1 = pip_project(options = options)
-    p1.install('pyinstaller', version = '3.5')
+    p1.install('pyinstaller', version = '6.5.0')
     rv = p1.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '3.5', p1.version('pyinstaller') )
+    self.assertEqual( '6.5.0', p1.version('pyinstaller') )
     p2 = pip_project(options = options)
-    p2.install('pyinstaller', version = '3.5')
+    p2.install('pyinstaller', version = '6.5.0')
     rv = p2.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '3.5', p2.version('pyinstaller') )
+    self.assertEqual( '6.5.0', p2.version('pyinstaller') )
     
 if __name__ == '__main__':
   unit_test.main()
