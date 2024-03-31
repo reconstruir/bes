@@ -14,7 +14,7 @@ def _skip(name, is_system, exe, version):
 
 class test_python_installation(unit_test):
 
-  @_skip('test_macos_xcode_38', 'is_unix', python_testing._PYTHONS.PYTHON_38, '3.8')
+  @_skip('test_macos_xcode_38', 'is_macos', python_testing._PYTHONS.PYTHON_38, '3.8')
   def test_macos_xcode_38(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.8',
                                                                 '19.2.3',
@@ -28,7 +28,7 @@ class test_python_installation(unit_test):
     self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3'), piv.pip_exe )
     self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
 
-  @_skip('test_macos_brew_38', 'is_unix', python_testing._PYTHONS.PYTHON_38, '3.8')
+  @_skip('test_macos_brew_38', 'is_macos', python_testing._PYTHONS.PYTHON_38, '3.8')
   def test_macos_brew_38(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.8',
                                                                 '21.0.1',
