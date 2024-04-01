@@ -99,7 +99,12 @@ class unit_test(unittest.TestCase):
     lines = [ re.sub(r'\s+', ' ', line) for line in lines ]
     lines = [ line.strip() for line in lines if line.strip() ]
     return os.linesep.join(lines).strip()
-      
+
+  def assert_multi_line_xp_equal(self, s1, s2):
+    return self.assert_string_equal(s1, s2,
+                                    multi_line = True,
+                                    native_line_breaks = True)
+  
   def assert_string_equal_fuzzy(self, s1, s2, ignore_white_space = True):
     return self.assert_string_equal(s1, s2,
                                     strip = True,

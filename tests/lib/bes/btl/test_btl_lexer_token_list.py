@@ -715,7 +715,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
     l.reorder(0, 9)
-    self.assertMultiLineEqual('''\
+    self.assert_multi_line_xp_equal('''\
 0: fruit:dragonfruit:p=1,1:i=9
 1: fruit:orange:p=1,1:i=10
 2: color:orange:p=1,3:h=h_color:i=11
@@ -738,7 +738,7 @@ class test_btl_lexer_token_list(_test_simple_lexer_mixin, unit_test):
       ( 'baz', '3', ( 5, 6 ), None, 6 ),
     ])
     l.reorder(9, 0)
-    self.assertMultiLineEqual('''\
+    self.assert_multi_line_xp_equal('''\
 0: fruit:dragonfruit:p=10,1:i=0
 1: fruit:orange:p=10,1:i=1
 2: color:orange:p=10,3:h=h_color:i=2
