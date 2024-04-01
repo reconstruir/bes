@@ -23,8 +23,9 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env
-from bes.system.python import python as python
 from bes.python.python_discovery import python_discovery
+from bes.python.python_exe import python_exe
+from bes.python.python_version import python_version
 from bes.testing.framework.argument_resolver import argument_resolver
 from bes.testing.framework.printer import printer
 from bes.testing.framework.unit_test_output import unit_test_output
@@ -200,10 +201,15 @@ def main():
   args = parser.parse_args()
 
   if args.python:
-    args.python = [ python_discovery.find_by_version(v) for v in args.python ]
+    if 'all' in args.python:
+      args.python = python_discovery.all_exes()
+    else:
+      args.python = [ python_discovery.find_by_version(v) for v in args.python ]
   else:
     args.python = [ python_discovery.any_exe() ]
-  
+
+  args.python = sorted(list(set(args.python)), key = lambda pexe: python_exe.version(pexe) )
+
   if not args.python:
     printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
     return 1
@@ -264,8 +270,8 @@ def main():
     return 1
 
   if args.print_python:
-    for python_exe in args.python:
-      print(python_exe)
+    for pexe in args.python:
+      print(pexe)
     return 0
   
   if args.print_path:
@@ -315,8 +321,8 @@ def main():
   keep_keys.extend([ 'TMPDIR', 'TEMP', 'TMP' ])
   env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: _env_var_should_keep(key, keep_patterns))
   env_var(env, 'PATH').prepend(path.dirname(found_git_exe))
-  for python_exe in args.python:
-    env_var(env, 'PATH').prepend(path.dirname(python_exe))
+  for pexe in args.python:
+    env_var(env, 'PATH').prepend(path.dirname(pexe))
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
 
   variables = {
@@ -429,8 +435,8 @@ def main():
     filename = file_info.filename
     if not filename in timings:
       timings[filename] = []
-    for python_exe in args.python:
-      result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
+    for pexe in args.python:
+      result = _test_execute(pexe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
       _collect_side_effects(side_effects, filename, tmp_home, 'home', args.keep_side_effects)
       _collect_side_effects(side_effects, filename, tmp_tmp, 'tmp', args.keep_side_effects)
       _collect_side_effects(side_effects, filename, os.getcwd(), 'cwd', args.keep_side_effects)
@@ -441,7 +447,7 @@ def main():
         num_passed += 1
       else:
         num_failed += 1
-        failed_tests.append(( python_exe, filename, result ))
+        failed_tests.append(( pexe, filename, result ))
       if args.stop and not result.success:
         stopped = True
     if stopped:
@@ -467,12 +473,9 @@ def main():
   summary = '; '.join(summary_parts)
   printer.writeln_name('%s' % (summary))
   if failed_tests:
-    longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
-    for python_exe, filename, result in failed_tests:
-      if len(options.interpreters) > 1:
-        python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
-      else:
-        python_exe_blurb = ''
+    longest_python_ver = max([len(str(python_exe.version(p))) for p in options.interpreters])
+    for pexe, filename, result in failed_tests:
+      python_exe_blurb = str(python_exe.version(pexe)).rjust(longest_python_ver)
       error_status = unit_test_output.error_status(result.output)
       for error in error_status.errors:
         printer.writeln_name('%5s: %s %s :%s.%s' % (error.error_type,
@@ -558,10 +561,10 @@ def _test_data_dir(filename):
     data_dir = file_find.find_in_ancestors(path.dirname(filename), 'test_data')
   return data_dir or ''
 
-def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
+def _test_execute(pexe, test_map, filename, tests, options, index, total_files, cwd, env):
   short_filename = file_util.remove_head(filename, cwd)
 
-  cmd = [ '"{}"'.format(python_exe) ]
+  cmd = [ '"{}"'.format(pexe) ]
   
   if options.coverage_output:
     cmd.extend([ 'run', 'a' ])
@@ -600,13 +603,9 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       label = 'dry-run'
     else:
       label = 'testing'
-    longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
-    if len(options.interpreters) > 1:
-      python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
-      python_exe_blurb_sep = ' '
-    else:
-      python_exe_blurb = ''
-      python_exe_blurb_sep = ''
+    longest_python_ver = max([len(str(python_exe.version(p))) for p in options.interpreters])
+    python_exe_blurb = str(python_exe.version(pexe)).rjust(longest_python_ver)
+    python_exe_blurb_sep = ' '
     blurb = '%7s:%s%s%s %s - %s ' % (label, filename_count_blurb, python_exe_blurb_sep, python_exe_blurb, short_filename, function_count_blurb)
     printer.writeln_name(blurb)
 
