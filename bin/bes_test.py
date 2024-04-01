@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 # A script to run python unit tests.  Depends on bes which as bit of a chicken-and-egg
@@ -24,6 +24,7 @@ from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.system.python import python as python
+from bes.python.python_discovery import python_discovery
 from bes.testing.framework.argument_resolver import argument_resolver
 from bes.testing.framework.printer import printer
 from bes.testing.framework.unit_test_output import unit_test_output
@@ -72,7 +73,7 @@ def main():
   parser.add_argument('--python',
                       action = 'append',
                       default = [],
-                      help = 'Python executable) to use.  Multiple flags can be used for running with mutiple times with different python versions [ python ]')
+                      help = 'Python version to use.  Multiple flags can be used for running with mutiple versions []')
   parser.add_argument('--page',
                       '-p',
                       action = 'store_true',
@@ -198,13 +199,11 @@ def main():
   
   args = parser.parse_args()
 
-  args.python = _resolve_python_exe_list(args.python)
-
-  if not args.python:
-    python_exe = python.find_python_exe()
-    if python_exe:
-      args.python = [ python_exe ]
-      
+  if args.python:
+    args.python = [ python_discovery.find_by_version(v) for v in args.python ]
+  else:
+    args.python = [ python_discovery.any_exe() ]
+  
   if not args.python:
     printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
     return 1
@@ -560,8 +559,6 @@ def _test_data_dir(filename):
   return data_dir or ''
 
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
-  python_exe = file_path.which('python3') or file_path.which('python')
-  
   short_filename = file_util.remove_head(filename, cwd)
 
   cmd = [ '"{}"'.format(python_exe) ]
@@ -718,16 +715,6 @@ def _parse_args_env(env):
       env[i] = env[i] + '=1'
   kv = key_value_list.parse(' '.join(env), empty_value = '', log_tag = 'bes_test')
   return kv.to_dict()
-
-def _resolve_python_exe_list(l):
-  if not l:
-    return []
-  result = []
-  for exe in l:
-    resolved_exe = file_path.which(exe)
-    if resolved_exe:
-      result.append(resolved_exe)
-  return result
 
 def _read_config_file():
   DEFAULT_CONFIG = '''\
