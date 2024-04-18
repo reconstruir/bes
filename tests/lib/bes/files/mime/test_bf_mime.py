@@ -60,6 +60,8 @@ class test_bf_mime(unit_test, unit_test_media_files):
     self.assertEqual( 'video', bf_mime.media_type_for_file(self.mp4_file) )
     self.assertEqual( 'image', bf_mime.media_type_for_file(self.png_file) )
     self.assertEqual( 'image', bf_mime.media_type_for_file(self.jpg_file) )
+    self.assertEqual( 'audio', bf_mime.media_type_for_file(self.wav_file) )
+    self.assertEqual( 'audio', bf_mime.media_type_for_file(self.mp3_file) )
     self.assertEqual( None, bf_mime.media_type_for_file(self.unknown_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
@@ -72,6 +74,12 @@ class test_bf_mime(unit_test, unit_test_media_files):
     self.assertEqual( None, bf_mime.media_type_for_file(self.unknown_file_jpg_extension) )
     self.assertEqual( None, bf_mime.media_type_for_file(self.unknown_file_mp4_extension) )
     self.assertEqual( None, bf_mime.media_type_for_file(self.unknown_file_txt_extension) )
+
+  def test_wav(self):
+    self.assertEqual( 'audio/wav', bf_mime.mime_type(self.wav_file) )
+
+  def test_mp3(self):
+    self.assertEqual( 'audio/mpeg', bf_mime.mime_type(self.mp3_file) )
     
 if __name__ == '__main__':
   unit_test.main()
