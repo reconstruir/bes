@@ -17,7 +17,7 @@ class bindent(object):
     header = ' ' * indent_width
     lines = text.splitlines(keepends = False)
     indented_lines = [ clazz._indent_line(line, header, fix_empty_lines) for line in lines ]
-    end = os.linesep if text and text[-1] == os.linesep else ''
+    end = os.linesep if text and text.endswith(os.linesep) else ''
     return os.linesep.join(indented_lines) + end
 
   @classmethod

@@ -36,12 +36,9 @@ class pip_installer(object):
       '--cache-dir', self._cache_dir,
     ]
     self._project = pip_project(self._options.name,
-                                   self._options.resolve_root_dir(),
-                                   self._options.resolve_python_exe())
+                                self._options.resolve_root_dir(),
+                                self._options.resolve_python_exe())
     
-  _GET_PIP_27_URL = 'https://bootstrap.pypa.io/pip/2.7/get-pip.py'
-  _GET_PIP_36_URL = 'https://bootstrap.pypa.io/get-pip.py'
-
   def install(self, pip_version, clobber_install_dir):
     'Install pip on an empty root directory'
     check.check_string(pip_version)
@@ -134,11 +131,11 @@ class pip_installer(object):
     ]
     self._project.call_pip(args)
     
+  _GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
   def _determine_get_pip_url(clazz, py_exe):
     version = python_exe.version(py_exe)
-    if version == '2.7':
-      return clazz._GET_PIP_27_URL
-    if version.major == 3:
-      if version.minor >= 6:
-        return clazz._GET_PIP_36_URL
-    raise pip_error('Unsupported python version "{}" for {}'.format(version, py_exe))
+    if version.major != 3:
+      raise pip_error(f'Unsupported python major version "{version} for {py_exe}')
+    if version.minor < 6:
+      raise pip_error(f'Unsupported python minor version "{version} for {py_exe}')
+    return clazz._GET_PIP_URL

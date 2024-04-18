@@ -238,49 +238,54 @@ class btl_lexer_token_list(type_checked_list):
     #self._log.log_d(f'{label}: func_result={func_result}')
     return func_result
 
-  _iter_item = namedtuple('_iter_item', 'token, func_result, current_index, last_index, next_index')
   @classmethod
-  def _call_iter(clazz, label, tokens, direction, func, negate):
+  def _call_iter(clazz, label, tokens, func, negate):
     for token in tokens:
-      current_index = token.index
-      last_index = current_index - direction.value
-      next_index = current_index + direction.value
       func_result = clazz._call_func(label, func, token, negate)
-      clazz._log.log_d(f'{label}: func_result={func_result} current_index={current_index} last_index={last_index} next_index={next_index} token={token.to_debug_str()}')
-      item = clazz._iter_item(token, func_result, current_index, last_index, next_index)
-      yield item
+      clazz._log.log_d(f'{label}: func_result={func_result} token={token.to_debug_str()}')
+      yield func_result
     
-  def _skip_index_iter_one(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if item.func_result:
-        return item.next_index
+  def _skip_index_iter_one(self, label, tokens, func, negate):
+    result = 0
+    for func_result in self._call_iter(label, tokens, func, negate):
+      if func_result:
+        result = 1
       else:
         break
-    return -1
-
-  def _skip_index_iter_zero_or_one(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if item.func_result:
-        return item.next_index
-      else:
-        return item.current_index
-    return -1
-
-  def _skip_index_iter_zero_or_more(self, label, tokens, direction, func, negate):
-    result = -1
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if item.func_result:
-        result = item.next_index
-      else:
-        return item.current_index
-    assert result != -1
     return result
 
-  def _skip_index_iter_one_or_more(self, label, tokens, direction, func, negate):
-    for item in self._call_iter(label, tokens, direction, func, negate):
-      if not item.func_result:
-        return item.current_index
-    return item.next_index
+  def _skip_index_iter_zero_or_one(self, label, tokens, func, negate):
+    result = 0
+    for func_result in self._call_iter(label, tokens, func, negate):
+      if func_result:
+        result = 1
+      else:
+        result = 0
+      break
+    return result
+
+  def _skip_index_iter_zero_or_more(self, label, tokens, func, negate):
+    result = 0
+    for func_result in self._call_iter(label, tokens, func, negate):
+      if func_result:
+        result += 1
+      else:
+        break
+    return result
+
+  def _skip_index_iter_one_or_more(self, label, tokens, func, negate):
+    result = self._skip_index_iter_zero_or_more(label, tokens, func, negate)
+    if result < 1:
+      return 0
+    return result
+
+  def _skip_index_iter_all_but_one(self, label, tokens, func, negate):
+    result = self._skip_index_iter_zero_or_more(label, tokens, func, negate)
+    if result >= 2:
+      result = result - 1
+    else:
+      result = 0
+    return result
 
   def skip_index(self, starting_index, direction, func, skip,
                  negate = False, label = None):
@@ -296,16 +301,29 @@ class btl_lexer_token_list(type_checked_list):
     if starting_index < 0:
       starting_index = len(self._values) + starting_index + 1
     if direction == direction.RIGHT:
-      tokens = self._values[starting_index:]
+      tokens = btl_lexer_token_list(self._values[starting_index:])
     else:
-      tokens = [ n for n in reversed(self._values[0:starting_index + 1]) ]
+      tokens = btl_lexer_token_list([ n for n in reversed(self._values[0:starting_index + 1]) ])
+
+    self._log.log_d(f'{label}: self.tokens:\n{self.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'{label}: tokens for skip:\n{tokens.to_debug_str()}', multi_line = True)
+      
     m = {
+      skip.ALL_BUT_ONE: self._skip_index_iter_all_but_one,
       skip.ONE: self._skip_index_iter_one,
-      skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
-      skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
       skip.ONE_OR_MORE: self._skip_index_iter_one_or_more,
+      skip.ZERO_OR_MORE: self._skip_index_iter_zero_or_more,
+      skip.ZERO_OR_ONE: self._skip_index_iter_zero_or_one,
     }
-    return m[skip](label, tokens, direction, func, negate)
+    num_skipped = m[skip](label, tokens, func, negate)
+    self._log.log_d(f'{label}: num_skipped={num_skipped} len={len(tokens)}')
+    assert num_skipped >= 0
+    assert num_skipped <= len(tokens)
+    result = starting_index + (num_skipped * direction.value)
+    if result == -1:
+      result = 0
+    self._log.log_d(f'{label}: result={result}')
+    return result
   
   def skip_index_by_name(self, starting_index, direction, token_name, skip,
                          negate = False, label = None):
@@ -426,8 +444,8 @@ class btl_lexer_token_list(type_checked_list):
     check.check_int(index)
     new_tokens = check.check_btl_lexer_token_list(new_tokens)
 
-    self._log.log_d(f'insert_tokens: index={index} new_tokens:\n{new_tokens.to_debug_str()}')
-    self._log.log_d(f'insert_tokens: tokens before:\n{self.to_debug_str()}')
+    self._log.log_d(f'insert_tokens: index={index} new_tokens:\n{new_tokens.to_debug_str()}', multi_line = True)
+    self._log.log_d(f'insert_tokens: tokens before:\n{self.to_debug_str()}', multi_line = True)
     top, bottom = self.partition_for_insert(index)
 
     new_tokens_line_delta = top.last_line
@@ -449,4 +467,34 @@ class btl_lexer_token_list(type_checked_list):
     self._log.log_d(f'insert_tokens: tokens after:\n{self.to_debug_str()}')
     return index
 
+  def starts_with_line_break(self):
+    if not self._values:
+      return False
+    return self[0].is_line_break()
+
+  def ends_with_line_break(self):
+    if not self._values:
+      return False
+    return self[-1].is_line_break()
+
+  def has_left_line_break(self, index):
+    if len(self) == 0:
+      return None
+    if index < 0:
+      return None
+    if index > len(self):
+      return None
+    if index == 0:
+      return None
+    return self[index - 1].is_line_break()
+
+  def has_right_line_break(self, index):
+    if len(self) == 0:
+      return None
+    if index < -1:
+      return None
+    if index >= (len(self) - 1):
+      return None
+    return self[index + 1].is_line_break()
+  
 btl_lexer_token_list.register_check_class()  

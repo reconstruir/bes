@@ -121,7 +121,6 @@ stateDiagram-v2
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    from bes.fs.file_util import file_util
     #print(bf_file_ops.read(tmp, codec = 'utf-8'), flush = True)
     #return
     self.assertEqual( True, bf_file_ops.read(tmp, codec = 'utf-8').startswith('<svg id="mermaid-svg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )

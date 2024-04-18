@@ -18,11 +18,12 @@ class test_pyinstaller_builder(unit_test):
   def test_build(self):
     tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build', )
     venvs_dir = path.join(tmp_dir, 'venvs')
+    print(f'PYTHON: {python_testing._PYTHONS.ANY_PYTHON3}')
     options = pip_project_options(root_dir = venvs_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
-    project.install('pyinstaller', version = '5.12')
+    project.install('pyinstaller', version = '6.5.0')
 
     program_content = r'''
 #!/usr/bin/env python3
@@ -57,7 +58,6 @@ def test_subprocess():
   p = subprocess.check_output(args)
   sys.stdout.write(p.decode('utf8').strip())
 
-  
 def test_subprocess_with_shell():
   'Test that subprocess with shell = True works'
   import subprocess

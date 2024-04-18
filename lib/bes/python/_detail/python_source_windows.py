@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+import os
 
 from bes.system.check import check
 from bes.system.environment import environment
@@ -25,7 +26,18 @@ class python_source_windows(python_source_base):
   #@abstractmethod
   def possible_python_bin_dirs(clazz):
     'Return a list of possible dirs where the python executable might be.'
-    return dir_util.list(r'C:\Program Files', patterns = 'Python*', basename = True)
+
+    dirs = [
+      r'C:\Program Files',
+    ]
+    LOCALAPPDATA = os.getenv('LOCALAPPDATA', None)
+    if LOCALAPPDATA:
+      dirs.append(rf'{LOCALAPPDATA}\Programs\Python')
+    result = []
+    for d in dirs:
+      if path.isdir(d):
+        result.extend(dir_util.list(d, patterns = 'Python*', basename = True))
+    return result
 
   @classmethod
   #@abstractmethod
@@ -54,6 +66,9 @@ class python_source_windows(python_source_base):
     'Return True if dirname should be ignored as a possible python bin dir.'
     if r'Microsoft\WindowsApps' in dirname:
       return True
+    LOCALAPPDATA = os.getenv('LOCALAPPDATA', None)
+    if dirname.lower().startswith(LOCALAPPDATA.lower()):
+      return False
     if dirname.lower().startswith(environment.home_dir().lower()):
       return True
     return False
