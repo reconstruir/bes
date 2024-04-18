@@ -93,4 +93,8 @@ class unit_test_media_files(object):
   @cached_property
   def mp3_file(self):
     return self.make_temp_file(content = unit_test_media.MP3_SMALLEST_POSSIBLE, suffix = '.mp3')
+
+  @cached_property
+  def flac_file(self):
+    return self.make_temp_file(content = unit_test_media.FLAC_SMALLEST_POSSIBLE, suffix = '.flac')
   
