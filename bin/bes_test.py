@@ -478,12 +478,15 @@ def main():
       python_exe_blurb = str(python_exe.version(pexe)).rjust(longest_python_ver)
       error_status = unit_test_output.error_status(result.output)
       for error in error_status.errors:
-        printer.writeln_name('%5s: %s %s :%s.%s' % (error.error_type,
-                                                    python_exe_blurb,
-                                                    file_util.remove_head(filename, cwd),
-                                                    error.fixture,
-                                                    error.function))
-
+        error_type = error.error_type
+        filename_rel = file_util.remove_head(filename, cwd)
+        filename_rel = filename_rel.replace('\\', '/')
+        fixture = error.fixture
+        printer.writeln_name('%5s: %s %s :%s' % (error_type,
+                                                 python_exe_blurb,
+                                                 filename_rel,
+                                                 fixture))
+        
   if num_failed > 0:
     rv = 1
   else:
