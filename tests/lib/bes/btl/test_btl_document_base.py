@@ -323,7 +323,14 @@ color=red
     tmp = self.make_temp_file(suffix = '.config', non_existent = True)
     doc.save_file(tmp)
 
-    print(f'doc=_{doc.text}_')
+    print('POTO: --------------------------')
+    print(str(doc))
+    print('--------------------------')
+    
+    from bes.fs.file_util import file_util
+    print('--------------------------')
+    print(file_util.read(tmp, codec = 'utf-8'))
+    print('--------------------------')
     
     self.assert_text_file_equal('''\
 name=apple

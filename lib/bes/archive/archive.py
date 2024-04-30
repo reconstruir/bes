@@ -60,7 +60,7 @@ class archive(archive_base):
     file_util.rename(tmp_member, filename)
 
   def extract_member_to_string(self, member, codec = None):
-    tmp_file = temp_file.make_temp_file()
+    tmp_file = temp_file.make_temp_file(non_existent = True)
     self.extract_member_to_file(member, tmp_file)
     result = file_util.read(tmp_file, codec = codec)
     file_util.remove(tmp_file)

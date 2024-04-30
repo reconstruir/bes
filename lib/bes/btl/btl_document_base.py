@@ -42,6 +42,9 @@ class btl_document_base(metaclass = ABCMeta):
     self._tokens = None
     self._do_parse()
 
+  def __str__(self):
+    return self.text
+  
   @classmethod
   @abstractmethod
   def lexer_class(clazz):

@@ -122,7 +122,7 @@ class archiver(object):
 
   @classmethod
   def extract_member_to_temp_file(clazz, archive, member, delete = True):
-    tmp_filename = temp_file.make_temp_file(suffix = '-' + path.basename(member), delete = delete)
+    tmp_filename = temp_file.make_temp_file(suffix = '-' + path.basename(member), delete = delete, non_existent = True)
     clazz.extract_member_to_file(archive, member, tmp_filename)
     return tmp_filename
 
@@ -170,7 +170,7 @@ class archiver(object):
                        include = None, exclude = None, delete = True):
     if not archive_extension.is_valid_ext(extension):
       raise ValueError('invalid extension: {}'.format(extension))
-    tmp_archive = temp_file.make_temp_file(suffix = '.' + extension, delete = delete)
+    tmp_archive = temp_file.make_temp_file(suffix = '.' + extension, delete = delete, non_existent = True)
     archiver.create(tmp_archive, root_dir, base_dir = base_dir,
                     extra_items = extra_items,
                     include = include, exclude = exclude)
