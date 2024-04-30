@@ -9,7 +9,8 @@ class test_dir_operation_item_list(unit_test):
 
   def test__make_resolved_filename(self):
     f = dir_operation_item_list._make_resolved_filename
-    self.assertEqual( '/a/b/foo-12345-666.txt', f('/a/b/foo.txt', '12345', 666) )
+    self.assertEqual( self.native_filename('/a/b/foo-12345-666.txt'),
+                      f(self.native_filename('/a/b/foo.txt'), '12345', 666) )
     
 if __name__ == '__main__':
   unit_test.main()
