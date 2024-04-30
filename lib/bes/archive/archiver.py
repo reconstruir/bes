@@ -257,6 +257,7 @@ class archiver(object):
         raise TypeError('Operation should be a subclass of archive_operation_base: {}'.format(operation))
       operation.execute(tmp_dir)
     tmp_new_archive = clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir)
+    file_util.remove(archive)
     file_util.rename(tmp_new_archive, archive)
 
   @classmethod
