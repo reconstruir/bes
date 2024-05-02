@@ -6,7 +6,6 @@ import os
 from bes.system.host import host
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.btl.btl_parser_base import btl_parser_base
 from bes.btl.btl_parser_state_base import btl_parser_state_base
@@ -286,7 +285,7 @@ n_root;
     n_value;t_value:green:p=6,7:i=16
 ''', str(result.root_node) )
 
-    self.assertMultiLineEqual('''\
+    self.assert_multi_line_xp_equal('''\
  0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
  1: t_key:fruit:p=2,1:i=1
  2: t_key_value_delimiter:=:p=2,6:i=2

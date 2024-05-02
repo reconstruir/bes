@@ -100,6 +100,11 @@ class unit_test(unittest.TestCase):
     lines = [ line.strip() for line in lines if line.strip() ]
     return os.linesep.join(lines).strip()
 
+  def assert_file_xp_equal(self, expected, filename, encoding = 'utf-8'):
+    with open(filename, 'r', encoding = encoding) as fin:
+      actual = fin.read()
+      return self.assert_multi_line_xp_equal(expected, actual)
+
   def assert_multi_line_xp_equal(self, s1, s2):
     return self.assert_string_equal(s1, s2,
                                     multi_line = True,

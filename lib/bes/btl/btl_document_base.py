@@ -313,7 +313,7 @@ class btl_document_base(metaclass = ABCMeta):
     new_text = self.to_source_string()
     if os.path.exists(filename):
       filename = bf_check.check_file(filename)
-      old_text = bf_file_ops.read(filename, codec = codec)
+      old_text = bf_file_ops.read(filename, codec = encoding)
       if old_text == new_text:
         return
       if backup:

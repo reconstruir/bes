@@ -311,7 +311,7 @@ color=red
 '''    
     tmp = self.make_temp_file(suffix = '.config', content = text)
     doc = _test_document.load_file(tmp)
-    self.assertMultiLineEqual('''
+    self.assert_multi_line_xp_equal('''
 name=apple
 color=red
 ''', doc.text )
@@ -322,20 +322,10 @@ color=red
     doc.set_value('color', 'red')
     tmp = self.make_temp_file(suffix = '.config', non_existent = True)
     doc.save_file(tmp)
-
-    print('POTO: --------------------------')
-    print(str(doc))
-    print('--------------------------')
-    
-    from bes.fs.file_util import file_util
-    print('--------------------------')
-    print(file_util.read(tmp, codec = 'utf-8'))
-    print('--------------------------')
-    
-    self.assert_text_file_equal('''\
-name=apple
-color=red
-''', tmp, codec = 'utf-8', strip = True, native_line_breaks = True)
+    #from bes.fs.file_util import file_util
+    expected = f'name=apple{os.linesep}color=red{os.linesep}'
+    actual = file_util.read(tmp, codec = 'utf-8')
+    self.assert_multi_line_xp_equal(expected, actual)
 
   def test_add_node_from_text(self):
     doc = _test_document()
@@ -343,21 +333,16 @@ color=red
                                   f'name=apple',
                                   ( 'n_key_value', ))
     self.assertEqual( 1, line )
-    self.assertMultiLineEqual('''\
+    self.assert_multi_line_xp_equal('''\
 name=apple
 ''', doc.text )
 
   def test_add_node_from_text_existing_new_lines(self):
     doc = _test_document('\n\n')
-#    print(f'doc:\n{str(doc.root_node)}')
-#    print(f'doc:\n{doc.tokens.to_debug_str()}')
-#    caca = doc.root_node.find_last_node()
-#    print(f'caca:\n{str(caca)}')
     line = doc.add_node_from_text(doc.root_node,
                                   f'name=apple',
                                   ( 'n_key_value', ))
-#    self.assertEqual( 3, line )
-    self.assertMultiLineEqual('''\n\nname=apple\n''', doc.text )
+    self.assert_multi_line_xp_equal(f'{os.linesep}{os.linesep}name=apple{os.linesep}', doc.text )
 
   def _call_default_insert_index(self, text):
     doc = _test_document(text)
