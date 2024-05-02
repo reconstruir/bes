@@ -15,7 +15,7 @@ function main()
   ${_best} pyinstaller build \
            --build-dir _BES_TEST_BUILD \
            --clean \
-           --log-level INFO \
+           --log-level info \
            --python-version 3.8 \
            "${_best_script}" \
            "${_best_exe}"
