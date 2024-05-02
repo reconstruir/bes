@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, tempfile
+from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content as I
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -68,6 +69,18 @@ class test_temp_content(unit_test):
     I.write_items([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
+      'dir  baz     ""            700',
+    ], tmp_dir)
+    self.assertTrue( path.isfile(path.join(tmp_dir, self.native_filename('a/b/c/foo.txt'))) )
+    self.assertTrue( path.isfile(path.join(tmp_dir, self.native_filename('d/e/bar.txt'))) )
+    self.assertTrue( path.isdir(path.join(tmp_dir, self.native_filename('baz'))) )
+
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
+  def test_write_items_with_link(self):
+    tmp_dir = self.make_temp_dir()
+    I.write_items([
+      'file a/b/c/foo.txt "foo content" 755',
+      'file d/e/bar.txt "bar content" 644',
       'link d/e/kiwi.txt "bar.txt" 644',
       'dir  baz     ""            700',
     ], tmp_dir)
@@ -76,7 +89,7 @@ class test_temp_content(unit_test):
     self.assertTrue( path.islink(path.join(tmp_dir, self.native_filename('d/e/kiwi.txt'))) )
     self.assertEqual( 'bar.txt', os.readlink(path.join(tmp_dir, self.native_filename('d/e/kiwi.txt'))) )
     self.assertTrue( path.isdir(path.join(tmp_dir, self.native_filename('baz'))) )
-
+    
   def test_write_items_with_parse(self):
     items = I.parse_sequence([
       'file a/b/c/foo.txt "foo content" 755',
