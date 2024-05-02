@@ -80,11 +80,13 @@ class url_util(object):
   _response = namedtuple('_response', 'status_code, content, headers')
   @classmethod
   def get(clazz, url, params = None):
+
     if params:
       data = url_compat.urlencode(params).encode('utf-8')
     else:
       data = None
-    req = url_compat.Request(url, data = data)
+    headers={'User-Agent': 'Mozilla/5.0'}
+    req = url_compat.Request(url, data = data, headers = headers)
     response = url_compat.urlopen(req)
     content = response.read()
     headers = response.headers.items()
