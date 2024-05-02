@@ -91,7 +91,6 @@ class btl_lexer_token_list(type_checked_list):
   def to_source_string(self):
     buf = io.StringIO()
     for token in self:
-      print(f'token={token.to_debug_str()}')
       buf.write(token.value or '')
     return buf.getvalue()
   
