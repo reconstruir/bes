@@ -322,7 +322,7 @@ color=red
     doc.set_value('color', 'red')
     tmp = self.make_temp_file(suffix = '.config', non_existent = True)
     doc.save_file(tmp)
-    #from bes.fs.file_util import file_util
+    from bes.fs.file_util import file_util
     expected = f'name=apple{os.linesep}color=red{os.linesep}'
     actual = file_util.read(tmp, codec = 'utf-8')
     self.assert_multi_line_xp_equal(expected, actual)
