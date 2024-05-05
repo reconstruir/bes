@@ -75,6 +75,46 @@ class bf_file_ops(object):
     return filename
 
   @classmethod
+  def save_text(clazz, filename, text, perm = None, encoding = None):
+    'Atomically save text to filename using an intermediate temporary file.'
+    check.check_string(filename)
+    check.check_string(text)
+    check.check_int(perm, allow_none = True)
+    check.check_string(encoding, allow_none = True)
+
+    encoding = encoding or locale.getpreferredencoding()
+    encoded_text = text.encode(encoding)
+    
+    dirname, basename = os.path.split(filename)
+    dirname = dirname or None
+    if dirname:
+      clazz.mkdir(path.dirname(filename))
+    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'wb')
+    tmp.write(encoded_text)
+    tmp.flush()
+    os.fsync(tmp.fileno())
+    tmp.close()
+    if perm:
+      os.chmod(tmp.name, perm)
+    clazz._cross_device_safe_rename(tmp.name, filename)
+    return filename
+
+  @classmethod
+  def read_text(clazz, filename, encoding = None):
+    'Read text with binary mode and decode to gurantee line endings dont get screwed.'
+    bf_check.check_file(filename)
+    check.check_string(encoding, allow_none = True)
+    check.check_int(perm, allow_none = True)
+
+    encoding = encoding or locale.getpreferredencoding()
+
+    with open(filename, 'rb') as f:
+      encoded_content = f.read()
+      f.flush()
+      content = encoded_content.decode(encoding)
+      return content
+  
+  @classmethod
   def _cross_device_safe_rename(clazz, src, dst):
     'Rename that deals with cross device link issues.' 
     try:
