@@ -26,10 +26,10 @@ class test_file_split(unit_test, unit_test_media_files):
 
   def test__make_split_filename(self):
     f = file_split._make_split_filename
-    self.assertEqual( '/a/b/kiwi.mp4.001', f('/a/b/kiwi.mp4', '/a/b', 1, 3) )
-    self.assertEqual( '/a/b/kiwi.mp4.01', f('/a/b/kiwi.mp4', '/a/b', 1, 2) )
-    self.assertEqual( '/a/b/kiwi.mp4.1', f('/a/b/kiwi.mp4', '/a/b', 1, 1) )
-    self.assertEqual( '/foo/kiwi.mp4.001', f('/a/b/kiwi.mp4', '/foo', 1, 3) )
+    self.assert_filename_equal( '/a/b/kiwi.mp4.001', f('/a/b/kiwi.mp4', '/a/b', 1, 3) )
+    self.assert_filename_equal( '/a/b/kiwi.mp4.01', f('/a/b/kiwi.mp4', '/a/b', 1, 2) )
+    self.assert_filename_equal( '/a/b/kiwi.mp4.1', f('/a/b/kiwi.mp4', '/a/b', 1, 1) )
+    self.assert_filename_equal( '/foo/kiwi.mp4.001', f('/a/b/kiwi.mp4', '/foo', 1, 3) )
   
   def test__is_group_file(self):
     f = file_split._is_group_file
@@ -58,7 +58,7 @@ class test_file_split(unit_test, unit_test_media_files):
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True)
-    self.assertEqual( [
+    self.assertEqual( self.xp_filename_list([
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -72,7 +72,7 @@ class test_file_split(unit_test, unit_test_media_files):
       'b/icons/lemon.jpg',
       'c',
       'c/noext',
-    ], t.src_files )
+    ]), self.xp_filename_list(t.src_files) )
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
 
@@ -103,7 +103,7 @@ class test_file_split(unit_test, unit_test_media_files):
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True,
                                     check_downloading = True)
-    self.assertEqual( [
+    self.assertEqual( self.xp_filename_list([
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -115,7 +115,7 @@ class test_file_split(unit_test, unit_test_media_files):
       'b',
       'b/icons',
       'b/icons/lemon.jpg',
-    ], t.src_files )
+    ]), self.xp_filename_list(t.src_files) )
 
   def test_find_and_unsplit_existing_target_same(self):
     items = [
@@ -130,7 +130,7 @@ class test_file_split(unit_test, unit_test_media_files):
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True)
-    self.assertEqual( [
+    self.assertEqual( self.xp_filename_list([
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -139,7 +139,7 @@ class test_file_split(unit_test, unit_test_media_files):
       'b',
       'b/icons',
       'b/icons/lemon.jpg',
-    ], t.src_files )
+    ]), self.xp_filename_list(t.src_files) )
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
 
@@ -158,7 +158,7 @@ class test_file_split(unit_test, unit_test_media_files):
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True,
                                     existing_file_timestamp = ts)
-    self.assertEqual( [
+    self.assertEqual( self.xp_filename_list([
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -168,7 +168,7 @@ class test_file_split(unit_test, unit_test_media_files):
       'b',
       'b/icons',
       'b/icons/lemon.jpg',
-    ], t.src_files )
+    ]), self.xp_filename_list(t.src_files) )
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo-20000101010001.txt' )
     self.assert_text_file_equal( 'different', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
@@ -186,7 +186,7 @@ class test_file_split(unit_test, unit_test_media_files):
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True,
                                     ignore_extensions = ( 'zip', 'foo' ) )
-    self.assertEqual( [
+    self.assertEqual( self.xp_filename_list([
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -195,7 +195,7 @@ class test_file_split(unit_test, unit_test_media_files):
       'b',
       'b/icons',
       'b/icons/lemon.jpg',
-    ], t.src_files )
+    ]), self.xp_filename_list(t.src_files) )
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
 
@@ -216,9 +216,9 @@ class test_file_split(unit_test, unit_test_media_files):
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     unzip = True)
-    self.assertEqual( [
+    self.assertEqual( self.xp_filename_list([
       'kiwi.mp4',
-    ], t.src_files )
+    ]), self.xp_filename_list(t.src_files) )
     self.assertEqual( True, file_util.files_are_the_same(f'{t.src_dir}/kiwi.mp4',
                                                          self.mp4_file) )
 
