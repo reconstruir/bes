@@ -325,12 +325,13 @@ class btl_document_base(metaclass = ABCMeta):
     bf_file_ops.save_text(filename, new_text, encoding = encoding)
     
   @classmethod
-  def load_file(clazz, filename, parser_options = None, codec = 'utf-8'):
+  def load_file(clazz, filename, parser_options = None, encoding = None):
     check.check_btl_parser_options(parser_options, allow_none = True)
+    check.check_string(encoding, allow_none = True)
     
     if os.path.exists(filename):
       filename = bf_check.check_file(filename)
-      text = bf_file_ops.read(filename, codec = codec)
+      text = bf_file_ops.read_text(filename, encoding = encoding)
     else:
       filename = os.path.abspath(filename)
       text = ''
