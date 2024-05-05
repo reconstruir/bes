@@ -322,7 +322,10 @@ color=red
     doc.set_value('color', 'red')
     tmp = self.make_temp_file(suffix = '.config', non_existent = True)
     doc.save_file(tmp)
-    expected = f'name=apple{os.linesep}color=red{os.linesep}'
+    expected = f'''\
+name=apple
+color=red
+'''
     self.assert_file_xp_equal( expected, tmp )
 
   def test_add_node_from_text(self):
