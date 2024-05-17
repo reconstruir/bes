@@ -193,8 +193,7 @@ class bf_file_ops(object):
   def read(clazz, filename, encoding = None):
     'Read a file into a string.'
     if encoding:
-      with open(filename, 'r', encoding = encoding) as f:
-        return f.read()
+      return clazz.read_text(filename, encoding = encoding)
     else:
       with open(filename, 'rb') as f:
         return f.read()
