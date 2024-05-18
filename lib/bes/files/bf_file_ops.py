@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import contextlib, codecs, errno, subprocess
+import contextlib, errno, subprocess
 import os.path as path, os, shutil, sys, tempfile
 import locale
 
