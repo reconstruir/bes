@@ -1,13 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import contextlib, errno, subprocess
-import os.path as path, os, shutil, sys, tempfile
+import contextlib
+import errno
 import locale
+import os
+import os.path as path
+import shutil
+import subprocess
+import sys
+import tempfile
 
 from ..common.object_util import object_util
 from ..system.check import check
-from ..system.compat import compat
-from ..system.env_var import os_env_var
 from ..system.filesystem import filesystem
 from ..system.which import which
 
@@ -240,11 +244,7 @@ class bf_file_ops(object):
 
     if not path.exists(filename):
       raise RuntimeError('Not found: "{}"'.format(filename))
-    v = os_env_var('PAGER')
-    if v.is_set:
-      pager = which.which(v.value)
-    else:
-      pager = which.which('less') or which.which('more')
+    pager = os.getenv('PAGER', None) or which.which('less') or which.which('more')
     if not pager:
       raise RuntimeError('Pager not found')
     subprocess.call([ pager, filename ])
