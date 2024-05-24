@@ -1,5 +1,7 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
+from datetime import timedelta
 from typing import Any
 import typing
 
@@ -14,7 +16,9 @@ class bcli_typing(object):
     'set': set,
     'dict': dict,
     'tuple': tuple,
-    'any': typing.Any
+#    'any': typing.Any
+    'datetime': datetime,
+    'timedelta': timedelta,
   }
 
   @classmethod
