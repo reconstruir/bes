@@ -11,6 +11,7 @@ bes_dev()
   local _bes_root_dir="$(_bes_dev_root)"
   source "$(_bes_dev_root)/bes_bash/bes_bash.bash"
   local _virtual_env_setup="${_bes_root_dir}/env/bes_venv_activate.bash"
+  local _python_version=$(cat "${_bes_root_dir}/env/python.version")
   bes_dev_setup "${_bes_root_dir}" \
                 --set-path \
                 --set-python-path \
@@ -19,6 +20,7 @@ bes_dev()
                 --venv-activate \
                 --change-dir \
                 ${1+"$@"}
+  bes_env_path_prepend PYTHONPATH "${_bes_root_dir}/VE/bes/lib/python${_python_version}/site-packages"
   return $?
 }
 
