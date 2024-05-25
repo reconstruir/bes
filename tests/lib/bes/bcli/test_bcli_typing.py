@@ -22,6 +22,12 @@ class test_bcli_typing(unit_test):
     self.assertEqual( typing.List[datetime], bcli_typing.parse_type('list[datetime]') )
     self.assertEqual( typing.Set[datetime], bcli_typing.parse_type('set[datetime]') )
     self.assertEqual( typing.Dict[str, datetime], bcli_typing.parse_type('dict[str, datetime]') )
+
+  def test_check_instance(self):
+    self.assertEqual( True, bcli_typing.check_instance([ 1, 2, 3 ], typing.List[int]) )
+    self.assertEqual( True, bcli_typing.check_instance({ "key": 42 }, typing.Dict[str, int]) )
+    self.assertEqual( True, bcli_typing.check_instance({ 1, 2, 3 }, typing.Set[int]) )
+    self.assertEqual( True, bcli_typing.check_instance(( 1, "a" ), typing.Tuple[int, str]) )
     
 if __name__ == '__main__':
   unit_test.main()

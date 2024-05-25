@@ -47,11 +47,27 @@ class bcli_typing(object):
         return clazz._SIMPLE_TYPES[type_str]
     except Exception as e:
       raise ValueError(f"Invalid type string: {type_str}") from e
-'''
-# Examples of parsing type strings
-print(parse_type("int"))      # Output: <class 'int'>
-print(parse_type("bool"))       # Output: <class 'bool'>
-print(parse_type("list[str]"))    # Output: typing.List[str]
-print(parse_type("set[int]"))     # Output: typing.Set[int]
-print(parse_type("dict[str, int]")) # Output: typing.Dict[str, int]
-'''
+
+#from typing import List, Dict, get_origin, get_args
+#import typing_inspect
+
+  def check_instance(value, type_hint):
+    origin = typing.get_origin(type_hint)
+    args = typing.get_args(type_hint)
+
+    if origin is None:  # Simple types
+      return isinstance(value, type_hint)
+    elif origin is list:  # List with a specific type
+      if isinstance(value, list) and len(args) == 1:
+        return all(isinstance(item, args[0]) for item in value)
+    elif origin is dict:  # Dict with specific key-value types
+      if isinstance(value, dict) and len(args) == 2:
+        return all(isinstance(k, args[0]) and isinstance(v, args[1]) for k, v in value.items())
+    elif origin is set:  # Set with a specific type
+      if isinstance(value, set) and len(args) == 1:
+        return all(isinstance(item, args[0]) for item in value)
+    elif origin is tuple:  # Tuple with specific types
+      if isinstance(value, tuple) and len(args) == len(value):
+        return all(isinstance(item, arg) for item, arg in zip(value, args))
+
+    return False
