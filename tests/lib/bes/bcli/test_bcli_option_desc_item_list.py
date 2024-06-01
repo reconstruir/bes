@@ -34,6 +34,14 @@ melon list[str] [ 'a', 'b', 'c' ]
       'lemon': ( 'lemon', typing.List[str], [] ),
       'melon': ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
     }, bcli_option_desc_item_list.parse_text(text).to_dict() )
+
+  def test_to_dict_with_duplicate_name(self):
+    text = '''
+kiwi list[int] []
+kiwi list[str] []
+'''
+    with self.assertRaises(KeyError) as ctx:
+      bcli_option_desc_item_list.parse_text(text).to_dict()
     
 if __name__ == '__main__':
   unit_test.main()

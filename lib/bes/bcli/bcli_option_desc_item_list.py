@@ -31,6 +31,7 @@ class bcli_option_desc_item_list(type_checked_list):
   def to_dict(self):
     result = {}
     for item in self:
-      assert item.name not in result
+      if item.name in result:
+        raise KeyError(f'{item.name} already found in result')
       result[item.name] = item
     return result
