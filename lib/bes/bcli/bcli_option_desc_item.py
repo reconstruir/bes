@@ -29,9 +29,11 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
 
     parts = string_util.split_by_white_space(text, strip = True)
     num_parts = len(parts)
-    if num_parts != 3:
-      raise ValueError(f'Number of parts should be 3 instead of {num_parts}: "{text}"')
-    name, type_str, default_str = parts
+    if num_parts < 3:
+      raise ValueError(f'Number of parts should be at least 3 instead of {num_parts}: "{text}"')
+    name = parts.pop(0)
+    type_str = parts.pop(0)
+    default_str = ' '.join(parts)
     option_type = bcli_typing.parse_type(type_str)
     # FIXME: this is super dangerous and should be replaced with not eval
     default_value = eval(default_str)

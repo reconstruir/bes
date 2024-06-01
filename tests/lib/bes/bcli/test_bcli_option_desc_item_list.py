@@ -15,10 +15,12 @@ class test_bcli_option_desc_item_list(unit_test):
     text = '''
 kiwi list[int] []
 lemon list[str] []
+melon list[str] [ 'a', 'b', 'c' ]
 '''
     self.assertEqual( [
       ( 'kiwi', typing.List[int], [] ),
       ( 'lemon', typing.List[str], [] ),
+      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
     ], bcli_option_desc_item_list.parse_text(text) )
 
 if __name__ == '__main__':
