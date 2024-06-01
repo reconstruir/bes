@@ -15,9 +15,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
 
   def __new__(clazz, name, option_type, default_value):
     check.check_string(name)
-    #print(f'option_type={option_type} type={type(option_type)}')
     check.check(option_type, ( typing._GenericAlias, type ))
-    #check.check(default_value, option_type, allow_none = True)
     if default_value != None:
       bcli_typing.check_instance(default_value, option_type)
     
@@ -47,10 +45,6 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
       return clazz.parse(obj)
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
-#  @cached_property
-#  def parsed_type(self):
-#    return bcli_typing.parse_type(self.option_type)
-
 check.register_class(bcli_option_desc_item,
                      include_seq = False,
                      cast_func = bcli_option_desc_item._check_cast_func)    

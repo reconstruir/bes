@@ -28,8 +28,7 @@ class bcli_option_desc_item_list(type_checked_list):
       
     return result
   
-  @cached_property
-  def as_dict(self):
+  def to_dict(self):
     result = {}
     for item in self:
       assert item.name not in result

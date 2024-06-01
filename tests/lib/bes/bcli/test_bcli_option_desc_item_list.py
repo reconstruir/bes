@@ -23,5 +23,17 @@ melon list[str] [ 'a', 'b', 'c' ]
       ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
     ], bcli_option_desc_item_list.parse_text(text) )
 
+  def test_to_dict(self):
+    text = '''
+kiwi list[int] []
+lemon list[str] []
+melon list[str] [ 'a', 'b', 'c' ]
+'''
+    self.assertEqual( {
+      'kiwi': ( 'kiwi', typing.List[int], [] ),
+      'lemon': ( 'lemon', typing.List[str], [] ),
+      'melon': ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
+    }, bcli_option_desc_item_list.parse_text(text).to_dict() )
+    
 if __name__ == '__main__':
   unit_test.main()
