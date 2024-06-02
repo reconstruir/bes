@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import typing
-#from datetime import datetime
+#import datetime
+from datetime import datetime
 #from datetime import timedelta
 
 from bes.testing.unit_test import unit_test
@@ -42,6 +43,19 @@ kiwi list[str] []
 '''
     with self.assertRaises(KeyError) as ctx:
       bcli_option_desc_item_list.parse_text(text).to_dict()
-    
+
+  def test_parse_text_with_lambda_default(self):
+    items = bcli_option_desc_item_list([ ( 'kiwi', datetime, lambda: datetime.now() ) ])
+#    text = f'''
+#kiwi datetime default:kiwi
+#'''
+#   items = bcli_option_desc_item_list.parse_text(text)
+ #   from datetime import datetime
+#    default_value = items[0].default_value()
+#    self.assertEqual( 'kiwi', items[0].name )
+#    self.assertEqual( datetime, items[0].option_type )
+#    from datetime import datetime
+#    self.assertEqual( 'datetime', type(items[0].default_value()).__name__ )
+      
 if __name__ == '__main__':
   unit_test.main()
