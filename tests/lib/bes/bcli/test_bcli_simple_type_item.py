@@ -11,12 +11,8 @@ from bes.bcli.bcli_simple_type_item import bcli_simple_type_item
 class test_bcli_simple_type_item(unit_test):
 
   def test_type(self):
-    self.assertEqual( int, bcli_simple_type_item('kiwi', lambda: int, lambda: 666).type )
-    self.assertEqual( datetime, bcli_simple_type_item('kiwi', lambda: datetime, lambda: datetime.now()).type )
+    self.assertEqual( int, bcli_simple_type_item('kiwi', lambda: int).type )
+    self.assertEqual( datetime, bcli_simple_type_item('kiwi', lambda: datetime).type )
 
-  def test_default(self):
-    self.assertEqual( 666, bcli_simple_type_item('kiwi', lambda: int, lambda: 666).default )
-    self.assertEqual( datetime, type(bcli_simple_type_item('kiwi', lambda: datetime, lambda: datetime.now()).default) )
-    
 if __name__ == '__main__':
   unit_test.main()

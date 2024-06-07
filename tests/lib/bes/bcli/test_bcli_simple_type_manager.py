@@ -13,12 +13,21 @@ class test_bcli_simple_type_manager(unit_test):
 
   def test_basic_types(self):
     m = bcli_simple_type_manager()
-    self.assertEqual( None, m.default('int') )
+    self.assertEqual( int, m.type('int') )
 
   def test__parse_type_str(self):
     f = bcli_simple_type_manager._parse_type_str
     self.assertEqual( ( 'list', 'int' ), f('list[int]') )
     self.assertEqual( ( 'int', None ), f('int') )
+
+  def xtest__parse_type_str_to_typing(self):
+    m = bcli_simple_type_manager()
+    f = bcli_simple_type_manager._parse_type_str_to_typing
+    #self.assertEqual( 'int', m._parse_type_str_to_typing('int') )
+    self.assertEqual( ( 'list', 'int' ), m._parse_type_str_to_typing('list[int]') )
+    return
+#    self.assertEqual( ( 'list', 'int' ), f('list[int]') )
+#    self.assertEqual( ( 'int', None ), f('int') )
     
 if __name__ == '__main__':
   unit_test.main()
