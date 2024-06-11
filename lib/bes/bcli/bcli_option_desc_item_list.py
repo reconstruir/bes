@@ -15,7 +15,8 @@ class bcli_option_desc_item_list(type_checked_list):
     super().__init__(values = values)
 
   @classmethod
-  def parse_text(clazz, text):
+  def parse_text(clazz, manager, text):
+    check.check_bcli_simple_type_manager(manager)
     check.check_string(text)
 
     lines = text_line_parser.parse_lines(text,
@@ -23,7 +24,7 @@ class bcli_option_desc_item_list(type_checked_list):
                                          remove_empties = True)
     result = bcli_option_desc_item_list()
     for line_text in lines:
-      item = bcli_option_desc_item.parse_text(line_text)
+      item = bcli_option_desc_item.parse_text(manager, line_text)
       result.append(item)
       
     return result

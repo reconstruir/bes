@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from bes.system.check import check
 from bes.property.cached_property import cached_property
+from bes.common.tuple_util import tuple_util
 
 class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_function')):
 
@@ -19,6 +20,7 @@ class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_func
 
   @classmethod
   def _check_cast_func(clazz, obj):
+    print(f'obj={obj}')
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
 check.register_class(bcli_simple_type_item,

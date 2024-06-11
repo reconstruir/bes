@@ -52,7 +52,8 @@ class bcli_typing(object):
 #from typing import List, Dict, get_origin, get_args
 #import typing_inspect
 
-  def check_instance(value, type_hint):
+  @classmethod
+  def check_instance(clazz, value, type_hint):
     origin = typing.get_origin(type_hint)
     args = typing.get_args(type_hint)
 

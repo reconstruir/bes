@@ -65,25 +65,49 @@ class bcli_simple_type_manager(object):
     """Parses a string representing a type into the corresponding Python type."""
 
     base_str, param_str = self._parse_type_str(type_str)
-    print(f'base_str={base_str} param_str={param_str}')
+    base_type = self._types[base_str].type
+    print(f'base_str={base_str} param_str={param_str} base_type={base_type}')
     if not param_str:
       t = self._types.get(base_str, None)
       if not t:
         raise ValueError(f'simple type "{base_str}" not found.')
-      return t.type
+      return t #t.type
 
     # Split parameters if there are multiple, e.g., dict[str, int]
     params = [ self._parse_type_str_to_typing(param.strip()) for param in param_str.split(',') ]
+    params_type = [ param.type for param in params ]
     print(f'params={params}')
-    if base_str in { list, typing.List }:
-      return typing.List[params[0]]
-    elif base_str in { set, typing.Set }:
-      return typing.Set[params[0]]
-    elif base_str in { dict, typing.Dict }:
-      return typing.Dict[params[0], params[1]]
-    elif base_str in { tuple, typing.Tuple }:
-      return typing.Tuple[tuple(params)]
+    if base_type in { list, typing.List }:
+      return typing.List[params_type[0]]
+    elif base_type in { set, typing.Set }:
+      return typing.Set[params_type[0]]
+    elif base_type in { dict, typing.Dict }:
+      return typing.Dict[params_type[0], params_type[1]]
+    elif base_type in { tuple, typing.Tuple }:
+      return typing.Tuple[tuple(params_type)]
     else:
-      raise ValueError(f'base_str "{base_str}" not found.')
-  
+      raise ValueError(f'base_type "{base_type}" not found.')
+
+  @classmethod
+  def check_instance(clazz, value, type_hint):
+    origin = typing.get_origin(type_hint)
+    args = typing.get_args(type_hint)
+
+    if origin is None:  # Simple types
+      return isinstance(value, type_hint)
+    elif origin is list:  # List with a specific type
+      if isinstance(value, list) and len(args) == 1:
+        return all(isinstance(item, args[0]) for item in value)
+    elif origin is dict:  # Dict with specific key-value types
+      if isinstance(value, dict) and len(args) == 2:
+        return all(isinstance(k, args[0]) and isinstance(v, args[1]) for k, v in value.items())
+    elif origin is set:  # Set with a specific type
+      if isinstance(value, set) and len(args) == 1:
+        return all(isinstance(item, args[0]) for item in value)
+    elif origin is tuple:  # Tuple with specific types
+      if isinstance(value, tuple) and len(args) == len(value):
+        return all(isinstance(item, arg) for item, arg in zip(value, args))
+
+    return False
+    
 check.register_class(bcli_simple_type_manager, include_seq = False)    
