@@ -48,9 +48,24 @@ kiwi list[str] []
     with self.assertRaises(KeyError) as ctx:
       bcli_option_desc_item_list.parse_text(m, text).to_dict()
 
-  def test_parse_text_with_lambda_default(self):
+  def test_parse_text_with_simple_and_typing_types(self):
     m = bcli_simple_type_manager()
-    items = bcli_option_desc_item_list([ ( 'kiwi', datetime, lambda: datetime.now() ) ])
+    m.add_variable('bcli_datetime_now', lambda: datetime.now())
+    text = '''
+kiwi int 42
+pear int None
+lemon list[str] []
+melon list[str] [ 'a', 'b', 'c' ]
+'''
+    self.assertEqual( [
+      ( 'kiwi', int, 42 ),
+      ( 'pear', int, None ),
+      ( 'lemon', typing.List[str], [] ),
+      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
+    ], bcli_option_desc_item_list.parse_text(m, text) )
+    
+#  def test_parse_text_with_lambda_default(self):
+#    items = bcli_option_desc_item_list([ ( 'kiwi', datetime, lambda: datetime.now() ) ])
 #    text = f'''
 #kiwi datetime default:kiwi
 #'''

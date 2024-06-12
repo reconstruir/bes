@@ -18,6 +18,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
 
   def __new__(clazz, name, option_type, default_value):
     check.check_string(name)
+    #print(f'CACA: option_type={option_type}')
     check.check(option_type, ( type, typing._GenericAlias ))
     
     if default_value != None:
@@ -37,6 +38,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     name = parts.pop(0)
     type_str = parts.pop(0)
     default_str = ' '.join(parts)
+    #print(f'CACA: type_str={type_str}')
     option_type = manager._parse_type_str_to_typing(type_str)
     default_value = ast.literal_eval(default_str)
     if default_value != None:

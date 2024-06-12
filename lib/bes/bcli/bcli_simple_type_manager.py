@@ -34,6 +34,14 @@ class bcli_simple_type_manager(object):
     self._types = {}
     for t in self._BASIC_TYPES:
       self.add_type(t)
+    self._variables = {}
+
+  def add_variable(self, name, function):
+    check.check_string(name)
+    check.check_callable(function)
+
+    assert name not in self._variables
+    self._variables[name] = function
       
   def add_type(self, t):
     check.check_bcli_simple_type_item(t)
@@ -66,17 +74,17 @@ class bcli_simple_type_manager(object):
 
     base_str, param_str = self._parse_type_str(type_str)
     base_type = self._types[base_str].type
-    print(f'base_str={base_str} param_str={param_str} base_type={base_type}')
+    #print(f'base_str={base_str} param_str={param_str} base_type={base_type}')
     if not param_str:
       t = self._types.get(base_str, None)
       if not t:
         raise ValueError(f'simple type "{base_str}" not found.')
-      return t #t.type
+      return t.type
 
     # Split parameters if there are multiple, e.g., dict[str, int]
     params = [ self._parse_type_str_to_typing(param.strip()) for param in param_str.split(',') ]
-    params_type = [ param.type for param in params ]
-    print(f'params={params}')
+    params_type = [ param for param in params ]
+    #print(f'params={params}')
     if base_type in { list, typing.List }:
       return typing.List[params_type[0]]
     elif base_type in { set, typing.Set }:
