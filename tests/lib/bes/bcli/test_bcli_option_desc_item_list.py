@@ -50,7 +50,6 @@ kiwi list[str] []
 
   def test_parse_text_with_simple_and_typing_types(self):
     m = bcli_simple_type_manager()
-    m.add_variable('bcli_datetime_now', lambda: datetime.now())
     text = '''
 kiwi int 42
 pear int None
@@ -64,18 +63,35 @@ melon list[str] [ 'a', 'b', 'c' ]
       ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
     ], bcli_option_desc_item_list.parse_text(m, text) )
     
-#  def test_parse_text_with_lambda_default(self):
-#    items = bcli_option_desc_item_list([ ( 'kiwi', datetime, lambda: datetime.now() ) ])
-#    text = f'''
-#kiwi datetime default:kiwi
-#'''
-#   items = bcli_option_desc_item_list.parse_text(text)
- #   from datetime import datetime
-#    default_value = items[0].default_value()
-#    self.assertEqual( 'kiwi', items[0].name )
-#    self.assertEqual( datetime, items[0].option_type )
-#    from datetime import datetime
-#    self.assertEqual( 'datetime', type(items[0].default_value()).__name__ )
-      
+  def test_parse_text_with_variables(self):
+    m = bcli_simple_type_manager()
+    m.add_variable('bcli_foo', lambda: '42')
+    m.add_variable('bcli_bar', lambda: '666')
+    text = '''
+kiwi int ${bcli_foo}
+pear int ${bcli_bar}
+'''
+    self.assertEqual( [
+      ( 'kiwi', int, 42 ),
+      ( 'pear', int, 666 ),
+    ], bcli_option_desc_item_list.parse_text(m, text) )
+
+  def test_parse_text_with_non_constant_variables(self):
+    m = bcli_simple_type_manager()
+    l = [ 0 ]
+    def _value():
+      l[0] += 1
+      return l[0]
+    m.add_variable('bcli_foo', _value)
+    m.add_variable('bcli_bar', _value)
+    text = '''
+kiwi int ${bcli_foo}
+pear int ${bcli_bar}
+'''
+    self.assertEqual( [
+      ( 'kiwi', int, 1 ),
+      ( 'pear', int, 2 ),
+    ], bcli_option_desc_item_list.parse_text(m, text) )
+
 if __name__ == '__main__':
   unit_test.main()

@@ -105,6 +105,9 @@ class test_check(unit_test):
     with self.assertRaises(TypeError) as context:
       check.check_dict({ 'a': 5, 6: 'b' }, value_type = compat.INTEGER_TYPES)
 
+  def test_check_dict_with_complex_value_types(self):
+    check.check_dict({ 'a': 5, 'b': 6, 'c': '7' }, value_type = ( int, str ))
+      
   def test_is_string_seq(self):
     self.assertFalse( check.is_string([ 'foo' ]) )
     self.assertTrue( check.is_string('foo') )

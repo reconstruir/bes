@@ -12,6 +12,7 @@ from collections import namedtuple
 
 from bes.system.check import check
 from bes.property.cached_property import cached_property
+from bes.common.variable import variable
 
 from .bcli_simple_type_item import bcli_simple_type_item
 
@@ -42,7 +43,10 @@ class bcli_simple_type_manager(object):
 
     assert name not in self._variables
     self._variables[name] = function
-      
+
+  def substitute_variables(self, s):
+    return variable.substitute(s, self._variables)
+    
   def add_type(self, t):
     check.check_bcli_simple_type_item(t)
 

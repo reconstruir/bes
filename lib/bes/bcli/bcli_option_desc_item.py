@@ -40,7 +40,8 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     default_str = ' '.join(parts)
     #print(f'CACA: type_str={type_str}')
     option_type = manager._parse_type_str_to_typing(type_str)
-    default_value = ast.literal_eval(default_str)
+    resolved_default_str = manager.substitute_variables(default_str)
+    default_value = ast.literal_eval(resolved_default_str)
     if default_value != None:
       manager.check_instance(default_value, option_type)
     return bcli_option_desc_item(name, option_type, default_value)
