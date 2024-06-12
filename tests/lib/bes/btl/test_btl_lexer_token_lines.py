@@ -19,7 +19,7 @@ class test_btl_lexer_token_lines(_test_simple_lexer_mixin, unit_test):
 fruit=kiwi
 color=green
 '''
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
 
   def test_modify_value(self):
     tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
@@ -30,7 +30,7 @@ color=green
 fruit=watermelon
 color=green
 '''
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
 
   def test_insert_line_top(self):
     tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
@@ -48,7 +48,7 @@ color=green
 fruit=kiwi
 color=green
 '''
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
 
   def test_insert_line_middle(self):
     tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
@@ -66,7 +66,7 @@ fruit=kiwi
 flavor=tart
 color=green
 '''
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
 
   def test_insert_line_end(self):
     tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
@@ -84,7 +84,7 @@ fruit=kiwi
 color=green
 flavor=tart
 '''
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
 
   def test_insert_line_end_negative_one(self):
     tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)
@@ -102,7 +102,7 @@ fruit=kiwi
 color=green
 flavor=tart
 '''
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
 
   def test_to_json(self):
     tokens = btl_lexer_token_list.parse_json(self._JSON_TEXT)

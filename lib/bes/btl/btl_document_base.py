@@ -42,6 +42,9 @@ class btl_document_base(metaclass = ABCMeta):
     self._tokens = None
     self._do_parse()
 
+  def __str__(self):
+    return self.text
+  
   @classmethod
   @abstractmethod
   def lexer_class(clazz):
@@ -303,30 +306,32 @@ class btl_document_base(metaclass = ABCMeta):
     self._log.log_d(f'add_line_break: insert_line={insert_line}')
     return insert_line
     
-  def save_file(self, filename, encoding = 'utf-8', backup = True, perm = None):
-    check.check_string(encoding)
+  def save_file(self, filename, encoding = None, backup = True, perm = None):
+    check.check_string(filename)
+    check.check_string(encoding, allow_none = True)
     check.check_bool(backup)
+    check.check_int(perm, allow_none = True)
     
     new_text = self.to_source_string()
     if os.path.exists(filename):
       filename = bf_check.check_file(filename)
-      old_text = bf_file_ops.read(filename, codec = codec)
+      old_text = bf_file_ops.read_text(filename, encoding = encoding)
       if old_text == new_text:
         return
       if backup:
         bf_file_ops.backup(filename)
-      filename = bf_check.check_file(filename)
     else:
       filename = os.path.abspath(filename)
-    bf_file_ops.save(filename, content = new_text, encoding = encoding, perm = None)
+    bf_file_ops.save_text(filename, new_text, encoding = encoding)
     
   @classmethod
-  def load_file(clazz, filename, parser_options = None, codec = 'utf-8'):
+  def load_file(clazz, filename, parser_options = None, encoding = None):
     check.check_btl_parser_options(parser_options, allow_none = True)
+    check.check_string(encoding, allow_none = True)
     
     if os.path.exists(filename):
       filename = bf_check.check_file(filename)
-      text = bf_file_ops.read(filename, codec = codec)
+      text = bf_file_ops.read_text(filename, encoding = encoding)
     else:
       filename = os.path.abspath(filename)
       text = ''
@@ -393,5 +398,9 @@ class btl_document_base(metaclass = ABCMeta):
       result = tokens_has_right_line_break in ( False, None )
     self._log.log_d(f'_need_right_line_break: CACA: result={result}')
     return result
+
+  @classmethod
+  def make_debug_str(clazz, text):
+    return btl_debug.make_debug_str(text)
   
 check.register_class(btl_document_base, include_seq = False)

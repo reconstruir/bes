@@ -28,7 +28,7 @@ name=brie
     char_map = btl_lexer_desc_char_map()
     c = btl_lexer_context(_test_simple_lexer(), 'tag', text, char_map, None)
     t = btl_lexer_token('t_kiwi', value = '', position = ( 3, 6 ))
-    self.assertMultiLineEqual( expected, c.make_error_text('this\nis\nthe\ntext', 'message is good') )
+    self.assert_multi_line_xp_equal( expected, c.make_error_text('this\nis\nthe\ntext', 'message is good') )
     
 if __name__ == '__main__':
   unit_test.main()

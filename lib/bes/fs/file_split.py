@@ -40,7 +40,7 @@ class file_split(object):
     for item in info.items:
       item_target = item.target
       options.blurber.blurb_verbose(f'Unsplitting {item_target} - {len(item.files)} parts.')
-      tmp = temp_file.make_temp_file(prefix = path.basename(item_target), dir = path.dirname(item_target))
+      tmp = temp_file.make_temp_file(prefix = path.basename(item_target), dir = path.dirname(item_target), non_existent = True)
       clazz.unsplit_files(tmp, item.files)
       if options.unzip:
         if archiver.is_valid(tmp):

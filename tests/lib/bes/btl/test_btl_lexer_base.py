@@ -410,8 +410,8 @@ class test_btl_lexer_base(btl_lexer_tester_mixin, unit_test):
       ( 't_value', 'brie', ( 1, 8 ), None, None ),
       ( 't_done', None, None, 'h_done', None ),
     ])
-    self.assertMultiLineEqual( expected_tokens1.to_debug_str(), actual_tokens1.to_debug_str() )
-    self.assertMultiLineEqual( expected_tokens2.to_debug_str(), actual_tokens2.to_debug_str() )
+    self.assert_multi_line_xp_equal( expected_tokens1.to_debug_str(), actual_tokens1.to_debug_str() )
+    self.assert_multi_line_xp_equal( expected_tokens2.to_debug_str(), actual_tokens2.to_debug_str() )
     
 if __name__ == '__main__':
   unit_test.main()

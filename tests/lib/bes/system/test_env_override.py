@@ -112,33 +112,33 @@ class test_env_override(unit_test):
   def test_path_append(self):
     original_env = os_env.clone_current_env()
     env = {
-      'PATH': '/bin:/usr/bin',
+      'PATH': f'/bin{os.pathsep}/usr/bin',
     }
     path_append = [ '/apple/bin', '/orange/bin' ]
     options = env_override_options(env = env,
                                    path_append = path_append)
     with env_override(options = options) as _:
-      self.assertEqual( { 'PATH': '/bin:/usr/bin:/apple/bin:/orange/bin' }, dict(os.environ) )
-      self.assertEqual( '/bin:/usr/bin:/apple/bin:/orange/bin', os.environ['PATH'] )
+      self.assertEqual( { 'PATH': f'/bin{os.pathsep}/usr/bin{os.pathsep}/apple/bin{os.pathsep}/orange/bin' }, dict(os.environ) )
+      self.assertEqual( f'/bin{os.pathsep}/usr/bin{os.pathsep}/apple/bin{os.pathsep}/orange/bin', os.environ['PATH'] )
     self.assertEqual( original_env, os_env.clone_current_env() )
 
   def test_path_prepend(self):
     original_env = os_env.clone_current_env()
     env = {
-      'PATH': '/bin:/usr/bin',
+      'PATH': f'/bin{os.pathsep}/usr/bin',
     }
     path_prepend = [ '/apple/bin', '/orange/bin' ]
     options = env_override_options(env = env,
                                    path_prepend = path_prepend)
     with env_override(options = options) as _:
-      self.assertEqual( { 'PATH': '/apple/bin:/orange/bin:/bin:/usr/bin' }, dict(os.environ) )
-      self.assertEqual( '/apple/bin:/orange/bin:/bin:/usr/bin', os.environ['PATH'] )
+      self.assertEqual( { 'PATH': f'/apple/bin{os.pathsep}/orange/bin{os.pathsep}/bin{os.pathsep}/usr/bin' }, dict(os.environ) )
+      self.assertEqual( f'/apple/bin{os.pathsep}/orange/bin{os.pathsep}/bin{os.pathsep}/usr/bin', os.environ['PATH'] )
     self.assertEqual( original_env, os_env.clone_current_env() )
 
   def test_path_append_and_prepend(self):
     original_env = os_env.clone_current_env()
     env = {
-      'PATH': '/bin:/usr/bin',
+      'PATH': f'/bin{os.pathsep}/usr/bin',
     }
     path_append = [ '/brie/bin', '/cheddar/bin' ]
     path_prepend = [ '/apple/bin', '/orange/bin' ]
@@ -146,8 +146,8 @@ class test_env_override(unit_test):
                                    path_append = path_append,
                                    path_prepend = path_prepend)
     with env_override(options = options) as _:
-      self.assertEqual( { 'PATH': '/apple/bin:/orange/bin:/bin:/usr/bin:/brie/bin:/cheddar/bin' }, dict(os.environ) )
-      self.assertEqual( '/apple/bin:/orange/bin:/bin:/usr/bin:/brie/bin:/cheddar/bin', os.environ['PATH'] )
+      self.assertEqual( { 'PATH': f'/apple/bin{os.pathsep}/orange/bin{os.pathsep}/bin{os.pathsep}/usr/bin{os.pathsep}/brie/bin{os.pathsep}/cheddar/bin' }, dict(os.environ) )
+      self.assertEqual( f'/apple/bin{os.pathsep}/orange/bin{os.pathsep}/bin{os.pathsep}/usr/bin{os.pathsep}/brie/bin{os.pathsep}/cheddar/bin', os.environ['PATH'] )
     self.assertEqual( original_env, os_env.clone_current_env() )
     
 if __name__ == '__main__':

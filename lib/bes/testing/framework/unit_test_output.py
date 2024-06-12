@@ -5,7 +5,7 @@ from collections import namedtuple
 
 class unit_test_output(object):
 
-  _error = namedtuple('_error', 'error_type, fixture, function')
+  _error = namedtuple('_error', 'error_type, fixture')
   _error_status = namedtuple('_error_status', 'num_errors, num_failures, errors')
   
   @classmethod
@@ -19,8 +19,7 @@ class unit_test_output(object):
         r = re.findall(exp, line)
         if r:
           fixture = r[0][1]
-          function = r[0][0]
-          errors.append(clazz._error(error_type, r[0][1], r[0][0]))
+          errors.append(clazz._error(error_type, fixture))
           if error_type == 'FAIL':
             num_failures += 1
           elif error_type == 'ERROR':

@@ -305,7 +305,7 @@ def make_test_case(archive_class, xarchive_type):
         ( self.native_filename('metadata/db.json'), '{}\n' ),
       ])
       tmp_archive = self.make_temp_archive_for_reading(items)
-      tmp_file = self.make_temp_file()
+      tmp_file = self.make_temp_file(non_existent = True)
       tmp_archive.extract_member_to_file('foo/apple.txt', tmp_file)
       self.assertEqual( b'apple.txt\n', file_util.read(tmp_file) )
       

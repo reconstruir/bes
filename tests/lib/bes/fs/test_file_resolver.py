@@ -368,7 +368,7 @@ class test_file_resolve(unit_test):
     else:
       new_root_dir = None
     new_filename_abs = resolved_file.filename_abs.replace(tmp_dir, '${tmp_dir}')
-    item = file_resolver_item(new_root_dir,
+    item = file_resolver_item(clazz.xp_filename(new_root_dir),
                               clazz.xp_filename(resolved_file.filename),
                               clazz.xp_filename(new_filename_abs),
                               resolved_file.index,

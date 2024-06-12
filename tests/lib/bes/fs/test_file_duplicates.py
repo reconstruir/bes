@@ -295,14 +295,14 @@ class test_file_duplicates(unit_test):
       setup = file_duplicates.setup([ t.src_dir ], options = options)
 
       dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
-      self.assertEqual( [
+      self.assert_filename_list_equal( [
         f'{t.src_dir}/a/kiwi.jpg',
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ], dups )
 
       dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/gouda.jpg', setup)
-      self.assertEqual( [
+      self.assert_filename_list_equal( [
         f'{t.src_dir}/a/lemon.jpg',
       ], dups )
       
@@ -324,13 +324,13 @@ class test_file_duplicates(unit_test):
       file_util.remove(f'{t.src_dir}/a/kiwi.jpg')
       
       dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
-      self.assertEqual( [
+      self.assert_filename_list_equal( [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ], dups )
 
       dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/gouda.jpg', setup)
-      self.assertEqual( [
+      self.assert_filename_list_equal( [
         f'{t.src_dir}/a/lemon.jpg',
       ], dups )
       

@@ -50,7 +50,7 @@ name=syrah
 taste=earthy
 '''
     token = btl_lexer_token('t_fruit', 'kiwi', ( 9, 6 ))
-    self.assertEqual('''\
+    self.assert_multi_line_xp_equal( '''\
  5|name=ice cream
  6|    
  7|; fruit

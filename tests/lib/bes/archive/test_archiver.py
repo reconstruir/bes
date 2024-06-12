@@ -150,7 +150,7 @@ class test_archiver(unit_test):
         'file files/bar.txt "this is bar.txt" 644',
         'file files/baz.txt "this is baz.txt" 644',
     ], delete = not self.DEBUG)
-    tmp_archive = self.make_temp_file(suffix = '.zip')
+    tmp_archive = self.make_temp_file(suffix = '.zip', non_existent = True)
     archiver.create(tmp_archive, tmp_dir)
 
     from bes.archive.archive_operation_add_file import archive_operation_add_file

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.system.host import host
 from bes.testing.unit_test import unit_test
 
 from bes.btl.btl_lexer_token import btl_lexer_token
@@ -165,12 +166,13 @@ n_root;
     n_section;t_section_name:cheese:p=2,2:i=2
 ''', str(doc.root_node) )
 
-    self.assert_python_code_text_equal( '''
-0: t_line_break:[NL]:p=1,1:h=h_line_break:i=0
+    line_break='[CR][NL]' if host.is_windows() else '[NL]'
+    self.assert_python_code_text_equal( f'''
+0: t_line_break:{line_break}:p=1,1:h=h_line_break:i=0
 1: t_section_name_begin:[:p=2,1:i=1
 2: t_section_name:cheese:p=2,2:i=2
 3: t_section_name_end:]:p=2,8:i=3
-4: t_line_break:[NL]:p=2,9:h=h_line_break:i=4
+4: t_line_break:{line_break}:p=2,9:h=h_line_break:i=4
 ''', doc.tokens.to_debug_str() )
 
   def broken_test_add_section_one_previous_empty_section(self):

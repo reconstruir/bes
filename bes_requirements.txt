@@ -1,8 +1,6 @@
 # Requests
 requests                                   # https://github.com/kennethreitz/requests
-six >= 1.16.0; python_version < '3.3'      # https://github.com/benjaminp/six
-enum34 >= 1.1.10; python_version < '3.4'   # https://github.com/GoodRx/enum34
-xattr >= 0.9.8; sys_platform != "win32"    # https://github.com/xattr/xattr
-puremagic >= 1.14                          # https://github.com/cdgriffith/puremagic
+xattr >= 1.1.0; sys_platform != "win32"    # https://github.com/xattr/xattr
+puremagic >= 1.23                          # https://github.com/cdgriffith/puremagic
 python-magic-bin; sys_platform == "win32"  # https://github.com/julian-r/python-magic
 python-magic; sys_platform == "linux"      # https://github.com/julian-r/python-magic

@@ -28,7 +28,7 @@ class test_file_split_cli_args(program_unit_test):
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True)
-    self.assertEqual( [
+    self.assert_filename_list_equal( [
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -60,7 +60,7 @@ class test_file_split_cli_args(program_unit_test):
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     recursive = True,
                                     dry_run = True)
-    self.assertEqual( [
+    self.assert_filename_list_equal( [
       'a',
       'a/foo',
       'a/foo/kiwi.txt',
@@ -77,17 +77,17 @@ class test_file_split_cli_args(program_unit_test):
       'b/icons/lemon.jpg.02',
       'b/icons/lemon.jpg.03',
     ], t.src_files )
+    src_dir = self.xp_filename(t.src_dir)
     self.assert_string_equal_fuzzy(f'''\
-{t.src_dir}/a/parts/foo.txt:
-  {t.src_dir}/a/parts/foo.txt.001
-  {t.src_dir}/a/parts/foo.txt.002
-  {t.src_dir}/a/parts/foo.txt.003
-{t.src_dir}/b/icons/lemon.jpg:
-  {t.src_dir}/b/icons/lemon.jpg.01
-  {t.src_dir}/b/icons/lemon.jpg.02
-  {t.src_dir}/b/icons/lemon.jpg.03
-''', t.result.output )
-    return
+{src_dir}/a/parts/foo.txt:
+  {src_dir}/a/parts/foo.txt.001
+  {src_dir}/a/parts/foo.txt.002
+  {src_dir}/a/parts/foo.txt.003
+{src_dir}/b/icons/lemon.jpg:
+  {src_dir}/b/icons/lemon.jpg.01
+  {src_dir}/b/icons/lemon.jpg.02
+  {src_dir}/b/icons/lemon.jpg.03
+''', t.result.output.replace('\\', '/') )
     
   def _find_and_unsplit_test(self,
                              extra_content_items = None,

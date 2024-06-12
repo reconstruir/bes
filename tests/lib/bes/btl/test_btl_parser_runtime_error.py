@@ -60,7 +60,7 @@ borken
 14|\
 '''
     actual = str(ctx.exception)
-    self.assertMultiLineEqual( expected, actual )
+    self.assert_multi_line_xp_equal( expected, actual )
     
 if __name__ == '__main__':
   unit_test.main()
