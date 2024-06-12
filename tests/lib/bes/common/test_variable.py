@@ -131,8 +131,11 @@ class test_caca_variable(unit_test):
   def test_substitute_escaped(self):
     self.assertEqual( r'X and c:\tmp\foo.txt', variable.substitute('${foo} and ${bar}', { 'foo': 'X', 'bar': r'c:\tmp\foo.txt' }) )
 
-  def test_caca(self):
+  def test_something(self):
     self.assertEqual( 'c_kiwi', variable.substitute('${v_something}', { 'v_something': 'c_kiwi' }) )
+
+  def test_callable(self):
+    self.assertEqual( '42', variable.substitute('${v_num}', { 'v_num': lambda: '42' }) )
     
 if __name__ == '__main__':
   unit_test.main()

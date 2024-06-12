@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import collections
 import re
 
 from ..system.check import check
@@ -31,7 +32,7 @@ class variable(object):
   @classmethod
   def substitute(clazz, s, d, patterns = None):
     'Substitute vars in s with d.'
-    check.check_dict(d, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES)
+    check.check_dict(d, key_type = check.STRING_TYPES, value_type = ( str, collections.abc.Callable ))
     check.check_int(patterns, allow_none = True)
 
     patterns = patterns or clazz.ALL
@@ -59,7 +60,10 @@ class variable(object):
     def _replace(match):
       whole_match = match.group()
       variable_name = clazz._first_valid_group(match.groups())
-      return d.get(variable_name, whole_match)
+      result = d.get(variable_name, whole_match)
+      if callable(result):
+        result = result()
+      return str(result)
     return re.sub(exp, _replace, s)
     
   @classmethod
