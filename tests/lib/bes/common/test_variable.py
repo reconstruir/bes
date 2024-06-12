@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 import os.path as path
 from bes.common.variable import variable
 
-class test_caca_variable(unit_test):
+class test_variable(unit_test):
 
   def test_find_variables(self):
     self.assertEqual( [], variable.find_variables('No vars here') )
