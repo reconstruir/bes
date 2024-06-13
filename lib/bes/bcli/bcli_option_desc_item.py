@@ -10,7 +10,6 @@ from bes.property.cached_property import cached_property
 from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
-from .bcli_typing import bcli_typing
 from .bcli_simple_type_item import bcli_simple_type_item
 from .bcli_simple_type_manager import bcli_simple_type_manager
 

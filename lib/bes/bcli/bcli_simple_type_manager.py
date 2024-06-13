@@ -44,6 +44,12 @@ class bcli_simple_type_manager(object):
     assert name not in self._variables
     self._variables[name] = function
 
+  def add_variables(self, variables):
+    check.check_dict(variables, key_type = str)
+
+    for name, function in variables.items():
+      self.add_variable(name, function)
+    
   def substitute_variables(self, s):
     return variable.substitute(s, self._variables)
     
@@ -54,6 +60,11 @@ class bcli_simple_type_manager(object):
       raise KeyError(f'type "{t.name}" already added.')
     self._types[t.name] = t
 
+  def add_types(self, types):
+    types = check.check_bcli_simple_type_item_list(types)
+    for t in types:
+      self.add_type(t)
+    
   def type(self, type_name):
     check.check_string(type_name)
 

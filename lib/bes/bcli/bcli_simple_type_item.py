@@ -1,26 +1,34 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import ast
 from collections import namedtuple
 
 from bes.system.check import check
 from bes.property.cached_property import cached_property
 from bes.common.tuple_util import tuple_util
 
-class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_function')):
+class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_function, parse_function')):
 
-  def __new__(clazz, name, type_function):
+  def __new__(clazz, name, type_function, parse_function = None):
     check.check_string(name)
     check.check_callable(type_function)
+    check.check_callable(parse_function, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, name, type_function)
+    return clazz.__bases__[0].__new__(clazz, name, type_function, parse_function)
 
   @cached_property
   def type(self):
     return self.type_function()
 
+  def parse_text(self, text):
+    check.check_string(text)
+
+    if self.parse_function:
+      return self.parse_function(text)
+    return ast.literal_eval(text)
+  
   @classmethod
   def _check_cast_func(clazz, obj):
-    print(f'obj={obj}')
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
 check.register_class(bcli_simple_type_item,

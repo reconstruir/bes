@@ -2,16 +2,27 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import typing
-#from datetime import datetime
+from datetime import datetime
 #from datetime import timedelta
 
 from bes.testing.unit_test import unit_test
 from bes.bcli.bcli_options_desc import bcli_options_desc
+from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
 
 class test_bcli_options_desc(unit_test):
 
-  def test_foo(self):
-    pass
-
+  def test___init__(self):
+    types = bcli_simple_type_item_list([
+    ])
+    items_desc = '''
+kiwi int ${bcli_foo}
+pear int ${bcli_bar}
+'''
+    variables = {
+      'bcli_foo': lambda: '42',
+      'bcli_bar': lambda: '666',
+    }
+    desc = bcli_options_desc('foo', types, items_desc, variables)
+    
 if __name__ == '__main__':
   unit_test.main()
