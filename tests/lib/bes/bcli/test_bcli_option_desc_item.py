@@ -11,6 +11,9 @@ from bes.bcli.bcli_simple_type_manager import bcli_simple_type_manager
 
 class test_bcli_option_desc_item(unit_test):
 
+  def setUp(self):
+    self.maxDiff = None
+  
   def test___init__simple(self):
     item = bcli_option_desc_item('kiwi', int, None, False)
 
@@ -22,9 +25,38 @@ class test_bcli_option_desc_item(unit_test):
     self.assertEqual( ( 'kiwi', typing.List[int], [], False ),
                       bcli_option_desc_item.parse_text(m, 'kiwi list[int] []') )
 
+  def test_to_dict(self):
+    self.assertEqual( {
+      'name': 'kiwi',
+      'option_type': typing.List[int],
+      'default': [],
+      'sensitive': False,
+    }, bcli_option_desc_item('kiwi', typing.List[int], [], False).to_dict() )
+
+  def test_to_json(self):
+    self.assert_json_equal( '''
+{
+  "name": "kiwi",
+  "option_type": "typing.List[int]",
+  "default": [],
+  "sensitive": false
+}
+''', bcli_option_desc_item('kiwi', typing.List[int], [], False).to_json() )
+    
   def test__parse_parts(self):
     self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]' } ),
                       bcli_option_desc_item._parse_parts('kiwi list[int] default=[]') )
+    
+    self.assertEqual( ( 'kiwi', 'str', { 'default': 'string with spaces' } ),
+                      bcli_option_desc_item._parse_parts('kiwi str default="string with spaces"') )
+
+  def test__parse_parts_default_string_with_spaces(self):
+    self.assertEqual( ( 'kiwi', 'str', { 'default': 'string with spaces' } ),
+                      bcli_option_desc_item._parse_parts('kiwi str default="string with spaces"') )
+    
+  def test__parse_parts_multiple_key_values(self):
+    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'sensitive': 'True' } ),
+                      bcli_option_desc_item._parse_parts('kiwi list[int] default=[] sensitive=True') )
     
 if __name__ == '__main__':
   unit_test.main()

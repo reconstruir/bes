@@ -6,6 +6,7 @@ import typing
 from collections import namedtuple
 
 from bes.system.check import check
+from bes.common.json_util import json_util
 from bes.property.cached_property import cached_property
 from bes.key_value.key_value_list import key_value_list
 from bes.common.tuple_util import tuple_util
@@ -14,7 +15,7 @@ from bes.common.string_util import string_util
 from .bcli_simple_type_item import bcli_simple_type_item
 from .bcli_simple_type_manager import bcli_simple_type_manager
 
-class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_type, default_value, is_sensitive')):
+class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_type, default, sensitive')):
 
   def __new__(clazz, name, option_type, default_value, is_sensitive):
     check.check_string(name)
@@ -26,6 +27,14 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     
     return clazz.__bases__[0].__new__(clazz, name, option_type, default_value, is_sensitive)
 
+  def to_dict(self):
+    return dict(self._asdict())
+  
+  def to_json(self):
+    d = self.to_dict()
+    d['option_type'] = str(self.option_type)
+    return json_util.to_json(d, indent = 2, sort_keys = False)
+  
   @classmethod
   def parse_text(clazz, manager, text):
     check.check_bcli_simple_type_manager(manager)
