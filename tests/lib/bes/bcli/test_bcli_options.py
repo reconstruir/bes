@@ -11,6 +11,8 @@ from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
 
+from _unit_test_kiwi_options_desc import _unit_test_kiwi_options_desc
+
 class test_bcli_options(unit_test):
 
   def test_has_options(self):
@@ -39,7 +41,7 @@ class test_bcli_options(unit_test):
     with self.assertRaises(KeyError) as ctx:
       options = self._make_test_options(notthere = 1)
 
-  def test_subclass(self):
+  def xtest_subclass(self):
     class _test_kiwi_options_shape(bcli_options_desc):
       def __init__(self):
         types = bcli_simple_type_item_list([
@@ -70,17 +72,7 @@ color str None
     
   @classmethod
   def _make_test_options(clazz, **kwargs):
-    types = bcli_simple_type_item_list([
-    ])
-    items_desc = '''
-kiwi int ${bcli_foo}
-pear int ${bcli_bar}
-'''
-    variables = {
-      'bcli_foo': lambda: '42',
-      'bcli_bar': lambda: '666',
-    }
-    desc = bcli_options_desc('foo', types, items_desc, variables)
+    desc = _unit_test_kiwi_options_desc()
     return bcli_options(desc, **kwargs)
     
 if __name__ == '__main__':

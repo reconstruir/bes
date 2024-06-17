@@ -9,20 +9,12 @@ from bes.testing.unit_test import unit_test
 from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
 
+from _unit_test_kiwi_options_desc import _unit_test_kiwi_options_desc
+
 class test_bcli_options_desc(unit_test):
 
   def test___init__(self):
-    types = bcli_simple_type_item_list([
-    ])
-    items_desc = '''
-kiwi int ${bcli_foo}
-pear int ${bcli_bar}
-'''
-    variables = {
-      'bcli_foo': lambda: '42',
-      'bcli_bar': lambda: '666',
-    }
-    desc = bcli_options_desc('foo', types, items_desc, variables)
+    desc = _unit_test_kiwi_options_desc()
     
 if __name__ == '__main__':
   unit_test.main()

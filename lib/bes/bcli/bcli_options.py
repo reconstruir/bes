@@ -42,7 +42,7 @@ class bcli_options(object):
     desc = super().__getattribute__('_desc')
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
-    desc_item = desc.items_as_dict[name]
+    desc_item = desc.items_dict[name]
     options = super().__getattribute__('_options')
     if not desc.check_value_type(name, value):
       raise KeyError(f'Invalid type {type(value).__name__} for "{name}" ({value}) - should be "{desc_item.option_type.__name__}"')
