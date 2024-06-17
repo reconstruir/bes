@@ -57,6 +57,10 @@ pear int ${_var_bar}
       'kiwi': bcli_option_desc_item('kiwi', int, 42),
       'pear': bcli_option_desc_item('pear', int, 666),
     }, desc.items_dict )
+
+  def test_keys(self):
+    desc = self._unit_test_kiwi_options_desc()
+    self.assertEqual( ( 'kiwi', 'pear' ), desc.keys() )
     
 if __name__ == '__main__':
   unit_test.main()

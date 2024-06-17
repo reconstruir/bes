@@ -40,6 +40,15 @@ class test_bcli_options(unit_test):
     with self.assertRaises(KeyError) as ctx:
       options = self._make_test_options(notthere = 1)
 
+  def test_keys(self):
+    options = self._make_test_options()
+    self.assertEqual( ( 'kiwi', 'pear' ), options.keys() )
+      
+  def xtest___str__(self):
+    options = self._make_test_options()
+    self.assertEqual( '''
+''', str(options) )
+      
   class _test_kiwi_options_shape(bcli_options_desc):
 
     def __init__(self):
@@ -137,7 +146,7 @@ size int 0
     #@abstractmethod
     def options_desc(self):
       return '''
-kiwi int ${_var_foo}
+kiwi int ${_var_foo} # default=${_var_foo} secret=True
 pear int ${_var_bar}
   '''
   

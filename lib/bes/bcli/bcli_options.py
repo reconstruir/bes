@@ -1,7 +1,12 @@
  #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
+import pprint
+ 
 from collections import namedtuple
+
 from bes.system.check import check
+from bes.common.dict_util import dict_util
 from bes.system.log import logger
 
 from .bcli_options_desc import bcli_options_desc
@@ -18,6 +23,22 @@ class bcli_options(object):
     for name, value in kwargs.items():
       setattr(self, name, value)
 
+  def __str__(self):
+    return pprint.pformat(self.to_dict())
+
+  def keys(self):
+    desc = super().__getattribute__('_desc')
+    return desc.keys()
+  
+  def to_dict(self, hide_sensitive_keys = True):
+    if hide_sensitive_keys:
+      sensitive_keys = self.sensitive_keys() or ()
+      d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
+    else:
+      d = {
+      } # copy.deepcopy(self.__dict__)
+    return d
+      
   @property
   def desc(self):
     self._log.log_method_d()

@@ -28,6 +28,18 @@ class bcli_options_desc(bcli_options_desc_i):
     self._manager.add_types(types)
     self._manager.add_variables(variables)
 
+  #@abstractmethod
+  def types(self):
+    return None
+    
+  #@abstractmethod
+  def variables(self):
+    return {}
+
+  #@abstractmethod
+  def sensitive_keys(self):
+    return None
+    
   @cached_property
   def items(self):
     options_desc = self.options_desc() or ''
@@ -54,6 +66,9 @@ class bcli_options_desc(bcli_options_desc_i):
     item = self.items_dict[name]
     return self._manager.check_instance(value, item.option_type)
 
+  def keys(self):
+    return tuple([ key for key in self.items_dict.keys() ])
+  
   @classmethod
   def combine_options_desc(clazz, desc_text1, desc_text2):
     return desc_text1 + os.linesep + desc_text2

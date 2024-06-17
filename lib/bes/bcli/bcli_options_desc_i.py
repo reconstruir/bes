@@ -19,3 +19,7 @@ class bcli_options_desc_i(metaclass = ABCMeta):
   @abstractmethod
   def variables(self):
     raise NotImplementedError('variables')
+
+  @abstractmethod
+  def sensitive_keys(self):
+    raise NotImplementedError('sensitive_keys')
