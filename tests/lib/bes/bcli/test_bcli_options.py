@@ -34,6 +34,10 @@ class test_bcli_options(unit_test):
     options = self._make_test_options(kiwi = 100, pear = 101)
     self.assertEqual( 100, options.kiwi )
     self.assertEqual( 101, options.pear )
+
+  def test___init__with_invalid_kwargs(self):
+    with self.assertRaises(KeyError) as ctx:
+      options = self._make_test_options(notthere = 1)
     
   @classmethod
   def _make_test_options(clazz, **kwargs):
