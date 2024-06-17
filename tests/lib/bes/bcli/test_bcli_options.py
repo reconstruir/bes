@@ -38,6 +38,35 @@ class test_bcli_options(unit_test):
   def test___init__with_invalid_kwargs(self):
     with self.assertRaises(KeyError) as ctx:
       options = self._make_test_options(notthere = 1)
+
+  def test_subclass(self):
+    class _test_kiwi_options_shape(bcli_options_desc):
+      def __init__(self):
+        types = bcli_simple_type_item_list([
+        ])
+        items_desc = '''
+color str None
+'''
+        variables = {}
+        super().__init__('foo', types, items_desc, variables)
+
+    desc = _test_kiwi_options_shape()
+    options = bcli_options(desc)
+    self.assertEqual( None, options.color )
+
+    class _test_kiwi_options_square(_test_kiwi_options_shape):
+      def __init__(self):
+        types = bcli_simple_type_item_list([
+        ])
+        items_desc = '''
+color str None
+'''
+        variables = {}
+        super().__init__('foo', types, items_desc, variables)
+
+    desc = _test_kiwi_options_shape()
+    options = bcli_options(desc)
+    self.assertEqual( None, options.color )
     
   @classmethod
   def _make_test_options(clazz, **kwargs):
