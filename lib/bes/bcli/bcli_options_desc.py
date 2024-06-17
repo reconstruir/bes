@@ -1,6 +1,7 @@
  #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
+import os
  
 from bes.system.check import check
 from bes.property.cached_property import cached_property
@@ -52,5 +53,15 @@ class bcli_options_desc(bcli_options_desc_i):
     assert name in self.items_dict
     item = self.items_dict[name]
     return self._manager.check_instance(value, item.option_type)
+
+  @classmethod
+  def combine_options_desc(clazz, desc_text1, desc_text2):
+    return desc_text1 + os.linesep + desc_text2
+
+  @classmethod
+  def combine_variables(clazz, variables1, variables2):
+    result = copy.deepcopy(variables1)
+    result.update(variables2)
+    return result
   
 check.register_class(bcli_options_desc, include_seq = False)
