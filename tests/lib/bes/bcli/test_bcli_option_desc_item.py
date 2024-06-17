@@ -10,9 +10,6 @@ from bes.bcli.bcli_option_desc_item import bcli_option_desc_item
 from bes.bcli.bcli_simple_type_manager import bcli_simple_type_manager
 
 class test_bcli_option_desc_item(unit_test):
-
-  def setUp(self):
-    self.maxDiff = None
   
   def test___init__simple(self):
     item = bcli_option_desc_item('kiwi', int, None, False)
@@ -24,6 +21,12 @@ class test_bcli_option_desc_item(unit_test):
     m = bcli_simple_type_manager()
     self.assertEqual( ( 'kiwi', typing.List[int], [], False ),
                       bcli_option_desc_item.parse_text(m, 'kiwi list[int] default=[]') )
+
+  def test_parse_text_with_defaults(self):
+    m = bcli_simple_type_manager()
+    m.add_default('kiwi', lambda: [ 'a', 'b', 'c' ])
+    self.assertEqual( ( 'kiwi', typing.List[str], [ 'a', 'b', 'c' ], False ),
+                      bcli_option_desc_item.parse_text(m, 'kiwi list[str]') )
 
   def test_parse_text_with_defaults(self):
     m = bcli_simple_type_manager()

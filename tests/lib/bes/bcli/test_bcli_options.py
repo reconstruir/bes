@@ -14,6 +14,17 @@ from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
 
 class test_bcli_options(unit_test):
 
+  def test_to_dict(self):
+    options = self._make_test_options()
+    self.assertEqual( {
+      'kiwi': 42,
+      'pear': 666,
+    }, options.to_dict() )
+
+  def test___str__(self):
+    options = self._make_test_options()
+    self.assertEqual( '''{'kiwi': 42, 'pear': 666}''', str(options) )
+    
   def test_has_options(self):
     options = self._make_test_options()
     self.assertEqual( True, options.has_option('kiwi') )
@@ -43,11 +54,6 @@ class test_bcli_options(unit_test):
   def test_keys(self):
     options = self._make_test_options()
     self.assertEqual( ( 'kiwi', 'pear' ), options.keys() )
-      
-  def xtest___str__(self):
-    options = self._make_test_options()
-    self.assertEqual( '''
-''', str(options) )
       
   class _test_kiwi_options_shape(bcli_options_desc):
 

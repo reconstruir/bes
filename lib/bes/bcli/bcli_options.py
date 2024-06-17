@@ -26,6 +26,18 @@ class bcli_options(object):
   def __str__(self):
     return pprint.pformat(self.to_dict())
 
+  def to_dict(self, hide_secrets = True):
+    d = {}
+    for key in self.keys():
+      d[key] = getattr(self, key)
+    return copy.deepcopy(d)
+#    if hide_secret_keys:
+#      secret_keys = self.secret_keys() or ()
+#      d = dict_util.hide_passwords(self.__dict__, secret_keys)
+#    else:
+#      d = copy.deepcopy(self.__dict__)
+#    return d
+      
   def keys(self):
     desc = super().__getattribute__('_desc')
     return desc.keys()
@@ -33,19 +45,8 @@ class bcli_options(object):
   def secret_keys(self):
     desc = super().__getattribute__('_desc')
     result = []
-
-#    desc_item = desc.items_dict[name]
-#    for name, value
     return desc.keys()
   
-  def to_dict(self, hide_secret_keys = True):
-    if hide_secret_keys:
-      secret_keys = self.secret_keys() or ()
-      d = dict_util.hide_passwords(self.__dict__, secret_keys)
-    else:
-      d = copy.deepcopy(self.__dict__)
-    return d
-      
   @property
   def desc(self):
     self._log.log_method_d()
