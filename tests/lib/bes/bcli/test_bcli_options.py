@@ -66,7 +66,7 @@ class test_bcli_options(unit_test):
     #@abstractmethod
     def options_desc(self):
       return '''
-color str None
+color str default=None
   '''
   
     #@abstractmethod
@@ -93,7 +93,7 @@ color str None
     #@abstractmethod
     def options_desc(self):
       return self.combine_options_desc(super().options_desc(), '''
-size int 0
+size int default=0
 ''')
   
     #@abstractmethod
@@ -146,8 +146,8 @@ size int 0
     #@abstractmethod
     def options_desc(self):
       return '''
-kiwi int ${_var_foo} # default=${_var_foo} secret=True
-pear int ${_var_bar}
+kiwi int default=${_var_foo} secret=True
+pear int default=${_var_bar}
   '''
   
     #@abstractmethod

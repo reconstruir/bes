@@ -21,5 +21,6 @@ class bcli_options_desc_i(metaclass = ABCMeta):
     raise NotImplementedError('variables')
 
   @abstractmethod
-  def sensitive_keys(self):
-    raise NotImplementedError('sensitive_keys')
+  def defaults(self):
+    raise NotImplementedError('defaults')
+  

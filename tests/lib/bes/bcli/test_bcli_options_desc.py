@@ -29,8 +29,8 @@ class test_bcli_options_desc(unit_test):
     #@abstractmethod
     def options_desc(self):
       return '''
-kiwi int ${_var_foo}
-pear int ${_var_bar}
+kiwi int default=${_var_foo}
+pear int default=${_var_bar}
   '''
   
     #@abstractmethod
@@ -47,8 +47,8 @@ pear int ${_var_bar}
     self.assertEqual( True, desc.has_option('kiwi') )
     self.assertEqual( True, desc.has_option('pear') )
     self.assertEqual( False, desc.has_option('notthere') )
-    self.assertEqual( 42, desc.default_value('kiwi') )
-    self.assertEqual( 666, desc.default_value('pear') )
+    self.assertEqual( 42, desc.default('kiwi') )
+    self.assertEqual( 666, desc.default('pear') )
 
     self.assertEqual( True, desc.check_value_type('kiwi', 13) )
     self.assertEqual( False, desc.check_value_type('kiwi', '13') )

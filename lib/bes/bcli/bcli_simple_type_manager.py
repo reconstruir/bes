@@ -36,6 +36,7 @@ class bcli_simple_type_manager(object):
     for t in self._BASIC_TYPES:
       self.add_type(t)
     self._variables = {}
+    self._defaults = {}
 
   def add_variable(self, name, function):
     check.check_string(name)
@@ -49,7 +50,30 @@ class bcli_simple_type_manager(object):
 
     for name, function in variables.items():
       self.add_variable(name, function)
-    
+
+  def add_default(self, name, function):
+    check.check_string(name)
+    check.check_callable(function)
+
+    assert name not in self._defaults
+    self._defaults[name] = function
+
+  def add_defaults(self, defaults):
+    check.check_dict(defaults, key_type = str)
+
+    for name, function in defaults.items():
+      self.add_default(name, function)
+
+  def has_default(self, name):
+    check.check_string(name)
+
+    return name in self._defaults
+
+  def default(self, name):
+    check.check_string(name)
+
+    return self._defaults[name]
+  
   def substitute_variables(self, s):
     return variable.substitute(s, self._variables)
     

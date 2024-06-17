@@ -16,7 +16,7 @@ class bcli_options_desc(bcli_options_desc_i):
   def __init__(self):
     check.check_string(self.name())
     
-    types = self.types()#[:]
+    types = self.types()
     check.check_bcli_simple_type_item_list(types, allow_none = True)
     types = types[:]
     
@@ -24,9 +24,14 @@ class bcli_options_desc(bcli_options_desc_i):
     check.check_dict(variables, key_type = str)
     variables = copy.deepcopy(variables) if variables else {}
 
+    defaults = self.defaults()
+    check.check_dict(defaults, key_type = str)
+    defaults = copy.deepcopy(defaults) if defaults else {}
+    
     self._manager = bcli_simple_type_manager()
     self._manager.add_types(types)
     self._manager.add_variables(variables)
+    self._manager.add_defaults(defaults)
 
   #@abstractmethod
   def types(self):
@@ -37,9 +42,9 @@ class bcli_options_desc(bcli_options_desc_i):
     return {}
 
   #@abstractmethod
-  def sensitive_keys(self):
-    return None
-    
+  def defaults(self):
+    return {}
+  
   @cached_property
   def items(self):
     options_desc = self.options_desc() or ''
@@ -54,11 +59,11 @@ class bcli_options_desc(bcli_options_desc_i):
     check.check_string(name)
     return name in self.items_dict
 
-  def default_value(self, name):
+  def default(self, name):
     check.check_string(name)
     
     assert self.has_option
-    return self.items_dict[name].default_value
+    return self.items_dict[name].default
 
   def check_value_type(self, name, value):
     check.check_string(name)

@@ -16,45 +16,46 @@ class test_bcli_option_desc_item_list(unit_test):
   def test_parse_text(self):
     m = bcli_simple_type_manager()
     text = '''
-kiwi list[int] []
-lemon list[str] []
-melon list[str] [ 'a', 'b', 'c' ]
+kiwi list[int] default=[]
+lemon list[str] default=[]
+melon list[str] default=[]
 '''
     self.assertEqual( [
       ( 'kiwi', typing.List[int], [], False ),
       ( 'lemon', typing.List[str], [], False ),
-      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ], False ),
+      ( 'melon', typing.List[str], [], False ),
     ], bcli_option_desc_item_list.parse_text(m, text) )
 
   def test_to_dict(self):
     m = bcli_simple_type_manager()
     text = '''
-kiwi list[int] []
-lemon list[str] []
-melon list[str] [ 'a', 'b', 'c' ]
+kiwi list[int] default=[]
+lemon list[str] default=[]
+melon list[str] default=[]
 '''
     self.assertEqual( {
       'kiwi': ( 'kiwi', typing.List[int], [], False ),
       'lemon': ( 'lemon', typing.List[str], [], False ),
-      'melon': ( 'melon', typing.List[str], [ 'a', 'b', 'c' ], False ),
+      'melon': ( 'melon', typing.List[str], [], False ),
     }, bcli_option_desc_item_list.parse_text(m, text).to_dict() )
 
   def test_to_dict_with_duplicate_name(self):
     m = bcli_simple_type_manager()
     text = '''
-kiwi list[int] []
-kiwi list[str] []
+kiwi list[int] default=[]
+kiwi list[str] default=[]
 '''
     with self.assertRaises(KeyError) as ctx:
       bcli_option_desc_item_list.parse_text(m, text).to_dict()
 
-  def test_parse_text_with_simple_and_typing_types(self):
+  def test_parse_text_with_defaults(self):
     m = bcli_simple_type_manager()
+    m.add_default('melon', lambda: [ 'a', 'b', 'c' ])
     text = '''
-kiwi int 42
-pear int None
-lemon list[str] []
-melon list[str] [ 'a', 'b', 'c' ]
+kiwi int default=42
+pear int default=None
+lemon list[str] default=[]
+melon list[str]
 '''
     self.assertEqual( [
       ( 'kiwi', int, 42, False ),
@@ -68,8 +69,8 @@ melon list[str] [ 'a', 'b', 'c' ]
     m.add_variable('bcli_foo', lambda: '42')
     m.add_variable('bcli_bar', lambda: '666')
     text = '''
-kiwi int ${bcli_foo}
-pear int ${bcli_bar}
+kiwi int default=${bcli_foo}
+pear int default=${bcli_bar}
 '''
     self.assertEqual( [
       ( 'kiwi', int, 42, False ),
@@ -85,8 +86,8 @@ pear int ${bcli_bar}
     m.add_variable('bcli_foo', _value)
     m.add_variable('bcli_bar', _value)
     text = '''
-kiwi int ${bcli_foo}
-pear int ${bcli_bar}
+kiwi int default=${bcli_foo}
+pear int default=${bcli_bar}
 '''
     self.assertEqual( [
       ( 'kiwi', int, 1, False ),

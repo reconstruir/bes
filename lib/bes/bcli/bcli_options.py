@@ -29,14 +29,21 @@ class bcli_options(object):
   def keys(self):
     desc = super().__getattribute__('_desc')
     return desc.keys()
+
+  def secret_keys(self):
+    desc = super().__getattribute__('_desc')
+    result = []
+
+#    desc_item = desc.items_dict[name]
+#    for name, value
+    return desc.keys()
   
-  def to_dict(self, hide_sensitive_keys = True):
-    if hide_sensitive_keys:
-      sensitive_keys = self.sensitive_keys() or ()
-      d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
+  def to_dict(self, hide_secret_keys = True):
+    if hide_secret_keys:
+      secret_keys = self.secret_keys() or ()
+      d = dict_util.hide_passwords(self.__dict__, secret_keys)
     else:
-      d = {
-      } # copy.deepcopy(self.__dict__)
+      d = copy.deepcopy(self.__dict__)
     return d
       
   @property
@@ -56,7 +63,7 @@ class bcli_options(object):
     options = super().__getattribute__('_options')
     if name in options:
       return options[name]
-    return desc.default_value(name)
+    return desc.default(name)
 
   def __setattr__(self, name, value):
     self._log.log_method_d()

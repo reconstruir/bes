@@ -23,14 +23,20 @@ class test_bcli_option_desc_item(unit_test):
   def test_parse_text(self):
     m = bcli_simple_type_manager()
     self.assertEqual( ( 'kiwi', typing.List[int], [], False ),
-                      bcli_option_desc_item.parse_text(m, 'kiwi list[int] []') )
+                      bcli_option_desc_item.parse_text(m, 'kiwi list[int] default=[]') )
 
+  def test_parse_text_with_defaults(self):
+    m = bcli_simple_type_manager()
+    m.add_default('kiwi', lambda: [ 'a', 'b', 'c' ])
+    self.assertEqual( ( 'kiwi', typing.List[str], [ 'a', 'b', 'c' ], False ),
+                      bcli_option_desc_item.parse_text(m, 'kiwi list[str]') )
+    
   def test_to_dict(self):
     self.assertEqual( {
       'name': 'kiwi',
       'option_type': typing.List[int],
       'default': [],
-      'sensitive': False,
+      'secret': False,
     }, bcli_option_desc_item('kiwi', typing.List[int], [], False).to_dict() )
 
   def test_to_json(self):
@@ -39,7 +45,7 @@ class test_bcli_option_desc_item(unit_test):
   "name": "kiwi",
   "option_type": "typing.List[int]",
   "default": [],
-  "sensitive": false
+  "secret": false
 }
 ''', bcli_option_desc_item('kiwi', typing.List[int], [], False).to_json() )
     
@@ -55,8 +61,8 @@ class test_bcli_option_desc_item(unit_test):
                       bcli_option_desc_item._parse_parts('kiwi str default="string with spaces"') )
     
   def test__parse_parts_multiple_key_values(self):
-    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'sensitive': 'True' } ),
-                      bcli_option_desc_item._parse_parts('kiwi list[int] default=[] sensitive=True') )
+    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'secret': 'True' } ),
+                      bcli_option_desc_item._parse_parts('kiwi list[int] default=[] secret=True') )
     
 if __name__ == '__main__':
   unit_test.main()
