@@ -7,6 +7,7 @@ from collections import namedtuple
 
 from bes.system.check import check
 from bes.property.cached_property import cached_property
+from bes.key_value.key_value_list import key_value_list
 from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
@@ -44,7 +45,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
       manager.check_instance(default_value, option_type)
     return bcli_option_desc_item(name, option_type, default_value, False)
 
-  _parse_parts_result = namedtuple('_parse_parts_result', 'name, option_type_str, key_values')
+  _parse_parts_result = namedtuple('_parse_parts_result', 'name, type_str, key_values')
   @classmethod
   def _parse_parts(clazz, text):
     check.check_string(text)
@@ -55,14 +56,9 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
       raise ValueError(f'Number of parts should be at least 3 instead of {num_parts}: "{text}"')
     name = parts.pop(0)
     type_str = parts.pop(0)
-    
-    default_str = ' '.join(parts)
-    option_type = manager._parse_type_str_to_typing(type_str)
-    resolved_default_str = manager.substitute_variables(default_str)
-    default_value = ast.literal_eval(resolved_default_str)
-    if default_value != None:
-      manager.check_instance(default_value, option_type)
-    return bcli_option_desc_item(name, option_type, default_value)
+    rest_text = text.replace(name, '', 1).replace(type_str, '', 1)
+    kvl = key_value_list.parse(rest_text).to_dict()
+    return clazz._parse_parts_result(name, type_str, kvl)
   
   @classmethod
   def _check_cast_func(clazz, obj):

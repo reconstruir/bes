@@ -22,8 +22,8 @@ class test_bcli_option_desc_item(unit_test):
     self.assertEqual( ( 'kiwi', typing.List[int], [], False ),
                       bcli_option_desc_item.parse_text(m, 'kiwi list[int] []') )
 
-  def xtest__parse_parts(self):
-    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'sensitive': False } ),
+  def test__parse_parts(self):
+    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]' } ),
                       bcli_option_desc_item._parse_parts('kiwi list[int] default=[]') )
     
 if __name__ == '__main__':
