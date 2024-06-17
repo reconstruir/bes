@@ -13,9 +13,23 @@ from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
 
 class test_bcli_options(unit_test):
 
-  def test___getattr__(self):
+  def test_has_options(self):
     options = self._make_test_options()
+    self.assertEqual( True, options.has_option('kiwi') )
+    self.assertEqual( True, options.has_option('pear') )
+    self.assertEqual( False, options.has_option('lemon') )
 
+  def test___getattr__defaults(self):
+    options = self._make_test_options()
+    self.assertEqual( 42, options.kiwi )
+    self.assertEqual( 666, options.pear )
+
+  def test___getattr____setattr__(self):
+    options = self._make_test_options()
+    self.assertEqual( 42, options.kiwi )
+    options.kiwi = 13
+    self.assertEqual( 13, options.kiwi )
+    
   @classmethod
   def _make_test_options(clazz):
     types = bcli_simple_type_item_list([

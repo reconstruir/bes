@@ -4,6 +4,7 @@ import copy
  
 from collections import namedtuple
 from bes.system.check import check
+from bes.property.cached_property import cached_property
 
 from .bcli_option_desc_item_list import bcli_option_desc_item_list
 from .bcli_simple_type_item_list import bcli_simple_type_item_list
@@ -24,7 +25,27 @@ class bcli_options_desc(object):
     self._manager = bcli_simple_type_manager()
     self._manager.add_types(self._types)
     self._manager.add_variables(self._variables)
-    self._items = bcli_option_desc_item_list.parse_text(self._manager, self._items_desc).to_dict()
+    self._items = bcli_option_desc_item_list.parse_text(self._manager, self._items_desc)
     #print(self._items)
+
+  @cached_property
+  def items_as_dict(self):
+    return self._items.to_dict()
+
+  def has_option(self, name):
+    check.check_string(name)
+    return name in self.items_as_dict
+
+  def default_value(self, name):
+    check.check_string(name)
     
+    assert self.has_option
+    return self.items_as_dict[name].default_value
+
+  def check_value_type(self, name, value):
+    check.check_string(name)
+    assert name in self.items_as_dict
+    item = self.items_as_dict[name]
+    return self._manager.check_instance(value, item.option_type)
+  
 check.register_class(bcli_options_desc, include_seq = False)
