@@ -12,16 +12,19 @@ from bes.bcli.bcli_simple_type_manager import bcli_simple_type_manager
 class test_bcli_option_desc_item(unit_test):
 
   def test___init__simple(self):
-    item = bcli_option_desc_item('kiwi', int, None)
+    item = bcli_option_desc_item('kiwi', int, None, False)
 
   def test___init__typing(self):
-    item = bcli_option_desc_item('kiwi', typing.List[int], [])
+    item = bcli_option_desc_item('kiwi', typing.List[int], [], False)
 
   def test_parse_text(self):
     m = bcli_simple_type_manager()
-#    p = bcli_option_desc_item.parse_text(m, 'kiwi list[int] []')
-    self.assertEqual( ( 'kiwi', typing.List[int], [] ),
+    self.assertEqual( ( 'kiwi', typing.List[int], [], False ),
                       bcli_option_desc_item.parse_text(m, 'kiwi list[int] []') )
+
+  def xtest__parse_parts(self):
+    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'sensitive': False } ),
+                      bcli_option_desc_item._parse_parts('kiwi list[int] default=[]') )
     
 if __name__ == '__main__':
   unit_test.main()

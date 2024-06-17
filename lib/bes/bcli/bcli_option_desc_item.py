@@ -13,17 +13,17 @@ from bes.common.string_util import string_util
 from .bcli_simple_type_item import bcli_simple_type_item
 from .bcli_simple_type_manager import bcli_simple_type_manager
 
-class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_type, default_value')):
+class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_type, default_value, is_sensitive')):
 
-  def __new__(clazz, name, option_type, default_value):
+  def __new__(clazz, name, option_type, default_value, is_sensitive):
     check.check_string(name)
     #print(f'CACA: option_type={option_type}')
     check.check(option_type, ( type, typing._GenericAlias ))
-    
     if default_value != None:
       bcli_simple_type_manager.check_instance(default_value, option_type)
+    check.check_bool(is_sensitive)
     
-    return clazz.__bases__[0].__new__(clazz, name, option_type, default_value)
+    return clazz.__bases__[0].__new__(clazz, name, option_type, default_value, is_sensitive)
 
   @classmethod
   def parse_text(clazz, manager, text):
@@ -37,7 +37,26 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     name = parts.pop(0)
     type_str = parts.pop(0)
     default_str = ' '.join(parts)
-    #print(f'CACA: type_str={type_str}')
+    option_type = manager._parse_type_str_to_typing(type_str)
+    resolved_default_str = manager.substitute_variables(default_str)
+    default_value = ast.literal_eval(resolved_default_str)
+    if default_value != None:
+      manager.check_instance(default_value, option_type)
+    return bcli_option_desc_item(name, option_type, default_value, False)
+
+  _parse_parts_result = namedtuple('_parse_parts_result', 'name, option_type_str, key_values')
+  @classmethod
+  def _parse_parts(clazz, text):
+    check.check_string(text)
+
+    parts = string_util.split_by_white_space(text, strip = True)
+    num_parts = len(parts)
+    if num_parts < 3:
+      raise ValueError(f'Number of parts should be at least 3 instead of {num_parts}: "{text}"')
+    name = parts.pop(0)
+    type_str = parts.pop(0)
+    
+    default_str = ' '.join(parts)
     option_type = manager._parse_type_str_to_typing(type_str)
     resolved_default_str = manager.substitute_variables(default_str)
     default_value = ast.literal_eval(resolved_default_str)

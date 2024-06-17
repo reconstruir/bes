@@ -21,9 +21,9 @@ lemon list[str] []
 melon list[str] [ 'a', 'b', 'c' ]
 '''
     self.assertEqual( [
-      ( 'kiwi', typing.List[int], [] ),
-      ( 'lemon', typing.List[str], [] ),
-      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
+      ( 'kiwi', typing.List[int], [], False ),
+      ( 'lemon', typing.List[str], [], False ),
+      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ], False ),
     ], bcli_option_desc_item_list.parse_text(m, text) )
 
   def test_to_dict(self):
@@ -34,9 +34,9 @@ lemon list[str] []
 melon list[str] [ 'a', 'b', 'c' ]
 '''
     self.assertEqual( {
-      'kiwi': ( 'kiwi', typing.List[int], [] ),
-      'lemon': ( 'lemon', typing.List[str], [] ),
-      'melon': ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
+      'kiwi': ( 'kiwi', typing.List[int], [], False ),
+      'lemon': ( 'lemon', typing.List[str], [], False ),
+      'melon': ( 'melon', typing.List[str], [ 'a', 'b', 'c' ], False ),
     }, bcli_option_desc_item_list.parse_text(m, text).to_dict() )
 
   def test_to_dict_with_duplicate_name(self):
@@ -57,10 +57,10 @@ lemon list[str] []
 melon list[str] [ 'a', 'b', 'c' ]
 '''
     self.assertEqual( [
-      ( 'kiwi', int, 42 ),
-      ( 'pear', int, None ),
-      ( 'lemon', typing.List[str], [] ),
-      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ] ),
+      ( 'kiwi', int, 42, False ),
+      ( 'pear', int, None, False ),
+      ( 'lemon', typing.List[str], [], False ),
+      ( 'melon', typing.List[str], [ 'a', 'b', 'c' ], False ),
     ], bcli_option_desc_item_list.parse_text(m, text) )
     
   def test_parse_text_with_variables(self):
@@ -72,8 +72,8 @@ kiwi int ${bcli_foo}
 pear int ${bcli_bar}
 '''
     self.assertEqual( [
-      ( 'kiwi', int, 42 ),
-      ( 'pear', int, 666 ),
+      ( 'kiwi', int, 42, False ),
+      ( 'pear', int, 666, False ),
     ], bcli_option_desc_item_list.parse_text(m, text) )
 
   def test_parse_text_with_non_constant_variables(self):
@@ -89,8 +89,8 @@ kiwi int ${bcli_foo}
 pear int ${bcli_bar}
 '''
     self.assertEqual( [
-      ( 'kiwi', int, 1 ),
-      ( 'pear', int, 2 ),
+      ( 'kiwi', int, 1, False ),
+      ( 'pear', int, 2, False ),
     ], bcli_option_desc_item_list.parse_text(m, text) )
 
 if __name__ == '__main__':

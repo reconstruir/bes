@@ -54,8 +54,8 @@ pear int ${_var_bar}
     self.assertEqual( False, desc.check_value_type('kiwi', '13') )
 
     self.assertEqual( {
-      'kiwi': bcli_option_desc_item('kiwi', int, 42),
-      'pear': bcli_option_desc_item('pear', int, 666),
+      'kiwi': bcli_option_desc_item('kiwi', int, 42, False),
+      'pear': bcli_option_desc_item('pear', int, 666, False),
     }, desc.items_dict )
 
   def test_keys(self):
