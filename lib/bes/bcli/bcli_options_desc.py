@@ -25,6 +25,6 @@ class bcli_options_desc(object):
     self._manager.add_types(self._types)
     self._manager.add_variables(self._variables)
     self._items = bcli_option_desc_item_list.parse_text(self._manager, self._items_desc).to_dict()
-    print(self._items)
+    #print(self._items)
     
 check.register_class(bcli_options_desc, include_seq = False)
