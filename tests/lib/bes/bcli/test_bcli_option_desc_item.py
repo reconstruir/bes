@@ -56,11 +56,8 @@ class test_bcli_option_desc_item(unit_test):
     self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]' } ),
                       bcli_option_desc_item._parse_parts('kiwi list[int] default=[]') )
     
-    self.assertEqual( ( 'kiwi', 'str', { 'default': 'string with spaces' } ),
-                      bcli_option_desc_item._parse_parts('kiwi str default="string with spaces"') )
-
   def test__parse_parts_default_string_with_spaces(self):
-    self.assertEqual( ( 'kiwi', 'str', { 'default': 'string with spaces' } ),
+    self.assertEqual( ( 'kiwi', 'str', { 'default': '"string with spaces"' } ),
                       bcli_option_desc_item._parse_parts('kiwi str default="string with spaces"') )
     
   def test__parse_parts_multiple_key_values(self):

@@ -24,20 +24,21 @@ class bcli_options(object):
       setattr(self, name, value)
 
   def __str__(self):
-    return pprint.pformat(self.to_dict())
+    return self.to_str()
 
   def to_dict(self, hide_secrets = True):
+    desc = super().__getattribute__('_desc')
     d = {}
     for key in self.keys():
-      d[key] = getattr(self, key)
+      value = getattr(self, key)
+      if hide_secrets and desc.secret(key):
+        value = '*' * len(value)
+      d[key] = value
     return copy.deepcopy(d)
-#    if hide_secret_keys:
-#      secret_keys = self.secret_keys() or ()
-#      d = dict_util.hide_passwords(self.__dict__, secret_keys)
-#    else:
-#      d = copy.deepcopy(self.__dict__)
-#    return d
-      
+
+  def to_str(self, hide_secrets = True):
+    return pprint.pformat(self.to_dict(hide_secrets = hide_secrets))
+
   def keys(self):
     desc = super().__getattribute__('_desc')
     return desc.keys()

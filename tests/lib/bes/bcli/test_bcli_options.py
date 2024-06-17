@@ -14,16 +14,29 @@ from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
 
 class test_bcli_options(unit_test):
 
-  def test_to_dict(self):
-    options = self._make_test_options()
+  def test_to_dict_caca(self):
+    options = self._make_test_options(password = 'foo')
     self.assertEqual( {
       'kiwi': 42,
       'pear': 666,
+      'password': '***',
     }, options.to_dict() )
 
+  def test_to_dict_without_hiding_secrets(self):
+    options = self._make_test_options(password = 'foo')
+    self.assertEqual( {
+      'kiwi': 42,
+      'pear': 666,
+      'password': 'foo',
+    }, options.to_dict(hide_secrets = False) )
+    
   def test___str__(self):
-    options = self._make_test_options()
-    self.assertEqual( '''{'kiwi': 42, 'pear': 666}''', str(options) )
+    options = self._make_test_options(password = 'foo')
+    self.assertEqual( '''{'kiwi': 42, 'password': '***', 'pear': 666}''', str(options) )
+
+  def test_to_str_without_hiding_secrets(self):
+    options = self._make_test_options(password = 'foo')
+    self.assertEqual( '''{'kiwi': 42, 'password': 'foo', 'pear': 666}''', options.to_str(hide_secrets = False) )
     
   def test_has_options(self):
     options = self._make_test_options()
@@ -53,7 +66,7 @@ class test_bcli_options(unit_test):
 
   def test_keys(self):
     options = self._make_test_options()
-    self.assertEqual( ( 'kiwi', 'pear' ), options.keys() )
+    self.assertEqual( ( 'kiwi', 'password', 'pear' ), options.keys() )
       
   class _test_kiwi_options_shape(bcli_options_desc):
 
@@ -152,8 +165,9 @@ size int default=0
     #@abstractmethod
     def options_desc(self):
       return '''
-kiwi int default=${_var_foo} secret=True
+kiwi int default=${_var_foo}
 pear int default=${_var_bar}
+password str secret=True
   '''
   
     #@abstractmethod

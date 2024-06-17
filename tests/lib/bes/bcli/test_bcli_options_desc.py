@@ -39,7 +39,7 @@ pear int default=${_var_bar}
         '_var_foo': lambda: '42',
         '_var_bar': lambda: '666',
       }
-  
+
   def test___init__(self):
     desc = self._unit_test_kiwi_options_desc()
     self.assertEqual( '_kiwi_options_desc', desc.name() )

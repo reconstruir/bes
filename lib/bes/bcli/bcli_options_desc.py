@@ -65,6 +65,12 @@ class bcli_options_desc(bcli_options_desc_i):
     assert self.has_option
     return self.items_dict[name].default
 
+  def secret(self, name):
+    check.check_string(name)
+    
+    assert self.has_option
+    return self.items_dict[name].secret
+  
   def check_value_type(self, name, value):
     check.check_string(name)
     assert name in self.items_dict
@@ -72,7 +78,7 @@ class bcli_options_desc(bcli_options_desc_i):
     return self._manager.check_instance(value, item.option_type)
 
   def keys(self):
-    return tuple([ key for key in self.items_dict.keys() ])
+    return tuple(sorted([ key for key in self.items_dict.keys() ]))
   
   @classmethod
   def combine_options_desc(clazz, desc_text1, desc_text2):

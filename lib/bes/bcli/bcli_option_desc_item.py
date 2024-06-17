@@ -10,6 +10,7 @@ from bes.common.json_util import json_util
 from bes.common.bool_util import bool_util
 from bes.property.cached_property import cached_property
 from bes.key_value.key_value_list import key_value_list
+from bes.text.string_lexer_options import string_lexer_options
 from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
@@ -46,7 +47,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     if 'default' in parts.values:
       default_str = parts.values['default']
       resolved_default_str = manager.substitute_variables(default_str)
-#      print(f'resolved_default_str=_{resolved_default_str}_')
+      #print(f'resolved_default_str=_{resolved_default_str}_')
       default = ast.literal_eval(resolved_default_str)
 #      print(f'default=_{default}_')
       manager.check_instance(default, option_type)
@@ -71,7 +72,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     name = parts.pop(0)
     type_str = parts.pop(0)
     rest_text = text.replace(name, '', 1).replace(type_str, '', 1)
-    kvl = key_value_list.parse(rest_text).to_dict()
+    kvl = key_value_list.parse(rest_text, string_lexer_options.KEEP_QUOTES).to_dict()
     return clazz._parse_parts_result(name, type_str, kvl)
   
   @classmethod
