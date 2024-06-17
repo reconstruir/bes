@@ -15,6 +15,8 @@ class bcli_options(object):
     super().__setattr__('_desc', desc)
     options = {}
     super().__setattr__('_options', options)
+    for name, value in kwargs.items():
+      setattr(self, name, value)
 
   @property
   def desc(self):

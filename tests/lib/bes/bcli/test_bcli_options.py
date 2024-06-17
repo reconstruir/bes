@@ -29,9 +29,14 @@ class test_bcli_options(unit_test):
     self.assertEqual( 42, options.kiwi )
     options.kiwi = 13
     self.assertEqual( 13, options.kiwi )
+
+  def test___init__with_kwargs(self):
+    options = self._make_test_options(kiwi = 100, pear = 101)
+    self.assertEqual( 100, options.kiwi )
+    self.assertEqual( 101, options.pear )
     
   @classmethod
-  def _make_test_options(clazz):
+  def _make_test_options(clazz, **kwargs):
     types = bcli_simple_type_item_list([
     ])
     items_desc = '''
@@ -43,7 +48,7 @@ pear int ${bcli_bar}
       'bcli_bar': lambda: '666',
     }
     desc = bcli_options_desc('foo', types, items_desc, variables)
-    return bcli_options(desc)
+    return bcli_options(desc, **kwargs)
     
 if __name__ == '__main__':
   unit_test.main()
