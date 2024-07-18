@@ -9,7 +9,7 @@ from .vmware_error import vmware_error
 class vmware_session_options(cli_options):
   
   def __init__(self, **kargs):
-    super(vmware_session_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod
