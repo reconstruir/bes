@@ -46,7 +46,7 @@ class file_split_options(files_cli_options):
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
-    super(file_split_options, self).check_value_types()
+    super().check_value_types()
     check.check_bool(self.check_downloading)
     check.check_string(self.check_downloading_extension)
     check.check_bool(self.check_modified)
