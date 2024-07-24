@@ -32,6 +32,13 @@ class test_bf_match_options(unit_test):
 
     o.match_type = bf_match_type.NONE
     self.assertEqual( bf_match_type.NONE, o.match_type )
+
+  def test___setattr__match_type_with_cast(self):
+    o = bf_match_options()
+    self.assertEqual( bf_match_type.ANY, o.match_type )
+
+    o.match_type = 'ALL'
+    self.assertEqual( bf_match_type.ALL, o.match_type )
     
 if __name__ == '__main__':
   unit_test.main()

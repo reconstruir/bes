@@ -147,10 +147,11 @@ class bcli_simple_type_manager(object):
 
   #@classmethod
   def check_instance(self, value, type_hint):
+#    assert False
     origin = typing.get_origin(type_hint)
     args = typing.get_args(type_hint)
 
-    #print(f'origin={origin} args={args} type_hint={type_hint}')
+    print(f'origin={origin} args={args} type_hint={type_hint}')
     if type_hint and type_hint in self._types:
       assert False
 

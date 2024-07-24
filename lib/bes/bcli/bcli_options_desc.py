@@ -83,6 +83,9 @@ class bcli_options_desc(bcli_options_desc_i):
     assert name in self.items_dict
     item = self.items_dict[name]
 
+    print(f'item={item}')
+    print(f'desc_item={desc_item}')
+    
 #    if item.option_type.check_function:
 #      return item.option_type.check_function(value, allow_none = True)
     return self._manager.check_instance(value, item.option_type)

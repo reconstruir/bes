@@ -70,7 +70,7 @@ class bcli_options(object):
   def __setattr__(self, name, value):
     self._log.log_method_d()
     desc = super().__getattribute__('_desc')
-    #print(f'desc={desc}', flush = True)
+    print(f'desc={desc}', flush = True)
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
     desc_item = desc.items_dict[name]

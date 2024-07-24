@@ -12,14 +12,14 @@ from bes.bcli.bcli_simple_type_item import bcli_simple_type_item
 from .bf_match_type import bf_match_type
 from ..bf_path_type import bf_path_type
 
-class _caca_options_desc(bcli_options_desc):
+class _bf_match_options_desc(bcli_options_desc):
 
   def __init__(self):
     super().__init__()
 
   #@abstractmethod
   def name(self):
-    return '_caca_options_desc'
+    return '_bf_match_options_desc'
   
   #@abstractmethod
   def types(self):
@@ -31,9 +31,9 @@ class _caca_options_desc(bcli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return '''
-ignore_case bool default=False
-match_type bf_match_type default=ANY
-path_type bf_path_type default=ABSOLUTE
+ignore_case bool          default=False
+ match_type bf_match_type default=ANY
+  path_type bf_path_type  default=ABSOLUTE
 '''
   
   #@abstractmethod
@@ -45,8 +45,7 @@ path_type bf_path_type default=ABSOLUTE
 
 class bf_match_options(bcli_options):
   def __init__(self, **kwargs):
-    #print(f'CACA: kwargs={kwargs}', flush = True)
-    super().__init__(_caca_options_desc(), **kwargs)
+    super().__init__(_bf_match_options_desc(), **kwargs)
 
 class xbf_match_options(cli_options):
 
