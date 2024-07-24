@@ -50,8 +50,8 @@ pear int default=${_var_bar}
     self.assertEqual( 42, desc.default('kiwi') )
     self.assertEqual( 666, desc.default('pear') )
 
-    self.assertEqual( True, desc.check_value_type('kiwi', 13) )
-    self.assertEqual( False, desc.check_value_type('kiwi', '13') )
+    self.assertEqual( True, desc.check_value_type('kiwi', 13, None) )
+    self.assertEqual( False, desc.check_value_type('kiwi', '13', None) )
 
     self.assertEqual( {
       'kiwi': bcli_option_desc_item('kiwi', int, 42, False),

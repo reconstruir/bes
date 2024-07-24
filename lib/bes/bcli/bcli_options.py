@@ -13,7 +13,7 @@ from .bcli_options_desc import bcli_options_desc
 
 class bcli_options(object):
 
-  _log = logger('bcli_options')
+  _log = logger('bcli')
   
   def __init__(self, desc, **kwargs):
     desc = check.check_bcli_options_desc(desc)
@@ -70,12 +70,14 @@ class bcli_options(object):
   def __setattr__(self, name, value):
     self._log.log_method_d()
     desc = super().__getattribute__('_desc')
+    print(f'desc={desc}', flush = True)
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
     desc_item = desc.items_dict[name]
     options = super().__getattribute__('_options')
-    if not desc.check_value_type(name, value):
-      raise KeyError(f'Invalid type {type(value).__name__} for "{name}" ({value}) - should be "{desc_item.option_type.__name__}"')
+    print(f'desc_item={desc_item}', flush = False)
+    if not desc.check_value_type(name, value, desc_item):
+      raise KeyError(f'Invalid type "{type(value).__name__}" for option "{name}" with value "{value}" - should be "{desc_item.option_type.__name__}"')
     options[name] = value
 
 check.register_class(bcli_options, include_seq = False)

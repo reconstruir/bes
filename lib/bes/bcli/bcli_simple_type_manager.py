@@ -11,6 +11,7 @@ from datetime import timedelta
 from collections import namedtuple
 
 from bes.system.check import check
+from bes.system.log import logger
 from bes.property.cached_property import cached_property
 from bes.common.variable import variable
 
@@ -18,6 +19,8 @@ from .bcli_simple_type_item import bcli_simple_type_item
 
 class bcli_simple_type_manager(object):
 
+  _log = logger('bcli')
+  
   _BASIC_TYPES = [
     bcli_simple_type_item('int', lambda: int),
     bcli_simple_type_item('str', lambda: str),
@@ -42,6 +45,8 @@ class bcli_simple_type_manager(object):
     check.check_string(name)
     check.check_callable(function)
 
+    #self._log.log_method_d()
+    
     assert name not in self._variables
     self._variables[name] = function
 
@@ -80,6 +85,8 @@ class bcli_simple_type_manager(object):
   def add_type(self, t):
     check.check_bcli_simple_type_item(t)
 
+    #self._log.log_method_d()
+    
     if t.name in self._types:
       raise KeyError(f'type "{t.name}" already added.')
     self._types[t.name] = t
@@ -97,16 +104,19 @@ class bcli_simple_type_manager(object):
       raise KeyError(f'type "{type_name}" not found.')
     return t.type
 
+  _parsed_type = namedtuple('_parsed_type', 'base, parameter')
   @classmethod
   def _parse_type_str(clazz, type_str: str) -> typing.Tuple[str, str]:
     f = re.findall(r'(\w+)\s*\[\s*(\w+)\s*\]', type_str)
     if not f:
-      return ( type_str.strip(), None )
+      return clazz._parsed_type(type_str.strip(), None)
     if len(f) != 1:
       return None
     if len(f[0]) != 2:
       return None
-    return f[0]
+    base, parameter = f[0]
+    #typing_type = self._parse_type_str_to_typing(type_str)
+    return clazz._parsed_type(base, parameter)
 
   def _parse_type_str_to_typing(self, type_str: str) -> typing.Any:
     """Parses a string representing a type into the corresponding Python type."""
@@ -135,10 +145,19 @@ class bcli_simple_type_manager(object):
     else:
       raise ValueError(f'base_type "{base_type}" not found.')
 
-  @classmethod
-  def check_instance(clazz, value, type_hint):
+  #@classmethod
+  def check_instance(self, value, type_hint):
     origin = typing.get_origin(type_hint)
     args = typing.get_args(type_hint)
+
+    print(f'origin={origin} args={args} type_hint={type_hint}')
+    if type_hint and type_hint in self._types:
+      assert False
+
+#    if self._types = {}
+#
+#    if item.option_type.check_function:
+#      return item.option_type.check_function(value, allow_none = True)
 
     if origin is None:  # Simple types
       return isinstance(value, type_hint)

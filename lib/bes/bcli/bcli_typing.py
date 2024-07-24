@@ -7,7 +7,7 @@ from typing import Any
 import typing
 
 class bcli_typing(object):
-  
+
   _SIMPLE_TYPES = {
     'int': int,
     'str': str,

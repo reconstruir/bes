@@ -4,6 +4,7 @@ import copy
 import os
  
 from bes.system.check import check
+from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .bcli_option_desc_item_list import bcli_option_desc_item_list
@@ -13,6 +14,8 @@ from .bcli_options_desc_i import bcli_options_desc_i
 
 class bcli_options_desc(bcli_options_desc_i):
 
+  _log = logger('bcli')
+  
   def __init__(self):
     check.check_string(self.name())
     
@@ -71,10 +74,17 @@ class bcli_options_desc(bcli_options_desc_i):
     assert self.has_option
     return self.items_dict[name].secret
   
-  def check_value_type(self, name, value):
+  def check_value_type(self, name, value, desc_item):
     check.check_string(name)
+    check.check_bcli_option_desc_item(desc_item, allow_none = True)
+
+    self._log.log_method_d()
+    
     assert name in self.items_dict
     item = self.items_dict[name]
+
+#    if item.option_type.check_function:
+#      return item.option_type.check_function(value, allow_none = True)
     return self._manager.check_instance(value, item.option_type)
 
   def keys(self):

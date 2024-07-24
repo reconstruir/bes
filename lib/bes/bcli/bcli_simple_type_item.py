@@ -3,18 +3,22 @@
 import ast
 from collections import namedtuple
 
+from bes.system.log import logger
 from bes.system.check import check
 from bes.property.cached_property import cached_property
 from bes.common.tuple_util import tuple_util
 
-class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_function, parse_function')):
+class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_function, parse_function, check_function')):
 
-  def __new__(clazz, name, type_function, parse_function = None):
+  _log = logger('bcli')
+  
+  def __new__(clazz, name, type_function, parse_function = None, check_function = None):
     check.check_string(name)
     check.check_callable(type_function)
     check.check_callable(parse_function, allow_none = True)
+    check.check_callable(check_function, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, name, type_function, parse_function)
+    return clazz.__bases__[0].__new__(clazz, name, type_function, parse_function, check_function)
 
   @cached_property
   def type(self):
@@ -25,6 +29,7 @@ class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_func
 
     if self.parse_function:
       return self.parse_function(text)
+    self._log.log_d(f'1: CACA text={text}')
     return ast.literal_eval(text)
   
   @classmethod

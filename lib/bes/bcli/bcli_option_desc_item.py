@@ -6,6 +6,7 @@ import typing
 from collections import namedtuple
 
 from bes.system.check import check
+from bes.system.log import logger
 from bes.common.json_util import json_util
 from bes.common.bool_util import bool_util
 from bes.property.cached_property import cached_property
@@ -19,12 +20,14 @@ from .bcli_simple_type_manager import bcli_simple_type_manager
 
 class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_type, default, secret')):
 
+  _log = logger('bcli')
+  
   def __new__(clazz, name, option_type, default, secret):
     check.check_string(name)
     #print(f'CACA: option_type={option_type}')
     check.check(option_type, ( type, typing._GenericAlias ))
-    if default != None:
-      bcli_simple_type_manager.check_instance(default, option_type)
+#    if default != None:
+#      bcli_simple_type_manager.check_instance(default, option_type)
     check.check_bool(secret)
     
     return clazz.__bases__[0].__new__(clazz, name, option_type, default, secret)
@@ -43,22 +46,40 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     check.check_string(text)
 
     parts = clazz._parse_parts(text)
-    option_type = manager._parse_type_str_to_typing(parts.type_str)
+    parsed_type = manager._parse_type_str(parts.type_str)
+    typing_type = manager._parse_type_str_to_typing(parts.type_str)
+
+    clazz._log.log_d(f'text="{text}" parts={parts} parsed_type={parsed_type}')
+
+    print(f'text="{text}" parts={parts} parsed_type={parsed_type}', flush = True)
+    
+    caca = manager._types[parsed_type.base]
+
+    print(f'caca={caca}', flush = True)
+
     if 'default' in parts.values:
       default_str = parts.values['default']
       resolved_default_str = manager.substitute_variables(default_str)
       #print(f'resolved_default_str=_{resolved_default_str}_')
-      default = ast.literal_eval(resolved_default_str)
+      clazz._log.log_d(f'2: CACA resolved_default_str={resolved_default_str}')
+      if caca.parse_function:
+        default = caca.parse_function(resolved_default_str)
+      else:
+        default = ast.literal_eval(resolved_default_str)
 #      print(f'default=_{default}_')
-      manager.check_instance(default, option_type)
+      manager.check_instance(default, typing_type)
     elif manager.has_default(parts.name):
       default = manager.default(parts.name)()
-      manager.check_instance(default, option_type)
+      manager.check_instance(default, typing_type)
     else:
       default = None
       
     secret = bool_util.parse_bool(parts.values.get('secret', 'False'))
-    return bcli_option_desc_item(parts.name, option_type, default, secret)
+
+    if default != None:
+      manager.check_instance(default, typing_type)
+    
+    return bcli_option_desc_item(parts.name, typing_type, default, secret)
 
   _parse_parts_result = namedtuple('_parse_parts_result', 'name, type_str, values')
   @classmethod
