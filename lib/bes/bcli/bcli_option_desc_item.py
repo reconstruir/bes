@@ -51,22 +51,22 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
 
     clazz._log.log_d(f'text="{text}" parts={parts} parsed_type={parsed_type}')
 
-    print(f'text="{text}" parts={parts} parsed_type={parsed_type}', flush = True)
+    #print(f'text="{text}" parts={parts} parsed_type={parsed_type}', flush = True)
     
-    caca = manager._types[parsed_type.base]
+    type_item = manager._types[parsed_type.base]
 
-    print(f'caca={caca}', flush = True)
+    #print(f'type_item={type_item}', flush = True)
 
     if 'default' in parts.values:
       default_str = parts.values['default']
       resolved_default_str = manager.substitute_variables(default_str)
       #print(f'resolved_default_str=_{resolved_default_str}_')
-      clazz._log.log_d(f'2: CACA resolved_default_str={resolved_default_str}')
-      if caca.parse_function:
-        default = caca.parse_function(resolved_default_str)
+      #clazz._log.log_d(f'2: CACA resolved_default_str={resolved_default_str}')
+      if type_item.parse_function:
+        default = type_item.parse_function(resolved_default_str)
       else:
         default = ast.literal_eval(resolved_default_str)
-#      print(f'default=_{default}_')
+        #print(f'default=_{default}_')
       manager.check_instance(default, typing_type)
     elif manager.has_default(parts.name):
       default = manager.default(parts.name)()

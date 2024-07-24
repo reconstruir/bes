@@ -150,7 +150,7 @@ class bcli_simple_type_manager(object):
     origin = typing.get_origin(type_hint)
     args = typing.get_args(type_hint)
 
-    print(f'origin={origin} args={args} type_hint={type_hint}')
+    #print(f'origin={origin} args={args} type_hint={type_hint}')
     if type_hint and type_hint in self._types:
       assert False
 

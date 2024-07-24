@@ -45,7 +45,7 @@ path_type bf_path_type default=ABSOLUTE
 
 class bf_match_options(bcli_options):
   def __init__(self, **kwargs):
-    print(f'CACA: kwargs={kwargs}', flush = True)
+    #print(f'CACA: kwargs={kwargs}', flush = True)
     super().__init__(_caca_options_desc(), **kwargs)
 
 class xbf_match_options(cli_options):

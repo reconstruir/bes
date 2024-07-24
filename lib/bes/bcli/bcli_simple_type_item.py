@@ -29,7 +29,7 @@ class bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_func
 
     if self.parse_function:
       return self.parse_function(text)
-    self._log.log_d(f'1: CACA text={text}')
+    #self._log.log_d(f'1: CACA text={text}')
     return ast.literal_eval(text)
   
   @classmethod
