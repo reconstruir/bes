@@ -19,8 +19,9 @@ from bes.common.variable import variable
 from .bcli_type_list import bcli_type_list
 from .bcli_type_i import bcli_type_i
 
-from .types.bcli_type_int import bcli_type_int
 from .types.bcli_type_bool import bcli_type_bool
+from .types.bcli_type_float import bcli_type_float
+from .types.bcli_type_int import bcli_type_int
 from .types.bcli_type_list import bcli_type_list
 
 class bcli_type_manager(object):
@@ -28,11 +29,11 @@ class bcli_type_manager(object):
   _log = logger('bcli')
   
   _BASIC_TYPES = [
-    bcli_type_int(),
     bcli_type_bool(),
+    bcli_type_float(),
+    bcli_type_int(),
     bcli_type_list(),
 #    bcli_simple_type_item('str', lambda: str),
-#    bcli_simple_type_item('float', lambda: float),
 #    bcli_simple_type_item('set', lambda: set),
 #    bcli_simple_type_item('dict', lambda: dict),
 #    bcli_simple_type_item('tuple', lambda: tuple),
