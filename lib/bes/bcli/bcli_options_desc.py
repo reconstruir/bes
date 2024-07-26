@@ -8,8 +8,8 @@ from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .bcli_option_desc_item_list import bcli_option_desc_item_list
-from .bcli_simple_type_item_list import bcli_simple_type_item_list
-from .bcli_simple_type_manager import bcli_simple_type_manager
+from .bcli_type_list import bcli_type_list
+from .bcli_type_manager import bcli_type_manager
 from .bcli_options_desc_i import bcli_options_desc_i
 
 class bcli_options_desc(bcli_options_desc_i):
@@ -20,7 +20,7 @@ class bcli_options_desc(bcli_options_desc_i):
     check.check_string(self.name())
     
     types = self.types()
-    check.check_bcli_simple_type_item_list(types, allow_none = True)
+    check.check_bcli_type_list(types, allow_none = True)
     types = types[:]
     
     variables = self.variables()
@@ -31,7 +31,7 @@ class bcli_options_desc(bcli_options_desc_i):
     check.check_dict(defaults, key_type = str)
     defaults = copy.deepcopy(defaults) if defaults else {}
     
-    self._manager = bcli_simple_type_manager()
+    self._manager = bcli_type_manager()
     self._manager.add_types(types)
     self._manager.add_variables(variables)
     self._manager.add_defaults(defaults)

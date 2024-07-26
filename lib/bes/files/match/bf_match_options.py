@@ -6,14 +6,50 @@ from bes.system.check import check
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
-from bes.bcli.bcli_simple_type_item import bcli_simple_type_item
+from bes.bcli.bcli_type_list import bcli_type_list
+from bes.bcli.bcli_type_i import bcli_type_i
 
 from .bf_match_type import bf_match_type
 from ..bf_path_type import bf_path_type
 
 class _bf_match_options_desc(bcli_options_desc):
 
+  class _bf_type_bf_match_type(bcli_type_i):
+
+    #@abstractmethod
+    def name_str(self):
+      return 'bf_match_type'
+
+    #@abstractmethod
+    def type_function(self):
+      return lambda: bf_match_type
+
+    #@abstractmethod
+    def parse(self, text):
+      return bf_match_type.parse_string(text)
+
+    #@abstractmethod
+    def check(self, value, allow_none = False):
+      return check.check_bf_match_type(value, allow_none = allow_none)
+
+  class _bf_type_bf_path_type(bcli_type_i):
+
+    #@abstractmethod
+    def name_str(self):
+      return 'bf_path_type'
+
+    #@abstractmethod
+    def type_function(self):
+      return lambda: bf_path_type
+
+    #@abstractmethod
+    def parse(self, text):
+      return bf_path_type.parse_string(text)
+
+    #@abstractmethod
+    def check(self, value, allow_none = False):
+      return check.check_bf_path_type(value, allow_none = allow_none)
+    
   def __init__(self):
     super().__init__()
 
@@ -23,9 +59,9 @@ class _bf_match_options_desc(bcli_options_desc):
   
   #@abstractmethod
   def types(self):
-    return bcli_simple_type_item_list([
-      bcli_simple_type_item('bf_match_type', lambda: bf_match_type, bf_match_type.parse_string),
-      bcli_simple_type_item('bf_path_type', lambda: bf_path_type, bf_path_type.parse_string),
+    return bcli_type_list([
+      self._bf_type_bf_match_type(),
+      self._bf_type_bf_path_type(),
     ])
 
   #@abstractmethod
@@ -51,8 +87,6 @@ class xbf_match_options(cli_options):
 
   def __init__(self, **kargs):
     super().__init__(**kargs)
-
-#bcli_simple_type_item(namedtuple('bcli_simple_type_item', 'name, type_function, parse_function')):
 
   @classmethod
   #@abstractmethod

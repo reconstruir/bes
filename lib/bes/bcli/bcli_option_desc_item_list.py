@@ -16,7 +16,7 @@ class bcli_option_desc_item_list(type_checked_list):
 
   @classmethod
   def parse_text(clazz, manager, text):
-    check.check_bcli_simple_type_manager(manager)
+    check.check_bcli_type_manager(manager)
     check.check_string(text)
 
     lines = text_line_parser.parse_lines(text,

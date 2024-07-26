@@ -15,22 +15,23 @@ from bes.text.string_lexer_options import string_lexer_options
 from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
-from .bcli_simple_type_item import bcli_simple_type_item
-from .bcli_simple_type_manager import bcli_simple_type_manager
+#from .bcli_simple_type_item import bcli_simple_type_item
+from .bcli_type_manager import bcli_type_manager
 
-class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_type, default, secret')):
+class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_item, option_type, default, secret')):
 
   _log = logger('bcli')
   
-  def __new__(clazz, name, option_type, default, secret):
+  def __new__(clazz, name, type_item, option_type, default, secret):
     check.check_string(name)
+    check.check_bcli_type(type_item)
     #print(f'CACA: option_type={option_type}')
     check.check(option_type, ( type, typing._GenericAlias ))
 #    if default != None:
-#      bcli_simple_type_manager.check_instance(default, option_type)
+#      bcli_type_manager.check_instance(default, option_type)
     check.check_bool(secret)
     
-    return clazz.__bases__[0].__new__(clazz, name, option_type, default, secret)
+    return clazz.__bases__[0].__new__(clazz, name, type_item, option_type, default, secret)
 
   def to_dict(self):
     return dict(self._asdict())
@@ -42,7 +43,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
   
   @classmethod
   def parse_text(clazz, manager, text):
-    check.check_bcli_simple_type_manager(manager)
+    check.check_bcli_type_manager(manager)
     check.check_string(text)
 
     parts = clazz._parse_parts(text)
@@ -55,15 +56,15 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     
     type_item = manager._types[parsed_type.base]
 
-    #print(f'type_item={type_item}', flush = True)
+    print(f'POTO: type_item={type_item}', flush = True)
 
     if 'default' in parts.values:
       default_str = parts.values['default']
       resolved_default_str = manager.substitute_variables(default_str)
       #print(f'resolved_default_str=_{resolved_default_str}_')
       #clazz._log.log_d(f'2: CACA resolved_default_str={resolved_default_str}')
-      if type_item.parse_function:
-        default = type_item.parse_function(resolved_default_str)
+      if type_item.parse:
+        default = type_item.parse(resolved_default_str)
       else:
         default = ast.literal_eval(resolved_default_str)
         #print(f'default=_{default}_')
@@ -79,7 +80,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, option_ty
     if default != None:
       manager.check_instance(default, typing_type)
     
-    return bcli_option_desc_item(parts.name, typing_type, default, secret)
+    return bcli_option_desc_item(parts.name, type_item, typing_type, default, secret)
 
   _parse_parts_result = namedtuple('_parse_parts_result', 'name, type_str, values')
   @classmethod

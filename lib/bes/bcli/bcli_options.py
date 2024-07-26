@@ -71,11 +71,18 @@ class bcli_options(object):
     self._log.log_method_d()
     desc = super().__getattribute__('_desc')
     print(f'CACA: desc={desc}', flush = True)
+    import pprint
+    print(f'CACA: types={pprint.pformat(desc._manager._types)}', flush = True)
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
     desc_item = desc.items_dict[name]
     options = super().__getattribute__('_options')
     print(f'CACA: desc_item={desc_item}', flush = False)
+    if not desc.check_value_type(name, value, desc_item):
+      value = desc_item.type_item.parse(value)
+#    if desc_item.type_item:
+#      value = desc_item.type_item.parse(value)
+#    else:
     if not desc.check_value_type(name, value, desc_item):
       raise KeyError(f'Invalid type "{type(value).__name__}" for option "{name}" with value "{value}" - should be "{desc_item.option_type.__name__}"')
     options[name] = value
