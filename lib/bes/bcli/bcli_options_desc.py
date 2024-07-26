@@ -20,7 +20,7 @@ class bcli_options_desc(bcli_options_desc_i):
     check.check_string(self.name())
     
     types = self.types()
-    check.check_bcli_type_list(types, allow_none = True)
+    types = check.check_bcli_type_list(types, allow_none = True)
     types = types[:]
     
     variables = self.variables()
@@ -47,6 +47,10 @@ class bcli_options_desc(bcli_options_desc_i):
   #@abstractmethod
   def defaults(self):
     return {}
+
+  #@abstractmethod
+  def error_class(self):
+    return RuntimeError
   
   @cached_property
   def items(self):

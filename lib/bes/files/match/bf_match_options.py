@@ -50,9 +50,6 @@ class _bf_match_options_desc(bcli_options_desc):
     def check(self, value, allow_none = False):
       return check.check_bf_path_type(value, allow_none = allow_none)
     
-  def __init__(self):
-    super().__init__()
-
   #@abstractmethod
   def name(self):
     return '_bf_match_options_desc'
@@ -82,60 +79,5 @@ ignore_case bool          default=False
 class bf_match_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_match_options_desc(), **kwargs)
-
-class xbf_match_options(cli_options):
-
-  def __init__(self, **kargs):
-    super().__init__(**kargs)
-
-  @classmethod
-  #@abstractmethod
-  def default_values(clazz):
-    'Return a dict of defaults for these options.'
-    return {
-      'ignore_case': False,
-      'match_type': bf_match_type.ANY,
-      'path_type': bf_path_type.ABSOLUTE,
-    }
-  
-  @classmethod
-  #@abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    None
-  
-  @classmethod
-  #@abstractmethod
-  def value_type_hints(clazz):
-    return {
-      'ignore_case': bool,
-    }
-
-  @classmethod
-  #@abstractmethod
-  def config_file_key(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def config_file_env_var_name(clazz):
-    return None
-  
-  @classmethod
-  #@abstractmethod
-  def config_file_section(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def error_class(clazz):
-    return RuntimeError
-
-  #@abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    check.check_bool(self.ignore_case)
-    self.match_type = check.check_bf_match_type(self.match_type)
-    self.path_type = check.check_bf_path_type(self.path_type)
     
-check.register_class(bf_match_options)
+check.register_class(bf_match_options, include_seq = False)
