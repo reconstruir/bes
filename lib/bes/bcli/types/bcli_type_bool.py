@@ -8,7 +8,7 @@ from ..bcli_type_i import bcli_type_i
 class bcli_type_bool(bcli_type_i):
 
   #@abstractmethod
-  def name(self):
+  def name_str(self):
     return 'bool'
 
   #@abstractmethod

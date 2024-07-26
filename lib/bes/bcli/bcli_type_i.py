@@ -12,9 +12,13 @@ class bcli_type_i(metaclass = ABCMeta):
   _log = logger('bcli')
   
   @abstractmethod
-  def name(self):
-    raise NotImplementedError(f'name')
+  def name_str(self):
+    raise NotImplementedError(f'name_str')
 
+  @cached_property
+  def name(self):
+    return self.name_str()
+  
   @abstractmethod
   def type_function(self):
     raise NotImplementedError(f'type_function')

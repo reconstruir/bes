@@ -1,24 +1,25 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.number_util import number_util
+import ast
+
 from bes.system.check import check
 
 from ..bcli_type_i import bcli_type_i
 
-class bcli_type_int(bcli_type_i):
+class bcli_type_list(bcli_type_i):
 
   #@abstractmethod
   def name_str(self):
-    return 'int'
+    return 'list'
 
   #@abstractmethod
   def type_function(self):
-    return lambda: int
+    return lambda: list
 
   #@abstractmethod
   def parse(self, text):
-    return number_util.to_int(text)
+    return ast.literal_eval(text)
 
   #@abstractmethod
   def check(self, value, allow_none = False):
-    return check.check_int(value, allow_none = allow_none)
+    return check.check_list(value, allow_none = allow_none)
