@@ -14,42 +14,6 @@ from ..bf_path_type import bf_path_type
 
 class _bf_match_options_desc(bcli_options_desc):
 
-  class _bf_type_bf_match_type(bcli_type_i):
-
-    #@abstractmethod
-    def name_str(self):
-      return 'bf_match_type'
-
-    #@abstractmethod
-    def type_function(self):
-      return lambda: bf_match_type
-
-    #@abstractmethod
-    def parse(self, text):
-      return bf_match_type.parse_string(text)
-
-    #@abstractmethod
-    def check(self, value, allow_none = False):
-      return check.check_bf_match_type(value, allow_none = allow_none)
-
-  class _bf_type_bf_path_type(bcli_type_i):
-
-    #@abstractmethod
-    def name_str(self):
-      return 'bf_path_type'
-
-    #@abstractmethod
-    def type_function(self):
-      return lambda: bf_path_type
-
-    #@abstractmethod
-    def parse(self, text):
-      return bf_path_type.parse_string(text)
-
-    #@abstractmethod
-    def check(self, value, allow_none = False):
-      return check.check_bf_path_type(value, allow_none = allow_none)
-    
   #@abstractmethod
   def name(self):
     return '_bf_match_options_desc'
@@ -57,8 +21,8 @@ class _bf_match_options_desc(bcli_options_desc):
   #@abstractmethod
   def types(self):
     return bcli_type_list([
-      self._bf_type_bf_match_type(),
-      self._bf_type_bf_path_type(),
+      bf_cli_match_type(),
+      bf_cli_path_type(),
     ])
 
   #@abstractmethod
