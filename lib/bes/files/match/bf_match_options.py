@@ -9,8 +9,8 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.bcli.bcli_type_list import bcli_type_list
 from bes.bcli.bcli_type_i import bcli_type_i
 
-from .bf_match_type import bf_match_type
-from ..bf_path_type import bf_path_type
+from .bf_match_type import bf_cli_match_type
+from ..bf_path_type import bf_cli_path_type
 
 class _bf_match_options_desc(bcli_options_desc):
 
