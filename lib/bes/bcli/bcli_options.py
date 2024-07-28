@@ -21,6 +21,7 @@ class bcli_options(object):
     options = {}
     super().__setattr__('_options', options)
     for name, value in kwargs.items():
+      print(f'CONO: name={name} value={value}', flush = True)
       setattr(self, name, value)
 
   def __str__(self):
@@ -85,6 +86,7 @@ class bcli_options(object):
 #    else:
     if not desc.check_value_type(name, value, desc_item):
       raise KeyError(f'Invalid type "{type(value).__name__}" for option "{name}" with value "{value}" - should be "{desc_item.option_type.__name__}"')
+    print(f'CONO: setting {name} to "{value}"', flush = True)
     options[name] = value
 
 check.register_class(bcli_options, include_seq = False)

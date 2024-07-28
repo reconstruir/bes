@@ -18,20 +18,20 @@ from bes.common.string_util import string_util
 #from .bcli_simple_type_item import bcli_simple_type_item
 from .bcli_type_manager import bcli_type_manager
 
-class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_item, option_type, default, secret')):
+class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name, option_type, default, secret')):
 
   _log = logger('bcli')
   
-  def __new__(clazz, name, type_item, option_type, default, secret):
+  def __new__(clazz, name, type_name, option_type, default, secret):
     check.check_string(name)
-    check.check_bcli_type(type_item)
+    check.check_string(type_name)
     #print(f'CACA: option_type={option_type}')
     check.check(option_type, ( type, typing._GenericAlias ))
 #    if default != None:
 #      bcli_type_manager.check_instance(default, option_type)
     check.check_bool(secret)
     
-    return clazz.__bases__[0].__new__(clazz, name, type_item, option_type, default, secret)
+    return clazz.__bases__[0].__new__(clazz, name, type_name, option_type, default, secret)
 
   def to_dict(self):
     return dict(self._asdict())
@@ -80,7 +80,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_item
     if default != None:
       manager.check_instance(default, typing_type)
     
-    return bcli_option_desc_item(parts.name, type_item, typing_type, default, secret)
+    return bcli_option_desc_item(parts.name, type_item.name, typing_type, default, secret)
 
   _parse_parts_result = namedtuple('_parse_parts_result', 'name, type_str, values')
   @classmethod

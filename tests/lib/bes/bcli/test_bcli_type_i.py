@@ -32,9 +32,6 @@ class test_bcli_type_i(unit_test):
     def check(self, value, allow_none = False):
       return check.check__fruit_foo_type(value, allow_none = allow_none)
   
-#  def test_checked_enum(self):
-#    self.assertEqual( 4.2, bcli_type_float().parse('4.2') )
-
   def test_parse(self):
     self.assertEqual( self._fruit_foo_type.APPLE, self._fruit_foo_cli_type().parse('apple') )
 

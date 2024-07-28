@@ -8,7 +8,7 @@ from datetime import datetime
 from bes.testing.unit_test import unit_test
 from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.bcli.bcli_option_desc_item import bcli_option_desc_item
-from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
+from bes.bcli.bcli_type_list import bcli_type_list
 
 class test_bcli_options_desc(unit_test):
 
@@ -23,7 +23,7 @@ class test_bcli_options_desc(unit_test):
   
     #@abstractmethod
     def types(self):
-      return bcli_simple_type_item_list([
+      return bcli_type_list([
       ])
 
     #@abstractmethod
@@ -54,8 +54,8 @@ pear int default=${_var_bar}
     self.assertEqual( False, desc.check_value_type('kiwi', '13', None) )
 
     self.assertEqual( {
-      'kiwi': bcli_option_desc_item('kiwi', int, 42, False),
-      'pear': bcli_option_desc_item('pear', int, 666, False),
+      'kiwi': bcli_option_desc_item('kiwi', 'int', int, 42, False),
+      'pear': bcli_option_desc_item('pear', 'int', int, 666, False),
     }, desc.items_dict )
 
   def test_keys(self):

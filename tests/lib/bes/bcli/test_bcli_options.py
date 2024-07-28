@@ -10,7 +10,7 @@ from bes.testing.unit_test import unit_test
 
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
-from bes.bcli.bcli_simple_type_item_list import bcli_simple_type_item_list
+from bes.bcli.bcli_type_list import bcli_type_list
 
 class test_bcli_options(unit_test):
 
@@ -79,13 +79,13 @@ class test_bcli_options(unit_test):
   
     #@abstractmethod
     def types(self):
-      return bcli_simple_type_item_list([
+      return bcli_type_list([
       ])
 
     #@abstractmethod
     def options_desc(self):
       return '''
-color str default=None
+color str
   '''
   
     #@abstractmethod
@@ -106,7 +106,7 @@ color str default=None
   
     #@abstractmethod
     def types(self):
-      return super().types() + bcli_simple_type_item_list([
+      return super().types() + bcli_type_list([
       ])
 
     #@abstractmethod
@@ -134,7 +134,10 @@ size int default=0
       '_var_shape_foo',
       '_var_shape_bar',
     ], list(shape_desc.variables().keys()) )
-    
+
+    d = shape_options.to_dict()
+    import pprint
+    print(pprint.pformat(d), flush = True)
     self.assertEqual( None, shape_options.color )
     self.assertEqual( False, shape_desc.has_option('size') )
     
@@ -159,7 +162,7 @@ size int default=0
   
     #@abstractmethod
     def types(self):
-      return bcli_simple_type_item_list([
+      return bcli_type_list([
       ])
 
     #@abstractmethod

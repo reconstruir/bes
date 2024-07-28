@@ -3,19 +3,15 @@
 import re
 import typing
 
-from datetime import datetime
-from datetime import timedelta
-
-#from typing import Any
+#from datetime import datetime
+#from datetime import timedelta
 
 from collections import namedtuple
 
 from bes.system.check import check
 from bes.system.log import logger
-#from bes.property.cached_property import cached_property
 from bes.common.variable import variable
 
-#from .bcli_simple_type_item import bcli_simple_type_item
 from .bcli_type_list import bcli_type_list
 from .bcli_type_i import bcli_type_i
 
@@ -23,6 +19,7 @@ from .types.bcli_type_bool import bcli_type_bool
 from .types.bcli_type_float import bcli_type_float
 from .types.bcli_type_int import bcli_type_int
 from .types.bcli_type_list import bcli_type_list
+from .types.bcli_type_str import bcli_type_str
 
 class bcli_type_manager(object):
 
@@ -33,7 +30,7 @@ class bcli_type_manager(object):
     bcli_type_float(),
     bcli_type_int(),
     bcli_type_list(),
-#    bcli_simple_type_item('str', lambda: str),
+    bcli_type_str(),
 #    bcli_simple_type_item('set', lambda: set),
 #    bcli_simple_type_item('dict', lambda: dict),
 #    bcli_simple_type_item('tuple', lambda: tuple),
