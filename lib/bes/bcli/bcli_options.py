@@ -80,10 +80,9 @@ class bcli_options(object):
     options = super().__getattribute__('_options')
     print(f'CACA: desc_item={desc_item}', flush = False)
     if not desc.check_value_type(name, value, desc_item):
-      value = desc_item.type_item.parse(value)
-#    if desc_item.type_item:
-#      value = desc_item.type_item.parse(value)
-#    else:
+      type_name = desc_item.type_name
+      type_item = desc._manager._types[type_name]
+      value = type_item.parse(value)
     if not desc.check_value_type(name, value, desc_item):
       raise KeyError(f'Invalid type "{type(value).__name__}" for option "{name}" with value "{value}" - should be "{desc_item.option_type.__name__}"')
     print(f'CONO: setting {name} to "{value}"', flush = True)
