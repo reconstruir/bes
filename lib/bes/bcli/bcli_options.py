@@ -88,4 +88,8 @@ class bcli_options(object):
     print(f'CONO: setting {name} to "{value}"', flush = True)
     options[name] = value
 
+  @classmethod
+  def register_check_class(clazz):
+    check.register_class(clazz, include_seq = False)
+    
 check.register_class(bcli_options, include_seq = False)

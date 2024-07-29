@@ -7,18 +7,22 @@ from ..bcli_type_i import bcli_type_i
 
 class bcli_type_bool(bcli_type_i):
 
+  @classmethod
   #@abstractmethod
-  def name_str(self):
+  def name_str(clazz):
     return 'bool'
 
+  @classmethod
   #@abstractmethod
-  def type_function(self):
-    return lambda: bool
+  def type_function(clazz):
+    return bool
 
+  @classmethod
   #@abstractmethod
-  def parse(self, text):
+  def parse(clazz, text):
     return bool_util.parse_bool(text)
 
+  @classmethod
   #@abstractmethod
-  def check(self, value, allow_none = False):
+  def check(clazz, value, allow_none = False):
     return check.check_bool(value, allow_none = allow_none)

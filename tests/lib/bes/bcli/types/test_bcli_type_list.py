@@ -13,7 +13,7 @@ class test_bcli_type_list(unit_test):
     self.assertEqual( [ 42, 43 ], bcli_type_list().check([ 42, 43 ]) )
 
   def test_type_function(self):
-    self.assertEqual( list, bcli_type_list().type_function()() )
+    self.assertEqual( list, bcli_type_list().type_function() )
 
   def test_type(self):
     self.assertEqual( list, bcli_type_list().type )

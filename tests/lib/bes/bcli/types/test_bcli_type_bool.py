@@ -14,7 +14,7 @@ class test_bcli_type_bool(unit_test):
     self.assertEqual( True, bcli_type_bool().check(True) )
 
   def test_type_function(self):
-    self.assertEqual( bool, bcli_type_bool().type_function()() )
+    self.assertEqual( bool, bcli_type_bool().type_function() )
 
   def test_type(self):
     self.assertEqual( bool, bcli_type_bool().type )

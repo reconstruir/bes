@@ -13,18 +13,22 @@ bf_match_type.register_check_class()
 
 class bf_cli_match_type(bcli_type_i):
 
+  @classmethod
   #@abstractmethod
-  def name_str(self):
+  def name_str(clazz):
     return 'bf_match_type'
 
+  @classmethod
   #@abstractmethod
-  def type_function(self):
-    return lambda: bf_match_type
+  def type_function(clazz):
+    return bf_match_type
 
+  @classmethod
   #@abstractmethod
-  def parse(self, text):
+  def parse(clazz, text):
     return bf_match_type.parse_string(text)
 
+  @classmethod
   #@abstractmethod
-  def check(self, value, allow_none = False):
+  def check(clazz, value, allow_none = False):
     return check.check_bf_match_type(value, allow_none = allow_none)

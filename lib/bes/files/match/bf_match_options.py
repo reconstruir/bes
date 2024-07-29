@@ -1,8 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_options import cli_options
-from bes.system.check import check
-
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
@@ -44,4 +41,4 @@ class bf_match_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_match_options_desc(), **kwargs)
     
-check.register_class(bf_match_options, include_seq = False)
+bf_match_options.register_check_class()

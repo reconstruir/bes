@@ -7,18 +7,22 @@ from ..bcli_type_i import bcli_type_i
 
 class bcli_type_int(bcli_type_i):
 
+  @classmethod
   #@abstractmethod
-  def name_str(self):
+  def name_str(clazz):
     return 'int'
 
+  @classmethod
   #@abstractmethod
-  def type_function(self):
-    return lambda: int
+  def type_function(clazz):
+    return int
 
+  @classmethod
   #@abstractmethod
-  def parse(self, text):
+  def parse(clazz, text):
     return number_util.to_int(text)
 
+  @classmethod
   #@abstractmethod
-  def check(self, value, allow_none = False):
+  def check(clazz, value, allow_none = False):
     return check.check_int(value, allow_none = allow_none)

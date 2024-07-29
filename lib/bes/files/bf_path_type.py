@@ -13,18 +13,22 @@ bf_path_type.register_check_class()
 
 class bf_cli_path_type(bcli_type_i):
 
+  @classmethod
   #@abstractmethod
-  def name_str(self):
+  def name_str(claz):
     return 'bf_path_type'
 
+  @classmethod
   #@abstractmethod
-  def type_function(self):
-    return lambda: bf_path_type
+  def type_function(claz):
+    return bf_path_type
 
+  @classmethod
   #@abstractmethod
-  def parse(self, text):
+  def parse(claz, text):
     return bf_path_type.parse_string(text)
 
+  @classmethod
   #@abstractmethod
-  def check(self, value, allow_none = False):
+  def check(claz, value, allow_none = False):
     return check.check_bf_path_type(value, allow_none = allow_none)

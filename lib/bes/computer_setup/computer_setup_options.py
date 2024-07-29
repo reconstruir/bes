@@ -10,7 +10,7 @@ from .computer_setup_error import computer_setup_error
 class computer_setup_options(cli_options):
 
   def __init__(self, **kargs):
-    super(computer_setup_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod
@@ -70,6 +70,6 @@ class computer_setup_options(cli_options):
   
   @property
   def credentials(self):
-    return credentials('<cli>', password = self.vmrest_password)
+    return credentials('<cli>', password = self.password)
 
 check.register_class(computer_setup_options)

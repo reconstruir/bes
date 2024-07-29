@@ -13,7 +13,7 @@ class test_bcli_type_int(unit_test):
     self.assertEqual( 42, bcli_type_int().check(42) )
 
   def test_type_function(self):
-    self.assertEqual( int, bcli_type_int().type_function()() )
+    self.assertEqual( int, bcli_type_int().type_function() )
 
   def test_type(self):
     self.assertEqual( int, bcli_type_int().type )

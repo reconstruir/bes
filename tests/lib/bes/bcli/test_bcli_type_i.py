@@ -16,20 +16,24 @@ class test_bcli_type_i(unit_test):
 
   class _fruit_foo_cli_type(bcli_type_i):
 
+    @classmethod
     #@abstractmethod
-    def name_str(self):
+    def name_str(clazz):
       return '_fruit_foo_type'
 
+    @classmethod
     #@abstractmethod
-    def type_function(self):
-      return lambda: test_bcli_type_i._fruit_foo_type
+    def type_function(clazz):
+      return test_bcli_type_i._fruit_foo_type
 
+    @classmethod
     #@abstractmethod
-    def parse(self, text):
+    def parse(clazz, text):
       return test_bcli_type_i._fruit_foo_type.parse_string(text)
 
+    @classmethod
     #@abstractmethod
-    def check(self, value, allow_none = False):
+    def check(clazz, value, allow_none = False):
       return check.check__fruit_foo_type(value, allow_none = allow_none)
   
   def test_parse(self):
@@ -39,7 +43,7 @@ class test_bcli_type_i(unit_test):
     self.assertEqual( self._fruit_foo_type.ORANGE, self._fruit_foo_cli_type().check(self._fruit_foo_type.ORANGE) )
 
   def test_type_function(self):
-    self.assertEqual( self._fruit_foo_type, self._fruit_foo_cli_type().type_function()() )
+    self.assertEqual( self._fruit_foo_type, self._fruit_foo_cli_type().type_function() )
 
   def test_type(self):
     self.assertEqual( self._fruit_foo_type, self._fruit_foo_cli_type().type )

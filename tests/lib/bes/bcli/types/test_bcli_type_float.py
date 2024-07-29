@@ -13,7 +13,7 @@ class test_bcli_type_float(unit_test):
     self.assertEqual( 4.2, bcli_type_float().check(4.2) )
 
   def test_type_function(self):
-    self.assertEqual( float, bcli_type_float().type_function()() )
+    self.assertEqual( float, bcli_type_float().type_function() )
 
   def test_type(self):
     self.assertEqual( float, bcli_type_float().type )

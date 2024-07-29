@@ -8,18 +8,22 @@ from ..bcli_type_i import bcli_type_i
 
 class bcli_type_list(bcli_type_i):
 
+  @classmethod
   #@abstractmethod
-  def name_str(self):
+  def name_str(clazz):
     return 'list'
 
+  @classmethod
   #@abstractmethod
-  def type_function(self):
-    return lambda: list
+  def type_function(clazz):
+    return list
 
+  @classmethod
   #@abstractmethod
-  def parse(self, text):
+  def parse(clazz, text):
     return ast.literal_eval(text)
 
+  @classmethod
   #@abstractmethod
-  def check(self, value, allow_none = False):
+  def check(clazz, value, allow_none = False):
     return check.check_list(value, allow_none = allow_none)
