@@ -1,75 +1,48 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_options import cli_options
-from ..system.check import check
+from bes.bcli.bcli_options import bcli_options
+from bes.bcli.bcli_options_desc import bcli_options_desc
+from bes.bcli.bcli_type_list import bcli_type_list
+from bes.bcli.bcli_type_i import bcli_type_i
 from bes.credentials.credentials import credentials
-from bes.script.blurber import blurber
 
 from .computer_setup_error import computer_setup_error
 
-class computer_setup_options(cli_options):
+class _computer_setup_options_desc(bcli_options_desc):
 
-  def __init__(self, **kargs):
-    super().__init__(**kargs)
+  #@abstractmethod
+  def name(self):
+    return '_computer_setup_options_desc'
+  
+  #@abstractmethod
+  def types(self):
+    return bcli_type_list([
+    ])
 
-  @classmethod
   #@abstractmethod
-  def default_values(clazz):
-    'Return a dict of defaults for these options.'
-    return {
-      'blurber': blurber(),
-      'verbose': False,
-      'debug': False,
-      'password': None,
-      'dry_run': False,
-    }
+  def options_desc(self):
+    return '''
+verbose  bool  default=False
+debug    bool  default=False
+dry_run  bool  default=False
+password str   secret=True
+'''
   
-  @classmethod
   #@abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    return ( 'password', )
-  
-  @classmethod
-  #@abstractmethod
-  def value_type_hints(clazz):
+  def variables(self):
     return {
-      'verbose': bool,
-      'debug': bool,
-      'dry_run': bool,
     }
 
-  @classmethod
   #@abstractmethod
-  def config_file_key(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def config_file_env_var_name(clazz):
-    return None
-  
-  @classmethod
-  #@abstractmethod
-  def config_file_section(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def error_class(clazz):
+  def error_class(self):
     return computer_setup_error
-
-  #@abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    check.check_blurber(self.blurber)
-    check.check_bool(self.verbose)
-    check.check_bool(self.debug)
-    check.check_bool(self.dry_run)
-    check.check_string(self.password, allow_none = True)
   
+class computer_setup_options(bcli_options):
+  def __init__(self, **kwargs):
+    super().__init__(_computer_setup_options_desc(), **kwargs)
+
   @property
   def credentials(self):
     return credentials('<cli>', password = self.password)
-
-check.register_class(computer_setup_options)
+    
+computer_setup_options.register_check_class()

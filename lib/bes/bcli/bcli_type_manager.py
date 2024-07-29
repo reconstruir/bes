@@ -20,6 +20,9 @@ from .types.bcli_type_float import bcli_type_float
 from .types.bcli_type_int import bcli_type_int
 from .types.bcli_type_list import bcli_type_list
 from .types.bcli_type_str import bcli_type_str
+from .types.bcli_type_set import bcli_type_set
+from .types.bcli_type_dict import bcli_type_dict
+from .types.bcli_type_tuple import bcli_type_tuple
 
 class bcli_type_manager(object):
 
@@ -27,13 +30,13 @@ class bcli_type_manager(object):
   
   _BASIC_TYPES = [
     bcli_type_bool(),
+    bcli_type_dict(),
     bcli_type_float(),
     bcli_type_int(),
     bcli_type_list(),
+    bcli_type_set(),
     bcli_type_str(),
-#    bcli_simple_type_item('set', lambda: set),
-#    bcli_simple_type_item('dict', lambda: dict),
-#    bcli_simple_type_item('tuple', lambda: tuple),
+    bcli_type_tuple(),
 #    bcli_simple_type_item('datetime', lambda: datetime),
 #    bcli_simple_type_item('timedelta', lambda: timedelta),
   ]
