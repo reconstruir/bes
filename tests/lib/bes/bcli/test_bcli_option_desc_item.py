@@ -67,6 +67,10 @@ class test_bcli_option_desc_item(unit_test):
   def test__parse_parts_multiple_key_values(self):
     self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'secret': 'True' } ),
                       bcli_option_desc_item._parse_parts('kiwi list[int] default=[] secret=True') )
+
+  def test__parse_parts_multiple_key_values(self):
+    self.assertEqual( ( 'kiwi', 'list[int]', { 'default': '[]', 'secret': 'True' } ),
+                      bcli_option_desc_item._parse_parts('kiwi list[int] default=[] secret=True') )
     
 if __name__ == '__main__':
   unit_test.main()

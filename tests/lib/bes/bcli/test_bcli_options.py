@@ -19,7 +19,7 @@ class test_bcli_options(unit_test):
     self.assertEqual( {
       'kiwi': 42,
       'pear': 666,
-      'password': '***',
+      'password': '*************',
     }, options.to_dict() )
 
   def test_to_dict_without_hiding_secrets(self):
@@ -32,7 +32,7 @@ class test_bcli_options(unit_test):
     
   def test___str__(self):
     options = self._make_test_options(password = 'foo')
-    self.assertEqual( '''{'kiwi': 42, 'password': '***', 'pear': 666}''', str(options) )
+    self.assertEqual( '''{'kiwi': 42, 'password': '*************', 'pear': 666}''', str(options) )
 
   def test_to_str_without_hiding_secrets(self):
     options = self._make_test_options(password = 'foo')

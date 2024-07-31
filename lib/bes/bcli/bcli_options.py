@@ -27,13 +27,14 @@ class bcli_options(object):
   def __str__(self):
     return self.to_str()
 
+  _SECRET_OBFUSCATION_LENGTH = 13
   def to_dict(self, hide_secrets = True):
     desc = super().__getattribute__('_desc')
     d = {}
     for key in self.keys():
       value = getattr(self, key)
       if hide_secrets and desc.secret(key):
-        value = '*' * len(value)
+        value = '*' * self._SECRET_OBFUSCATION_LENGTH
       d[key] = value
     return copy.deepcopy(d)
 
