@@ -15,7 +15,6 @@ from bes.text.string_lexer_options import string_lexer_options
 from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
-#from .bcli_simple_type_item import bcli_simple_type_item
 from .bcli_type_manager import bcli_type_manager
 
 class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name, option_type, default, secret')):

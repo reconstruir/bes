@@ -3,9 +3,6 @@
 import re
 import typing
 
-#from datetime import datetime
-#from datetime import timedelta
-
 from collections import namedtuple
 
 from bes.system.check import check
@@ -16,12 +13,14 @@ from .bcli_type_list import bcli_type_list
 from .bcli_type_i import bcli_type_i
 
 from .types.bcli_type_bool import bcli_type_bool
+from .types.bcli_type_datetime import bcli_type_datetime
+from .types.bcli_type_dict import bcli_type_dict
 from .types.bcli_type_float import bcli_type_float
 from .types.bcli_type_int import bcli_type_int
 from .types.bcli_type_list import bcli_type_list
-from .types.bcli_type_str import bcli_type_str
 from .types.bcli_type_set import bcli_type_set
-from .types.bcli_type_dict import bcli_type_dict
+from .types.bcli_type_str import bcli_type_str
+from .types.bcli_type_timedelta import bcli_type_timedelta
 from .types.bcli_type_tuple import bcli_type_tuple
 
 class bcli_type_manager(object):
@@ -30,15 +29,15 @@ class bcli_type_manager(object):
   
   _BASIC_TYPES = [
     bcli_type_bool(),
+    bcli_type_datetime(),
     bcli_type_dict(),
     bcli_type_float(),
     bcli_type_int(),
     bcli_type_list(),
     bcli_type_set(),
     bcli_type_str(),
+    bcli_type_timedelta(),
     bcli_type_tuple(),
-#    bcli_simple_type_item('datetime', lambda: datetime),
-#    bcli_simple_type_item('timedelta', lambda: timedelta),
   ]
   
   def __init__(self):
