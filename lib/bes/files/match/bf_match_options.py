@@ -3,7 +3,6 @@
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-from bes.bcli.bcli_type_list import bcli_type_list
 from bes.bcli.bcli_type_i import bcli_type_i
 
 from .bf_match_type import bf_cli_match_type
@@ -17,10 +16,10 @@ class _bf_match_options_desc(bcli_options_desc):
   
   #@abstractmethod
   def types(self):
-    return bcli_type_list([
+    return [
       bf_cli_match_type(),
       bf_cli_path_type(),
-    ])
+    ]
 
   #@abstractmethod
   def options_desc(self):

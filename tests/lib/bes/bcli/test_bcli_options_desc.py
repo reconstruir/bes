@@ -8,7 +8,6 @@ from datetime import datetime
 from bes.testing.unit_test import unit_test
 from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.bcli.bcli_option_desc_item import bcli_option_desc_item
-from bes.bcli.bcli_type_list import bcli_type_list
 
 class test_bcli_options_desc(unit_test):
 
@@ -23,8 +22,7 @@ class test_bcli_options_desc(unit_test):
   
     #@abstractmethod
     def types(self):
-      return bcli_type_list([
-      ])
+      return []
 
     #@abstractmethod
     def options_desc(self):

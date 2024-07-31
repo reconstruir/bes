@@ -9,7 +9,6 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.common.variable import variable
 
-from .bcli_type_list import bcli_type_list
 from .bcli_type_i import bcli_type_i
 
 from .types.bcli_type_bool import bcli_type_bool
@@ -98,7 +97,7 @@ class bcli_type_manager(object):
     self._types[t.name] = t
 
   def add_types(self, types):
-    types = check.check_bcli_type_list(types)
+    types = check.check_seq(types, bcli_type_i)
     for t in types:
       self.add_type(t)
     

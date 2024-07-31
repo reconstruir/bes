@@ -8,7 +8,7 @@ from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .bcli_option_desc_item_list import bcli_option_desc_item_list
-from .bcli_type_list import bcli_type_list
+from .bcli_type_i import bcli_type_i
 from .bcli_type_manager import bcli_type_manager
 from .bcli_options_desc_i import bcli_options_desc_i
 
@@ -20,7 +20,7 @@ class bcli_options_desc(bcli_options_desc_i):
     check.check_string(self.name())
     
     types = self.types()
-    types = check.check_bcli_type_list(types, allow_none = True)
+#    types = check.check_seq(types, allow_none = True)
     types = types[:]
     
     variables = self.variables()

@@ -10,7 +10,6 @@ from bes.testing.unit_test import unit_test
 
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
-from bes.bcli.bcli_type_list import bcli_type_list
 
 class test_bcli_options(unit_test):
 
@@ -79,8 +78,7 @@ class test_bcli_options(unit_test):
   
     #@abstractmethod
     def types(self):
-      return bcli_type_list([
-      ])
+      return []
 
     #@abstractmethod
     def options_desc(self):
@@ -106,8 +104,7 @@ color str
   
     #@abstractmethod
     def types(self):
-      return super().types() + bcli_type_list([
-      ])
+      return super().types() + []
 
     #@abstractmethod
     def options_desc(self):
@@ -162,8 +159,7 @@ size int default=0
   
     #@abstractmethod
     def types(self):
-      return bcli_type_list([
-      ])
+      return []
 
     #@abstractmethod
     def options_desc(self):
