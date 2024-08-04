@@ -13,7 +13,51 @@ from bes.property.cached_property import cached_property
 
 from .file_resolver_options import file_resolver_options
 
-class files_cli_options(cli_options, file_ignore_options_mixin):
+class _files_cli_options_desc(bcli_options_desc):
+
+  #@abstractmethod
+  def name(self):
+    return '_files_cli_options_desc'
+  
+  #@abstractmethod
+  def types(self):
+    return []
+
+  #@abstractmethod
+  def options_desc(self):
+    return '''
+             debug bool      default=False
+           dry_run bool      default=False,
+             quiet bool      default=False,
+         recursive bool      default=False,
+           verbose bool      default=False,
+      ignore_files list[str] default=None
+dup_file_timestamp str       default=${_dup_file_timestamp}
+    dup_file_count int       default=1
+'''
+  
+  #@abstractmethod
+  def variables(self):
+    return {
+      '_dup_file_timestamp': lambda: time_util.timestamp(),
+    }
+
+  #@abstractmethod
+  def error_class(self):
+    return IOError
+  
+class files_cli_options(bcli_options):
+  def __init__(self, **kwargs):
+    super().__init__(_files_cli_options_desc(), **kwargs)
+
+  @cached_property
+  def file_resolver_options(self):
+    return file_resolver_options(recursive = self.recursive,
+                                 ignore_files = self.ignore_files)
+  
+files_cli_options.register_check_class()
+  
+class xfiles_cli_options(cli_options, file_ignore_options_mixin):
 
   def __init__(self, **kargs):
     super().__init__(**kargs)
@@ -89,4 +133,4 @@ class files_cli_options(cli_options, file_ignore_options_mixin):
     return file_resolver_options(recursive = self.recursive,
                                  ignore_files = self.ignore_files)
     
-check.register_class(files_cli_options)
+#check.register_class(files_cli_options)

@@ -23,7 +23,9 @@ class bcli_type_datetime(bcli_type_i):
   @classmethod
   #@abstractmethod
   def parse(clazz, text):
-    assert False
+    if text == None:
+      return None
+    return datetime.fromisoformat(text)
 
   @classmethod
   #@abstractmethod

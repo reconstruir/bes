@@ -55,7 +55,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
     
     type_item = manager._types[parsed_type.base]
 
-    print(f'POTO: type_item={type_item}', flush = True)
+    #print(f'POTO: type_item={type_item}', flush = True)
 
     if 'default' in parts.values:
       default_str = parts.values['default']

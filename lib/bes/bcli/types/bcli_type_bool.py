@@ -20,6 +20,8 @@ class bcli_type_bool(bcli_type_i):
   @classmethod
   #@abstractmethod
   def parse(clazz, text):
+    if text == None:
+      return False
     return bool_util.parse_bool(text)
 
   @classmethod

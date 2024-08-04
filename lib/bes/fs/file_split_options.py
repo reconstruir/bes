@@ -3,16 +3,56 @@
 from datetime import datetime
 from os import path
 
-from bes.cli.cli_options import cli_options
+from bes.bcli.bcli_options import bcli_options
+from bes.bcli.bcli_options_desc import bcli_options_desc
+
+#from bes.cli.cli_options import cli_options
 from ..system.check import check
 from bes.script.blurber import blurber
 
 from .files_cli_options import files_cli_options
+from .files_cli_options import _files_cli_options_desc
 
-class file_split_options(files_cli_options):
+class _file_split_options_desc(_files_cli_options_desc):
+
+#  def __init__(self):
+#    super().__init__()
+
+  #@abstractmethod
+  def name(self):
+    return '_file_split_options_desc'
+  
+  #@abstractmethod
+  def types(self):
+    return super().types() + []
+
+  #@abstractmethod
+  def options_desc(self):
+    return self.combine_options_desc(super().options_desc(), '''
+          check_downloading bool      default=False
+check_downloading_extension str       default=part
+             check_modified bool      default=False
+    check_modified_interval float     default=250.0
+    existing_file_timestamp str       default=${_datetime_now}
+          ignore_extensions list[str] default=None
+                      unzip bool      default=False
+          ignore_incomplete bool      default=False
+''')
+  
+  #@abstractmethod
+  def variables(self):
+    return self.combine_variables(super().variables(), {
+      '_datetime_now': lambda: datetime.now().isoformat(),
+    })
+
+class file_split_options(bcli_options):
+  def __init__(self, **kwargs):
+    super().__init__(_file_split_options_desc(), **kwargs)
+  
+class xfile_split_options(files_cli_options):
 
   def __init__(self, **kargs):
-    super(file_split_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod
