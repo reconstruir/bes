@@ -32,14 +32,15 @@ class file_split(object):
     return filename_util.has_any_extension(filename, clazz._UNSPLIT_EXTENSIONS)
   
   @classmethod
-  def find_and_unsplit(clazz, files, options = None):
+  def find_and_unsplit(clazz, files, options = None, blurber = None):
     check.check_string_seq(files)
     check.check_file_split_options(options, allow_none = True)
 
-    info = clazz.find_and_unsplit_info(files, options = options)
+    info = clazz.find_and_unsplit_info(files, options = options, blurber = blurber)
     for item in info.items:
       item_target = item.target
-      options.blurber.blurb_verbose(f'Unsplitting {item_target} - {len(item.files)} parts.')
+      if blurber:
+        blurber.blurb_verbose(f'Unsplitting {item_target} - {len(item.files)} parts.')
       tmp = temp_file.make_temp_file(prefix = path.basename(item_target), dir = path.dirname(item_target), non_existent = True)
       clazz.unsplit_files(tmp, item.files)
       if options.unzip:
@@ -47,7 +48,8 @@ class file_split(object):
           members = archiver.members(tmp)
           num_members = len(members)
           if num_members != 1:
-            options.blurber.blurb(f'{item_target} archive should have exactly 1 member instead of {num_members}')
+            if blurber:
+              blurber.blurb(f'{item_target} archive should have exactly 1 member instead of {num_members}')
           else:
             archive_filename = members[0]
             archive_tmp_dir = temp_file.make_temp_dir(prefix = path.basename(archive_filename),
@@ -63,14 +65,16 @@ class file_split(object):
       target = None
       if path.exists(item_target):
         if file_util.files_are_the_same(tmp, item_target):
-          options.blurber.blurb(f'{item_target} already exists and is the same')
+          if blurber:
+            blurber.blurb(f'{item_target} already exists and is the same')
           file_util.remove(tmp)
         else:
           ts = time_util.timestamp(delimiter = '',
                                    milliseconds = False,
                                    when = options.existing_file_timestamp)
           target = clazz._make_timestamp_filename(item_target, ts)
-          options.blurber.blurb(f'{item_target} already exists but is different.  Renaming to {target}')
+          if blurber:
+            blurber.blurb(f'{item_target} already exists but is different.  Renaming to {target}')
       else:
         target = item_target
       if target:
@@ -89,7 +93,7 @@ class file_split(object):
   _split_item = namedtuple('_split_item', 'target, files')
   _split_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
-  def find_and_unsplit_info(clazz, files, options = None):
+  def find_and_unsplit_info(clazz, files, options = None, blurber = None):
     check.check_string_seq(files)
     check.check_file_split_options(options, allow_none = True)
 
@@ -100,13 +104,13 @@ class file_split(object):
     resolved_files = file_resolver.resolve_files(files, options = resolver_options)
     items = []
     for f in resolved_files:
-      item = clazz._unsplit_one_info(f.filename_abs, options)
+      item = clazz._unsplit_one_info(f.filename_abs, options, blurber)
       if item:
         items.append(item)
     return clazz._split_result(items, resolved_files)
       
   @classmethod
-  def _unsplit_one_info(clazz, first_filename, options):
+  def _unsplit_one_info(clazz, first_filename, options, blurber):
     files_group = clazz._files_group(first_filename, options.ignore_extensions)
     if len(files_group) == 1:
       return None
@@ -114,7 +118,8 @@ class file_split(object):
       dl_files = clazz._files_group_is_still_downloading(files_group, options.check_downloading_extension)
       if dl_files:
         for f in dl_files:
-          options.blurber.blurb(f'Still downloading: {f}')
+          if blurber:
+            blurber.blurb(f'Still downloading: {f}')
         return None
     if not clazz._files_group_is_complete(files_group):
       if options.ignore_incomplete:

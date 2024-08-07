@@ -38,5 +38,5 @@ class bcli_type_i(metaclass = ABCMeta):
   @abstractmethod
   def check(clazz, value, allow_none = False):
     raise NotImplementedError(f'check')
-  
+
 check.register_class(bcli_type_i, name = 'bcli_type', include_seq = False)

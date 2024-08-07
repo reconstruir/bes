@@ -21,7 +21,6 @@ class bcli_options(object):
     options = {}
     super().__setattr__('_options', options)
     for name, value in kwargs.items():
-      print(f'CONO: name={name} value={value}', flush = True)
       setattr(self, name, value)
 
   def __str__(self):
@@ -72,14 +71,10 @@ class bcli_options(object):
   def __setattr__(self, name, value):
     self._log.log_method_d()
     desc = super().__getattribute__('_desc')
-    #print(f'CACA: desc={desc}', flush = True)
-    #import pprint
-    #print(f'CACA: types={pprint.pformat(desc._manager._types)}', flush = True)
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
     desc_item = desc.items_dict[name]
     options = super().__getattribute__('_options')
-    #print(f'CACA: desc_item={desc_item}', flush = False)
     if value != None:
       if not desc.check_value_type(name, value, desc_item):
         type_name = desc_item.type_name
@@ -87,7 +82,6 @@ class bcli_options(object):
         value = type_item.parse(value)
       if not desc.check_value_type(name, value, desc_item):
         raise KeyError(f'Invalid type "{type(value).__name__}" for option "{name}" with value "{value}" - should be "{desc_item.option_type.__name__}"')
-    #print(f'CONO: setting {name} to "{value}"', flush = True)
     options[name] = value
 
   @classmethod

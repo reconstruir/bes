@@ -6,6 +6,7 @@ import os
 from bes.system.check import check
 from bes.system.log import logger
 from bes.property.cached_property import cached_property
+from bes.common.json_util import json_util
 
 from .bcli_option_desc_item_list import bcli_option_desc_item_list
 from .bcli_type_i import bcli_type_i
@@ -36,6 +37,9 @@ class bcli_options_desc(bcli_options_desc_i):
     self._manager.add_variables(variables)
     self._manager.add_defaults(defaults)
 
+  def to_json(self):
+    return self._manager.to_json()
+    
   #@abstractmethod
   def types(self):
     return None
@@ -87,8 +91,8 @@ class bcli_options_desc(bcli_options_desc_i):
     assert name in self.items_dict
     item = self.items_dict[name]
 
-    print(f'item={item}')
-    print(f'desc_item={desc_item}')
+#    print(f'item={item}')
+#    print(f'desc_item={desc_item}')
     
 #    if item.option_type.check_function:
 #      return item.option_type.check_function(value, allow_none = True)

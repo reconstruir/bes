@@ -33,7 +33,7 @@ class _file_split_options_desc(_files_cli_options_desc):
 check_downloading_extension str       default=part
              check_modified bool      default=False
     check_modified_interval float     default=250.0
-    existing_file_timestamp str       default=${_datetime_now}
+    existing_file_timestamp datetime  default=${_datetime_now}
           ignore_extensions list[str] default=None
                       unzip bool      default=False
           ignore_incomplete bool      default=False
@@ -42,7 +42,7 @@ check_downloading_extension str       default=part
   #@abstractmethod
   def variables(self):
     return self.combine_variables(super().variables(), {
-      '_datetime_now': lambda: datetime.now().isoformat(),
+      '_datetime_now': lambda: datetime.now(),
     })
 
 class file_split_options(bcli_options):

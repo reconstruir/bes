@@ -8,6 +8,7 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.system.log import logger
 from bes.common.variable import variable
+from bes.common.json_util import json_util
 
 from .bcli_type_i import bcli_type_i
 
@@ -46,6 +47,16 @@ class bcli_type_manager(object):
     self._variables = {}
     self._defaults = {}
 
+  def to_dict(self):
+    return {
+      'types': self._types,
+      'variables': self._variables,
+      'defaults': self._defaults,
+    }
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
+  
   def add_variable(self, name, function):
     check.check_string(name)
     check.check_callable(function)

@@ -17,10 +17,18 @@ class test_bcli_option_desc_item(unit_test):
   def test___init__typing(self):
     item = bcli_option_desc_item('kiwi', 'list', typing.List[int], [], False)
 
-  def test_parse_text(self):
+  def test_parse_text_caca(self):
+    self.maxDiff = None
     m = bcli_type_manager()
-    self.assertEqual( ( 'kiwi', 'list', typing.List[int], [], False ),
-                      bcli_option_desc_item.parse_text(m, 'kiwi list[int] default=[]') )
+    self.assert_json_equal('''
+{
+  "name": "kiwi",
+  "type_name": "list",
+  "option_type": "typing.List[int]",
+  "default": [],
+  "secret": false
+}    
+''', bcli_option_desc_item.parse_text(m, 'kiwi list[int] default=[]').to_json() )
 
   def test_parse_text_with_defaults(self):
     m = bcli_type_manager()

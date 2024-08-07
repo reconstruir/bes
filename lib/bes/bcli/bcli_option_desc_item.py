@@ -59,14 +59,14 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
 
     if 'default' in parts.values:
       default_str = parts.values['default']
+      clazz._log.log_d(f'default_str={default_str}')
       resolved_default_str = manager.substitute_variables(default_str)
-      #print(f'resolved_default_str=_{resolved_default_str}_')
-      #clazz._log.log_d(f'2: CACA resolved_default_str={resolved_default_str}')
+      clazz._log.log_d(f'resolved_default_str={resolved_default_str}')
       if type_item.parse:
         default = type_item.parse(resolved_default_str)
       else:
         default = ast.literal_eval(resolved_default_str)
-        #print(f'default=_{default}_')
+      clazz._log.log_d(f'default={default}')
       manager.check_instance(default, typing_type)
     elif manager.has_default(parts.name):
       default = manager.default(parts.name)()
