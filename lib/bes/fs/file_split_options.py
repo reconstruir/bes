@@ -6,7 +6,6 @@ from os import path
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-#from bes.cli.cli_options import cli_options
 from ..system.check import check
 from bes.script.blurber import blurber
 
@@ -14,9 +13,6 @@ from .files_cli_options import files_cli_options
 from .files_cli_options import _files_cli_options_desc
 
 class _file_split_options_desc(_files_cli_options_desc):
-
-#  def __init__(self):
-#    super().__init__()
 
   #@abstractmethod
   def name(self):
@@ -48,53 +44,5 @@ check_downloading_extension str       default=part
 class file_split_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_file_split_options_desc(), **kwargs)
-  
-class xfile_split_options(files_cli_options):
 
-  def __init__(self, **kargs):
-    super().__init__(**kargs)
-
-  @classmethod
-  #@abstractmethod
-  def default_values(clazz):
-    'Return a dict of defaults for these options.'
-    return clazz.super_default_values({
-      'blurber': blurber(),
-      'check_downloading': False,
-      'check_downloading_extension': 'part',
-      'check_modified': False,
-      'check_modified_interval': 250.0,
-      'existing_file_timestamp': datetime.now(),
-      'ignore_extensions': None,
-      'unzip': False,
-      'ignore_incomplete': False,
-    })
-  
-  @classmethod
-  #@abstractmethod
-  def value_type_hints(clazz):
-    return clazz.super_value_type_hints({
-      'check_downloading': bool,
-      'check_modified': bool,
-      'check_modified_interval': float,
-      'unzip': bool,
-#      'ignore_extensions': set,
-#      'existing_file_timestamp': datetime,
-      'ignore_incomplete': bool,
-    })
-
-  #@abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    super().check_value_types()
-    check.check_bool(self.check_downloading)
-    check.check_string(self.check_downloading_extension)
-    check.check_bool(self.check_modified)
-    check.check_float(self.check_modified_interval)
-    check.check_blurber(self.blurber)
-    check.check(self.existing_file_timestamp, datetime, allow_none = True)
-    check.check_string_seq(self.ignore_extensions, allow_none = True)
-    check.check_bool(self.unzip)
-    check.check_bool(self.ignore_incomplete)
-
-check.register_class(file_split_options)
+file_split_options.register_check_class()
