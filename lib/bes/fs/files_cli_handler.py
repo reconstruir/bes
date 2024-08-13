@@ -27,7 +27,7 @@ class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(files_cli_handler, self).__init__(cli_args, options_class = files_cli_options)
+    super().__init__(cli_args, options_class = files_cli_options)
     check.check_files_cli_options(self.options)
   
   def checksums(self, files, algorithm):
