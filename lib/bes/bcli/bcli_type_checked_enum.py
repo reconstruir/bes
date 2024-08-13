@@ -4,22 +4,33 @@ import ast
 
 from bes.system.check import check
 
-from ..bcli_type_i import bcli_type_i
+from .bcli_type_i import bcli_type_i
 
-class bcli_type_checked_enum(bcli_type_i, poto = some_class):
+class _bcli_type_checked_enum_meta(type):
+  def __new__(cls, name, bases, dct, **kwargs):
+    assert 'enum_class' in kwargs
+    result = super().__new__(cls, name, bases, dct)
+    result._enum_class = kwargs['enum_class']
+    return result
 
+class bcli_type_checked_enum(bcli_type_i):
+
+  @classmethod
   #@abstractmethod
-  def name_str(self):
-    return some_class.name
+  def name_str(clazz):
+    return clazz.__enum_class__.__name__
 
+  @classmethod
   #@abstractmethod
-  def type_function(self):
-    return lambda: some_class
+  def type_function(clazz):
+    return clazz.__enum_class__
 
+  @classmethod
   #@abstractmethod
-  def parse(self, text):
-    return some_class.parse(text)
+  def parse(clazz, text):
+    return clazz.__enum_class__.parse(text)
 
+  @classmethod
   #@abstractmethod
-  def check(self, value, allow_none = False):
-    return check.check(value, some_class, allow_none = allow_none)
+  def check(clazz, value, allow_none = False):
+    return check.check(value,  clazz.__enum_class__, allow_none = allow_none)

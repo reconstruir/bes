@@ -2,7 +2,6 @@
 
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
-from bes.bcli.bcli_type_i import bcli_type_i
 from bes.credentials.credentials import credentials
 
 from .computer_setup_error import computer_setup_error
