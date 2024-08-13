@@ -24,20 +24,23 @@ class _files_cli_options_desc(bcli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return '''
-             debug bool      default=False
-           dry_run bool      default=False,
-             quiet bool      default=False,
-         recursive bool      default=False,
-           verbose bool      default=False,
-      ignore_files list[str] default=None
-dup_file_timestamp str       default=${_dup_file_timestamp}
-    dup_file_count int       default=1
+                debug bool      default=False
+              dry_run bool      default=False,
+                quiet bool      default=False,
+            recursive bool      default=False,
+              verbose bool      default=False,
+         ignore_files list[str] default=None
+   dup_file_timestamp str       default=${_dup_file_timestamp}
+       dup_file_count int       default=1
+#file_resolver_options none default=${_file_resolver_options}
 '''
   
   #@abstractmethod
   def variables(self):
     return {
       '_dup_file_timestamp': lambda: time_util.timestamp(),
+      '_file_resolver_options': lambda: file_resolver_options(), #recursive = self.recursive,
+#                                                              ignore_files = self.ignore_files),
     }
 
   #@abstractmethod
@@ -52,5 +55,5 @@ class files_cli_options(bcli_options):
   def file_resolver_options(self):
     return file_resolver_options(recursive = self.recursive,
                                  ignore_files = self.ignore_files)
-  
+
 files_cli_options.register_check_class()
