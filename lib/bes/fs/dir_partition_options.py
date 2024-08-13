@@ -7,7 +7,6 @@ from bes.cli.cli_options import cli_options
 from ..system.check import check
 from bes.common.time_util import time_util
 
-from .dir_partition_criteria_base import dir_partition_criteria_base
 from .dir_partition_criteria_base import cli_dir_partition_criteria
 from .dir_partition_defaults import dir_partition_defaults
 from .dir_partition_type import dir_partition_type
@@ -27,15 +26,6 @@ class _dir_partition_options_desc(_files_cli_options_desc):
   #@abstractmethod
   def name(self):
     return '_dir_partition_options_desc'
-
-#-      'dup_file_timestamp': time_util.timestamp(),
-#-      'dup_file_count': 1,
-#-      'partition_type': dir_partition_defaults.PARTITION_TYPE,
-#-      'partition_criteria': None,
-#-      'flatten': dir_partition_defaults.FLATTEN,
-#-      'threshold': dir_partition_defaults.THRESHOLD,
-#-      'dst_dir': dir_partition_defaults.DST_DIR,
-#-      'delete_empty_dirs': dir_partition_defaults.DELETE_EMPTY_DIRS,
   
   #@abstractmethod
   def options_desc(self):
@@ -53,6 +43,3 @@ class dir_partition_options(bcli_options):
     super().__init__(_dir_partition_options_desc(), **kwargs)
 
 dir_partition_options.register_check_class()
-
-#    check.check_dir_partition_type(self.partition_type, allow_none = True)
-#    check.check_dir_partition_criteria(self.partition_criteria, allow_none = True)
