@@ -14,12 +14,12 @@ class file_duplicates_cli_handler(cli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(file_duplicates_cli_handler, self).__init__(cli_args, options_class = file_duplicates_options)
+    super().__init__(cli_args, options_class = file_duplicates_options)
     check.check_file_duplicates_options(self.options)
-    self.options.blurber.set_verbose(self.options.verbose)
+    #self.options.blurber.set_verbose(self.options.verbose)
     self.options.sort_key = file_duplicates_options.sort_key
   
-  def dups(self, files, delete, keep_empty_dirs):
+  def dups(self, files, delete, keep_empty_dirs, blurber = None):
     files = file_check.check_file_or_dir_seq(files)
     check.check_bool(delete)
     check.check_bool(keep_empty_dirs)
@@ -37,12 +37,14 @@ class file_duplicates_cli_handler(cli_command_handler):
     if delete:
       if self.options.dry_run:
         for f in dup_filenames:
-          self.options.blurber.blurb(f'DRY_RUN: delete {f}')
+          if blurber:
+            blurber.blurb(f'DRY_RUN: delete {f}')
       else:
         file_util.remove(dup_filenames)
         if self.options.verbose:
           for f in dup_filenames:
-            self.options.blurber.blurb_verbose(f'DELETED file: {f}')
+            if blurber:
+              blurber.blurb_verbose(f'DELETED file: {f}')
         if not keep_empty_dirs:
           fmap = dups.resolved_files.filename_abs_map()
           possible_empty_dir_roots = []
@@ -57,5 +59,6 @@ class file_duplicates_cli_handler(cli_command_handler):
             deleted_dirs.extend(next_deleted_dirs)
           if self.options.verbose:
             for d in deleted_dirs:
-              self.options.blurber.blurb_verbose(f'DELETED empty dir: {d}')
+              if blurber:
+                blurber.blurb_verbose(f'DELETED empty dir: {d}')
     return 0
