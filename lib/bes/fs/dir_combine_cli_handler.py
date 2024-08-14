@@ -1,17 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_command_handler import cli_command_handler
+from ..bcli.bcli_command_handler import bcli_command_handler
 from ..system.check import check
 
 from .dir_combine import dir_combine
 from .dir_combine_options import dir_combine_options
 from .file_check import file_check
 
-class dir_combine_cli_handler(cli_command_handler):
+class dir_combine_cli_handler(bcli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(dir_combine_cli_handler, self).__init__(cli_args, options_class = dir_combine_options)
+    super().__init__(cli_args, options_class = dir_combine_options)
     check.check_dir_combine_options(self.options)
   
   def combine(self, files):

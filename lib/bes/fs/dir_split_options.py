@@ -30,11 +30,11 @@ class _dir_split_options_desc(_files_cli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return self.combine_options_desc(super().options_desc(), f'''
-  chunk_size int                      default={dir_split_defaults.CHUNK_SIZE}
-      prefix str                      default={dir_split_defaults.PREFIX}
-  sort_order cli_file_sort_order_type default={dir_split_defaults.SORT_ORDER}
-sort_reverse bool                     default={dir_split_defaults.SORT_REVERSE}
-   threshold int                      default={dir_split_defaults.THRESHOLD}
+  chunk_size int             default={dir_split_defaults.CHUNK_SIZE}
+      prefix str             default={dir_split_defaults.PREFIX}
+  sort_order file_sort_order default={dir_split_defaults.SORT_ORDER}
+sort_reverse bool            default={dir_split_defaults.SORT_REVERSE}
+   threshold int             default={dir_split_defaults.THRESHOLD}
 ''')
   
   #@abstractmethod

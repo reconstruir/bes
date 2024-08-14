@@ -42,4 +42,7 @@ class dir_partition_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_dir_partition_options_desc(), **kwargs)
 
+  def pass_through_keys(self):
+    return tuple(list(super().pass_through_keys()) + [ 'files', ])
+    
 dir_partition_options.register_check_class()

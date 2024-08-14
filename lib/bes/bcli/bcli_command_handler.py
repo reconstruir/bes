@@ -29,7 +29,6 @@ class bcli_command_handler(object):
     if not options_class:
       return None, copy.deepcopy(cli_args)
     else:
-      print(f'CACA: options_class={options_class}', flush = True)
       options = options_class()
       args = {}
       for caca_key, caca_value in cli_args.items():

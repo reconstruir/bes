@@ -48,6 +48,9 @@ class bcli_options(object):
     desc = super().__getattribute__('_desc')
     result = []
     return desc.keys()
+
+  def pass_through_keys(self):
+    return ()
   
   @property
   def desc(self):
@@ -60,6 +63,9 @@ class bcli_options(object):
   
   def __getattr__(self, name):
     self._log.log_method_d()
+    
+    if name in self.pass_through_keys():
+      return super().__getattr__(name)
     desc = super().__getattribute__('_desc')
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
@@ -70,6 +76,10 @@ class bcli_options(object):
 
   def __setattr__(self, name, value):
     self._log.log_method_d()
+    
+    if name in self.pass_through_keys():
+      super().__setattr__(name, value)
+      return
     desc = super().__getattribute__('_desc')
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')
