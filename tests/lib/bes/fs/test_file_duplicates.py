@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
+
 from os import path
 from datetime import datetime
 from datetime import timedelta
@@ -348,7 +350,6 @@ class test_file_duplicates(unit_test):
                                       sort_key = sort_key,
                                       include_empty_files = include_empty_files,
                                       ignore_files = ignore_files)
-    import pprint
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       if pre_test_function:
         pre_test_function(test)
@@ -356,9 +357,9 @@ class test_file_duplicates(unit_test):
         xglobals = { 'test': test }
         prefer_prefixes = [ eval(x, xglobals) for x in prefer_prefixes ]
         options.prefer_prefixes = prefer_prefixes
-      print('-----')
-      print(pprint.pformat(options.to_dict()))
-      print('-----')
+      if False:
+        print('-----')
+        print(pprint.pformat(options.to_dict()))
       test.result = file_duplicates.find_duplicates([ test.src_dir ],
                                                     options = options)
     return test
