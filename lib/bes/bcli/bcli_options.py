@@ -6,7 +6,6 @@ import pprint
 from collections import namedtuple
 
 from bes.system.check import check
-from bes.common.dict_util import dict_util
 from bes.system.log import logger
 
 from .bcli_options_desc import bcli_options_desc

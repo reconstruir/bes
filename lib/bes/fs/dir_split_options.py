@@ -37,12 +37,6 @@ sort_reverse bool            default={dir_split_defaults.SORT_REVERSE}
    threshold int             default={dir_split_defaults.THRESHOLD}
 ''')
   
-  #@abstractmethod
-  def variables(self):
-    return self.combine_variables(super().variables(), {
-      '_timestamp': lambda: time_util.timestamp(),
-    })
-
 class dir_split_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_dir_split_options_desc(), **kwargs)

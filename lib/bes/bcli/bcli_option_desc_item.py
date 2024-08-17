@@ -2,6 +2,7 @@
 
 import ast
 import typing
+import types
 
 from collections import namedtuple
 
@@ -26,7 +27,9 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
     check.check_string(name)
     check.check_string(type_name)
     #print(f'CACA: option_type={option_type}')
-#    check.check(option_type, ( type, typing._GenericAlias ))
+#    if not check.is_callable(option_type):
+#if isinstance(option_type, (type, typing._GenericAlias, types.BuiltinFunctionType, types.BuiltinMethodType)):
+    check.check(option_type, ( type, typing._GenericAlias, types.BuiltinFunctionType, types.BuiltinMethodType ))
 #    if default != None:
 #      bcli_type_manager.check_instance(default, option_type)
     check.check_bool(secret)
@@ -60,14 +63,14 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
 
     if 'default' in parts.values:
       default_str = parts.values['default']
-      clazz._log.log_d(f'CACA: default_str={default_str}')
+      clazz._log.log_d(f'default_str={default_str}')
       variable_result = manager.substitute_single_variable(default_str)
-      clazz._log.log_d(f'CACA: variable_result={variable_result} - {type(variable_result)}')
+      clazz._log.log_d(f'variable_result={variable_result} - {type(variable_result)}')
       if variable_result and not check.is_string(variable_result):
         default = variable_result
       else:
         resolved_default_str = manager.substitute_variables(default_str)
-        clazz._log.log_d(f'CACA: resolved_default_str={resolved_default_str}')
+        clazz._log.log_d(f'resolved_default_str={resolved_default_str}')
         if type_item.parse:
           default = type_item.parse(resolved_default_str)
         else:

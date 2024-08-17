@@ -357,9 +357,10 @@ class test_file_duplicates(unit_test):
         xglobals = { 'test': test }
         prefer_prefixes = [ eval(x, xglobals) for x in prefer_prefixes ]
         options.prefer_prefixes = prefer_prefixes
-      if False:
-        print('-----')
-        print(pprint.pformat(options.to_dict()))
+      if True: #False:
+        print(f'sort_key={sort_key}', flush = True)
+        print('-----', flush = True)
+        print(pprint.pformat(options.to_dict()), flush = True)
       test.result = file_duplicates.find_duplicates([ test.src_dir ],
                                                     options = options)
     return test
