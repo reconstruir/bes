@@ -2,6 +2,9 @@
 
 from os import path
 
+from bes.bcli.bcli_options import bcli_options
+from bes.bcli.bcli_options_desc import bcli_options_desc
+
 from bes.cli.cli_options import cli_options
 from ..system.check import check
 from bes.common.time_util import time_util
@@ -10,14 +13,17 @@ from bes.script.blurber import blurber
 from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 
 from .file_duplicates_setup import file_duplicates_setup
+from .file_duplicates_setup import cli_file_duplicates_setup
 from .file_util import file_util
 from .files_cli_options import files_cli_options
+from .files_cli_options import _files_cli_options_desc
 from .file_duplicates_defaults import file_duplicates_defaults
 
+'''
 class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
 
   def __init__(self, **kargs):
-    super(file_duplicates_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod
@@ -75,3 +81,52 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
     return ( mtime, length )
   
 check.register_class(file_duplicates_options)
+'''
+
+# FUCK
+
+class _file_duplicates_options_desc(_files_cli_options_desc):
+
+  #@abstractmethod
+  def types(self):
+    return [
+      cli_file_duplicates_setup(),
+    ]
+  
+  #@abstractmethod
+  def name(self):
+    return '_file_duplicates_options_desc'
+  
+  #@abstractmethod
+  def options_desc(self):
+    return self.combine_options_desc(super().options_desc(), f'''
+      small_checksum_size int default={file_duplicates_defaults.SMALL_CHECKSUM_SIZE}
+      prefer_prefixes list[str]
+      sort_key callable
+      include_empty_files bool default={file_duplicates_defaults.INCLUDE_EMPTY_FILES}
+      preparation file_duplicates_setup
+      delete_empty_dirs bool default={file_duplicates_defaults.DELETE_EMPTY_DIRS}
+''')
+  
+class file_duplicates_options(bcli_options, file_ignore_options_mixin):
+  def __init__(self, **kwargs):
+    super().__init__(_file_duplicates_options_desc(), **kwargs)
+
+#  def pass_through_keys(self):
+#    return tuple(list(super().pass_through_keys()) + [ 'files', ])
+
+  @staticmethod
+  def sort_key_modification_date(filename):
+    return ( file_util.get_modification_date(filename), )
+
+  @staticmethod
+  def sort_key_basename_length(filename):
+    return ( len(path.basename(filename)),  )
+
+  @staticmethod
+  def sort_key(filename):
+    mtime = file_duplicates_options.sort_key_modification_date(filename)
+    length = file_duplicates_options.sort_key_basename_length(filename)
+    return ( mtime, length )
+
+file_duplicates_options.register_check_class()

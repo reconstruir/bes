@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_command_handler import cli_command_handler
+from ..bcli.bcli_command_handler import bcli_command_handler
 from ..system.check import check
 from bes.common.algorithm import algorithm
 
@@ -10,13 +10,12 @@ from .file_duplicates_options import file_duplicates_options
 from .file_find import file_find
 from .file_util import file_util
 
-class file_duplicates_cli_handler(cli_command_handler):
+class file_duplicates_cli_handler(bcli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
     super().__init__(cli_args, options_class = file_duplicates_options)
     check.check_file_duplicates_options(self.options)
-    #self.options.blurber.set_verbose(self.options.verbose)
     self.options.sort_key = file_duplicates_options.sort_key
   
   def dups(self, files, delete, keep_empty_dirs, blurber = None):

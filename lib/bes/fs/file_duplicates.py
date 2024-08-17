@@ -58,13 +58,14 @@ class file_duplicates(object):
     return clazz._find_duplicates_result(items, setup.resolved_files)
   
   @classmethod
-  def setup(clazz, where, options = None):
+  def setup(clazz, where, options = None, blurber = None):
     check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
     options = options or file_duplicates_options()
     resolved_files = clazz._resolve_files(where, options)
-    options.blurber.blurb_verbose(f'resolved {len(resolved_files)} files')
+    if blurber:
+      blurber.blurb_verbose(f'resolved {len(resolved_files)} files')
     return file_duplicates_setup(where, resolved_files, options)
     
   @classmethod

@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import typing
-
-from datetime import datetime
-#from datetime import timedelta
-
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 from bes.callable.bcallable import bcallable

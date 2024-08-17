@@ -189,6 +189,8 @@ class bcli_type_manager(object):
 #      return item.option_type.check_function(value, allow_none = True)
 
     if origin is None:  # Simple types
+      if check.is_callable(value):
+        return True
       return isinstance(value, type_hint)
     elif origin is list:  # List with a specific type
       if isinstance(value, list) and len(args) == 1:

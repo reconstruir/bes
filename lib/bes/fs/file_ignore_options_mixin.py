@@ -10,7 +10,6 @@ class file_ignore_options_mixin(object):
   def __init__(self):
     pass
 
-  @cached_property
   def file_ignorer(self):
     return file_multi_ignore(self.ignore_files)
     
@@ -20,4 +19,4 @@ class file_ignore_options_mixin(object):
 #    r = self.file_ignorer.should_ignore(ford)
 #    from bes.system.log import log
 #    log.console(f'CONO: should_ignore_file({ford}) => {r}')
-    return self.file_ignorer.should_ignore(ford)
+    return self.file_ignorer().should_ignore(ford)
