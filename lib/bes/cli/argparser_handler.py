@@ -13,7 +13,6 @@ from bes.fs.file_check import file_check
 from bes.git.git import git
 
 from .cli_missing_command_error import cli_missing_command_error
-from .cli_options import cli_options
 
 class argparser_handler(object):
   'A class to simplify the process of calling functions to handle argparser commands'
