@@ -21,7 +21,7 @@ class bcli_options_desc(bcli_options_desc_i):
   def __init__(self):
     check.check_string(self.name())
     
-    types = self.types()
+    types = self.types() or []
 #    types = check.check_seq(types, allow_none = True)
     types = types[:]
     

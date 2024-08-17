@@ -17,8 +17,8 @@ class _bf_match_options_desc(bcli_options_desc):
   #@abstractmethod
   def types(self):
     return [
-      bf_cli_match_type(),
-      bf_cli_path_type(),
+      bf_cli_match_type,
+      bf_cli_path_type,
     ]
 
   #@abstractmethod

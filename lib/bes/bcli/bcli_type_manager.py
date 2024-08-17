@@ -29,17 +29,17 @@ class bcli_type_manager(object):
   _log = logger('bcli')
   
   _BASIC_TYPES = [
-    bcli_type_bool(),
-    bcli_type_callable(),
-    bcli_type_datetime(),
-    bcli_type_dict(),
-    bcli_type_float(),
-    bcli_type_int(),
-    bcli_type_list(),
-    bcli_type_set(),
-    bcli_type_str(),
-    bcli_type_timedelta(),
-    bcli_type_tuple(),
+    bcli_type_bool,
+    bcli_type_callable,
+    bcli_type_datetime,
+    bcli_type_dict,
+    bcli_type_float,
+    bcli_type_int,
+    bcli_type_list,
+    bcli_type_set,
+    bcli_type_str,
+    bcli_type_timedelta,
+    bcli_type_tuple,
   ]
   
   def __init__(self):
@@ -111,16 +111,18 @@ class bcli_type_manager(object):
     return func()
   
   def add_type(self, t):
-    check.check_bcli_type(t)
-
+    check.check_class(t)
     self._log.log_method_d()
+
+    if not issubclass(t, bcli_type_i):
+      raise TypeError(f't should be a subclass of bcli_type_i instead of "{t}".')
     
     if t.name in self._types:
       raise KeyError(f'type "{t.name}" already added.')
     self._types[t.name] = t
 
   def add_types(self, types):
-    types = check.check_seq(types, bcli_type_i)
+    #types = check.check_seq(types, bcli_type_i)
     for t in types:
       self.add_type(t)
     

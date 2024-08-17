@@ -19,8 +19,8 @@ class _dir_partition_options_desc(_files_cli_options_desc):
   #@abstractmethod
   def types(self):
     return [
-      cli_dir_partition_type(),
-      cli_dir_partition_criteria(),
+      cli_dir_partition_type,
+      cli_dir_partition_criteria,
     ]
   
   #@abstractmethod

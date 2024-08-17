@@ -36,7 +36,6 @@ class bcli_command_handler(object):
           setattr(options, name, value)
         else:
           args[name] = value
-      #args = clazz._filter_keywords_args(options_class, cli_args)
       if isinstance(options, bcli_options):
         pass
         #config_file_key = options.config_file_key()

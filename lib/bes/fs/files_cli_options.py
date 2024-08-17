@@ -18,10 +18,6 @@ class _files_cli_options_desc(bcli_options_desc):
     return '_files_cli_options_desc'
   
   #@abstractmethod
-  def types(self):
-    return []
-
-  #@abstractmethod
   def options_desc(self):
     return '''
                 debug bool      default=False

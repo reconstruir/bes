@@ -19,10 +19,6 @@ class _file_split_options_desc(_files_cli_options_desc):
     return '_file_split_options_desc'
   
   #@abstractmethod
-  def types(self):
-    return super().types() + []
-
-  #@abstractmethod
   def options_desc(self):
     return self.combine_options_desc(super().options_desc(), '''
           check_downloading bool      default=False
