@@ -9,10 +9,6 @@ from .computer_setup_error import computer_setup_error
 class _computer_setup_options_desc(bcli_options_desc):
 
   #@abstractmethod
-  def types(self):
-    return []
-
-  #@abstractmethod
   def options_desc(self):
     return '''
 verbose  bool  default=False
@@ -21,11 +17,6 @@ dry_run  bool  default=False
 password str   secret=True
 '''
   
-  #@abstractmethod
-  def variables(self):
-    return {
-    }
-
   #@abstractmethod
   def error_class(self):
     return computer_setup_error

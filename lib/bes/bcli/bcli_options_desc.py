@@ -24,18 +24,13 @@ class bcli_options_desc(bcli_options_desc_i):
       if not issubclass(t, bcli_type_i):
         raise TypeError(f't should be a subclass of bcli_type_i instead of "{t}".')
     
-    variables = self.variables()
+    variables = self.variables() or {}
     check.check_dict(variables, key_type = str)
     variables = copy.deepcopy(variables) if variables else {}
 
-    defaults = self.defaults()
-    check.check_dict(defaults, key_type = str)
-    defaults = copy.deepcopy(defaults) if defaults else {}
-    
     self._manager = bcli_type_manager()
     self._manager.add_types(types[:])
     self._manager.add_variables(variables)
-    self._manager.add_defaults(defaults)
 
   def to_json(self):
     return self._manager.to_json()
@@ -46,11 +41,7 @@ class bcli_options_desc(bcli_options_desc_i):
     
   #@abstractmethod
   def variables(self):
-    return {}
-
-  #@abstractmethod
-  def defaults(self):
-    return {}
+    return None
 
   #@abstractmethod
   def error_class(self):

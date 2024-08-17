@@ -76,8 +76,6 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
         else:
           default = ast.literal_eval(resolved_default_str)
       clazz._log.log_d(f'default={default} typing_type={typing_type}')
-    elif manager.has_default(parts.name):
-      default = manager.default(parts.name)()
     else:
       default = None
       

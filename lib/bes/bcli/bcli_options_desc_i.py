@@ -17,9 +17,5 @@ class bcli_options_desc_i(metaclass = ABCMeta):
     raise NotImplementedError('variables')
 
   @abstractmethod
-  def defaults(self):
-    raise NotImplementedError('defaults')
-  
-  @abstractmethod
   def error_class(self):
     return RuntimeError

@@ -32,16 +32,10 @@ class test_bcli_option_desc_item(unit_test):
 
   def test_parse_text_with_defaults(self):
     m = bcli_type_manager()
-    m.add_default('kiwi', lambda: [ 'a', 'b', 'c' ])
+    m.add_variable('_default', lambda: [ 'a', 'b', 'c' ])
     self.assertEqual( ( 'kiwi', 'list', typing.List[str], [ 'a', 'b', 'c' ], False ),
-                      bcli_option_desc_item.parse_text(m, 'kiwi list[str]') )
+                      bcli_option_desc_item.parse_text(m, 'kiwi list[str] default=${_default}') )
 
-  def test_parse_text_with_defaults(self):
-    m = bcli_type_manager()
-    m.add_default('kiwi', lambda: [ 'a', 'b', 'c' ])
-    self.assertEqual( ( 'kiwi', 'list', typing.List[str], [ 'a', 'b', 'c' ], False ),
-                      bcli_option_desc_item.parse_text(m, 'kiwi list[str]') )
-    
   def test_to_dict(self):
     m = bcli_type_manager()
     self.assertEqual( {

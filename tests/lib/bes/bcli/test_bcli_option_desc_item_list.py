@@ -50,12 +50,12 @@ kiwi list[str] default=[]
 
   def test_parse_text_with_defaults(self):
     m = bcli_type_manager()
-    m.add_default('melon', lambda: [ 'a', 'b', 'c' ])
+    m.add_variable('_default_melon', lambda: [ 'a', 'b', 'c' ])
     text = '''
 kiwi int default=42
 pear int default=None
 lemon list[str] default=[]
-melon list[str]
+melon list[str] default=${_default_melon}
 '''
     self.assertEqual( [
       ( 'kiwi', 'int', int, 42, False ),
