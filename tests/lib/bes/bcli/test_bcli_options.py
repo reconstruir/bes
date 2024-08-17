@@ -6,37 +6,40 @@ import typing
 from datetime import datetime
 #from datetime import timedelta
 
+from bes.system.check import check
 from bes.testing.unit_test import unit_test
+from bes.callable.bcallable import bcallable
 
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
 class test_bcli_options(unit_test):
 
-  def test_to_dict_caca(self):
+  def test_to_dict_with_hiding_secrets(self):
     options = self._make_test_options(password = 'foo')
     self.assertEqual( {
+      'callback': '__main__._unit_test_kiwi_options_desc._callback',
       'kiwi': 42,
       'pear': 666,
       'password': '*************',
-    }, options.to_dict() )
-
+    }, self._munge_options(options.to_dict(hide_secrets = True)) )
+    
   def test_to_dict_without_hiding_secrets(self):
     options = self._make_test_options(password = 'foo')
     self.assertEqual( {
+      'callback': '__main__._unit_test_kiwi_options_desc._callback',
       'kiwi': 42,
       'pear': 666,
       'password': 'foo',
-    }, options.to_dict(hide_secrets = False) )
+    }, self._munge_options(options.to_dict(hide_secrets = False)) )
     
-  def test___str__(self):
+  def test_to_str(self):
     options = self._make_test_options(password = 'foo')
-    self.assertEqual( '''{'kiwi': 42, 'password': '*************', 'pear': 666}''', str(options) )
+    options.callback = None
+    expected = '''{'callback': None, 'kiwi': 42, 'password': '*************', 'pear': 666}'''
+    actual = options.to_str()
+    self.assertEqual( expected, actual )
 
-  def test_to_str_without_hiding_secrets(self):
-    options = self._make_test_options(password = 'foo')
-    self.assertEqual( '''{'kiwi': 42, 'password': 'foo', 'pear': 666}''', options.to_str(hide_secrets = False) )
-    
   def test_has_options(self):
     options = self._make_test_options()
     self.assertEqual( True, options.has_option('kiwi') )
@@ -65,7 +68,7 @@ class test_bcli_options(unit_test):
 
   def test_keys(self):
     options = self._make_test_options()
-    self.assertEqual( ( 'kiwi', 'password', 'pear' ), options.keys() )
+    self.assertEqual( ( 'callback', 'kiwi', 'password', 'pear' ), options.keys() )
       
   class _test_kiwi_options_shape(bcli_options_desc):
 
@@ -161,12 +164,16 @@ size int default=0
     def types(self):
       return []
 
+    def _callback():
+      pass
+    
     #@abstractmethod
     def options_desc(self):
       return '''
 kiwi int default=${_var_foo}
 pear int default=${_var_bar}
 password str secret=True
+callback callable default=${_var_callback}
   '''
   
     #@abstractmethod
@@ -174,12 +181,22 @@ password str secret=True
       return {
         '_var_foo': lambda: '42',
         '_var_bar': lambda: '666',
+        '_var_callback': lambda: self._callback,
       }
     
   @classmethod
   def _make_test_options(clazz, **kwargs):
     desc = clazz._unit_test_kiwi_options_desc()
     return bcli_options(desc, **kwargs)
-    
+
+  @classmethod
+  def _munge_options(clazz, options):
+    result = {}
+    for name, value in options.items():
+      if check.is_callable(value):
+        value = bcallable.name(value)
+      result[name] = value
+    return result
+  
 if __name__ == '__main__':
   unit_test.main()

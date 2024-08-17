@@ -19,6 +19,7 @@ class bcli_type_callable(bcli_type_i):
   @classmethod
   #@abstractmethod
   def parse(clazz, text):
+    print(f'text={text} - {type(text)}', flush = True)
     assert False
     return None
 

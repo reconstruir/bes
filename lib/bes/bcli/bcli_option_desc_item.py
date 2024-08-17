@@ -22,10 +22,11 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
   _log = logger('bcli')
   
   def __new__(clazz, name, type_name, option_type, default, secret):
+    clazz._log.log_method_d()
     check.check_string(name)
     check.check_string(type_name)
     #print(f'CACA: option_type={option_type}')
-    check.check(option_type, ( type, typing._GenericAlias ))
+#    check.check(option_type, ( type, typing._GenericAlias ))
 #    if default != None:
 #      bcli_type_manager.check_instance(default, option_type)
     check.check_bool(secret)
@@ -59,24 +60,27 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
 
     if 'default' in parts.values:
       default_str = parts.values['default']
-      clazz._log.log_d(f'default_str={default_str}')
-      resolved_default_str = manager.substitute_variables(default_str)
-      clazz._log.log_d(f'resolved_default_str={resolved_default_str}')
-      if type_item.parse:
-        default = type_item.parse(resolved_default_str)
+      clazz._log.log_d(f'CACA: default_str={default_str}')
+      variable_result = manager.substitute_single_variable(default_str)
+      clazz._log.log_d(f'CACA: variable_result={variable_result} - {type(variable_result)}')
+      if variable_result and not check.is_string(variable_result):
+        default = variable_result
       else:
-        default = ast.literal_eval(resolved_default_str)
-      clazz._log.log_d(f'default={default}')
-      manager.check_instance(default, typing_type)
+        resolved_default_str = manager.substitute_variables(default_str)
+        clazz._log.log_d(f'CACA: resolved_default_str={resolved_default_str}')
+        if type_item.parse:
+          default = type_item.parse(resolved_default_str)
+        else:
+          default = ast.literal_eval(resolved_default_str)
+      clazz._log.log_d(f'default={default} typing_type={typing_type}')
     elif manager.has_default(parts.name):
       default = manager.default(parts.name)()
-      manager.check_instance(default, typing_type)
     else:
       default = None
       
     secret = bool_util.parse_bool(parts.values.get('secret', 'False'))
 
-    if default != None:
+    if default != None and not check.is_callable(default):
       manager.check_instance(default, typing_type)
     
     return bcli_option_desc_item(parts.name, type_item.name, typing_type, default, secret)

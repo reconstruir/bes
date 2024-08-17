@@ -136,6 +136,12 @@ class test_variable(unit_test):
 
   def test_callable(self):
     self.assertEqual( '42', variable.substitute('${v_num}', { 'v_num': lambda: '42' }) )
+
+  def test_is_single_variable(self):
+    self.assertEqual( False, variable.is_single_variable('foo') )
+    self.assertEqual( False, variable.is_single_variable('kiwi $foo') )
+    self.assertEqual( True, variable.is_single_variable('${foo}') )
+    self.assertEqual( True, variable.is_single_variable('$(foo)') )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -94,3 +94,17 @@ class variable(object):
       if (mask & key) != 0:
         result.append(value)
     return result
+
+  @classmethod
+  def is_single_variable(clazz, s, patterns = None):
+    patterns = patterns or clazz.ALL
+    expressions = clazz._mask_to_patterns(patterns)
+    exp = ' | '.join(expressions)
+    return re.match(exp, s, re.VERBOSE | re.DOTALL) != None
+
+  @classmethod
+  def single_variable_name(clazz, s, patterns = None):
+    v = clazz.find_variables(s, patterns = patterns)
+    if v and len(v) == 1:
+      return v[0]
+    return None

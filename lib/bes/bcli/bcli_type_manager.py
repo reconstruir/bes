@@ -99,7 +99,17 @@ class bcli_type_manager(object):
   
   def substitute_variables(self, s):
     return variable.substitute(s, self._variables)
-    
+
+  def substitute_single_variable(self, s):
+    name = variable.single_variable_name(s)
+    if not name:
+      return None
+    if not name in self._variables:
+      raise KeyError(f'variable "{name}" not found.')
+    func = self._variables[name]
+    assert check.is_callable(func)
+    return func()
+  
   def add_type(self, t):
     check.check_bcli_type(t)
 
