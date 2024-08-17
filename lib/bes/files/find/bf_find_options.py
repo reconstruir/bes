@@ -30,12 +30,6 @@ class _bf_find_options_desc(bcli_options_desc):
       bf_cli_match_type,
       bf_cli_path_type,
     ]
-
-#    if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
-#      raise RuntimeError('max_depth needs to be >= min_depth.')
-#
-#    if self.min_depth and self.min_depth < 1:
-#      raise RuntimeError('min_depth needs to be >= 1.')
   
   #@abstractmethod
   def options_desc(self):
@@ -59,6 +53,20 @@ class bf_find_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_find_options_desc(), **kwargs)
 
+  def init_hook(self):
+    self._check_depth_limits()
+
+  def setattr_hook(self, name):
+    if name in ( 'min_depth', 'max_depth' ):
+      self._check_depth_limits()
+
+  def _check_depth_limits(self):
+    if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
+      raise RuntimeError('max_depth needs to be >= min_depth.')
+
+    if self.min_depth and self.min_depth < 1:
+      raise RuntimeError('min_depth needs to be >= 1.')
+  
   def pass_through_keys(self):
     return ( 'matcher_options', )
     

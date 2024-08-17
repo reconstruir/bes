@@ -21,10 +21,17 @@ class bcli_options(object):
     super().__setattr__('_options', options)
     for name, value in kwargs.items():
       setattr(self, name, value)
+    self.init_hook()
 
   def __str__(self):
     return self.to_str()
 
+  def init_hook(self):
+    pass
+
+  def setattr_hook(self, name):
+    pass
+  
   _SECRET_OBFUSCATION_LENGTH = 13
   def to_dict(self, hide_secrets = True):
     desc = super().__getattribute__('_desc')
@@ -92,6 +99,7 @@ class bcli_options(object):
       if not desc.check_value_type(name, value, desc_item):
         raise KeyError(f'Invalid type "{type(value).__name__}" for option "{name}" with value "{value}" - should be "{desc_item.option_type.__name__}"')
     options[name] = value
+    self.setattr_hook(name)
 
   @classmethod
   def register_check_class(clazz):
