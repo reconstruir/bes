@@ -34,12 +34,12 @@ class _file_duplicates_options_desc(_files_cli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return self.combine_options_desc(super().options_desc(), f'''
-      small_checksum_size int default={file_duplicates_defaults.SMALL_CHECKSUM_SIZE}
-      prefer_prefixes list[str]
-      sort_key callable default=${{_default_sort_key}}
-      include_empty_files bool default={file_duplicates_defaults.INCLUDE_EMPTY_FILES}
-      preparation file_duplicates_setup
-      delete_empty_dirs bool default={file_duplicates_defaults.DELETE_EMPTY_DIRS}
+small_checksum_size int                    default={file_duplicates_defaults.SMALL_CHECKSUM_SIZE}
+    prefer_prefixes list[str]
+           sort_key callable               default=${{_default_sort_key}}
+include_empty_files bool                   default={file_duplicates_defaults.INCLUDE_EMPTY_FILES}
+        preparation file_duplicates_setup
+  delete_empty_dirs bool                   default={file_duplicates_defaults.DELETE_EMPTY_DIRS}
 ''')
 
   #@abstractmethod
@@ -51,9 +51,6 @@ class _file_duplicates_options_desc(_files_cli_options_desc):
 class file_duplicates_options(bcli_options, file_ignore_options_mixin):
   def __init__(self, **kwargs):
     super().__init__(_file_duplicates_options_desc(), **kwargs)
-
-#  def pass_through_keys(self):
-#    return tuple(list(super().pass_through_keys()) + [ 'files', ])
 
   @staticmethod
   def sort_key_modification_date(filename):

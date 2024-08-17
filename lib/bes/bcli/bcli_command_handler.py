@@ -31,11 +31,11 @@ class bcli_command_handler(object):
     else:
       options = options_class()
       args = {}
-      for caca_key, caca_value in cli_args.items():
-        if options.has_option(caca_key):
-          setattr(options, caca_key, caca_value)
+      for name, value in cli_args.items():
+        if options.has_option(name):
+          setattr(options, name, value)
         else:
-          args[caca_key] = caca_value
+          args[name] = value
       #args = clazz._filter_keywords_args(options_class, cli_args)
       if isinstance(options, bcli_options):
         pass
@@ -77,36 +77,6 @@ class bcli_command_handler(object):
       print(str(result))
     return 0 if result else 1
   
-  @classmethod
-  def _filter_keywords_args(clazz, options_clazz, kargs):
-    check.check_class(options_clazz)
-
-    fields = clazz._options_clazz_all_attributes(options_clazz)
-    copied_args = copy.deepcopy(kargs)
-    for field in fields:
-      if field in copied_args:
-        del copied_args[field]
-    return copied_args
-
-  
-  @classmethod
-  def _options_clazz_attributes(clazz, options_clazz):
-    result = []
-    instance = options_clazz()
-    for name, _ in inspect.getmembers(instance, lambda m: not callable(m)):
-      if not name.startswith('_'):
-        result.append(name)
-    return result
-  
-  @classmethod
-  def _options_clazz_all_attributes(clazz, options_clazz):
-    result = []
-    result.extend(clazz._options_clazz_attributes(options_clazz))
-    for base_clazz in options_clazz.__bases__:
-      if base_clazz != bcli_options:
-        result.extend(clazz._options_clazz_attributes(base_clazz))
-    return result
-
   @property
   def blurber(self):
     blurber = getattr(self.options, 'blurber', None)
