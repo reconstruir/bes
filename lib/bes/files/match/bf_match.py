@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.bcli.bcli_type_i import bcli_type_i
+
 from bes.system.check import check
 from bes.system.log import logger
 from bes.common.object_util import object_util
@@ -134,3 +136,26 @@ class bf_match(object):
     return True
       
 check.register_class(bf_match, include_seq = False)
+
+class bf_cli_match(bcli_type_i):
+
+  @classmethod
+  #@abstractmethod
+  def name_str(clazz):
+    return 'bf_match'
+
+  @classmethod
+  #@abstractmethod
+  def type_function(clazz):
+    return bf_match
+
+  @classmethod
+  #@abstractmethod
+  def parse(clazz, text):
+    assert False
+    return text
+
+  @classmethod
+  #@abstractmethod
+  def check(clazz, value, allow_none = False):
+    return check.check_bf_match(value, allow_none = allow_none)

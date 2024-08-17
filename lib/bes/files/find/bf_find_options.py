@@ -1,109 +1,67 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_options import cli_options
+from bes.bcli.bcli_options import bcli_options
+from bes.bcli.bcli_options_desc import bcli_options_desc
+
 from bes.system.check import check
 from bes.property.cached_property import cached_property
 
 from ..match.bf_match_type import bf_match_type
+from ..match.bf_match_type import bf_cli_match_type
 from ..match.bf_match_options import bf_match_options
+from ..match.bf_match import bf_cli_match
 
 from ..bf_path_type import bf_path_type
+from ..bf_path_type import bf_cli_path_type
 from ..bf_file_type import bf_file_type
+from ..bf_file_type import bf_cli_file_type
 
 from .bf_find_error import bf_find_error
 from .bf_find_progress import bf_find_progress
 from .bf_find_progress_state import bf_find_progress_state
 
-class bf_find_options(cli_options):
+class _bf_find_options_desc(bcli_options_desc):
 
-  def __init__(self, **kargs):
-    super().__init__(**kargs)
-
-  @classmethod
   #@abstractmethod
-  def default_values(clazz):
-    'Return a dict of defaults for these options.'
-    return {
-      'ignore_case': False,
-      'match_type': bf_match_type.ANY,
-      'path_type': bf_path_type.ABSOLUTE,
-      'file_type': bf_file_type.FILE_OR_LINK,
-      'follow_links': False,
-      'ignore_case': False,
-      'max_depth': None,
-      'min_depth': None,
-      'relative': True,
-      'file_match': None,
-      'limit': None,
-      'stop_function': None,
-      'progress_function': None,
-      'progress_interval_percent': 5.0,
-    }
+  def types(self):
+    return [
+      bf_cli_file_type,
+      bf_cli_match,
+      bf_cli_match_type,
+      bf_cli_path_type,
+    ]
+
+#    if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
+#      raise RuntimeError('max_depth needs to be >= min_depth.')
+#
+#    if self.min_depth and self.min_depth < 1:
+#      raise RuntimeError('min_depth needs to be >= 1.')
   
-  @classmethod
   #@abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    None
+  def options_desc(self):
+    return '''
+               ignore_case bool          default=False
+                match_type bf_match_type default=ANY
+                 path_type bf_path_type  default=ABSOLUTE
+                 file_type bf_file_type  default=FILE|LINK
+              follow_links bool          default=False
+                 max_depth int
+                 min_depth int
+                  relative bool          default=True
+                file_match bf_match
+                     limit int
+             stop_function callable
+         progress_function callable
+ progress_interval_percent float         default=5.0
+'''
   
-  @classmethod
-  #@abstractmethod
-  def value_type_hints(clazz):
-    return {
-      'relative': bool,
-      'ignore_case': bool,
-      'min_depth': int,
-      'max_depth': int,
-      'follow_links': bool,
-      'limit': int,
-      'stop_function': callable,
-      'progress_function': callable,
-      'progress_interval_percent': float,
-    }
+class bf_find_options(bcli_options):
+  def __init__(self, **kwargs):
+    super().__init__(_bf_find_options_desc(), **kwargs)
 
-  @classmethod
-  #@abstractmethod
-  def config_file_key(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def config_file_env_var_name(clazz):
-    return None
-  
-  @classmethod
-  #@abstractmethod
-  def config_file_section(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def error_class(clazz):
-    return RuntimeError
-
-  #@abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    check.check_bool(self.relative)
-    check.check_bool(self.ignore_case)
-    self.match_type = check.check_bf_match_type(self.match_type)
-    self.path_type = check.check_bf_path_type(self.path_type)
-    check.check_int(self.min_depth, allow_none = True)
-    check.check_int(self.max_depth, allow_none = True)
-    check.check_bool(self.follow_links)
-    self.file_type = check.check_bf_file_type(self.file_type)
-    check.check_bf_match(self.file_match, allow_none = True)
-    check.check_int(self.limit, allow_none = True)
-    check.check_callable(self.stop_function, allow_none = True)
-    check.check_callable(self.progress_function, allow_none = True)
-    check.check_number(self.progress_interval_percent)
-
-    if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
-      raise RuntimeError('max_depth needs to be >= min_depth.')
-
-    if self.min_depth and self.min_depth < 1:
-      raise RuntimeError('min_depth needs to be >= 1.')
-
+  def pass_through_keys(self):
+    return ( 'matcher_options', )
+    
   def depth_in_range(self, depth):
     if self.min_depth and self.max_depth:
       return depth >= self.min_depth and depth <= self.max_depth
@@ -143,5 +101,5 @@ class bf_find_options(cli_options):
       return
     progress = bf_find_progress(state, index, total)
     self.progress_function(progress)
-  
-check.register_class(bf_find_options)
+    
+bf_find_options.register_check_class()

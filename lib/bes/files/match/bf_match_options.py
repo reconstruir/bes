@@ -25,13 +25,6 @@ ignore_case bool          default=False
   path_type bf_path_type  default=ABSOLUTE
 '''
   
-  #@abstractmethod
-  def variables(self):
-    return {
-      '_var_foo': lambda: '42',
-      '_var_bar': lambda: '666',
-    }
-
 class bf_match_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_match_options_desc(), **kwargs)
