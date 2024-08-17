@@ -16,8 +16,6 @@ class file_duplicates_cli_handler(bcli_command_handler):
   def __init__(self, cli_args):
     super().__init__(cli_args, options_class = file_duplicates_options)
     check.check_file_duplicates_options(self.options)
-    self.options.sort_key = file_duplicates_options.mtime_sort_key
-    #self.options.sort_key = file_duplicates_options.sort_key_basename_length
   
   def dups(self, files, delete, keep_empty_dirs, blurber = None):
     files = file_check.check_file_or_dir_seq(files)
