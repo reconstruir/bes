@@ -20,8 +20,9 @@ class bcli_options_desc(bcli_options_desc_i):
   
   def __init__(self):
     types = self.types() or []
-#    types = check.check_seq(types, allow_none = True)
-    types = types[:]
+    for t in types:
+      if not issubclass(t, bcli_type_i):
+        raise TypeError(f't should be a subclass of bcli_type_i instead of "{t}".')
     
     variables = self.variables()
     check.check_dict(variables, key_type = str)
@@ -32,7 +33,7 @@ class bcli_options_desc(bcli_options_desc_i):
     defaults = copy.deepcopy(defaults) if defaults else {}
     
     self._manager = bcli_type_manager()
-    self._manager.add_types(types)
+    self._manager.add_types(types[:])
     self._manager.add_variables(variables)
     self._manager.add_defaults(defaults)
 
