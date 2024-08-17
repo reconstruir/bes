@@ -18,10 +18,6 @@ from .files_cli_options import files_cli_options
 class _dir_split_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
-  def name(self):
-    return '_dir_split_options_desc'
-
-  #@abstractmethod
   def types(self):
     return [
       cli_file_sort_order_type,

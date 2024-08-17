@@ -14,10 +14,6 @@ from .file_resolver_options import file_resolver_options
 class _files_cli_options_desc(bcli_options_desc):
 
   #@abstractmethod
-  def name(self):
-    return '_files_cli_options_desc'
-  
-  #@abstractmethod
   def options_desc(self):
     return '''
                 debug bool      default=False

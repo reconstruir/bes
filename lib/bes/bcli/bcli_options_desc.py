@@ -19,8 +19,6 @@ class bcli_options_desc(bcli_options_desc_i):
   _log = logger('bcli')
   
   def __init__(self):
-    check.check_string(self.name())
-    
     types = self.types() or []
 #    types = check.check_seq(types, allow_none = True)
     types = types[:]

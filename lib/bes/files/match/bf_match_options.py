@@ -11,10 +11,6 @@ from ..bf_path_type import bf_cli_path_type
 class _bf_match_options_desc(bcli_options_desc):
 
   #@abstractmethod
-  def name(self):
-    return '_bf_match_options_desc'
-  
-  #@abstractmethod
   def types(self):
     return [
       bf_cli_match_type,

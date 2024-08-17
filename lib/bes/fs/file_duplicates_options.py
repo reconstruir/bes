@@ -28,10 +28,6 @@ class _file_duplicates_options_desc(_files_cli_options_desc):
     ]
   
   #@abstractmethod
-  def name(self):
-    return '_file_duplicates_options_desc'
-  
-  #@abstractmethod
   def options_desc(self):
     return self.combine_options_desc(super().options_desc(), f'''
 small_checksum_size int                    default={file_duplicates_defaults.SMALL_CHECKSUM_SIZE}

@@ -5,10 +5,6 @@ from abc import abstractmethod, ABCMeta
 class bcli_options_desc_i(metaclass = ABCMeta):
 
   @abstractmethod
-  def name(self):
-    raise NotImplementedError('name')
-  
-  @abstractmethod
   def types(self):
     raise NotImplementedError('types')
 

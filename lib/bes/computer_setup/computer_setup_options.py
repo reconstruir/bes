@@ -9,10 +9,6 @@ from .computer_setup_error import computer_setup_error
 class _computer_setup_options_desc(bcli_options_desc):
 
   #@abstractmethod
-  def name(self):
-    return '_computer_setup_options_desc'
-  
-  #@abstractmethod
   def types(self):
     return []
 
