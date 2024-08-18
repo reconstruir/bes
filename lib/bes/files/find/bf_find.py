@@ -58,7 +58,13 @@ class bf_find(object):
     for entry in self.find_gen(where):
       result.append(entry)
     return result
-          
+
+  @classmethod
+  def find_with_options(clazz, where, **kwargs):
+    options = bf_find_options(**kwargs)
+    finder = bf_find(options = options)
+    return finder.find(where).sorted_caca('FILENAME')
+  
   @classmethod
   def _entry_matches(clazz, entry, depth, options):
     if not options.depth_in_range(depth):
@@ -86,61 +92,3 @@ class bf_find(object):
       if max_depth is not None:
         if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]
-
-  @classmethod
-  def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None,
-                follow_links = False, match_basename = True):
-    return clazz.find(root_dir, relative = relative, min_depth = min_depth,  max_depth = max_depth,
-                      file_type = clazz.DIR, follow_links = follow_links, match_basename = match_basename)
-
-  @classmethod
-  def find_in_ancestors(clazz, start_dir, filename):
-    if path.isfile(start_dir):
-      start_dir = path.dirname(start_dir)
-    assert path.isdir(start_dir)
-    while True:
-      what = path.join(start_dir, filename)
-      if path.exists(what):
-        return what
-      start_dir = file_path.parent_dir(start_dir)
-      if path.ismount(start_dir):
-        return None
-
-  @classmethod
-  def find_unreadable(clazz, d, relative = True):
-    'Return files and dirs that are unreadable.'
-    files = clazz.find(d, relative = relative, file_type = file_find.ANY)
-    result = []
-    for filename in files:
-      if relative:
-        filename_abs = path.join(d, filename)
-      else:
-        filename_abs = filename
-      if not os.access(filename_abs, os.R_OK):
-        result.append(filename)
-    return result
-
-  @classmethod
-  def find_empty_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):
-    return clazz.find(root_dir,
-                      relative = relative,
-                      file_type = clazz.DIR,
-                      min_depth = min_depth,
-                      max_depth = max_depth,
-                      match_function = lambda f: dir_util.is_empty(f),
-                      match_basename = False)
-
-  @classmethod
-  def remove_empty_dirs(clazz, root_dir, min_depth = None, max_depth = None):
-    result = []
-    while True:
-      empties = clazz.find_empty_dirs(root_dir, relative = False, min_depth = min_depth, max_depth = max_depth)
-      if not empties:
-        break
-      for next_empty in empties:
-        dir_util.remove(next_empty)
-        result.append(next_empty)
-    if dir_util.is_empty(root_dir):
-      dir_util.remove(root_dir)
-      result.append(root_dir)
-    return sorted(result)

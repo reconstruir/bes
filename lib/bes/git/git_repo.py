@@ -9,12 +9,16 @@ import time
 from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.common.object_util import object_util
-from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.text.line_break import line_break
 from bes.version.software_version import software_version
+
+from ..files.bf_file_type import bf_file_type
+from ..files.find.bf_find import bf_find
+from ..files.find.bf_find_options import bf_find_options
+from ..files.match.bf_match import bf_match
 
 from .git import git
 from .git_address_util import git_address_util
@@ -120,14 +124,24 @@ class git_repo(object):
 
   def _dot_git_path(self):
     return path.join(self.root, '.git')
+    '''
+    from bes.files.match.bf_match import bf_match
+    match = bf_match()
+    match.add_matcher_fnmatch('*.py')
+    self.assert_filename_list_equal( [
+      'kiwi.py',
+      'subdir/subberdir/melon.py',
+    ], self._find(content, file_match = match).sorted_filenames )
+'''
 
-  def find_all_files(self, file_type = file_find.FILE_OR_LINK):
-    files = file_find.find(self.root, relative = True, file_type = file_type)
+  def find_all_files(self, file_type = bf_file_type.FILE_OR_LINK):
+    entries = bf_find.find_with_options(self.root, file_type = file_type)
+    files = entries.filenames()
     is_git = lambda f: f.startswith('.git') or f.endswith('.git')
     files = [ f for f in files if not is_git(f) ]
     return files
-
-  def find_all_files_as_string(self, file_type = file_find.FILE_OR_LINK):
+  
+  def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):
     return os.linesep.join(self.find_all_files(file_type = file_type))
   
   def last_commit_hash(self, short_hash = False):
