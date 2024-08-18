@@ -16,8 +16,8 @@ from bes.text.line_break import line_break
 from bes.version.software_version import software_version
 
 from ..files.bf_file_type import bf_file_type
-from ..files.find.bf_find import bf_find
-from ..files.find.bf_find_options import bf_find_options
+from ..files.find.bf_file_finder import bf_file_finder
+from ..files.find.bf_file_finder_options import bf_file_finder_options
 from ..files.match.bf_match import bf_match
 
 from .git import git
@@ -135,7 +135,7 @@ class git_repo(object):
 '''
 
   def find_all_files(self, file_type = bf_file_type.FILE_OR_LINK):
-    entries = bf_find.find_with_options(self.root, file_type = file_type)
+    entries = bf_file_finder.find_with_options(self.root, file_type = file_type)
     files = entries.filenames()
     is_git = lambda f: f.startswith('.git') or f.endswith('.git')
     files = [ f for f in files if not is_git(f) ]

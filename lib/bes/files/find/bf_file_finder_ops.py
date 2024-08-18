@@ -19,23 +19,23 @@ from ..bf_entry_list import bf_entry_list
 from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
 
-from .bf_find_options import bf_find_options
-from .bf_find import bf_find
+from .bf_file_finder_options import bf_file_finder_options
+from .bf_file_finder import bf_file_finder
 
-class bf_find_ops(object):
+class bf_file_finder_ops(object):
 
   @classmethod
   def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None,
                 follow_links = False, path_type = 'basename'):
     root_dir = bf_check.check_dir(root_dir)
     
-    options = bf_find_options(file_type = bf_file_type.DIR,
+    options = bf_file_finder_options(file_type = bf_file_type.DIR,
                               relative = relative,
                               min_depth = min_depth,
                               max_depth = max_depth,
                               follow_links = follow_links,
                               path_type = path_type)
-    finder = bf_find(options)
+    finder = bf_file_finder(options)
     return finder.find(where)
 
   @classmethod

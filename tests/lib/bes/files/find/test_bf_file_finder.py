@@ -6,15 +6,15 @@ from collections import namedtuple
 
 from bes.files.match.bf_match import bf_match
 from bes.files.match.bf_match_options import bf_match_options
-from bes.files.find.bf_find import bf_find
-from bes.files.find.bf_find_options import bf_find_options
+from bes.files.find.bf_file_finder import bf_file_finder
+from bes.files.find.bf_file_finder_options import bf_file_finder_options
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.fs.testing.temp_content import temp_content
 
 from bes.testing.unit_test import unit_test
 
-class test_bf_find(unit_test):
+class test_bf_file_finder(unit_test):
 
   @classmethod
   def _make_temp_content(clazz, items):
@@ -485,9 +485,9 @@ class test_bf_find(unit_test):
     
   _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
   def _find(self, items, **options):
-    ff_options = bf_find_options(**options)
+    ff_options = bf_file_finder_options(**options)
     tmp_dir = self._make_temp_content(items)
-    f = bf_find(options = ff_options)
+    f = bf_file_finder(options = ff_options)
     entries = f.find(tmp_dir)
     filenames = entries.filenames()
     sorted_filenames = sorted(filenames)

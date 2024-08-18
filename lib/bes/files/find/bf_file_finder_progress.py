@@ -7,26 +7,26 @@ from bes.common.json_util import json_util
 from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
-from .bf_find_progress_state import bf_find_progress_state
-from .bf_find_error import bf_find_error
+from .bf_file_finder_progress_state import bf_file_finder_progress_state
+from .bf_file_finder_error import bf_file_finder_error
 
-class bf_find_progress(namedtuple('bf_find_progress', 'state, index, total')):
+class bf_file_finder_progress(namedtuple('bf_file_finder_progress', 'state, index, total')):
 
   def __new__(clazz, state, index, total):
-    state = check.check_bf_find_progress_state(state)
+    state = check.check_bf_file_finder_progress_state(state)
     check.check_int(index, allow_none = True)
     check.check_int(total, allow_none = True)
 
-    if state == bf_find_progress_state.SCANNING:
+    if state == bf_file_finder_progress_state.SCANNING:
       if index != None:
-        raise bf_find_error(f'if state is "SCANNING" index should be None: "{index}"')
+        raise bf_file_finder_error(f'if state is "SCANNING" index should be None: "{index}"')
       if total != None:
-        raise bf_find_error(f'if state is "SCANNING" total should be None: "{total}"')
-    elif state == bf_find_progress_state.FINDING:
+        raise bf_file_finder_error(f'if state is "SCANNING" total should be None: "{total}"')
+    elif state == bf_file_finder_progress_state.FINDING:
       if index == None:
-        raise bf_find_error(f'if state is "FINDING" index should not be None')
+        raise bf_file_finder_error(f'if state is "FINDING" index should not be None')
       if total == None:
-        raise bf_find_error(f'if state is "FINDING" total should not be None')
+        raise bf_file_finder_error(f'if state is "FINDING" total should not be None')
     
     return clazz.__bases__[0].__new__(clazz, state, index, total)
 
@@ -47,4 +47,4 @@ class bf_find_progress(namedtuple('bf_find_progress', 'state, index, total')):
   def percent_done(self):
     return (self.index / self.total) * 100.0
   
-check.register_class(bf_find_progress, include_seq = False)
+check.register_class(bf_file_finder_progress, include_seq = False)
