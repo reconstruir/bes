@@ -51,4 +51,3 @@ class criteria(with_metaclass(ABCMeta, object)):
     if not clazz.target_is_valid(target):
       raise ValueError('invalid target: %s' % (str(target)))
     return target
-  

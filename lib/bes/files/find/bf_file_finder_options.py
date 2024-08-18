@@ -48,6 +48,10 @@ class _bf_file_finder_options_desc(bcli_options_desc):
          progress_function callable
  progress_interval_percent float         default=5.0
 '''
+
+  #@abstractmethod
+  def error_class(self):
+    return bf_file_finder_error
   
 class bf_file_finder_options(bcli_options):
   def __init__(self, **kwargs):
@@ -62,10 +66,10 @@ class bf_file_finder_options(bcli_options):
 
   def _check_depth_limits(self):
     if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
-      raise RuntimeError('max_depth needs to be >= min_depth.')
+      raise bf_file_finder_error('max_depth needs to be >= min_depth.')
 
     if self.min_depth and self.min_depth < 1:
-      raise RuntimeError('min_depth needs to be >= 1.')
+      raise bf_file_finder_error('min_depth needs to be >= 1.')
   
   def pass_through_keys(self):
     return ( 'matcher_options', )
