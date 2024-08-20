@@ -16,11 +16,11 @@ from ..bf_path_type import bf_cli_path_type
 from ..bf_file_type import bf_file_type
 from ..bf_file_type import bf_cli_file_type
 
-from .bf_file_finder_error import bf_file_finder_error
-from .bf_file_finder_progress import bf_file_finder_progress
-from .bf_file_finder_progress_state import bf_file_finder_progress_state
+from .bf_finder_error import bf_finder_error
+from .bf_finder_progress import bf_finder_progress
+from .bf_finder_progress_state import bf_finder_progress_state
 
-class _bf_file_finder_options_desc(bcli_options_desc):
+class _bf_finder_options_desc(bcli_options_desc):
 
   #@abstractmethod
   def types(self):
@@ -47,15 +47,17 @@ class _bf_file_finder_options_desc(bcli_options_desc):
              stop_function callable
          progress_function callable
  progress_interval_percent float         default=5.0
+          exclude_patterns list[str]
+          include_patterns list[str]
 '''
 
   #@abstractmethod
   def error_class(self):
-    return bf_file_finder_error
+    return bf_finder_error
   
-class bf_file_finder_options(bcli_options):
+class bf_finder_options(bcli_options):
   def __init__(self, **kwargs):
-    super().__init__(_bf_file_finder_options_desc(), **kwargs)
+    super().__init__(_bf_finder_options_desc(), **kwargs)
 
   def init_hook(self):
     self._check_depth_limits()
@@ -66,13 +68,13 @@ class bf_file_finder_options(bcli_options):
 
   def _check_depth_limits(self):
     if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
-      raise bf_file_finder_error('max_depth needs to be >= min_depth.')
+      raise bf_finder_error('max_depth needs to be >= min_depth.')
 
     if self.min_depth and self.min_depth < 1:
-      raise bf_file_finder_error('min_depth needs to be >= 1.')
+      raise bf_finder_error('min_depth needs to be >= 1.')
   
   def pass_through_keys(self):
-    return ( 'matcher_options', )
+    return ( 'matcher_options', 'exclude_patterns', 'include_patterns' )
     
   def depth_in_range(self, depth):
     if self.min_depth and self.max_depth:
@@ -83,8 +85,14 @@ class bf_file_finder_options(bcli_options):
       return depth <= self.max_depth
     return True
 
-  @cached_property
+  @property
   def matcher_options(self):
+    return bf_match_options(ignore_case = self.ignore_case,
+                            match_type = self.match_type,
+                            path_type = self.path_type)
+
+  @property
+  def exclude_include_match(self):
     return bf_match_options(ignore_case = self.ignore_case,
                             match_type = self.match_type,
                             path_type = self.path_type)
@@ -101,17 +109,17 @@ class bf_file_finder_options(bcli_options):
       return False
     result = self.stop_function()
     if not check.is_bool(result):
-      raise bf_file_finder_error(f'result from stop_function should be bool: "{result}" - {type(result)}')
+      raise bf_finder_error(f'result from stop_function should be bool: "{result}" - {type(result)}')
     return result
 
   def call_progress_function(self, state, index, total):
-    state = check.check_bf_file_finder_progress_state(state)
+    state = check.check_bf_finder_progress_state(state)
     check.check_int(index, allow_none = True)
     check.check_int(total, allow_none = True)
     
     if not self.progress_function:
       return
-    progress = bf_file_finder_progress(state, index, total)
+    progress = bf_finder_progress(state, index, total)
     self.progress_function(progress)
     
-bf_file_finder_options.register_check_class()
+bf_finder_options.register_check_class()

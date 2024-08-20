@@ -5,10 +5,10 @@ from bes.system.log import logger
 
 from ..bf_date_comparison_type import bf_date_comparison_type
 
-from .bf_match_item_base import bf_match_item_base
+from .bf_match_item_i import bf_match_item_i
 from .bf_match_options import bf_match_options
 
-class bf_match_item_timedelta(bf_match_item_base):
+class bf_match_item_timedelta(bf_match_item_i):
 
   _log = logger('match')
   

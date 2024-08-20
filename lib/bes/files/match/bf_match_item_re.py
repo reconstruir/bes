@@ -6,10 +6,10 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
-from .bf_match_item_base import bf_match_item_base
+from .bf_match_item_i import bf_match_item_i
 from .bf_match_options import bf_match_options
 
-class bf_match_item_re(bf_match_item_base):
+class bf_match_item_re(bf_match_item_i):
 
   _log = logger('match')
   

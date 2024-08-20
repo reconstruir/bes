@@ -2,5 +2,5 @@
 
 from ..bf_error import bf_error
 
-class bf_file_finder_error(bf_error):
+class bf_finder_error(bf_error):
   pass

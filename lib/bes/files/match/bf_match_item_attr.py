@@ -2,10 +2,10 @@
 
 from bes.system.check import check
 
-from .bf_match_item_base import bf_match_item_base
+from .bf_match_item_i import bf_match_item_i
 from .bf_match_options import bf_match_options
 
-class bf_match_item_attr(bf_match_item_base):
+class bf_match_item_attr(bf_match_item_i):
 
   def __init__(self, attrs):
     check.check_dict(attrs)

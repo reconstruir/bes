@@ -10,7 +10,7 @@ from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
 
 from .bf_match_item_attr import bf_match_item_attr
-from .bf_match_item_base import bf_match_item_base
+from .bf_match_item_i import bf_match_item_i
 from .bf_match_item_callable import bf_match_item_callable
 from .bf_match_item_datetime import bf_match_item_datetime
 from .bf_match_item_fnmatch import bf_match_item_fnmatch

@@ -3,10 +3,10 @@
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bf_match_item_base import bf_match_item_base
+from .bf_match_item_i import bf_match_item_i
 from .bf_match_options import bf_match_options
 
-class bf_match_item_callable(bf_match_item_base):
+class bf_match_item_callable(bf_match_item_i):
 
   _log = logger('match')
   
