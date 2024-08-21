@@ -11,7 +11,7 @@ from .bf_match_options import bf_match_options
 
 class bf_match_item_fnmatch(bf_match_item_i):
 
-  _log = logger('match')
+  _log = logger('bf_match')
   
   def __init__(self, pattern):
     check.check_string(pattern)

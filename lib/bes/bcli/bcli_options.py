@@ -71,7 +71,7 @@ class bcli_options(object):
     self._log.log_method_d()
     
     if name in self.pass_through_keys():
-      return super().__getattr__(name)
+      return super().__getattribute__(name)
     desc = super().__getattribute__('_desc')
     if not desc.has_option(name):
       raise KeyError(f'Unknown option: "{name}"')

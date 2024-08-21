@@ -74,7 +74,7 @@ class bf_finder_options(bcli_options):
       raise bf_finder_error('min_depth needs to be >= 1.')
   
   def pass_through_keys(self):
-    return ( 'matcher_options', 'exclude_patterns', 'include_patterns' )
+    return ( 'matcher_options', ) # 'exclude_patterns', 'include_patterns' )
     
   def depth_in_range(self, depth):
     if self.min_depth and self.max_depth:

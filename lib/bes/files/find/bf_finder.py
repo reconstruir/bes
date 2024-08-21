@@ -9,6 +9,7 @@ import os
 #from .file_path import file_path
 
 from bes.system.check import check
+from bes.system.log import logger
 
 from ..bf_check import bf_check
 from ..bf_entry import bf_entry
@@ -20,6 +21,8 @@ from .bf_finder_options import bf_finder_options
 
 class bf_finder(object):
 
+  _log = logger('bf_finder')
+  
   def __init__(self, options = None):
     check.check_bf_finder_options(options, allow_none = True)
 
@@ -31,6 +34,8 @@ class bf_finder(object):
     result = bf_entry_list()
     where = path.normpath(where)
     where_sep_count = where.count(os.sep)
+
+    self._log.log_d(f'find_gen: where={where} options={self._options}')
     
     for root, dirs, files in self.walk_with_depth(where,
                                                   max_depth = self._options.max_depth,

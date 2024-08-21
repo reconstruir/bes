@@ -117,7 +117,7 @@ class bf_match(object):
       matched = next_matcher.matcher.match(entry, options)
       if next_matcher.negate:
         matched = not matched
-      clazz._log.log_d(f'_match_any: {i} of {num}: entry={entry.filename} matcher={next_matcher} => {matched}')
+      clazz._log.log_d(f'_match_any: {i} of {num}: entry={entry.filename} matcher={next_matcher.matcher} => {matched}')
       if matched:
         return True
     return False
@@ -129,7 +129,7 @@ class bf_match(object):
       matched = next_matcher.matcher.match(entry, options)
       if next_matcher.negate:
         matched = not matched
-      clazz._log.log_d(f'_match_all: {i} of {num}:  entry={entry.filename} matcher={next_matcher} => {matched}')
+      clazz._log.log_d(f'_match_all: {i} of {num}:  entry={entry.filename} matcher={next_matcher.matcher} => {matched}')
       if not matched:
         return False
     return True
@@ -141,7 +141,7 @@ class bf_match(object):
       matched = next_matcher.matcher.match(entry, options)
       if next_matcher.negate:
         matched = not matched
-      clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.filename} matcher={next_matcher} => {matched}')
+      clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.filename} matcher={next_matcher.matcher} => {matched}')
       if matched:
         return False
     return True

@@ -124,22 +124,18 @@ class git_repo(object):
 
   def _dot_git_path(self):
     return path.join(self.root, '.git')
-    '''
-    from bes.files.match.bf_match import bf_match
-    match = bf_match()
-    match.add_matcher_fnmatch('*.py')
-    self.assert_filename_list_equal( [
-      'kiwi.py',
-      'subdir/subberdir/melon.py',
-    ], self._find(content, file_match = match).sorted_filenames )
-'''
 
   def find_all_files(self, file_type = bf_file_type.FILE_OR_LINK):
-    entries = bf_finder.find_with_options(self.root, file_type = file_type)
-    files = entries.filenames()
-    is_git = lambda f: f.startswith('.git') or f.endswith('.git')
-    files = [ f for f in files if not is_git(f) ]
-    return files
+    from bes.files.match.bf_match import bf_match
+    matcher = bf_match()
+    matcher.add_matcher_fnmatch('.git*', negate = True)
+    matcher.add_matcher_fnmatch('*.git', negate = True)
+    entries = bf_finder.find_with_options(self.root,
+                                          file_match = matcher,
+                                          file_type = file_type,
+                                          match_type = 'all',
+                                          path_type = 'relative')
+    return entries.filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):
     return os.linesep.join(self.find_all_files(file_type = file_type))

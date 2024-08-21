@@ -11,11 +11,14 @@ from bes.files.find.bf_finder_options import bf_finder_options
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.fs.testing.temp_content import temp_content
+from bes.system.log import logger
 
 from bes.testing.unit_test import unit_test
 
 class test_bf_finder(unit_test):
 
+  _log = logger('bf_finder')
+  
   @classmethod
   def _make_temp_content(clazz, items):
     return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
@@ -493,7 +496,7 @@ class test_bf_finder(unit_test):
     self.assert_filename_list_equal( [
     ], self._find(content, file_match = match, path_type = 'absolute').sorted_filenames )
 
-  def xtest_find_with_match_and_negate(self):
+  def test_find_with_match_and_negate(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -507,11 +510,10 @@ class test_bf_finder(unit_test):
     matcher = bf_match()
     matcher.add_matcher_fnmatch('.git*', negate = True)
     matcher.add_matcher_fnmatch('*.git', negate = True)
-    #options = bf_match_options(match_type = 'all')
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',
-    ], self._find(content, file_match = matcher, match_type = 'all').sorted_filenames )
+    ], self._find(content, file_match = matcher, match_type = 'all', path_type = 'relative').sorted_filenames )
  
 if __name__ == '__main__':
   unit_test.main()

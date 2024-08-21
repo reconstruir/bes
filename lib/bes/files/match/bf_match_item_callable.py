@@ -8,7 +8,7 @@ from .bf_match_options import bf_match_options
 
 class bf_match_item_callable(bf_match_item_i):
 
-  _log = logger('match')
+  _log = logger('bf_match')
   
   def __init__(self, callable_):
     check.check_callable(callable_)
