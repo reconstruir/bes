@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 from bes.bcli.bcli_type_i import bcli_type_i
 
 from bes.system.check import check
@@ -22,7 +24,7 @@ from .bf_match_item_timedelta import bf_match_item_timedelta
 
 class bf_match(object):
 
-  _log = logger('match')
+  _log = logger('bf_match')
   
   def __init__(self, patterns = None, expressions = None, callables = None,
                attrs = None, metadatas = None):
@@ -47,32 +49,34 @@ class bf_match(object):
   @property
   def empty(self):
     return len(self._matchers) == 0
-    
-  def add_matcher(self, matcher):
+
+  _matcher_item = namedtuple('_matcher_item', 'matcher, negate')
+  def add_matcher(self, matcher, negate = False):
     check.check_bf_matcher(matcher)
+    check.check_bool(negate)
 
-    self._matchers.append(matcher)
+    self._matchers.append(self._matcher_item(matcher, negate))
 
-  def add_matcher_fnmatch(self, pattern):
-    self.add_matcher(bf_match_item_fnmatch(pattern))
+  def add_matcher_fnmatch(self, pattern, negate = False):
+    self.add_matcher(bf_match_item_fnmatch(pattern), negate = negate)
 
-  def add_matcher_re(self, expression):
-    self.add_matcher(bf_match_item_re(expression))
+  def add_matcher_re(self, expression, negate = False):
+    self.add_matcher(bf_match_item_re(expression), negate = negate)
 
-  def add_matcher_callable(self, callable_):
-    self.add_matcher(bf_match_item_callable(callable_))
+  def add_matcher_callable(self, callable_, negate = False):
+    self.add_matcher(bf_match_item_callable(callable_), negate = negate)
 
-  def add_matcher_datetime(self, date, comparison_type):
-    self.add_matcher(bf_match_item_datetime(date, comparison_type))
+  def add_matcher_datetime(self, date, comparison_type, negate = False):
+    self.add_matcher(bf_match_item_datetime(date, comparison_type), negate = negate)
 
-  def add_matcher_timedelta(self, delta, comparison_type):
-    self.add_matcher(bf_match_item_timedelta(delta, comparison_type))
+  def add_matcher_timedelta(self, delta, comparison_type, negate = False):
+    self.add_matcher(bf_match_item_timedelta(delta, comparison_type), negate = negate)
 
-  def add_matcher_attr(self, attrs):
-    self.add_matcher(bf_match_item_attr(attrs))
+  def add_matcher_attr(self, attrs, negate = False):
+    self.add_matcher(bf_match_item_attr(attrs), negate = negate)
 
-  def add_matcher_metadata(self, metadatas):
-    self.add_matcher(bf_match_item_metadata(metadatas))
+  def add_matcher_metadata(self, metadatas, negate = False):
+    self.add_matcher(bf_match_item_metadata(metadatas), negate = negate)
     
   def match(self, entry, options = None):
     check.check_bf_entry(entry)
@@ -101,7 +105,8 @@ class bf_match(object):
 
     result = bf_entry_list()
     for entry in entries:
-      if self.match(entry, options = options):
+      match_result = self.match(entry, options = options)
+      if match_result:
         result.append(entry)
     return result
   
@@ -109,7 +114,9 @@ class bf_match(object):
   def _match_any(clazz, entry, matchers, options):
     num = len(matchers)
     for i, next_matcher in enumerate(matchers, start = 1):
-      matched = next_matcher.match(entry, options)
+      matched = next_matcher.matcher.match(entry, options)
+      if next_matcher.negate:
+        matched = not matched
       clazz._log.log_d(f'_match_any: {i} of {num}: entry={entry.filename} matcher={next_matcher} => {matched}')
       if matched:
         return True
@@ -119,7 +126,9 @@ class bf_match(object):
   def _match_all(clazz, entry, matchers, options):
     num = len(matchers)
     for i, next_matcher in enumerate(matchers, start = 1):
-      matched = next_matcher.match(entry, options)
+      matched = next_matcher.matcher.match(entry, options)
+      if next_matcher.negate:
+        matched = not matched
       clazz._log.log_d(f'_match_all: {i} of {num}:  entry={entry.filename} matcher={next_matcher} => {matched}')
       if not matched:
         return False
@@ -129,7 +138,9 @@ class bf_match(object):
   def _match_none(clazz, entry, matchers, options):
     num = len(matchers)
     for i, next_matcher in enumerate(matchers, start = 1):
-      matched = next_matcher.match(entry, options)
+      matched = next_matcher.matcher.match(entry, options)
+      if next_matcher.negate:
+        matched = not matched
       clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.filename} matcher={next_matcher} => {matched}')
       if matched:
         return False
