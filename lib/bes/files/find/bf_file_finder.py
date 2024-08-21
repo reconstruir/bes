@@ -17,16 +17,16 @@ from ..bf_entry_list import bf_entry_list
 from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
 
-from .bf_finder_options import bf_finder_options
+from .bf_file_finder_options import bf_file_finder_options
 
-class bf_finder(object):
+class bf_file_finder(object):
 
-  _log = logger('bf_finder')
+  _log = logger('bf_file_finder')
   
   def __init__(self, options = None):
-    check.check_bf_finder_options(options, allow_none = True)
+    check.check_bf_file_finder_options(options, allow_none = True)
 
-    self._options = options or bf_finder_options()
+    self._options = options or bf_file_finder_options()
 
   def find_gen(self, where):
     where = bf_check.check_dir(where)
@@ -66,8 +66,8 @@ class bf_finder(object):
 
   @classmethod
   def find_with_options(clazz, where, **kwargs):
-    options = bf_finder_options(**kwargs)
-    finder = bf_finder(options = options)
+    options = bf_file_finder_options(**kwargs)
+    finder = bf_file_finder(options = options)
     return finder.find(where).sorted_by_criteria('FILENAME')
   
   @classmethod

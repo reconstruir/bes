@@ -9,8 +9,8 @@ from bes.fs.file_find import file_find
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 
-from ..files.find.bf_finder import bf_finder
-from ..files.find.bf_finder_options import bf_finder_options
+from ..files.find.bf_file_finder import bf_file_finder
+from ..files.find.bf_file_finder_options import bf_file_finder_options
 from ..files.bf_file_type import bf_file_type
 
 from .file_web_server import file_web_server
@@ -75,9 +75,9 @@ class file_web_server_tester(object):
 
   def find_all_files(self, relative = True):
     assert False
-    options = bf_finder_options(relative = relative,
+    options = bf_file_finder_options(relative = relative,
                               file_type = bf_file_type.FILE_OR_LINK)
-    f = bf_finder(options = options)
+    f = bf_file_finder(options = options)
     r1 = f.find(self.root_dir)
     r2 = file_find.find(self.root_dir, relative = relative, file_type = file_find.FILE | file_find.LINK)
     print(f'r1={r1}', flush = True)

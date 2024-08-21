@@ -16,8 +16,8 @@ from bes.text.line_break import line_break
 from bes.version.software_version import software_version
 
 from ..files.bf_file_type import bf_file_type
-from ..files.find.bf_finder import bf_finder
-from ..files.find.bf_finder_options import bf_finder_options
+from ..files.find.bf_file_finder import bf_file_finder
+from ..files.find.bf_file_finder_options import bf_file_finder_options
 from ..files.match.bf_file_matcher import bf_file_matcher
 
 from .git import git
@@ -130,7 +130,7 @@ class git_repo(object):
     matcher = bf_file_matcher()
     matcher.add_matcher_fnmatch('.git*', negate = True)
     matcher.add_matcher_fnmatch('*.git', negate = True)
-    entries = bf_finder.find_with_options(self.root,
+    entries = bf_file_finder.find_with_options(self.root,
                                           file_match = matcher,
                                           file_type = file_type,
                                           match_type = 'all',

@@ -6,8 +6,8 @@ from collections import namedtuple
 
 from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.files.match.bf_file_matcher_options import bf_file_matcher_options
-from bes.files.find.bf_finder import bf_finder
-from bes.files.find.bf_finder_options import bf_finder_options
+from bes.files.find.bf_file_finder import bf_file_finder
+from bes.files.find.bf_file_finder_options import bf_file_finder_options
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.fs.testing.temp_content import temp_content
@@ -15,9 +15,9 @@ from bes.system.log import logger
 
 from bes.testing.unit_test import unit_test
 
-class test_bf_finder(unit_test):
+class test_bf_file_finder(unit_test):
 
-  _log = logger('bf_finder')
+  _log = logger('bf_file_finder')
   
   @classmethod
   def _make_temp_content(clazz, items):
@@ -25,9 +25,9 @@ class test_bf_finder(unit_test):
 
   _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
   def _find(self, items, **options):
-    finder_options = bf_finder_options(**options)
+    finder_options = bf_file_finder_options(**options)
     tmp_dir = self._make_temp_content(items)
-    f = bf_finder(options = finder_options)
+    f = bf_file_finder(options = finder_options)
     entries = f.find(tmp_dir)
     filenames = entries.filenames()
     sorted_filenames = sorted(filenames)
