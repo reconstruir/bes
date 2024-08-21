@@ -20,6 +20,16 @@ class test_bf_finder(unit_test):
   def _make_temp_content(clazz, items):
     return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
 
+  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
+  def _find(self, items, **options):
+    finder_options = bf_finder_options(**options)
+    tmp_dir = self._make_temp_content(items)
+    f = bf_finder(options = finder_options)
+    entries = f.find(tmp_dir)
+    filenames = entries.filenames()
+    sorted_filenames = sorted(filenames)
+    return self._find_result(tmp_dir, entries, filenames, sorted_filenames)
+  
   def test_find_with_no_options(self):
     content = [
       'file foo.txt "foo.txt\n"',
@@ -482,16 +492,26 @@ class test_bf_finder(unit_test):
     ], self._find(content, file_match = match, path_type = 'relative').sorted_filenames )
     self.assert_filename_list_equal( [
     ], self._find(content, file_match = match, path_type = 'absolute').sorted_filenames )
-    
-  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
-  def _find(self, items, **options):
-    ff_options = bf_finder_options(**options)
-    tmp_dir = self._make_temp_content(items)
-    f = bf_finder(options = ff_options)
-    entries = f.find(tmp_dir)
-    filenames = entries.filenames()
-    sorted_filenames = sorted(filenames)
-    return self._find_result(tmp_dir, entries, filenames, sorted_filenames)
-  
+
+  def xtest_find_with_match_and_negate(self):
+    content = [
+      'file .git/HEAD "x"',
+      'file .git/config "x"',
+      'file .git/description "x"',
+      'file .git/hooks/applypatch-msg.sample "x"',
+      'file .git/info/exclude "x"',
+      'file kiwi.git "x"',
+      'file a/b/c/foo.txt "x"',
+      'file d/e/bar.txt "x"',
+    ]
+    matcher = bf_match()
+    matcher.add_matcher_fnmatch('.git*', negate = True)
+    matcher.add_matcher_fnmatch('*.git', negate = True)
+    #options = bf_match_options(match_type = 'all')
+    self.assert_filename_list_equal( [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ], self._find(content, file_match = matcher, match_type = 'all').sorted_filenames )
+ 
 if __name__ == '__main__':
   unit_test.main()

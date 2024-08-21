@@ -24,6 +24,14 @@ class test_bf_match(unit_test):
     self.assertEqual( True, self._match(setup, 'kiwi.py', None) )
     self.assertEqual( False, self._match(setup, 'KIWI.PY', None) )
     self.assertEqual( True, self._match(setup, '/tmp/x/lemon.py', None) )
+
+  def test_match_fnmatch_one_matcher_any_with_negate(self):
+    def setup(m):
+      m.add_matcher_fnmatch('*.py', negate = True)
+      
+    self.assertEqual( False, self._match(setup, 'kiwi.py', None) )
+    self.assertEqual( True, self._match(setup, 'KIWI.PY', None) )
+    self.assertEqual( False, self._match(setup, '/tmp/x/lemon.py', None) )
     
   def test_match_fnmatch_one_matcher_any_with_ignore_case(self):
     def setup(m):
@@ -98,6 +106,28 @@ class test_bf_match(unit_test):
     m.add_matcher_fnmatch('*.txt')
     m.add_matcher_fnmatch('*.pdf')
     self.assertEqual( bf_entry_list(expected), m.match_entries(filenames) )
+
+  def test_match_entries_fnmatch_two_matchers_all_with_negate(self):
+    filenames = [
+      '.git/HEAD',
+      '.git/config',
+      '.git/description',
+      '.git/hooks/applypatch-msg.sample',
+      '.git/info/exclude',
+      'kiwi.git',
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ]
+    expected = [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ]
+    m = bf_match()
+    m.add_matcher_fnmatch('.git*', negate = True)
+    m.add_matcher_fnmatch('*.git', negate = True)
+    options = bf_match_options(match_type = 'all')
+    self.assertEqual( bf_entry_list(expected),
+                      m.match_entries(filenames, options = options) )
     
 if __name__ == '__main__':
   unit_test.main()
