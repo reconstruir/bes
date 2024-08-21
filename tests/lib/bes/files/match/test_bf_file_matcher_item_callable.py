@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.files.match.bf_match_item_callable import bf_match_item_callable
-from bes.files.match.bf_match_options import bf_match_options
+from bes.files.match.bf_file_matcher_item_callable import bf_file_matcher_item_callable
+from bes.files.match.bf_file_matcher_options import bf_file_matcher_options
 from bes.files.bf_entry import bf_entry
 
 from bes.testing.unit_test import unit_test
 
-class test_bf_match_item_callable(unit_test):
+class test_bf_file_matcher_item_callable(unit_test):
   
   def test_match_one_func_all(self):
     f = lambda f: f.endswith('.py')
@@ -25,8 +25,8 @@ class test_bf_match_item_callable(unit_test):
 
   def _match(self, patterns, filename, **options):
     entry = bf_entry(filename)
-    matcher = bf_match_item_callable(patterns)
-    return matcher.match(entry, bf_match_options(**options))
+    matcher = bf_file_matcher_item_callable(patterns)
+    return matcher.match(entry, bf_file_matcher_options(**options))
   
 if __name__ == '__main__':
   unit_test.main()

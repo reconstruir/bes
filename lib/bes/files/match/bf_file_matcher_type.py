@@ -3,12 +3,12 @@
 from bes.bcli.bcli_type_checked_enum import bcli_type_checked_enum
 from bes.enum_util.checked_enum import checked_enum
 
-class bf_match_type(checked_enum):
+class bf_file_matcher_type(checked_enum):
   ALL = 'all'
   ANY = 'any'
   NONE = 'none'
   
-bf_match_type.register_check_class()
+bf_file_matcher_type.register_check_class()
 
 class bf_cli_match_type(bcli_type_checked_enum):
-  __enum_class__ = bf_match_type
+  __enum_class__ = bf_file_matcher_type

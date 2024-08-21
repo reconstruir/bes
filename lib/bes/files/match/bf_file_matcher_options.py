@@ -5,10 +5,10 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 
 from bes.bcli.bcli_type_i import bcli_type_i
 
-from .bf_match_type import bf_cli_match_type
+from .bf_file_matcher_type import bf_cli_match_type
 from ..bf_path_type import bf_cli_path_type
 
-class _bf_match_options_desc(bcli_options_desc):
+class _bf_file_matcher_options_desc(bcli_options_desc):
 
   #@abstractmethod
   def types(self):
@@ -21,12 +21,12 @@ class _bf_match_options_desc(bcli_options_desc):
   def options_desc(self):
     return '''
 ignore_case bool          default=False
- match_type bf_match_type default=ANY
+ match_type bf_file_matcher_type default=ANY
   path_type bf_path_type  default=ABSOLUTE
 '''
   
-class bf_match_options(bcli_options):
+class bf_file_matcher_options(bcli_options):
   def __init__(self, **kwargs):
-    super().__init__(_bf_match_options_desc(), **kwargs)
+    super().__init__(_bf_file_matcher_options_desc(), **kwargs)
     
-bf_match_options.register_check_class()
+bf_file_matcher_options.register_check_class()

@@ -6,12 +6,12 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
-from .bf_match_item_i import bf_match_item_i
-from .bf_match_options import bf_match_options
+from .bf_file_matcher_item_i import bf_file_matcher_item_i
+from .bf_file_matcher_options import bf_file_matcher_options
 
-class bf_match_item_re(bf_match_item_i):
+class bf_file_matcher_item_re(bf_file_matcher_item_i):
 
-  _log = logger('bf_match')
+  _log = logger('bf_file_matcher')
   
   def __init__(self, expression):
     check.check_string(expression)
@@ -19,13 +19,13 @@ class bf_match_item_re(bf_match_item_i):
     self._expression = expression
 
   def __str__(self):
-    return f'bf_match_item_re("{self._expression}")'
+    return f'bf_file_matcher_item_re("{self._expression}")'
     
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
     check.check_bf_entry(entry)
-    check.check_bf_match_options(options)
+    check.check_bf_file_matcher_options(options)
 
     flags = 0
     if options.ignore_case:

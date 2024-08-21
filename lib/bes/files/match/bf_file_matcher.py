@@ -11,20 +11,20 @@ from bes.common.object_util import object_util
 from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
 
-from .bf_match_item_attr import bf_match_item_attr
-from .bf_match_item_i import bf_match_item_i
-from .bf_match_item_callable import bf_match_item_callable
-from .bf_match_item_datetime import bf_match_item_datetime
-from .bf_match_item_fnmatch import bf_match_item_fnmatch
-from .bf_match_type import bf_match_type
-from .bf_match_item_metadata import bf_match_item_metadata
-from .bf_match_options import bf_match_options
-from .bf_match_item_re import bf_match_item_re
-from .bf_match_item_timedelta import bf_match_item_timedelta
+from .bf_file_matcher_item_attr import bf_file_matcher_item_attr
+from .bf_file_matcher_item_i import bf_file_matcher_item_i
+from .bf_file_matcher_item_callable import bf_file_matcher_item_callable
+from .bf_file_matcher_item_datetime import bf_file_matcher_item_datetime
+from .bf_file_matcher_item_fnmatch import bf_file_matcher_item_fnmatch
+from .bf_file_matcher_type import bf_file_matcher_type
+from .bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
+from .bf_file_matcher_options import bf_file_matcher_options
+from .bf_file_matcher_item_re import bf_file_matcher_item_re
+from .bf_file_matcher_item_timedelta import bf_file_matcher_item_timedelta
 
-class bf_match(object):
+class bf_file_matcher(object):
 
-  _log = logger('bf_match')
+  _log = logger('bf_file_matcher')
   
   def __init__(self, patterns = None, expressions = None, callables = None,
                attrs = None, metadatas = None):
@@ -52,35 +52,35 @@ class bf_match(object):
 
   _matcher_item = namedtuple('_matcher_item', 'matcher, negate')
   def add_matcher(self, matcher, negate = False):
-    check.check_bf_matcher(matcher)
+    check.check_bf_file_matcherer(matcher)
     check.check_bool(negate)
 
     self._matchers.append(self._matcher_item(matcher, negate))
 
   def add_matcher_fnmatch(self, pattern, negate = False):
-    self.add_matcher(bf_match_item_fnmatch(pattern), negate = negate)
+    self.add_matcher(bf_file_matcher_item_fnmatch(pattern), negate = negate)
 
   def add_matcher_re(self, expression, negate = False):
-    self.add_matcher(bf_match_item_re(expression), negate = negate)
+    self.add_matcher(bf_file_matcher_item_re(expression), negate = negate)
 
   def add_matcher_callable(self, callable_, negate = False):
-    self.add_matcher(bf_match_item_callable(callable_), negate = negate)
+    self.add_matcher(bf_file_matcher_item_callable(callable_), negate = negate)
 
   def add_matcher_datetime(self, date, comparison_type, negate = False):
-    self.add_matcher(bf_match_item_datetime(date, comparison_type), negate = negate)
+    self.add_matcher(bf_file_matcher_item_datetime(date, comparison_type), negate = negate)
 
   def add_matcher_timedelta(self, delta, comparison_type, negate = False):
-    self.add_matcher(bf_match_item_timedelta(delta, comparison_type), negate = negate)
+    self.add_matcher(bf_file_matcher_item_timedelta(delta, comparison_type), negate = negate)
 
   def add_matcher_attr(self, attrs, negate = False):
-    self.add_matcher(bf_match_item_attr(attrs), negate = negate)
+    self.add_matcher(bf_file_matcher_item_attr(attrs), negate = negate)
 
   def add_matcher_metadata(self, metadatas, negate = False):
-    self.add_matcher(bf_match_item_metadata(metadatas), negate = negate)
+    self.add_matcher(bf_file_matcher_item_metadata(metadatas), negate = negate)
     
   def match(self, entry, options = None):
     check.check_bf_entry(entry)
-    options = check.check_bf_match_options(options, allow_none = True) or bf_match_options()
+    options = check.check_bf_file_matcher_options(options, allow_none = True) or bf_file_matcher_options()
 
     self._log.log_d(f'match: entry={entry.filename} options={options}')
     
@@ -89,16 +89,16 @@ class bf_match(object):
       return True
     
     func_map = {
-      bf_match_type.ALL: self._match_all,
-      bf_match_type.ANY: self._match_any,
-      bf_match_type.NONE: self._match_none,
+      bf_file_matcher_type.ALL: self._match_all,
+      bf_file_matcher_type.ANY: self._match_any,
+      bf_file_matcher_type.NONE: self._match_none,
     }
     func = func_map[options.match_type]
     return func(entry, self._matchers, options)
 
   def match_entries(self, entries, options = None):
     entries = check.check_bf_entry_list(entries)
-    options = check.check_bf_match_options(options, allow_none = True) or bf_match_options()
+    options = check.check_bf_file_matcher_options(options, allow_none = True) or bf_file_matcher_options()
 
     if self.empty:
       return entries[:]
@@ -146,19 +146,19 @@ class bf_match(object):
         return False
     return True
       
-check.register_class(bf_match, include_seq = False)
+check.register_class(bf_file_matcher, include_seq = False)
 
 class bf_cli_match(bcli_type_i):
 
   @classmethod
   #@abstractmethod
   def name_str(clazz):
-    return 'bf_match'
+    return 'bf_file_matcher'
 
   @classmethod
   #@abstractmethod
   def type_function(clazz):
-    return bf_match
+    return bf_file_matcher
 
   @classmethod
   #@abstractmethod
@@ -169,4 +169,4 @@ class bf_cli_match(bcli_type_i):
   @classmethod
   #@abstractmethod
   def check(clazz, value, allow_none = False):
-    return check.check_bf_match(value, allow_none = allow_none)
+    return check.check_bf_file_matcher(value, allow_none = allow_none)
