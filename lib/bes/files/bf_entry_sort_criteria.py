@@ -3,7 +3,7 @@
 #from bes.bcli.bcli_type_checked_enum import bcli_type_checked_enum
 from bes.enum_util.checked_enum import checked_enum
 
-class bf_entry_sort_type(checked_enum):
+class bf_entry_sort_criteria(checked_enum):
   BASENAME = 'basename'
   BASENAME_LOWERCASE = 'basename_lowercase'
   DIRNAME = 'dirname'
@@ -13,7 +13,7 @@ class bf_entry_sort_type(checked_enum):
   MODIFICATION_DATE = 'modification_date'
   SIZE = 'size'
   
-bf_entry_sort_type.register_check_class()
+bf_entry_sort_criteria.register_check_class()
 
 #class bf_cli_path_type(bcli_type_checked_enum):
-#  __enum_class__ = bf_entry_sort_type
+#  __enum_class__ = bf_entry_sort_criteria

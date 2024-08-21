@@ -9,7 +9,7 @@ from ..common.type_checked_list import type_checked_list
 
 from .bf_check import bf_check
 from .bf_entry import bf_entry
-from .bf_entry_sort_type import bf_entry_sort_type
+from .bf_entry_sort_criteria import bf_entry_sort_criteria
 from .bf_filename import bf_filename
 
 class bf_entry_list(type_checked_list):
@@ -40,12 +40,12 @@ class bf_entry_list(type_checked_list):
     files_abs = [ path.join(where, f) for f in files ]
     return bf_entry_list([ bf_entry(f, root_dir = where) for f in files_abs ])
 
-  def sort_caca(self, sort_type, reverse = False):
-    sort_type = check.check_bf_entry_sort_type(sort_type)
+  def sort_bt_criteria(self, sort_criteria, reverse = False):
+    sort_criteria = check.check_bf_entry_sort_criteria(sort_criteria)
 
-    self.sort(key = lambda entry: entry._compare_criteria(sort_type), reverse = reverse)
+    self.sort(key = lambda entry: entry._compare_criteria(sort_criteria), reverse = reverse)
 
-  def sorted_caca(self, sort_type, reverse = False):
-    return self.sorted_(key = lambda entry: entry._compare_criteria(sort_type), reverse = reverse)
+  def sorted_by_criteria(self, sort_criteria, reverse = False):
+    return self.sorted_(key = lambda entry: entry._compare_criteria(sort_criteria), reverse = reverse)
     
 bf_entry_list.register_check_class()

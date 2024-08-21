@@ -15,7 +15,7 @@ from bes.system.filesystem import filesystem
 
 from .bf_date import bf_date
 from .bf_date_comparison_type import bf_date_comparison_type
-from .bf_entry_sort_type import bf_entry_sort_type
+from .bf_entry_sort_criteria import bf_entry_sort_criteria
 from .bf_error import bf_error
 from .bf_file_type import bf_file_type
 from .bf_filename import bf_filename
@@ -398,32 +398,32 @@ class bf_entry(object):
           return False
     return True
 
-  def compare(self, other, sort_type):
+  def compare(self, other, sort_criteria):
     check.check_bf_entry(other)
-    sort_type = check.check_bf_entry_sort_type(sort_type)
+    sort_criteria = check.check_bf_entry_sort_criteria(sort_criteria)
 
-    self_criteria = self._compare_criteria(sort_type)
-    other_criteria = other._compare_criteria(sort_type)
+    self_criteria = self._compare_criteria(sort_criteria)
+    other_criteria = other._compare_criteria(sort_criteria)
     return cmp(self_criteria, other_criteria)
 
-  def _compare_criteria(self, sort_type):
-    sort_type = check.check_bf_entry_sort_type(sort_type)
+  def _compare_criteria(self, sort_criteria):
+    sort_criteria = check.check_bf_entry_sort_criteria(sort_criteria)
 
-    if sort_type == bf_entry_sort_type.BASENAME:
+    if sort_criteria == bf_entry_sort_criteria.BASENAME:
       return ( self.basename, )
-    elif sort_type == bf_entry_sort_type.BASENAME_LOWERCASE:
+    elif sort_criteria == bf_entry_sort_criteria.BASENAME_LOWERCASE:
       return ( self.basename_lowercase, )
-    elif sort_type == bf_entry_sort_type.DIRNAME:
+    elif sort_criteria == bf_entry_sort_criteria.DIRNAME:
       return ( self.dirname, self.basename )
-    elif sort_type == bf_entry_sort_type.DIRNAME_LOWERCASE:
+    elif sort_criteria == bf_entry_sort_criteria.DIRNAME_LOWERCASE:
       return ( self.dirname_lowercase, self.basename_lowercase )
-    elif sort_type == bf_entry_sort_type.FILENAME:
+    elif sort_criteria == bf_entry_sort_criteria.FILENAME:
       return ( self.filename, )
-    elif sort_type == bf_entry_sort_type.FILENAME_LOWERCASE:
+    elif sort_criteria == bf_entry_sort_criteria.FILENAME_LOWERCASE:
       return ( self.filename_lowercase, )
-    elif sort_type == bf_entry_sort_type.MODIFICATION_DATE:
+    elif sort_criteria == bf_entry_sort_criteria.MODIFICATION_DATE:
       return ( self.modification_date, self.filename_lowercase )
-    elif sort_type == bf_entry_sort_type.SIZE:
+    elif sort_criteria == bf_entry_sort_criteria.SIZE:
       return ( self.size, self.filename_lowercase )
     else:
       assert False

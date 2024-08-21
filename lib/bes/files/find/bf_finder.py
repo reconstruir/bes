@@ -68,7 +68,7 @@ class bf_finder(object):
   def find_with_options(clazz, where, **kwargs):
     options = bf_finder_options(**kwargs)
     finder = bf_finder(options = options)
-    return finder.find(where).sorted_caca('FILENAME')
+    return finder.find(where).sorted_by_criteria('FILENAME')
   
   @classmethod
   def _entry_matches(clazz, entry, depth, options):
