@@ -42,7 +42,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
                  max_depth int
                  min_depth int
                   relative bool          default=True
-                file_match bf_file_matcher
+              file_matcher bf_file_matcher
                      limit int
              stop_function callable
          progress_function callable
@@ -97,12 +97,12 @@ class bf_file_finder_options(bcli_options):
                             match_type = self.match_type,
                             path_type = self.path_type)
   
-  def file_match_matches(self, entry):
+  def file_matcher_matches(self, entry):
     check.check_bf_entry(entry)
     
-    if not self.file_match:
+    if not self.file_matcher:
       return True
-    return self.file_match.match(entry, self.matcher_options)
+    return self.file_matcher.match(entry, self.matcher_options)
     
   def call_stop_function(self):
     if not self.stop_function:

@@ -3,11 +3,6 @@
 import os.path as path
 import os
 
-#import errno, os.path as path, os, stat
-#
-#from .dir_util import dir_util
-#from .file_path import file_path
-
 from bes.system.check import check
 from bes.system.log import logger
 
@@ -76,7 +71,7 @@ class bf_file_finder(object):
       return False
     if not entry.file_type_matches(options.file_type):
       return False
-    if not options.file_match_matches(entry):
+    if not options.file_matcher_matches(entry):
       return False
     return True
               
