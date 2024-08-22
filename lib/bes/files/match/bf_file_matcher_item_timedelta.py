@@ -28,3 +28,11 @@ class bf_file_matcher_item_timedelta(bf_file_matcher_item_i):
     matched = entry.modification_date_matches_delta(self._delta, self._comparison_type)
     self._log.log_d(f'{self}: match({entry.filename}) delta={self._delta} comparison_type={self._comparison_type.name} => {matched}')
     return matched
+
+  #@abstractmethod
+  def clone(self):
+    'Clone the matcher item.'
+    cloned_delta = timedelta(days = self._delta.days, 
+                             seconds = self._delta.seconds, 
+                             microseconds = self._delta.microseconds)
+    raise bf_file_matcher_item_timedelta(cloned_delta, self._comparison_type)

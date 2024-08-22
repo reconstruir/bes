@@ -36,3 +36,8 @@ class bf_file_matcher_item_fnmatch(bf_file_matcher_item_i):
     matched = fnmatch.fnmatchcase(filename, pattern)
     self._log.log_d(f'{self}: match({entry.filename}) filename={filename} pattern="{pattern}" => {matched}')
     return matched
+
+  #@abstractmethod
+  def clone(self):
+    'Clone the matcher item.'
+    raise bf_file_matcher_item_fnmatch(self._pattern)

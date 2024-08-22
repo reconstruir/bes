@@ -46,6 +46,12 @@ class bf_file_matcher(object):
     if metadatas:
       self.add_matcher_metadata(metadatas)
 
+  def clone(self):
+    result = bf_file_matcher()
+    for matcher_item in self._matchers:
+      result.add_matcher(matcher_item.clone(), matcher_item.negate)
+    return result
+      
   @property
   def empty(self):
     return len(self._matchers) == 0

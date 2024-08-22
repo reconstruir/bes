@@ -28,3 +28,8 @@ class bf_file_matcher_item_datetime(bf_file_matcher_item_i):
     matched = entry.modification_date_matches(self._date, self._comparison_type)
     self._log.log_d(f'{self}: match({entry.filename}) date={self._date} comparison_type={self._comparison_type.name} => {matched}')
     return matched
+
+  #@abstractmethod
+  def clone(self):
+    'Clone the matcher item.'
+    raise bf_file_matcher_item_datetime(self._date.replace(), self._comparison_type)

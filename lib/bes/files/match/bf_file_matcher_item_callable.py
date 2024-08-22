@@ -28,3 +28,9 @@ class bf_file_matcher_item_callable(bf_file_matcher_item_i):
     matched = self._callable(filename)
     self._log.log_d(f'{self}: match({entry.filename}, {entry.root_dir}) filename={filename} => {matched}')
     return matched
+
+  #@abstractmethod
+  def clone(self):
+    'Clone the matcher item.'
+    raise bf_file_matcher_item_callable(self._callable)
+  
