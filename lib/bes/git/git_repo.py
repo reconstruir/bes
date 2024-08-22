@@ -131,10 +131,10 @@ class git_repo(object):
     matcher.add_matcher_fnmatch('.git*', negate = True)
     matcher.add_matcher_fnmatch('*.git', negate = True)
     entries = bf_file_finder.find_with_options(self.root,
-                                          file_matcher = matcher,
-                                          file_type = file_type,
-                                          match_type = 'all',
-                                          path_type = 'relative')
+                                               file_matcher = matcher,
+                                               file_type = file_type,
+                                               match_type = 'all',
+                                               path_type = 'relative')
     return entries.filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):
