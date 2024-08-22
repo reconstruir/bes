@@ -5,7 +5,7 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 
 from bes.bcli.bcli_type_i import bcli_type_i
 
-from .bf_file_matcher_type import bf_cli_match_type
+from .bf_file_matcher_type import bf_cli_file_matcher_type
 from ..bf_path_type import bf_cli_path_type
 
 class _bf_file_matcher_options_desc(bcli_options_desc):
@@ -13,7 +13,7 @@ class _bf_file_matcher_options_desc(bcli_options_desc):
   #@abstractmethod
   def types(self):
     return [
-      bf_cli_match_type,
+      bf_cli_file_matcher_type,
       bf_cli_path_type,
     ]
 
