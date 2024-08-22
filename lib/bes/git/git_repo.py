@@ -17,8 +17,6 @@ from bes.version.software_version import software_version
 
 from ..files.bf_file_type import bf_file_type
 from ..files.find.bf_file_finder import bf_file_finder
-from ..files.find.bf_file_finder_options import bf_file_finder_options
-from ..files.match.bf_file_matcher import bf_file_matcher
 
 from .git import git
 from .git_address_util import git_address_util
@@ -126,15 +124,11 @@ class git_repo(object):
     return path.join(self.root, '.git')
 
   def find_all_files(self, file_type = bf_file_type.FILE_OR_LINK):
-    from bes.files.match.bf_file_matcher import bf_file_matcher
-    matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('.git*', negate = True)
-    matcher.add_matcher_fnmatch('*.git', negate = True)
-    entries = bf_file_finder.find_with_options(self.root,
-                                               file_matcher = matcher,
-                                               file_type = file_type,
-                                               match_type = 'all',
-                                               path_type = 'relative')
+    entries = bf_file_finder.find_fnmatch(self.root,
+                                          file_type = file_type,
+                                          match_type = 'all',
+                                          path_type = 'relative',
+                                          exclude_patterns = [ '.git*', '*.git' ])
     return entries.filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):

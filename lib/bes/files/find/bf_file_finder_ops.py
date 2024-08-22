@@ -3,14 +3,6 @@
 import os.path as path
 import os
 
-#import errno, os.path as path, os, stat
-#
-#from .dir_util import dir_util
-#from .file_match import file_match
-#from .file_path import file_path
-#from .file_util import file_util
-#from .temp_file import temp_file
-
 from bes.system.check import check
 
 from ..bf_check import bf_check
@@ -23,21 +15,21 @@ from .bf_file_finder_options import bf_file_finder_options
 from .bf_file_finder import bf_file_finder
 
 class bf_file_finder_ops(object):
-
+  
   @classmethod
   def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None,
                 follow_links = False, path_type = 'basename'):
     root_dir = bf_check.check_dir(root_dir)
     
     options = bf_file_finder_options(file_type = bf_file_type.DIR,
-                              relative = relative,
-                              min_depth = min_depth,
-                              max_depth = max_depth,
-                              follow_links = follow_links,
-                              path_type = path_type)
+                                     relative = relative,
+                                     min_depth = min_depth,
+                                     max_depth = max_depth,
+                                     follow_links = follow_links,
+                                     path_type = path_type)
     finder = bf_file_finder(options)
     return finder.find(where)
-
+  
   @classmethod
   def find_in_ancestors(clazz, start_dir, filename):
     root_dir = bf_check.check_dir(start_dir)

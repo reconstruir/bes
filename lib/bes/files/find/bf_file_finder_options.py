@@ -10,6 +10,7 @@ from ..match.bf_file_matcher_type import bf_file_matcher_type
 from ..match.bf_file_matcher_type import bf_cli_file_matcher_type
 from ..match.bf_file_matcher_options import bf_file_matcher_options
 from ..match.bf_file_matcher import bf_cli_match
+from ..match.bf_file_matcher import bf_file_matcher
 
 from ..bf_path_type import bf_path_type
 from ..bf_path_type import bf_cli_path_type
@@ -34,23 +35,23 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return '''
-               ignore_case bool          default=False
+               ignore_case bool                 default=False
                 match_type bf_file_matcher_type default=ANY
-                 path_type bf_path_type  default=ABSOLUTE
-                 file_type bf_file_type  default=FILE|LINK
-              follow_links bool          default=False
+                 path_type bf_path_type         default=ABSOLUTE
+                 file_type bf_file_type         default=FILE|LINK
+              follow_links bool                 default=False
                  max_depth int
                  min_depth int
-                  relative bool          default=True
-              file_matcher bf_file_matcher
+                  relative bool                 default=True
+              file_matcher bf_file_matcher 
                      limit int
              stop_function callable
          progress_function callable
- progress_interval_percent float         default=5.0
-          exclude_patterns list[str]
-          include_patterns list[str]
+ progress_interval_percent float                default=5.0
+  include_fnmatch_patterns list[str]
+  exclude_fnmatch_patterns list[str]
 '''
-
+  
   #@abstractmethod
   def error_class(self):
     return bf_file_finder_error
@@ -74,7 +75,7 @@ class bf_file_finder_options(bcli_options):
       raise bf_file_finder_error('min_depth needs to be >= 1.')
   
   def pass_through_keys(self):
-    return ( 'matcher_options', ) # 'exclude_patterns', 'include_patterns' )
+    return ( 'matcher_options', )
     
   def depth_in_range(self, depth):
     if self.min_depth and self.max_depth:
@@ -87,12 +88,6 @@ class bf_file_finder_options(bcli_options):
 
   @property
   def matcher_options(self):
-    return bf_file_matcher_options(ignore_case = self.ignore_case,
-                                   match_type = self.match_type,
-                                   path_type = self.path_type)
-
-  @property
-  def exclude_include_match(self):
     return bf_file_matcher_options(ignore_case = self.ignore_case,
                                    match_type = self.match_type,
                                    path_type = self.path_type)

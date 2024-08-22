@@ -11,6 +11,9 @@ from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
 from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
+from ..bf_path_type import bf_path_type
+from ..match.bf_file_matcher_type import bf_file_matcher_type
+from ..match.bf_file_matcher import bf_file_matcher
 
 from .bf_file_finder_options import bf_file_finder_options
 
@@ -58,12 +61,6 @@ class bf_file_finder(object):
     for entry in self.find_gen(where):
       result.append(entry)
     return result
-
-  @classmethod
-  def find_with_options(clazz, where, **kwargs):
-    options = bf_file_finder_options(**kwargs)
-    finder = bf_file_finder(options = options)
-    return finder.find(where).sorted_by_criteria('FILENAME')
   
   @classmethod
   def _entry_matches(clazz, entry, depth, options):
@@ -92,3 +89,37 @@ class bf_file_finder(object):
       if max_depth is not None:
         if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]
+
+  @classmethod
+  def find_with_options(clazz, where, **kwargs):
+    options = bf_file_finder_options(**kwargs)
+    finder = bf_file_finder(options = options)
+    return finder.find(where).sorted_by_criteria('FILENAME')
+  
+  @classmethod
+  def find_fnmatch(clazz, where,
+                   file_type = bf_file_type.FILE_OR_LINK,
+                   path_type = bf_path_type.BASENAME,
+                   match_type = bf_file_matcher_type.ALL,
+                   relative = True,
+                   min_depth = None,
+                   max_depth = None,
+                   follow_links = False,
+                   include_patterns = None,
+                   exclude_patterns = None):
+    matcher = None
+    if include_patterns or exclude_patterns:
+      matcher = bf_file_matcher()
+      for pattern in (include_patterns or []):
+        matcher.add_matcher_fnmatch(pattern)
+      for pattern in (exclude_patterns or []):
+        matcher.add_matcher_fnmatch(pattern, negate = True)
+    return clazz.find_with_options(where,
+                                   file_type = file_type,
+                                   path_type = path_type,
+                                   match_type = match_type,
+                                   relative = relative,
+                                   min_depth = min_depth,
+                                   max_depth = max_depth,
+                                   follow_links = follow_links,
+                                   file_matcher = matcher)
