@@ -52,7 +52,7 @@ class bf_file_matcher(object):
 
   _matcher_item = namedtuple('_matcher_item', 'matcher, negate')
   def add_matcher(self, matcher, negate = False):
-    check.check_bf_file_matcherer(matcher)
+    check.check_bf_file_matcher_item(matcher)
     check.check_bool(negate)
 
     self._matchers.append(self._matcher_item(matcher, negate))
