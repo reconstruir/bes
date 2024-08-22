@@ -28,5 +28,4 @@ class bf_file_matcher_item_metadata(bf_file_matcher_item_i):
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    raise bf_file_matcher_item_metadata(copy.deepcopy(self._metadatas))
-  
+    return bf_file_matcher_item_metadata(copy.deepcopy(self._metadatas))

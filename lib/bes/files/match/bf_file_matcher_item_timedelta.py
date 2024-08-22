@@ -35,4 +35,4 @@ class bf_file_matcher_item_timedelta(bf_file_matcher_item_i):
     cloned_delta = timedelta(days = self._delta.days, 
                              seconds = self._delta.seconds, 
                              microseconds = self._delta.microseconds)
-    raise bf_file_matcher_item_timedelta(cloned_delta, self._comparison_type)
+    return bf_file_matcher_item_timedelta(cloned_delta, self._comparison_type)

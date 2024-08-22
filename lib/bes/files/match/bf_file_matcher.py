@@ -49,7 +49,7 @@ class bf_file_matcher(object):
   def clone(self):
     result = bf_file_matcher()
     for matcher_item in self._matchers:
-      result.add_matcher(matcher_item.clone(), matcher_item.negate)
+      result.add_matcher(matcher_item.matcher.clone(), matcher_item.negate)
     return result
       
   @property

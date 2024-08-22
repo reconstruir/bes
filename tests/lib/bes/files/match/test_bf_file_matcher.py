@@ -15,7 +15,7 @@ class test_bf_file_matcher(unit_test):
     setup(matcher)
     entry = bf_entry(filename, root_dir = root_dir)
     options = bf_file_matcher_options(**options_kargs)
-    return matcher.match(entry, options = options)
+    return matcher.clone().match(entry, options = options)
 
   def test_match_fnmatch_one_matcher_any(self):
     def setup(m):

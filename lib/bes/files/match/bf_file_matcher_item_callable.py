@@ -32,5 +32,5 @@ class bf_file_matcher_item_callable(bf_file_matcher_item_i):
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    raise bf_file_matcher_item_callable(self._callable)
+    return bf_file_matcher_item_callable(self._callable)
   

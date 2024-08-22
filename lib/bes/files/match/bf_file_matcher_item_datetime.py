@@ -32,4 +32,4 @@ class bf_file_matcher_item_datetime(bf_file_matcher_item_i):
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    raise bf_file_matcher_item_datetime(self._date.replace(), self._comparison_type)
+    return bf_file_matcher_item_datetime(self._date.replace(), self._comparison_type)

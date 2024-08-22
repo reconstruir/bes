@@ -40,4 +40,4 @@ class bf_file_matcher_item_fnmatch(bf_file_matcher_item_i):
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    raise bf_file_matcher_item_fnmatch(self._pattern)
+    return bf_file_matcher_item_fnmatch(self._pattern)

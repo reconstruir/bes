@@ -30,4 +30,4 @@ class bf_file_matcher_item_attr(bf_file_matcher_item_i):
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    raise bf_file_matcher_item_attr(copy.deepcopy(self._attrs))
+    return bf_file_matcher_item_attr(copy.deepcopy(self._attrs))
