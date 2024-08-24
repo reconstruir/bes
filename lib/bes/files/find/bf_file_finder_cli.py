@@ -3,15 +3,13 @@
 
 import argparse, os, os.path as path
 
-from bes.fs.file_type import file_type
-from bes.fs.file_util import file_util
-from bes.fs.find.criteria import criteria
-from bes.fs.find.file_type_criteria import file_type_criteria
-from bes.fs.find.finder import finder
-from bes.fs.find.max_depth_criteria import max_depth_criteria
-from bes.fs.find.pattern_criteria import pattern_criteria
+from ..bf_file_type import bf_file_type
+from ..match.bf_file_matcher import bf_file_matcher
 
-class find_cli(object):
+from .bf_file_finder import bf_file_finder
+from .bf_file_finder_options import bf_file_finder_options
+
+class bf_file_finder_cli(object):
 
 #             b       block special
 #             c       character special
@@ -32,7 +30,7 @@ class find_cli(object):
                               '-t',
                               dest = 'file_type',
                               action = 'store',
-                              default = None,
+                              default = 'FILE|LINK',
                               help = 'Type if file to find [ None ]')
     self._parser.add_argument('-mindepth',
                               action = 'store',
@@ -60,37 +58,36 @@ class find_cli(object):
     
   @classmethod
   def run(clazz):
-    raise SystemExit(find_cli().main())
+    raise SystemExit(clazz().main())
 
   def main(self):
     args = self._parser.parse_args()
     files = args.files
-    for found in self._find(files, args.name, args.file_type, args.maxdepth, args.quit):
+    for found in self._find(files, args.name, args.file_type, args.mindepth, args.maxdepth, args.quit):
       if not args.quiet:
         print(found)
     return 0
 
   @classmethod
-  def _find(clazz, files, name, ft, max_depth, quit):
+  def _find(clazz, files, name, ft, min_depth, max_depth, quit):
     if ft:
-      ft = file_type.validate_file_type(ft)
+      ft = bf_file_type.parse(ft)
     for f in files:
       if path.isdir(f):
-        ff = clazz._make_finder(f, name, ft, max_depth, quit)
-        for f in ff.find():
+        ff = clazz._make_finder(f, name, ft, min_depth, max_depth, quit)
+        for f in ff.find(f):
           yield f
   
   @classmethod
-  def _make_finder(clazz, d, name, ft, max_depth, quit):
-    crit_list = []
-    if max_depth:
-      crit_list.append(max_depth_criteria(max_depth))
+  def _make_finder(clazz, d, name, ft, min_depth, max_depth, quit):
+    matcher = None
     if name:
-      if quit:
-        action = criteria.STOP
-      else:
-        action = criteria.FILTER
-      crit_list.append(pattern_criteria(name, action = action))
-    if ft:
-      crit_list.append(file_type_criteria(ft))
-    return finder(d, criteria = crit_list)
+      matcher = bf_file_matcher()
+      matcher.add_matcher_fnmatch(name)
+    options = bf_file_finder_options(min_depth = min_depth,
+                                     max_depth = max_depth,
+                                     file_type = ft,
+                                     file_matcher = matcher,
+                                     path_type = 'basename')
+    finder = bf_file_finder(options = options)
+    return finder
