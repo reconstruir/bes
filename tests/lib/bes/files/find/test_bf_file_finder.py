@@ -544,6 +544,16 @@ class test_bf_file_finder(unit_test):
     with self.assertRaises(OSError) as context:
       self._find(content, ignore_broken_links = False)
       self.assertTrue( 'broken symlink' in content.exception.message.lower() ) 
-    
+
+  def test_find_with_stop_after(self):
+    content = [
+      'file a/kiwi.txt',
+      'file b/kiwi.txt',
+      'file c/kiwi.txt',
+    ]
+    self.assert_filename_list_equal( [
+      'a/kiwi.txt',
+    ], self._find(content, stop_after = 1).sorted_filenames )
+      
 if __name__ == '__main__':
   unit_test.main()

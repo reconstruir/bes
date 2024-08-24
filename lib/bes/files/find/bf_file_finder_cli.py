@@ -81,13 +81,17 @@ class bf_file_finder_cli(object):
   @classmethod
   def _make_finder(clazz, d, name, ft, min_depth, max_depth, quit):
     matcher = None
+    stop_after = None
     if name:
       matcher = bf_file_matcher()
       matcher.add_matcher_fnmatch(name)
+      if quit:
+        stop_after = 1
     options = bf_file_finder_options(min_depth = min_depth,
                                      max_depth = max_depth,
                                      file_type = ft,
                                      file_matcher = matcher,
-                                     path_type = 'basename')
+                                     path_type = 'basename',
+                                     stop_after = stop_after)
     finder = bf_file_finder(options = options)
     return finder

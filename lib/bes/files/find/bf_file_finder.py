@@ -35,10 +35,14 @@ class bf_file_finder(object):
     where_sep_count = where.count(os.sep)
 
     self._log.log_d(f'find_gen: where={where} options={self._options}')
-    
+
+    count = 0
+    done = False
     for root, dirs, files in self.walk_with_depth(where,
                                                   max_depth = self._options.max_depth,
                                                   follow_links = self._options.follow_links):
+      if done:
+        break
       to_check = []
       if self._options.file_type.mask_matches(bf_file_type.ANY_FILE):
         to_check += files
@@ -48,6 +52,8 @@ class bf_file_finder(object):
         links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
         to_check += links
       for name in to_check:
+        if done:
+          break
         abs_filename = path.normpath(path.join(root, name))
         entry = bf_entry(abs_filename, root_dir = where)
         depth = abs_filename.count(os.sep) - where_sep_count
@@ -55,7 +61,10 @@ class bf_file_finder(object):
           if self._options.relative:
             relative_filename = bf_filename.remove_head(abs_filename, where)
             entry = bf_entry(relative_filename, root_dir = root)
+          count += 1
           yield entry
+          if self._options.stop_after == count:
+            done = True
 
   def find(self, where):
     result = bf_entry_list()

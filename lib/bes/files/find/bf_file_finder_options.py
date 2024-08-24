@@ -49,8 +49,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
              stop_function callable
          progress_function callable
  progress_interval_percent float                default=5.0
-  include_fnmatch_patterns list[str]
-  exclude_fnmatch_patterns list[str]
+                stop_after int
 '''
   
   #@abstractmethod
