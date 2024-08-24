@@ -89,7 +89,8 @@ class bf_file_finder_cli(object):
         stop_after = 1
         
     def _cb(entry):
-      print(entry.filename, flush = True)
+      if not args.quiet:
+        print(entry.filename, flush = True)
       
     options = bf_file_finder_options(min_depth = args.min_depth,
                                      max_depth = args.max_depth,
