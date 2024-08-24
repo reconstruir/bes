@@ -554,6 +554,24 @@ class test_bf_file_finder(unit_test):
     self.assert_filename_list_equal( [
       'a/kiwi.txt',
     ], self._find(content, stop_after = 1).sorted_filenames )
-      
+
+  def test_find_with_found_callback(self):
+    content = [
+      'file a/kiwi.txt',
+      'file b/kiwi.txt',
+      'file c/kiwi.txt',
+    ]
+    found = set()
+    def _cb(entry):
+      found.add(entry.filename)
+    expected = [
+      'a/kiwi.txt',
+      'b/kiwi.txt',
+      'c/kiwi.txt',
+    ]
+    self.assert_filename_list_equal(expected,
+                                    self._find(content, found_callback = _cb).sorted_filenames )
+    self.assertEqual( set(expected), found )
+    
 if __name__ == '__main__':
   unit_test.main()

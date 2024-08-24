@@ -34,15 +34,17 @@ class bf_file_finder_cli(object):
                               help = 'Type if file to find [ None ]')
     self._parser.add_argument('-mindepth',
                               action = 'store',
+                              dest = 'min_depth',
                               default = None,
                               type = int,
                               help = 'Min depth [ None ]')
     self._parser.add_argument('-maxdepth',
                               action = 'store',
+                              dest = 'max_depth',
                               default = None,
                               type = int,
                               help = 'Max depth [ None ]')
-    self._parser.add_argument('--quiet',
+    self._parser.add_argument('-quiet',
                               '-q',
                               action = 'store_true',
                               default = False,
@@ -62,36 +64,39 @@ class bf_file_finder_cli(object):
 
   def main(self):
     args = self._parser.parse_args()
-    files = args.files
-    for found in self._find(files, args.name, args.file_type, args.mindepth, args.maxdepth, args.quit):
-      if not args.quiet:
-        print(found)
+    for found in self._find(args):
+      pass
     return 0
 
   @classmethod
-  def _find(clazz, files, name, ft, min_depth, max_depth, quit):
-    if ft:
-      ft = bf_file_type.parse(ft)
-    for f in files:
+  def _find(clazz, args):
+    if args.file_type:
+      args.file_type = bf_file_type.parse(args.file_type)
+    for f in args.files:
       if path.isdir(f):
-        ff = clazz._make_finder(f, name, ft, min_depth, max_depth, quit)
+        ff = clazz._make_finder(f, args)
         for f in ff.find(f):
           yield f
   
   @classmethod
-  def _make_finder(clazz, d, name, ft, min_depth, max_depth, quit):
+  def _make_finder(clazz, d, args):
     matcher = None
     stop_after = None
-    if name:
+    if args.name:
       matcher = bf_file_matcher()
-      matcher.add_matcher_fnmatch(name)
-      if quit:
+      matcher.add_matcher_fnmatch(args.name)
+      if args.quit:
         stop_after = 1
-    options = bf_file_finder_options(min_depth = min_depth,
-                                     max_depth = max_depth,
-                                     file_type = ft,
+        
+    def _cb(entry):
+      print(entry.filename, flush = True)
+      
+    options = bf_file_finder_options(min_depth = args.min_depth,
+                                     max_depth = args.max_depth,
+                                     file_type = args.file_type,
                                      file_matcher = matcher,
                                      path_type = 'basename',
-                                     stop_after = stop_after)
+                                     stop_after = stop_after,
+                                     found_callback = _cb)
     finder = bf_file_finder(options = options)
     return finder

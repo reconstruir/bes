@@ -50,6 +50,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
          progress_function callable
  progress_interval_percent float                default=5.0
                 stop_after int
+            found_callback callable
 '''
   
   #@abstractmethod

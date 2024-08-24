@@ -62,6 +62,8 @@ class bf_file_finder(object):
             relative_filename = bf_filename.remove_head(abs_filename, where)
             entry = bf_entry(relative_filename, root_dir = root)
           count += 1
+          if self._options.found_callback:
+            self._options.found_callback(entry)
           yield entry
           if self._options.stop_after == count:
             done = True
