@@ -66,7 +66,9 @@ class config_env(object):
 
   @classmethod
   def _find_config_files_in_root(clazz, d):
-    return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 6)
+    if os_env_var('BESTEST_SKIP_ENV').is_set:
+      return []
+    return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 3)
 
   @classmethod
   def _find_config_files_in_env(clazz):
