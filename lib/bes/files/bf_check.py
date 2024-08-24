@@ -4,17 +4,23 @@ import os
 from os import path
 
 from ..system.check import check
+from ..system.env_var import os_env_var
 
 from .bf_symlink import bf_symlink
 from .bf_permission_error import bf_permission_error
 
 class bf_check(object):
 
+  #_DISABLED = os_env_var('BES_BF_CHECK_DISABLE').is_set
+  
   @classmethod
   def check_file(clazz, filename, exception_class = None, allow_none = False):
     check.check_string(filename, allow_none = allow_none)
     check.check_class(exception_class, allow_none = True)
 
+    #if clazz._DISABLED:
+    #  return path.normpath(path.abspath(filename))
+    
     exception_class = exception_class or IOError
     if filename:
       filename = path.expanduser(filename)
@@ -33,6 +39,9 @@ class bf_check(object):
     check.check_string(dirname, allow_none = allow_none)
     check.check_class(exception_class, allow_none = True)
 
+    #if clazz._DISABLED:
+    #  return path.normpath(path.abspath(dirname))
+    
     exception_class = exception_class or IOError
     if dirname:
       dirname = path.expanduser(dirname)
@@ -73,6 +82,9 @@ class bf_check(object):
     check.check_string(ford, allow_none = allow_none)
     check.check_class(exception_class, allow_none = True)
 
+    #if clazz._DISABLED:
+    #  return path.normpath(path.abspath(ford))
+    
     exception_class = exception_class or IOError
     if ford:
       ford = path.expanduser(ford)

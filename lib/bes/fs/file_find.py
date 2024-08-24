@@ -6,6 +6,13 @@ from .dir_util import dir_util
 from .file_match import file_match
 from .file_path import file_path
 from .file_util import file_util
+from ..common.object_util import object_util
+
+from ..files.find.bf_file_finder import bf_file_finder
+from ..files.find.bf_file_finder_options import bf_file_finder_options
+from ..files.match.bf_file_matcher import bf_file_matcher
+from ..files.match.bf_file_matcher_type import bf_file_matcher_type
+from ..files.bf_path_type import bf_path_type
 
 class file_find(object):
 
@@ -21,109 +28,48 @@ class file_find(object):
            max_depth = None, file_type = FILE, follow_links = False,
            match_patterns = None, match_type = None, match_basename = True,
            match_function = None, match_re = None):
-    
-    if max_depth and min_depth and not (max_depth >= min_depth):
-      raise RuntimeError('max_depth needs to be >= min_depth.')
-
-    if min_depth and min_depth < 1:
-      raise RuntimeError('min_depth needs to be >= 1.')
-
-    def _in_range(depth, min_depth, max_depth):
-      if min_depth and max_depth:
-        return depth >= min_depth and depth <= max_depth
-      elif min_depth:
-        return depth >= min_depth
-      elif max_depth:
-        return depth <= max_depth
-      else:
-        return True
-      
-    result = []
-
-    root_dir = path.normpath(root_dir)
-    root_dir_count = root_dir.count(os.sep)
-
-    for root, dirs, files in clazz.walk_with_depth(root_dir, max_depth = max_depth, follow_links = follow_links):
-      to_check = []
-      if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
-        to_check += files
-      if clazz._want_file_type(file_type, clazz.DIR):
-        to_check += dirs
-      else:
-        links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
-        to_check += links
-      for name in to_check:
-        f = path.normpath(path.join(root, name))
-        depth = f.count(os.sep) - root_dir_count
-        if _in_range(depth, min_depth, max_depth):
-          if clazz._match_file_type(f, file_type):
-            if relative:
-              result.append(file_util.remove_head(f, root_dir))
-            else:
-              result.append(f)
-              
+    if match_re and not isinstance(match_re, ( list, tuple, set )):
+      match_re = object_util.listify(match_re)
+    if match_patterns and not isinstance(match_patterns, ( list, tuple, set )):
+      match_patterns = object_util.listify(match_patterns)
+    matcher = None
+    if match_patterns or match_function or match_re:
+      matcher = bf_file_matcher()
     if match_patterns:
-      result = file_match.match_fnmatch(result,
-                                        match_patterns,
-                                        match_type = match_type,
-                                        basename = match_basename)
-      
-    if match_function:
-      result = file_match.match_function(result,
-                                         match_function,
-                                         match_type = match_type,
-                                         basename = match_basename)
-
+      for pattern in match_patterns:
+        matcher.add_matcher_fnmatch(pattern)
     if match_re:
-      result = file_match.match_re(result,
-                                   match_re,
-                                   match_type = match_type,
-                                   basename = match_basename)
-      
-    return sorted(result)
+      for expression in match_re:
+        matcher.add_matcher_re(expression)
+    if match_function:
+      matcher.add_matcher_callable(match_function)
+    assert isinstance(match_basename, bool)
+    if match_basename:
+      path_type = bf_path_type.RELATIVE
+    else:
+      path_type = bf_path_type.ABSOLUTE
 
-  #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
-  @classmethod
-  def walk_with_depth(clazz, root_dir, max_depth = None, follow_links = False):
-    root_dir = root_dir.rstrip(path.sep)
-    if not path.isdir(root_dir):
-      raise RuntimeError('not a directory: %s' % (root_dir))
-    num_sep = root_dir.count(path.sep)
-    for root, dirs, files in os.walk(root_dir, topdown = True, followlinks = follow_links):
-      #print(" root: %s" % (root))
-      #print(" dirs: %s" % (' '.join(dirs)))
-      #print("files: %s" % (' '.join(files)))
-      #print("")
-      yield root, dirs, files
-      num_sep_this = root.count(path.sep)
-      if max_depth is not None:
-        if num_sep + max_depth - 1 <= num_sep_this:
-          del dirs[:]
+    match_type_map = {
+      file_match.ALL: bf_file_matcher_type.ALL,
+      file_match.NONE: bf_file_matcher_type.NONE,
+      file_match.ANY: bf_file_matcher_type.ANY,
+    }
+    if match_type:
+      match_type = match_type_map[match_type]
+    else:
+      match_type = bf_file_matcher_type.ANY
+    entries = bf_file_finder.find_with_options(root_dir,
+                                               relative = relative,
+                                               min_depth = min_depth,
+                                               max_depth = max_depth,
+                                               file_type = file_type,
+                                               follow_links = follow_links,
+                                               path_type = path_type,
+                                               file_matcher = matcher,
+                                               match_type = match_type)
 
-  @classmethod
-  def _want_file_type(clazz, file_type, mask):
-    return (file_type & mask) != 0
+    return sorted(entries.filenames())
 
-  @classmethod
-  def _match_file_type(clazz, filename, file_type):
-    want_file = clazz._want_file_type(file_type, clazz.FILE)
-    want_dir = clazz._want_file_type(file_type, clazz.DIR)
-    want_link = clazz._want_file_type(file_type, clazz.LINK)
-    want_device = clazz._want_file_type(file_type, clazz.DEVICE)
-    try:
-      st = os.lstat(filename)
-    except OSError as ex:
-      if ex.errno == errno.EBADF:
-        # Some devices on macos result in bad access when trying to stat so ignore them
-        return False
-      else:
-        raise
-    is_file = stat.S_ISREG(st.st_mode)
-    is_dir = stat.S_ISDIR(st.st_mode)
-    is_device = stat.S_ISBLK(st.st_mode) or stat.S_ISCHR(st.st_mode)
-    is_link = stat.S_ISLNK(st.st_mode)
-    return (want_file and is_file) or (want_dir and is_dir) or (want_link and is_link) or (want_device and is_device)
-    
   @classmethod
   def find_function(clazz, root_dir, function,
                     relative = True, min_depth = None, max_depth = None,

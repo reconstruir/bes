@@ -10,11 +10,12 @@ from bes.fs.checksum import checksum
 from bes.fs.checksum_set import checksum_set
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_checksum_db import file_checksum_db
-from bes.fs.file_find import file_find
 from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
+
+from ..files.find.bf_file_finder import bf_file_finder
 
 from .vfs_base import vfs_base
 from .vfs_error import vfs_error
@@ -86,7 +87,7 @@ class vfs_local(vfs_base):
     setattr(result, '_is_file', False)
 
     num_added = 0
-    for root, dirs, files in file_find.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
+    for root, dirs, files in bf_file_finder.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
       if root == local_dir_path:
         rel = os.sep
       else:

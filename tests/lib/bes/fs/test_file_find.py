@@ -243,14 +243,14 @@ class test_file_find(unit_test):
       'file cheese/cheddar.cheese',
     ])
     self.assertEqual( [
-    ], file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = True) )
+    ], file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = False) )
 
     self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ]), file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = False) )
+    ]), file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = True) )
 
   def test_file_find_with_function(self):
     self.maxDiff = None
@@ -299,12 +299,12 @@ class test_file_find(unit_test):
       'file cheese/cheddar.cheese',
     ])
     self.assertEqual( [
-    ], file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = True) )
+    ], file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = False) )
     
     self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
-    ]), file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = False) )
+    ]), file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = True) )
 
   def test_file_find_with_re(self):
     self.maxDiff = None
@@ -368,14 +368,14 @@ class test_file_find(unit_test):
       'file cheese/cheddar.cheese',
     ])
     self.assertEqual( [
-    ], file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = True) )
+    ], file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = False) )
 
     self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ]), file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = False) )
+    ]), file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = True) )
     
 if __name__ == '__main__':
   unit_test.main()
