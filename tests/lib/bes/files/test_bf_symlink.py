@@ -60,7 +60,6 @@ class test_bf_symlink(unit_test):
     with self.assertRaises(bf_error) as ctx:
       bf_symlink.resolve(tmp1)
     self.assertTrue( 'Cyclic error' in str(ctx.exception) )
-      
     
 if __name__ == '__main__':
   unit_test.main()

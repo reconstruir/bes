@@ -514,6 +514,36 @@ class test_bf_file_finder(unit_test):
       'a/b/c/foo.txt',
       'd/e/bar.txt',
     ], self._find(content, file_matcher = matcher, match_type = 'all', path_type = 'relative').sorted_filenames )
- 
+
+  def test_find_with_broken_symlink(self):
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'link cheese/cheddar.cheese "/foo/notthere"',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content).sorted_filenames )
+
+  def test_find_with_broken_symlink_without_ignore_broken_links(self):
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'link cheese/cheddar.cheese "/foo/notthere"',
+    ]
+    with self.assertRaises(OSError) as context:
+      self._find(content, ignore_broken_links = False)
+      self.assertTrue( 'broken symlink' in content.exception.message.lower() ) 
+    
 if __name__ == '__main__':
   unit_test.main()

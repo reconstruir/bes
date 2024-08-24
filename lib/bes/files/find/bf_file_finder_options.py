@@ -40,6 +40,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
                  path_type bf_path_type         default=ABSOLUTE
                  file_type bf_file_type         default=FILE|LINK
               follow_links bool                 default=False
+       ignore_broken_links bool                 default=True
                  max_depth int
                  min_depth int
                   relative bool                 default=True

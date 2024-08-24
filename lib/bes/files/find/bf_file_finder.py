@@ -12,6 +12,7 @@ from ..bf_entry_list import bf_entry_list
 from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
 from ..bf_path_type import bf_path_type
+from ..bf_symlink import bf_symlink
 from ..match.bf_file_matcher_type import bf_file_matcher_type
 from ..match.bf_file_matcher import bf_file_matcher
 
@@ -65,6 +66,8 @@ class bf_file_finder(object):
   @classmethod
   def _entry_matches(clazz, entry, depth, options):
     if not options.depth_in_range(depth):
+      return False
+    if options.ignore_broken_links and bf_symlink.is_broken(entry.filename):
       return False
     if not entry.file_type_matches(options.file_type):
       return False
