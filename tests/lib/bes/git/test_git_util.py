@@ -10,6 +10,8 @@ from bes.git.git_commit_info import git_commit_info
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 
+from bes.files.find.bf_file_finder import bf_file_finder
+
 class test_git_util(unit_test):
 
   @git_temp_home_func()
@@ -75,5 +77,25 @@ class test_git_util(unit_test):
     r2.pull()
     self.assertEqual( '668', r2.greatest_local_tag().name )
 
+  @git_temp_home_func()
+  def test_find_git_dirs(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: this is kiwi.txt
+add commit2 commit2
+  lemon.txt: this is lemon.txt
+'''
+    tmp_dir = path.join(self.make_temp_dir(), 'repos')
+    
+    r1 = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'r1-', where = tmp_dir)
+    r2 = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'r2-', where = tmp_dir)
+    r3 = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'r3-', where = tmp_dir)
+
+    self.assertEqual( [
+      r1.root,
+      r2.root,
+      r3.root,
+    ], git_util.find_git_dirs(tmp_dir) )
+    
 if __name__ == '__main__':
   unit_test.main()

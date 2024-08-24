@@ -32,16 +32,17 @@ class git_temp_repo(object):
   '''
   
   def __init__(self, remote = True, content = None, debug = False,
-               prefix = None, commit_message = None, config = None):
+               prefix = None, commit_message = None, config = None,
+               where = None):
     self._debug = debug
     if remote:
-      self._init_remote(content, prefix, commit_message = commit_message)
+      self._init_remote(content, prefix, commit_message = commit_message, where = where)
     else:
-      self._init_local(content, prefix, commit_message = commit_message)
+      self._init_local(content, prefix, commit_message = commit_message, where = None)
     if config:
       self.apply_config_text(config)
 
-  def _init_remote(self, content, prefix, commit_message = None):
+  def _init_remote(self, content, prefix, commit_message = None, where = None):
     if prefix:
       remote_prefix = '{}remote-'.format(prefix)
     else:
@@ -49,12 +50,13 @@ class git_temp_repo(object):
     self._remote_repo = self._make_temp_repo(init_args = [ '--bare', '--shared' ],
                                              debug = self._debug,
                                              prefix = remote_prefix,
-                                             commit_message = commit_message)
+                                             commit_message = commit_message,
+                                             where = None)
     if prefix:
       local_prefix = '{}local-'.format(prefix)
     else:
       local_prefix = 'local-'
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = local_prefix)
+    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = local_prefix, dir = where)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = self._remote_repo.root)
@@ -71,8 +73,8 @@ class git_temp_repo(object):
   def repo(self):
     return self._local_repo
     
-  def _init_local(self, content, prefix, commit_message = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix)
+  def _init_local(self, content, prefix, commit_message = None, where = None):
+    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix, dir = where)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = None)
@@ -91,8 +93,8 @@ class git_temp_repo(object):
         raise git_temp_repo_error('{} already has method \"{}\"'.format(self, method_name))
       setattr(self, method_name, _method_caller(target, method_name))
       
-  def make_temp_cloned_repo(self, prefix = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix)
+  def make_temp_cloned_repo(self, prefix = None, where = None):
+    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix, dir = where)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = self._remote_repo.root)
@@ -101,8 +103,10 @@ class git_temp_repo(object):
       
   @classmethod
   def _make_temp_repo(clazz, init_args = None, content = None, debug = False,
-                      prefix = None, commit_message = None, suffix = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix, suffix = suffix)
+                      prefix = None, commit_message = None, suffix = None,
+                      where = None):
+    tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix,
+                                      suffix = suffix, dir = where)
     if debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = None)
