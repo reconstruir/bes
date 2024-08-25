@@ -572,6 +572,74 @@ class test_bf_file_finder(unit_test):
     self.assert_filename_list_equal(expected,
                                     self._find(content, found_callback = _cb).sorted_filenames )
     self.assertEqual( set(expected), found )
+
+  def test_find_with_multiple_dirs(self):
+    content = [
+      'file a/kiwi.txt',
+      'file b/kiwi.txt',
+      'file c/kiwi.txt',
+    ]
+    found = set()
+    def _cb(entry):
+      found.add(entry.filename)
+    expected = [
+      'a/kiwi.txt',
+      'b/kiwi.txt',
+      'c/kiwi.txt',
+    ]
+    self.assert_filename_list_equal(expected,
+                                    self._find(content, found_callback = _cb).sorted_filenames )
+    self.assertEqual( set(expected), found )
+
+  def test_find_with_found_callback(self):
+    content = [
+      'file 1/a/fruit/kiwi.fruit',
+      'file 1/a/fruit/lemon.fruit',
+      'file 1/a/fruit/strawberry.fruit',
+      'file 1/a/fruit/blueberry.fruit',
+      'file 1/a/cheese/brie.cheese',
+      'file 1/a/cheese/cheddar.cheese',
+      'file 2/b/fruit/kiwi.fruit',
+      'file 2/b/fruit/lemon.fruit',
+      'file 2/b/fruit/strawberry.fruit',
+      'file 2/b/fruit/blueberry.fruit',
+      'file 2/b/cheese/brie.cheese',
+      'file 2/b/cheese/cheddar.cheese',
+      'file 3/c/fruit/kiwi.fruit',
+      'file 3/c/fruit/lemon.fruit',
+      'file 3/c/fruit/strawberry.fruit',
+      'file 3/c/fruit/blueberry.fruit',
+      'file 3/c/cheese/brie.cheese',
+      'file 3/c/cheese/cheddar.cheese',
+    ]
+    tmp_dir = self._make_temp_content(content)
+    f = bf_file_finder()
+    entries = f.find([
+      path.join(tmp_dir, '1'),
+      path.join(tmp_dir, '2'),
+      path.join(tmp_dir, '3'),
+    ])
+    actual = sorted(entries.filenames())
+    self.assert_filename_list_equal( [
+      'a/cheese/brie.cheese',
+      'a/cheese/cheddar.cheese',
+      'a/fruit/blueberry.fruit',
+      'a/fruit/kiwi.fruit',
+      'a/fruit/lemon.fruit',
+      'a/fruit/strawberry.fruit',
+      'b/cheese/brie.cheese',
+      'b/cheese/cheddar.cheese',
+      'b/fruit/blueberry.fruit',
+      'b/fruit/kiwi.fruit',
+      'b/fruit/lemon.fruit',
+      'b/fruit/strawberry.fruit',
+      'c/cheese/brie.cheese',
+      'c/cheese/cheddar.cheese',
+      'c/fruit/blueberry.fruit',
+      'c/fruit/kiwi.fruit',
+      'c/fruit/lemon.fruit',
+      'c/fruit/strawberry.fruit',
+    ], actual )
     
 if __name__ == '__main__':
   unit_test.main()

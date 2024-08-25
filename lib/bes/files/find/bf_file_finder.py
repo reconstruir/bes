@@ -5,6 +5,7 @@ import os
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.common.object_util import object_util
 
 from ..bf_check import bf_check
 from ..bf_entry import bf_entry
@@ -28,6 +29,12 @@ class bf_file_finder(object):
     self._options = options or bf_file_finder_options()
 
   def find_gen(self, where):
+    where = bf_check.check_dir_seq(object_util.listify(where))
+    for next_where in where:
+      for entry in self._find_gen_one_dir(next_where):
+        yield entry
+
+  def _find_gen_one_dir(self, where):
     where = bf_check.check_dir(where)
     where = path.normpath(where)
     result = bf_entry_list()
@@ -67,7 +74,7 @@ class bf_file_finder(object):
           yield entry
           if self._options.stop_after == count:
             done = True
-
+            
   def find(self, where):
     result = bf_entry_list()
     for entry in self.find_gen(where):
