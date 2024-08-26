@@ -54,6 +54,7 @@ class bf_mime(object):
   _MEDIA_TYPE_PATTERNS = OrderedDict( [
     ( 'video', 'video/*' ),
     ( 'image', 'image/*' ),
+    ( 'audio', 'audio/*' ),
     ( 'document', 'application/pdf' ),
   ])
 

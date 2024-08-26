@@ -58,6 +58,57 @@ stateDiagram-v2
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
+    #print(bf_file_ops.read(tmp, codec = 'utf-8'), flush = True)
+    #return
+    self.assertEqual( True, bf_file_ops.read(tmp, codec = 'utf-8').startswith('<svg id="mermaid-svg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )
+    
+  def test_parser_make_mmd(self):
+    tmp = self.make_temp_file(suffix = '.mmd')
+    args = [
+      'btl',
+      'parser_make_mmd',
+      self._simple_parser_desc_filename,
+      tmp,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+
+    #print(bf_file_ops.read(tmp, codec = 'utf-8'), flush = True)
+    #return
+    
+    self.assert_text_file_equal_fuzzy( '''
+stateDiagram-v2
+  direction LR
+
+  %% s_start state
+  [*] --> s_start
+  s_start --> s_done: t_done
+  s_start --> s_start: t_line_break
+  s_start --> s_start: t_space
+  s_start --> s_expecting_delimiter: t_key
+  s_start --> s_start: t_comment
+  s_start --> s_done: default
+
+  %% s_expecting_delimiter state
+  s_expecting_delimiter --> s_expecting_value: t_key_value_delimiter
+  s_expecting_delimiter --> s_expecting_delimiter: t_space
+  s_expecting_delimiter --> s_done: default
+
+  %% s_expecting_value state
+  s_expecting_value --> s_after_value: t_value
+  s_expecting_value --> s_expecting_value: t_space
+  s_expecting_value --> s_done: default
+
+  %% s_after_value state
+  s_after_value --> s_done: t_done
+  s_after_value --> s_after_value: t_space
+  s_after_value --> s_after_value: t_comment
+  s_after_value --> s_start: t_line_break
+  s_after_value --> s_done: default
+
+  %% s_done state
+  s_done --> [*]
+  ''', tmp )
 
   def test_parser_make_diagram(self):
     tmp = self.make_temp_file(suffix = '.svg')
@@ -70,7 +121,9 @@ stateDiagram-v2
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-
+    #print(bf_file_ops.read(tmp, codec = 'utf-8'), flush = True)
+    #return
+    self.assertEqual( True, bf_file_ops.read(tmp, codec = 'utf-8').startswith('<svg id="mermaid-svg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )
     
 if __name__ == '__main__':
   program_unit_test.main()
