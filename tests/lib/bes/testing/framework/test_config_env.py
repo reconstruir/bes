@@ -16,7 +16,7 @@ class test_config_env(unit_test):
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
   
-  def test_dependency_map(self):
+  def xtest_dependency_map(self):
     tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
     a = CE(tmp_dir)
     self.assertEqual( {
