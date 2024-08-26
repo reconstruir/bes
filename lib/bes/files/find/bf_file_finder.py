@@ -118,16 +118,16 @@ class bf_file_finder(object):
     return finder.find(where).sorted_by_criteria('FILENAME')
   
   @classmethod
-  def find_fnmatch(clazz, where,
-                   file_type = bf_file_type.FILE_OR_LINK,
-                   path_type = bf_path_type.BASENAME,
-                   match_type = bf_file_matcher_type.ALL,
-                   relative = True,
-                   min_depth = None,
-                   max_depth = None,
-                   follow_links = False,
-                   include_patterns = None,
-                   exclude_patterns = None):
+  def find_with_fnmatch(clazz, where,
+                        file_type = bf_file_type.FILE_OR_LINK,
+                        path_type = bf_path_type.BASENAME,
+                        match_type = bf_file_matcher_type.ALL,
+                        relative = True,
+                        min_depth = None,
+                        max_depth = None,
+                        follow_links = False,
+                        include_patterns = None,
+                        exclude_patterns = None):
     matcher = None
     if include_patterns or exclude_patterns:
       matcher = bf_file_matcher()

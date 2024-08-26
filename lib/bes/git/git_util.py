@@ -10,15 +10,14 @@ from bes.common.string_util import string_util
 from bes.common.object_util import object_util
 from bes.fs.file_type import file_type
 from bes.fs.file_util import file_util
-from bes.fs.find.criteria import criteria
-from bes.fs.find.file_type_criteria import file_type_criteria
-from bes.fs.find.finder import finder
-from bes.fs.find.max_depth_criteria import max_depth_criteria
-from bes.fs.find.pattern_criteria import pattern_criteria
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.script.blurber import blurber
+
+from ..files.find.bf_file_finder import bf_file_finder
+from ..files.find.bf_file_finder_options import bf_file_finder_options
+from ..files.match.bf_file_matcher import bf_file_matcher
 
 from .git import git
 from .git_repo import git_repo
@@ -34,38 +33,17 @@ class git_util(object):
   @classmethod
   def find_git_dirs(clazz, dirs):
     'Return the first .git dir found in any dir in dirs.'
-    dirs = object_util.listify(dirs)
-    dirs = [ d for d in dirs if path.isdir(d) ]
-    possible = []
-    result = clazz._find(dirs, '.git', None, None, False)
+    matcher = bf_file_matcher()
+    matcher.add_matcher_fnmatch('.git')
+    options = bf_file_finder_options(file_type = 'dir',
+                                     file_matcher = matcher,
+                                     path_type = 'basename',
+                                     relative = False)
+    finder = bf_file_finder(options = options)
+    result = finder.find(dirs).filenames()
     result = [ file_util.remove_tail(d, '.git') for d in result ]
     return sorted(result)
-
-  @classmethod
-  def _find(clazz, files, name, ft, max_depth, quit):
-    if ft:
-      ft = file_type.validate_file_type(ft)
-    for f in files:
-      if path.isdir(f):
-        ff = clazz._make_finder(f, name, ft, max_depth, quit)
-        for f in ff.find():
-          yield f
-
-  @classmethod
-  def _make_finder(clazz, d, name, ft, max_depth, quit):
-    crit_list = []
-    if max_depth:
-      crit_list.append(max_depth_criteria(max_depth))
-    if name:
-      if quit:
-        action = criteria.STOP
-      else:
-        action = criteria.FILTER
-      crit_list.append(pattern_criteria(name, action = action))
-    if ft:
-      crit_list.append(file_type_criteria(ft))
-    return finder(d, criteria = crit_list)
-
+  
   @classmethod
   def is_long_hash(clazz, h):
     'Return True if h is a long hash.'

@@ -124,11 +124,11 @@ class git_repo(object):
     return path.join(self.root, '.git')
 
   def find_all_files(self, file_type = bf_file_type.FILE_OR_LINK):
-    entries = bf_file_finder.find_fnmatch(self.root,
-                                          file_type = file_type,
-                                          match_type = 'all',
-                                          path_type = 'relative',
-                                          exclude_patterns = [ '.git*', '*.git' ])
+    entries = bf_file_finder.find_with_fnmatch(self.root,
+                                               file_type = file_type,
+                                               match_type = 'all',
+                                               path_type = 'relative',
+                                               exclude_patterns = [ '.git*', '*.git' ])
     return entries.filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):

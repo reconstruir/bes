@@ -17,10 +17,6 @@ oct 13
 oct 15
 - fix Archive.py to be more abs
 
-oct 16
-- convert bes.fs.file_find to use bes.fs.find.finder and cleanup accordingly
-- add tests for bes.fs.find
-
 oct 27
 - gpush doesnt output what it pushes unlike gpull
 
