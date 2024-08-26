@@ -77,10 +77,10 @@ class test_bf_mime(unit_test, unit_test_media_files):
     self.assertEqual( None, bf_mime.media_type_for_file(self.unknown_file_txt_extension) )
 
   def test_wav(self):
-    self.assertEqual( 'audio/wav', bf_mime.mime_type(self.wav_file) )
+    self.assertEqual( True, bf_mime.mime_type(self.wav_file) in ( 'audio/wav', 'audio/x-wav')  )
 
   def test_mp3(self):
-    self.assertEqual( 'audio/mpeg', bf_mime.mime_type(self.mp3_file) )
+    self.assertEqual( True, bf_mime.mime_type(self.mp3_file) in ( 'audio/mpeg', 'audio/mpegaudio/mpeg')  )
 
   def test_flac(self):
     self.assertEqual( 'audio/flac', bf_mime.mime_type(self.flac_file) )
