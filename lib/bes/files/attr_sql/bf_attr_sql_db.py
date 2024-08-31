@@ -48,3 +48,11 @@ CREATE INDEX idx_attribute_name_v1 ON file_attributes_v1(attribute_name);
 
     self._db.execute('REPLACE INTO file_attributes_v1(hash_key, attribute_name, attribute_value) values(?, ?, ?)',
                      ( hash_key, attribute_name, attribute_value ))
+
+  def has_attribute(self, hash_key, attribute_name):
+    check.check_string(hash_key)
+    check.check_string(attribute_name)
+
+    row = self._db.execute('SELECT COUNT(*) FROM file_attributes_v1 where hash_key=? AND attribute_name=?',
+                           ( hash_key, attribute_name ))
+    return bool(row)
