@@ -103,13 +103,13 @@ create table hash_to_filename(
     except Exception as ex:
       self.log.log_e('_sqlite_write: Caught exception: {}'.format(str(ex)))
       self.log.log_exception(ex)
-      raise
       try:
         self._db.rollback()
+        self.log.log_i('{}: Rollback successful'.format(label))
       except Exception as sqlite_ex:
         self.log.log_e('{}: CAUGHT EXCEPTION ROLLING BACK: {}'.format(label, str(sqlite_ex)))
       raise ex
-    
+  
   def _ensure_table(self, table_name):
     'Ensure that a table exists.  Does not commit.'
     if self._db.has_table(table_name):

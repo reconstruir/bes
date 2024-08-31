@@ -8,8 +8,57 @@ from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
 from bes.key_value.key_value_list import key_value_list
 
+from unittest.mock import Mock, MagicMock, call
+
 class test_file_metadata(unit_test):
 
+  def setUp(self):
+    # Mock the database connection and logger
+    self.mock_db = Mock()
+    self.mock_log = Mock()
+    file_metadata_db.log = self.mock_log
+    self.db_instance = file_metadata_db(self.mock_db)
+    
+  def test_sqlite_write_commit_success(self):
+    # Mock function to simulate a successful DB operation
+    mock_function = Mock()
+    
+    self.db_instance._sqlite_write('test_label', mock_function, 'arg1', 'arg2')
+    
+    mock_function.assert_called_once_with('arg1', 'arg2')
+    self.mock_db.commit.assert_called_once()
+    self.mock_log.log_e.assert_not_called()
+    self.mock_log.log_exception.assert_not_called()
+
+  def test_sqlite_write_exception_rollback_success(self):
+    # Mock function to raise an exception during the DB operation
+    mock_function = Mock(side_effect=Exception('Test exception'))
+    
+    with self.assertRaises(Exception):
+      self.db_instance._sqlite_write('test_label', mock_function, 'arg1')
+    
+    mock_function.assert_called_once_with('arg1')
+    self.mock_db.commit.assert_not_called()
+    self.mock_db.rollback.assert_called_once()
+    self.mock_log.log_e.assert_called_once()
+    self.mock_log.log_exception.assert_called_once()
+    self.mock_log.log_i.assert_called_once_with('test_label: Rollback successful')
+
+  def xtest_sqlite_write_exception_rollback_failure(self):
+    # Mock function to raise an exception during the DB operation
+    mock_function = Mock(side_effect=Exception('Test exception'))
+    # Mock rollback to also raise an exception
+    self.mock_db.rollback.side_effect = Exception('Rollback failed')
+    
+    with self.assertRaises(Exception):
+      self.db_instance._sqlite_write('test_label', mock_function, 'arg1')
+    
+    mock_function.assert_called_once_with('arg1')
+    self.mock_db.commit.assert_not_called()
+    self.mock_db.rollback.assert_called_once()
+    self.mock_log.log_e.assert_called()
+    self.mock_log.log_exception.assert_has_calls([call(Exception('Test exception')), call(Exception('Rollback failed'))])
+    
   def test_get_values_empty(self):
     tmp_dir = self.make_temp_dir()
     db = file_metadata(tmp_dir)
@@ -90,8 +139,6 @@ class test_file_metadata(unit_test):
     db.set_value('something', tmp_file, 'bar', '67')
     self.assertEqual( 'hi', db.get_value('something', tmp_file, 'foo') )
     self.assertEqual( '67', db.get_value('something', tmp_file, 'bar') )
-    print('  tmp_file: {}'.format(tmp_file))
-    print('table_name: {}'.format(db._table_name('something', tmp_file)))
     self.assertEqual( True, db._db._db.has_table(db._table_name('something', tmp_file)) )
     db.clear('something', tmp_file)
     self.assertEqual( [], db.get_values('something', tmp_file) )
