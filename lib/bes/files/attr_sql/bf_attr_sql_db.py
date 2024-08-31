@@ -1,12 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import sys
 from bes.system.check import check
-#from bes.common.string_util import string_util
-#from bes.key_value.key_value import key_value
-#from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
-#from bes.system.execute import execute
 from bes.sqlite.sqlite import sqlite
 
 class bf_attr_sql_db(object):
@@ -33,7 +28,7 @@ CREATE INDEX idx_attribute_name_v1 ON file_attributes_v1(attribute_name);
     self._db.ensure_table('file_attributes_v1', self._FILE_ATTRIBUTES_V1_TABLE_SCHEMA)
     self._db.ensure_index('idx_attribute_name_v1', self._FILE_ATTRIBUTES_V1_NAME_INDEX_SCHEMA)
 
-  def get_value(self, hash_key, attribute_name):
+  def get_bytes(self, hash_key, attribute_name):
     check.check_string(hash_key)
     check.check_string(attribute_name)
 
@@ -41,7 +36,7 @@ CREATE INDEX idx_attribute_name_v1 ON file_attributes_v1(attribute_name);
                               ( hash_key, attribute_name ))
     return row[0]
 
-  def set_value(self, hash_key, attribute_name, attribute_value):
+  def set_bytes(self, hash_key, attribute_name, attribute_value):
     check.check_string(hash_key)
     check.check_string(attribute_name)
     check.check_bytes(attribute_value)
