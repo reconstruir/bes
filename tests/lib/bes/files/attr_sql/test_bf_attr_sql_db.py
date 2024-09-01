@@ -46,6 +46,13 @@ class test_bf_attr_sql_db(unit_test):
     self.assertEqual( ( 'fruit', ), db.all_attributes('hash_666') )
     db.set_bytes('hash_666', 'cheese', 'brie'.encode('utf-8'))
     self.assertEqual( ( 'cheese', 'fruit', ), db.all_attributes('hash_666') )
+
+  def test_clear(self):
+    db = self._make_tmp_db()
+    db.set_bytes('hash_666', 'fruit', 'kiwi'.encode('utf-8'))
+    db.set_bytes('hash_666', 'cheese', 'brie'.encode('utf-8'))
+    db.clear('hash_666')
+    self.assertEqual( (), db.all_attributes('hash_666') )
     
 if __name__ == '__main__':
   unit_test.main()

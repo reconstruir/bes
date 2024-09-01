@@ -68,6 +68,12 @@ CREATE INDEX idx_attribute_name_v1 ON file_attributes_v1(attribute_name);
     if not rows:
       return ()
     return tuple([ row[0] for row in rows ])
-    
+
+  def clear(self, hash_key):
+    check.check_string(hash_key)
+
+    self._db.execute('DELETE from file_attributes_v1 WHERE hash_key=?',
+                            ( hash_key, ))
+  
   def dump_to_string(self):
     return self._db.dump_to_string()
