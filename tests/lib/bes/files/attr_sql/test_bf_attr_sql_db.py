@@ -30,6 +30,22 @@ class test_bf_attr_sql_db(unit_test):
     db = self._make_tmp_db()
     db.set_bytes('hash_666', 'fruit', 'kiwi'.encode('utf-8'))
     self.assertEqual( False, db.has_attribute('hash_666', 'notthere') )
+
+  def test_remove(self):
+    db = self._make_tmp_db()
+    self.assertEqual( False, db.has_attribute('hash_666', 'fruit') )
+    db.set_bytes('hash_666', 'fruit', 'kiwi'.encode('utf-8'))
+    self.assertEqual( True, db.has_attribute('hash_666', 'fruit') )
+    db.remove('hash_666', 'fruit')
+    self.assertEqual( False, db.has_attribute('hash_666', 'fruit') )
+
+  def test_all_attributes(self):
+    db = self._make_tmp_db()
+    self.assertEqual( (), db.all_attributes('hash_666') )
+    db.set_bytes('hash_666', 'fruit', 'kiwi'.encode('utf-8'))
+    self.assertEqual( ( 'fruit', ), db.all_attributes('hash_666') )
+    db.set_bytes('hash_666', 'cheese', 'brie'.encode('utf-8'))
+    self.assertEqual( ( 'cheese', 'fruit', ), db.all_attributes('hash_666') )
     
 if __name__ == '__main__':
   unit_test.main()

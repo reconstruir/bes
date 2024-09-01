@@ -189,6 +189,12 @@ class sqlite(object):
         fout.write(line)
         fout.write(os.linesep)
 
+  def dump_to_string(self):
+    output = []
+    for line in self._connection.iterdump():
+      output.append(line)
+    return os.linesep.join(output)
+  
   def table_num_columns(self, table_name):
     check.check_string(table_name)
     
