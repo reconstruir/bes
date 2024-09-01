@@ -33,6 +33,18 @@ class test_bf_checksum_db(unit_test):
     self.assertEqual( 1, db.num_computations )
     self.assertEqual( '65ffbe9c3eb9f18542a813d11e4be9cee0799bff47a29082c12ebc31c5e4eb08', db.get_checksum(tmp2) )
     self.assertEqual( 2, db.num_computations )
+
+  def test_get_checksum_with_content_changed(self):
+    db = self._make_tmp_db()
+    tmp = self.make_temp_file(content = 'kiwx')
+    self.assertEqual( 0, db.num_computations )
+    self.assertEqual( '65ffbe9c3eb9f18542a813d11e4be9cee0799bff47a29082c12ebc31c5e4eb08', db.get_checksum(tmp) )
+    self.assertEqual( 1, db.num_computations )
+    with open(tmp, 'a') as f:
+      f.write('foo')
+      f.flush()
+    self.assertEqual( '043fa5b500a4ddf31ea42e9c62ee0cfc4e9db61fe303997f750d59c0bfba5dd6', db.get_checksum(tmp) )
+    self.assertEqual( 2, db.num_computations )
     
 if __name__ == '__main__':
   unit_test.main()

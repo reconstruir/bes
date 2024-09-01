@@ -51,11 +51,10 @@ create table checksums_v1(
     hash_key = self._make_hash_key(filename)
     rows = self._db.select_all('SELECT checksum_sha256 FROM checksums_v1 WHERE hash_key=?',
                               ( hash_key, ))
-    #print(rows)
     if not rows:
       checksum_sha256 = bf_checksum.checksum(filename, 'sha256')
       self._num_computations += 1      
-      self._db.execute('INSERT INTO checksums_v1(hash_key, checksum_sha256) values(?, ?)',
+      self._db.execute('INSERT INTO checksums_v1(hash_key, checksum_sha256) VALUES(?, ?)',
                        ( hash_key, checksum_sha256, ))
     else:
       assert len(rows) == 1
