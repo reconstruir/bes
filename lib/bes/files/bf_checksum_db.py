@@ -3,6 +3,8 @@
 import os
 import hashlib
 
+from os import path
+
 from bes.system.check import check
 from bes.system.log import logger
 from bes.sqlite.sqlite import sqlite
@@ -27,19 +29,21 @@ create table checksums_v1(
     self._db_filename = db_filename
     self._db = sqlite(self._db_filename)
     self._db.ensure_table('checksums_v1', self._CHECKSUMS_V1_TABLE_SCHEMA)
+    self._num_computations = 0
 
-  @classmethod
-  def _make_hash_key_mtime_size(clazz, mtime, size):
-    hash_string = f'{mtime}_{size}'
-    hash_object = hashlib.sha256(hash_string.encode('utf-8'))
-    return hash_object.hexdigest()
+  @property
+  def num_computations(self):
+    return self._num_computations
   
   @classmethod
   def _make_hash_key(clazz, filename):
+    assert path.isabs(filename)
     stat = os.stat(filename)
     mtime = int(stat.st_mtime)
     size = stat.st_size
-    return clazz._make_hash_key_mtime_size(mtime, size)
+    hash_string = f'{mtime}_{size}_{filename}'
+    hash_object = hashlib.sha256(hash_string.encode('utf-8'))
+    return hash_object.hexdigest()
     
   def get_checksum(self, filename):
     filename = bf_check.check_file(filename)
@@ -50,6 +54,7 @@ create table checksums_v1(
     #print(rows)
     if not rows:
       checksum_sha256 = bf_checksum.checksum(filename, 'sha256')
+      self._num_computations += 1      
       self._db.execute('INSERT INTO checksums_v1(hash_key, checksum_sha256) values(?, ?)',
                        ( hash_key, checksum_sha256, ))
     else:
