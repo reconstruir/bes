@@ -4,7 +4,7 @@
 import os
 import os.path as path
 
-from bes.files.bf_checksum import bf_checksum
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.files.bf_date import bf_date
 from bes.files.metadata.bf_metadata import bf_metadata
 from bes.files.metadata.bf_metadata_error import bf_metadata_error

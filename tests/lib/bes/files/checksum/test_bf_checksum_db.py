@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from bes.testing.unit_test import unit_test
 
-from bes.files.bf_checksum_db import bf_checksum_db
+from bes.files.checksum.bf_checksum_db import bf_checksum_db
 from bes.files.bf_date import bf_date
 
 class test_bf_checksum_db(unit_test):

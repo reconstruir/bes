@@ -9,7 +9,7 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.sqlite.sqlite import sqlite
 
-from .bf_check import bf_check
+from ..bf_check import bf_check
 from .bf_checksum import bf_checksum
 
 class bf_checksum_db(object):

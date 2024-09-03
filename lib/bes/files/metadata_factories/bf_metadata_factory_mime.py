@@ -3,7 +3,7 @@
 from bes.system.check import check
 from bes.system.log import logger
 
-from ..bf_checksum import bf_checksum
+from ..checksum.bf_checksum import bf_checksum
 from ..mime.bf_mime import bf_mime
 
 from ..metadata.bf_metadata_factory_base import bf_metadata_factory_base

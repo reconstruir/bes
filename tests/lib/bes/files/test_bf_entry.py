@@ -7,7 +7,7 @@ from datetime import timedelta
 import os
 from os import path
 
-from bes.files.bf_checksum import bf_checksum
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_permission_error import bf_permission_error
 from bes.files.bf_symlink import bf_symlink

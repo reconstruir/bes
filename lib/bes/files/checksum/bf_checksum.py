@@ -5,7 +5,7 @@ import hashlib
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bf_check import bf_check
+from ..bf_check import bf_check
 
 class bf_checksum(object):
 
