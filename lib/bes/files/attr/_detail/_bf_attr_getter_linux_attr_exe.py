@@ -8,11 +8,11 @@ from bes.linux.attr.linux_attr import linux_attr
 from bes.linux.attr.linux_attr_error import linux_attr_error
 from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
-from ._bf_attr_i import _bf_attr_i
+from ._bf_attr_getter_i import _bf_attr_getter_i
 
-class _bf_attr_linux_attr_exe(_bf_attr_i):
+class _bf_attr_getter_linux_attr_exe(_bf_attr_getter_i):
 
-  _log = logger('_bf_attr_linux_attr_exe')
+  _log = logger('_bf_attr_getter_linux_attr_exe')
   
   @classmethod
   #@abstractmethod

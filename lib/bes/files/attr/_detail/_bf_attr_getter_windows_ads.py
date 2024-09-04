@@ -8,14 +8,14 @@ from bes.system.log import logger
 from bes.windows.ads.ads import ads
 from bes.windows.ads.ads_error import ads_error
 
-from ._bf_attr_i import _bf_attr_i
+from ._bf_attr_getter_i import _bf_attr_getter_i
 
-class _bf_attr_windows_ads(_bf_attr_i):
+class _bf_attr_getter_windows_ads(_bf_attr_getter_i):
   'bf_attr implementation that uses windows ADS (alternative data streams)'
   
   _ADS_STREAM_NAME = 'bes_attributes'
 
-  _log = logger('_bf_attr_windows_ads')
+  _log = logger('_bf_attr_getter_windows_ads')
   
   @classmethod
   #@abstractmethod

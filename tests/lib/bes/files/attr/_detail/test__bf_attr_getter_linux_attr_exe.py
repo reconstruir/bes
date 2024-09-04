@@ -9,13 +9,13 @@ from bes.system.host import host
 from _bf_attr_unit_test_common import make_test_case
 
 if host.is_linux():
-  from bes.files.attr._detail._bf_attr_linux_attr_exe import _bf_attr_linux_attr_exe
+  from bes.files.attr._detail._bf_attr_getter_linux_attr_exe import _bf_attr_getter_linux_attr_exe
   from bes.files.attr.bf_attr import _bf_attr_mixin
 
-  class _test_super_class_linux_attr_exe(_bf_attr_linux_attr_exe, _bf_attr_mixin):
+  class _test_super_class_linux_attr_exe(_bf_attr_getter_linux_attr_exe, _bf_attr_mixin):
     pass
   
-  class test__bf_attr_linux_attr_exe(make_test_case(_test_super_class_linux_attr_exe)):
+  class test__bf_attr_getter_linux_attr_exe(make_test_case(_test_super_class_linux_attr_exe)):
 
     @classmethod
     def setUpClass(clazz):

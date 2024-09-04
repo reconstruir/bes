@@ -9,7 +9,7 @@ from bes.system.log import logger
 from ..bf_check import bf_check
 from ..bf_date import bf_date
 
-from ._detail._bf_attr_super_class import _bf_attr_super_class
+from ._detail._bf_attr_getter_super_class import _bf_attr_getter_super_class
 
 from .bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
 from .bf_attr_error import bf_attr_error
@@ -264,5 +264,5 @@ class _bf_attr_mixin:
       return clazz.get_bytes(filename, key)
     return None
       
-class bf_attr(_bf_attr_super_class, _bf_attr_mixin):
+class bf_attr(_bf_attr_getter_super_class, _bf_attr_mixin):
   pass
