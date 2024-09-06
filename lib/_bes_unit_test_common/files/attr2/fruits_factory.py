@@ -2,13 +2,13 @@
 
 from bes.system.check import check
 
-from bes.files.attr.bf_attr2_desc_factory_base import bf_attr2_desc_factory_base
+from bes.files.attr2.bf_attr2_desc_factory_base import bf_attr2_desc_factory_base
 
-from bes.files.attr.bf_attr2_type_desc_bool import bf_attr2_type_desc_bool
-from bes.files.attr.bf_attr2_type_desc_datetime import bf_attr2_type_desc_datetime
-from bes.files.attr.bf_attr2_type_desc_float import bf_attr2_type_desc_float
-from bes.files.attr.bf_attr2_type_desc_int import bf_attr2_type_desc_int
-from bes.files.attr.bf_attr2_type_desc_string import bf_attr2_type_desc_string
+from bes.files.attr2.bf_attr2_type_desc_bool import bf_attr2_type_desc_bool
+from bes.files.attr2.bf_attr2_type_desc_datetime import bf_attr2_type_desc_datetime
+from bes.files.attr2.bf_attr2_type_desc_float import bf_attr2_type_desc_float
+from bes.files.attr2.bf_attr2_type_desc_int import bf_attr2_type_desc_int
+from bes.files.attr2.bf_attr2_type_desc_string import bf_attr2_type_desc_string
 
 class fruits_factory(bf_attr2_desc_factory_base):
       
