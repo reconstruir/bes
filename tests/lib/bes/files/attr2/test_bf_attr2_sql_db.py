@@ -8,13 +8,13 @@ from os import path
 from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 
-from bes.files.attr.bf_attr_sql_db import bf_attr_sql_db
+from bes.files.attr.bf_attr2_sql_db import bf_attr2_sql_db
 
-class test_bf_attr_sql_db(unit_test):
+class test_bf_attr2_sql_db(unit_test):
 
   def _make_tmp_db(self):
     tmp_db_filename = path.join(self.make_temp_dir(), 'test.db')
-    return bf_attr_sql_db(tmp_db_filename)
+    return bf_attr2_sql_db(tmp_db_filename)
 
   def test_set_get_bytes(self):
     db = self._make_tmp_db()

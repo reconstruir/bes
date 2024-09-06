@@ -15,7 +15,7 @@ from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
 
 def make_test_case(impl):
   
-  class _bf_attr_test_case(unit_test):
+  class _bf_attr2_test_case(unit_test):
 
     def test_has_key_false(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
@@ -194,4 +194,4 @@ def make_test_case(impl):
         'foo': b'667',
       }, impl.get_all(tmp) )
       
-  return _bf_attr_test_case
+  return _bf_attr2_test_case
