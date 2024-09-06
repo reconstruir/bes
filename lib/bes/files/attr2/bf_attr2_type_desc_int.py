@@ -3,11 +3,11 @@
 from bes.system.check import check
 from bes.common.number_util import number_util
 
-from .bf_attr_type_desc_base import bf_attr_type_desc_base
+from .bf_attr2_type_desc_base import bf_attr2_type_desc_base
 
-from .bf_attr_type_desc_string import bf_attr_type_desc_string
+from .bf_attr2_type_desc_string import bf_attr2_type_desc_string
 
-class bf_attr_type_desc_int(bf_attr_type_desc_base):
+class bf_attr2_type_desc_int(bf_attr2_type_desc_base):
 
   @classmethod
   #@abstractmethod
@@ -23,7 +23,7 @@ class bf_attr_type_desc_int(bf_attr_type_desc_base):
 
     if value == None:
       return b''
-    return bf_attr_type_desc_string.encode(str(value))
+    return bf_attr2_type_desc_string.encode(str(value))
 
   @classmethod
   #@abstractmethod

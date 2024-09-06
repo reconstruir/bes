@@ -4,10 +4,10 @@ from datetime import datetime
 
 from bes.system.check import check
 
-from .bf_attr_type_desc_base import bf_attr_type_desc_base
-from .bf_attr_type_desc_string import bf_attr_type_desc_string
+from .bf_attr2_type_desc_base import bf_attr2_type_desc_base
+from .bf_attr2_type_desc_string import bf_attr2_type_desc_string
 
-class bf_attr_type_desc_datetime(bf_attr_type_desc_base):
+class bf_attr2_type_desc_datetime(bf_attr2_type_desc_base):
 
   @classmethod
   #@abstractmethod
@@ -23,7 +23,7 @@ class bf_attr_type_desc_datetime(bf_attr_type_desc_base):
 
     if value == None:
       return b''
-    return bf_attr_type_desc_string.encode(str(value.timestamp()))
+    return bf_attr2_type_desc_string.encode(str(value.timestamp()))
 
   @classmethod
   #@abstractmethod
@@ -31,7 +31,7 @@ class bf_attr_type_desc_datetime(bf_attr_type_desc_base):
     'Return decoder function for this type'
     check.check_bytes(value_bytes)
 
-    s = bf_attr_type_desc_string.decode(value_bytes)
+    s = bf_attr2_type_desc_string.decode(value_bytes)
     timestamp = float(s)
     return datetime.fromtimestamp(timestamp)
 

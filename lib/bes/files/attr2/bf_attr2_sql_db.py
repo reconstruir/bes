@@ -4,9 +4,9 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.sqlite.sqlite import sqlite
 
-class bf_attr_sql_db(object):
+class bf_attr2_sql_db(object):
 
-  log = logger('bf_attr_sql')
+  log = logger('bf_attr2_sql')
   
   _FILE_ATTRIBUTES_V1_TABLE_SCHEMA = r'''
 CREATE TABLE file_attributes_v1(

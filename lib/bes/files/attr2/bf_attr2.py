@@ -9,13 +9,13 @@ from bes.system.log import logger
 from ..bf_check import bf_check
 from ..bf_date import bf_date
 
-from ._detail._bf_attr_getter_super_class import _bf_attr_getter_super_class
+from ._detail._bf_attr2_getter_super_class import _bf_attr2_getter_super_class
 
-from .bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
-from .bf_attr_error import bf_attr_error
-from .bf_attr_desc_registry import bf_attr_desc_registry
+from .bf_attr2_type_desc_datetime import bf_attr2_type_desc_datetime
+from .bf_attr2_error import bf_attr2_error
+from .bf_attr2_desc_registry import bf_attr2_desc_registry
 
-class _bf_attr_mixin:
+class _bf_attr2_mixin:
 
   _log = logger('attr')
   
@@ -29,7 +29,7 @@ class _bf_attr_mixin:
           label = 'space'
         else:
           label = c
-        raise bf_attr_error(f'"{label}" not supported in key: "{key}"')
+        raise bf_attr2_error(f'"{label}" not supported in key: "{key}"')
     return key
 
   @classmethod
@@ -74,7 +74,7 @@ class _bf_attr_mixin:
     if not clazz.has_key(filename, key):
       return None
     value = clazz.get_bytes(filename, key)
-    return bf_attr_type_desc_datetime.decode(value)
+    return bf_attr2_type_desc_datetime.decode(value)
 
   @classmethod
   def set_date(clazz, filename, key, value, encoding = 'utf-8'):
@@ -83,7 +83,7 @@ class _bf_attr_mixin:
     key = clazz.check_key(key)
     check.check_datetime(value)
 
-    encoded_value = bf_attr_type_desc_datetime.encode(value)
+    encoded_value = bf_attr2_type_desc_datetime.encode(value)
     clazz.set_bytes(filename, key, encoded_value)
 
   @classmethod
@@ -150,9 +150,9 @@ class _bf_attr_mixin:
     filename = bf_check.check_file(filename)
     key = clazz.check_key(key)
 
-    desc = bf_attr_desc_registry.get_value(key, raise_error = False)
+    desc = bf_attr2_desc_registry.get_value(key, raise_error = False)
     if not desc:
-      raise bf_attr_error(f'No description registered for key: "{key}"')
+      raise bf_attr2_error(f'No description registered for key: "{key}"')
       
     if clazz.has_key(filename, key):
       value_bytes = clazz.get_bytes(filename, key)
@@ -174,9 +174,9 @@ class _bf_attr_mixin:
     filename = bf_check.check_file(filename)
     key = clazz.check_key(key)
 
-    desc = bf_attr_desc_registry.get_value(key, raise_error = False)
+    desc = bf_attr2_desc_registry.get_value(key, raise_error = False)
     if not desc:
-      raise bf_attr_error(f'No description registered for key: "{key}"')
+      raise bf_attr2_error(f'No description registered for key: "{key}"')
     
     if value == None:
       clazz.remove(key)
@@ -224,7 +224,7 @@ class _bf_attr_mixin:
 
     value = value_maker(filename)
     if value == None:
-      raise bf_attr_error(f'value should never be None')
+      raise bf_attr2_error(f'value should never be None')
 
     clazz._log.log_d(f'{label}: 3: value={value}')
     clazz.set_bytes(filename, key, value)
@@ -264,5 +264,5 @@ class _bf_attr_mixin:
       return clazz.get_bytes(filename, key)
     return None
       
-class bf_attr(_bf_attr_getter_super_class, _bf_attr_mixin):
+class bf_attr2(_bf_attr2_getter_super_class, _bf_attr2_mixin):
   pass
