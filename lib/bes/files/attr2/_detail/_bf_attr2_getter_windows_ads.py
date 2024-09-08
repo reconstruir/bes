@@ -9,13 +9,14 @@ from bes.windows.ads.ads import ads
 from bes.windows.ads.ads_error import ads_error
 
 from ._bf_attr2_getter_i import _bf_attr2_getter_i
+from ..bf_attr2_getter_mixin import bf_attr2_getter_mixin
 
-class _bf_attr2_getter_windows_ads(_bf_attr2_getter_i):
+class _bf_attr2_getter_windows_ads(_bf_attr2_getter_i, bf_attr2_getter_mixin):
   'bf_attr2 implementation that uses windows ADS (alternative data streams)'
   
   _ADS_STREAM_NAME = 'bes_attributes'
 
-  _log = logger('_bf_attr2_getter_windows_ads')
+  _log = logger('bf_attr2')
   
   #@abstractmethod
   def has_key(self, filename, key):

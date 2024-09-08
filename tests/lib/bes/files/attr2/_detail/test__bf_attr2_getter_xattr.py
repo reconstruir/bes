@@ -12,12 +12,8 @@ from _bf_attr2_unit_test_common import make_test_case
 
 if HAS_XATTR:
   from bes.files.attr2._detail._bf_attr2_getter_xattr import _bf_attr2_getter_xattr
-  from bes.files.attr2.bf_attr2 import _bf_attr2_mixin
-
-  class _test_super_class_xattr(_bf_attr2_getter_xattr, _bf_attr2_mixin):
-    pass
   
-  class test__bf_attr2_getter_xattr(make_test_case(_test_super_class_xattr)):
+  class test__bf_attr2_getter_xattr(make_test_case(_bf_attr2_getter_xattr())):
 
     @classmethod
     def setUpClass(clazz):

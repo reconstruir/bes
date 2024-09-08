@@ -10,12 +10,8 @@ from _bf_attr2_unit_test_common import make_test_case
     
 if host.is_macos():
   from bes.files.attr2._detail._bf_attr2_getter_macos_xattr_exe import _bf_attr2_getter_macos_xattr_exe
-  from bes.files.attr2.bf_attr2 import _bf_attr2_mixin
 
-  class _test_super_class_macos_xattr_exe(_bf_attr2_getter_macos_xattr_exe, _bf_attr2_mixin):
-    pass
-  
-  class test__bf_attr2_getter_macos_xattr_exe(make_test_case(_test_super_class_macos_xattr_exe())):
+  class test__bf_attr2_getter_macos_xattr_exe(make_test_case(_bf_attr2_getter_macos_xattr_exe())):
 
     @classmethod
     def setUpClass(clazz):

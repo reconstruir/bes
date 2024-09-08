@@ -9,11 +9,10 @@ from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_permission_error
 
 from ._bf_attr2_getter_i import _bf_attr2_getter_i
+from ..bf_attr2_getter_mixin import bf_attr2_getter_mixin
 
-class _bf_attr2_getter_macos_xattr_exe(_bf_attr2_getter_i):
+class _bf_attr2_getter_macos_xattr_exe(_bf_attr2_getter_i, bf_attr2_getter_mixin):
 
-  _log = logger('_bf_attr2_getter_macos_xattr_exe')
-  
   #@abstractmethod
   def has_key(self, filename, key):
     'Return True if filename has an attributed with key.'

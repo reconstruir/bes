@@ -2,80 +2,85 @@
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.property.cached_class_property import cached_class_property
 
 from .bf_attr2 import bf_attr2
 from .bf_attr2_error import bf_attr2_error
 
 class bf_attr2_file(object):
 
-  _log = logger('bf_attr2_file')
-  
+  _log = logger('bf_attr2')
+
   def __init__(self, filename):
     self._filename = filename
 
+  @cached_class_property
+  def _bf_attr_instance(clazz):
+    return bf_attr2()
+    
   @property
   def filename(self):
     return self._filename
 
   def has_key(self, key):
-    return bf_attr2.has_key(self._filename, key)
+    return self._bf_attr_instance.has_key(self._filename, key)
 
   def get_bytes(self, key):
-    return bf_attr2.get_bytes(self._filename, key)
+    return self._bf_attr_instance.get_bytes(self._filename, key)
 
   def set_bytes(self, key, value):
-    bf_attr2.set_bytes(self._filename, key, value)
+    self._bf_attr_instance.set_bytes(self._filename, key, value)
 
   def remove(self, key):
-    bf_attr2.remove(self._filename, key)
+    self._bf_attr_instance.remove(self._filename, key)
 
   def keys(self):
-    return bf_attr2.keys(self._filename)
+    return self._bf_attr_instance.keys(self._filename)
 
   def clear(self):
-    bf_attr2.clear(self._filename)
+    self._bf_attr_instance.clear(self._filename)
 
   def get_all(self):
-    return bf_attr2.get_all(self._filename)
+    return self._bf_attr_instance.get_all(self._filename)
 
   def set_all(self, attributes):
-    bf_attr2.set_all(self._filename, attributes)
+    self._bf_attr_instance.set_all(self._filename, attributes)
 
   def get_string(self, key):
-    return bf_attr2.get_string(self._filename, key)
+    return self._bf_attr_instance.get_string(self._filename, key)
 
   def set_string(self, key, value):
-    bf_attr2.set_string(self._filename, key, value)
+    self._bf_attr_instance.set_string(self._filename, key, value)
 
   def get_date(self, key):
-    return bf_attr2.get_date(self._filename, key)
+    return self._bf_attr_instance.get_date(self._filename, key)
 
   def set_date(self, key, value):
-    bf_attr2.set_date(self._filename, key, value)
+    self._bf_attr_instance.set_date(self._filename, key, value)
 
   def get_bool(self, key):
-    return bf_attr2.get_bool(self._filename, key)
+    return self._bf_attr_instance.get_bool(self._filename, key)
 
   def set_bool(self, key, value):
-    bf_attr2.set_bool(self._filename, key, value)
+    self._bf_attr_instance.set_bool(self._filename, key, value)
     
   def get_int(self, key):
-    return bf_attr2.get_int(self._filename, key)
+    return self._bf_attr_instance.get_int(self._filename, key)
 
   def set_int(self, key, value):
-    bf_attr2.set_int(self._filename, key, value)
+    self._bf_attr_instance.set_int(self._filename, key, value)
 
   def get_float(self, key):
-    return bf_attr2.get_float(self._filename, key)
+    return self._bf_attr_instance.get_float(self._filename, key)
 
   def set_float(self, key, value):
-    bf_attr2.set_float(self._filename, key, value)
+    self._bf_attr_instance.set_float(self._filename, key, value)
     
   def get_value(self, key):
-    return bf_attr2.get_value(self._filename, key)
+    return self._bf_attr_instance.get_value(self._filename, key)
 
   def set_value(self, key, value):
-    bf_attr2.set_value(self._filename, key, value)
+    self._bf_attr_instance.set_value(self._filename, key, value)
     
   def __delitem__(self, key):
     if not self.has_key(key):

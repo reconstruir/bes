@@ -10,11 +10,10 @@ from bes.system.host import host
 from bes.system.log import logger
 
 from ._bf_attr2_getter_i import _bf_attr2_getter_i
+from ..bf_attr2_getter_mixin import bf_attr2_getter_mixin
 
-class _bf_attr2_getter_xattr(_bf_attr2_getter_i):
+class _bf_attr2_getter_xattr(_bf_attr2_getter_i, bf_attr2_getter_mixin):
 
-  _log = logger('_bf_attr2_getter_xattr')
-  
   #@abstractmethod
   def has_key(self, filename, key):
     'Return True if filename has an attributed with key.'
