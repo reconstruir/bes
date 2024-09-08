@@ -8,18 +8,14 @@ from bes.system.host import host
 
 from _bf_attr_unit_test_common import make_test_case
 
-if host.is_windows():
-  from bes.files.attr._detail._bf_attr_getter_windows_ads import _bf_attr_getter_windows_ads
-  from bes.files.attr.bf_attr import _bf_attr_mixin
+if host.is_linux():
+  from bes.files.attr._detail._bf_attr_getter_linux_attr_exe import _bf_attr_getter_linux_attr_exe
 
-  class _test_super_class_windows_ads(_bf_attr_getter_windows_ads, _bf_attr_mixin):
-    pass
-  
-  class test__bf_attr_getter_windows_ads(make_test_case(_test_super_class_windows_ads)):
+  class test__bf_attr_getter_linux_attr_exe(make_test_case(_bf_attr_getter_linux_attr_exe())):
 
     @classmethod
     def setUpClass(clazz):
-      unit_test_class_skip.raise_skip_if_not_windows()
+      unit_test_class_skip.raise_skip_if_not_linux()
       docker.raise_skip_if_running_under_docker()
     
 if __name__ == '__main__':

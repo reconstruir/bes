@@ -14,7 +14,6 @@ from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
 
 def make_test_case(impl):
-  
   class _bf_attr_test_case(unit_test):
 
     def test_has_key_false(self):

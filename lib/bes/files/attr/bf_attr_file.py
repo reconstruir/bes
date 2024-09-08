@@ -4,19 +4,19 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.property.cached_class_property import cached_class_property
 
-from .bf_attr2 import bf_attr2
-from .bf_attr2_error import bf_attr2_error
+from .bf_attr import bf_attr
+from .bf_attr_error import bf_attr_error
 
-class bf_attr2_file(object):
+class bf_attr_file(object):
 
-  _log = logger('bf_attr2')
+  _log = logger('bf_attr')
 
   def __init__(self, filename):
     self._filename = filename
 
   @cached_class_property
   def _bf_attr_instance(clazz):
-    return bf_attr2()
+    return bf_attr()
     
   @property
   def filename(self):
@@ -84,7 +84,7 @@ class bf_attr2_file(object):
     
   def __delitem__(self, key):
     if not self.has_key(key):
-      raise bf_attr2_error(f'No key "{key}" found for "{self.filename}"')
+      raise bf_attr_error(f'No key "{key}" found for "{self.filename}"')
     self.remove(key)
   
   def __contains__(self, key):
@@ -96,4 +96,4 @@ class bf_attr2_file(object):
   def __setitem__(self, key, value):
     self.set_value(key, value)
 
-check.register_class(bf_attr2_file, include_seq = False)
+check.register_class(bf_attr_file, include_seq = False)

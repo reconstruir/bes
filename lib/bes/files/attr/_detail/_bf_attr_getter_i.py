@@ -3,7 +3,7 @@
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-class _bf_attr2_getter_i(with_metaclass(ABCMeta, object)):
+class _bf_attr_getter_i(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
   def has_key(self, filename, key):

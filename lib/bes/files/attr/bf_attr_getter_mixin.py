@@ -9,13 +9,13 @@ from bes.system.log import logger
 from ..bf_check import bf_check
 from ..bf_date import bf_date
 
-from ._detail._bf_attr2_getter_i import _bf_attr2_getter_i
+from ._detail._bf_attr_getter_i import _bf_attr_getter_i
 
-from .bf_attr2_type_desc_datetime import bf_attr2_type_desc_datetime
-from .bf_attr2_error import bf_attr2_error
-from .bf_attr2_desc_registry import bf_attr2_desc_registry
+from .bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
+from .bf_attr_error import bf_attr_error
+from .bf_attr_desc_registry import bf_attr_desc_registry
 
-class bf_attr2_getter_mixin:
+class bf_attr_getter_mixin:
 
   _log = logger('attr')
   
@@ -69,7 +69,7 @@ class bf_attr2_getter_mixin:
     if not self.has_key(filename, key):
       return None
     value = self.get_bytes(filename, key)
-    return bf_attr2_type_desc_datetime.decode(value)
+    return bf_attr_type_desc_datetime.decode(value)
 
   def set_date(self, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
@@ -77,7 +77,7 @@ class bf_attr2_getter_mixin:
     key = self.check_key(key)
     check.check_datetime(value)
 
-    encoded_value = bf_attr2_type_desc_datetime.encode(value)
+    encoded_value = bf_attr_type_desc_datetime.encode(value)
     self.set_bytes(filename, key, encoded_value)
 
   def get_bool(self, filename, key):
@@ -137,7 +137,7 @@ class bf_attr2_getter_mixin:
     filename = bf_check.check_file(filename)
     key = self.check_key(key)
 
-    desc = bf_attr2_desc_registry.get_value(key, raise_error = False)
+    desc = bf_attr_desc_registry.get_value(key, raise_error = False)
     if not desc:
       raise bf_attr_error(f'No description registered for key: "{key}"')
       
@@ -160,7 +160,7 @@ class bf_attr2_getter_mixin:
     filename = bf_check.check_file(filename)
     key = self.check_key(key)
 
-    desc = bf_attr2_desc_registry.get_value(key, raise_error = False)
+    desc = bf_attr_desc_registry.get_value(key, raise_error = False)
     if not desc:
       raise bf_attr_error(f'No description registered for key: "{key}"')
     

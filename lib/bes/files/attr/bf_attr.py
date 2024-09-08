@@ -3,14 +3,14 @@
 from bes.system.check import check
 from bes.property.cached_class_property import cached_class_property
 
-from ._detail._bf_attr2_getter_super_class import _bf_attr2_getter_super_class
-from .bf_attr2_getter_base import bf_attr2_getter_base
+from ._detail._bf_attr_getter_super_class import _bf_attr_getter_super_class
+from .bf_attr_getter_base import bf_attr_getter_base
 
-class bf_attr2(bf_attr2_getter_base):
+class bf_attr(bf_attr_getter_base):
 
   def __init__(self):
     super().__init__(self._impl_instance)
 
   @cached_class_property
   def _impl_instance(clazz):
-    return _bf_attr2_getter_super_class()
+    return _bf_attr_getter_super_class()

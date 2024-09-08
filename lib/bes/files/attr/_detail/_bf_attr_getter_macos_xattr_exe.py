@@ -8,10 +8,10 @@ from bes.macos.xattr_exe.xattr_exe import xattr_exe
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_permission_error
 
-from ._bf_attr2_getter_i import _bf_attr2_getter_i
-from ..bf_attr2_getter_mixin import bf_attr2_getter_mixin
+from ._bf_attr_getter_i import _bf_attr_getter_i
+from ..bf_attr_getter_mixin import bf_attr_getter_mixin
 
-class _bf_attr2_getter_macos_xattr_exe(_bf_attr2_getter_i, bf_attr2_getter_mixin):
+class _bf_attr_getter_macos_xattr_exe(_bf_attr_getter_i, bf_attr_getter_mixin):
 
   #@abstractmethod
   def has_key(self, filename, key):

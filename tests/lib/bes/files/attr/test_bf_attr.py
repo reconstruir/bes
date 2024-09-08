@@ -7,7 +7,7 @@ from bes.docker.docker import docker
 
 from _detail._bf_attr_unit_test_common import make_test_case
 
-class test_bf_attr(make_test_case(bf_attr)):
+class test_bf_attr(make_test_case(bf_attr())):
   
   @classmethod
   def setUpClass(clazz):

@@ -9,20 +9,20 @@ from bes.system.log import logger
 from ..bf_check import bf_check
 from ..bf_date import bf_date
 
-from ._detail._bf_attr2_getter_i import _bf_attr2_getter_i
+from ._detail._bf_attr_getter_i import _bf_attr_getter_i
 
-from .bf_attr2_getter_mixin import bf_attr2_getter_mixin
+from .bf_attr_getter_mixin import bf_attr_getter_mixin
 
-from .bf_attr2_type_desc_datetime import bf_attr2_type_desc_datetime
-from .bf_attr2_error import bf_attr2_error
-from .bf_attr2_desc_registry import bf_attr2_desc_registry
+from .bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
+from .bf_attr_error import bf_attr_error
+from .bf_attr_desc_registry import bf_attr_desc_registry
 
-class bf_attr2_getter_base(_bf_attr2_getter_i, bf_attr2_getter_mixin):
+class bf_attr_getter_base(_bf_attr_getter_i, bf_attr_getter_mixin):
 
   _log = logger('attr')
   
   def __init__(self, impl):
-    assert isinstance(impl, _bf_attr2_getter_i)
+    assert isinstance(impl, _bf_attr_getter_i)
     self._impl = impl
 
   #@abstractmethod

@@ -6,16 +6,16 @@ from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host
 
-from _bf_attr2_unit_test_common import make_test_case
+from _bf_attr_unit_test_common import make_test_case
+    
+if host.is_macos():
+  from bes.files.attr._detail._bf_attr_getter_macos_xattr_exe import _bf_attr_getter_macos_xattr_exe
 
-if host.is_windows():
-  from bes.files.attr2._detail._bf_attr2_getter_windows_ads import _bf_attr2_getter_windows_ads
-
-  class test__bf_attr2_getter_windows_ads(make_test_case(_bf_attr2_getter_windows_ads())):
+  class test__bf_attr_getter_macos_xattr_exe(make_test_case(_bf_attr_getter_macos_xattr_exe())):
 
     @classmethod
     def setUpClass(clazz):
-      unit_test_class_skip.raise_skip_if_not_windows()
+      unit_test_class_skip.raise_skip_if_not_macos()
       docker.raise_skip_if_running_under_docker()
     
 if __name__ == '__main__':
