@@ -11,7 +11,7 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 
-from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
+from _bes_unit_test_common.files.attr2.fruits_factory import fruits_factory
 
 def make_test_case(impl):
   

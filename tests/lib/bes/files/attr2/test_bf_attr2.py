@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.attr.bf_attr2 import bf_attr2
+from bes.files.attr2.bf_attr2 import bf_attr2
 from bes.docker.docker import docker
 
 from _detail._bf_attr2_unit_test_common import make_test_case

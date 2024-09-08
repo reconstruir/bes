@@ -15,72 +15,66 @@ class _bf_attr2_getter_xattr(_bf_attr2_getter_i):
 
   _log = logger('_bf_attr2_getter_xattr')
   
-  @classmethod
   #@abstractmethod
-  def has_key(clazz, filename, key):
+  def has_key(self, filename, key):
     'Return True if filename has an attributed with key.'
     filename = bf_check.check_file(filename)
-    key = clazz.check_key(key)
+    key = self.check_key(key)
     bf_check.check_file_is_readable(filename)
 
-    encoded_key = clazz._encode_key(key)
+    encoded_key = self._encode_key(key)
     return xattr.xattr(filename).has_key(encoded_key)
   
-  @classmethod
   #@abstractmethod
-  def get_bytes(clazz, filename, key):
+  def get_bytes(self, filename, key):
     'Return the attribute value with key for filename.'
     filename = bf_check.check_file(filename)
-    key = clazz.check_key(key)
+    key = self.check_key(key)
     bf_check.check_file_is_writable(filename)
 
-    encoded_key = clazz._encode_key(key)
+    encoded_key = self._encode_key(key)
     if not xattr.xattr(filename).has_key(encoded_key):
       return None
     return xattr.getxattr(filename, encoded_key)
     
-  @classmethod
   #@abstractmethod
-  def set_bytes(clazz, filename, key, value):
+  def set_bytes(self, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = bf_check.check_file(filename)
-    key = clazz.check_key(key)
+    key = self.check_key(key)
     check.check_bytes(value)
     bf_check.check_file_is_writable(filename)
 
-    clazz._log.log_method_d()
+    self._log.log_method_d()
 
-    encoded_key = clazz._encode_key(key)
-    clazz._log.log_d(f'set_bytes:{filename}:{encoded_key}: calling xattr.setxattr with value "{value}"')
+    encoded_key = self._encode_key(key)
+    self._log.log_d(f'set_bytes:{filename}:{encoded_key}: calling xattr.setxattr with value "{value}"')
     rv = xattr.setxattr(filename, encoded_key, value)
-    clazz._log.log_d(f'set_bytes:{filename}:{encoded_key}: xattr.setxattr returns with rv "{rv}"')
+    self._log.log_d(f'set_bytes:{filename}:{encoded_key}: xattr.setxattr returns with rv "{rv}"')
   
-  @classmethod
   #@abstractmethod
-  def remove(clazz, filename, key):
+  def remove(self, filename, key):
     'Remove the attirbute with key from filename.'
     filename = bf_check.check_file(filename)
-    key = clazz.check_key(key)
+    key = self.check_key(key)
     bf_check.check_file_is_writable(filename)
 
-    clazz._log.log_method_d()
+    self._log.log_method_d()
     
-    encoded_key = clazz._encode_key(key)
+    encoded_key = self._encode_key(key)
     xattr.removexattr(filename, encoded_key)
   
-  @classmethod
   #@abstractmethod
-  def keys(clazz, filename):
+  def keys(self, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
     bf_check.check_file_is_readable(filename)
 
     raw_keys = [ key for key in xattr.xattr(filename).iterkeys() ]
-    return sorted([ clazz._decode_key(key) for key in raw_keys ])
+    return sorted([ self._decode_key(key) for key in raw_keys ])
     
-  @classmethod
   #@abstractmethod
-  def clear(clazz, filename):
+  def clear(self, filename):
     'Create all attributes.'
     check.check_string(filename)
     bf_check.check_file_is_writable(filename)

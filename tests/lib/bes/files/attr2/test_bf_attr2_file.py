@@ -4,14 +4,14 @@
 from datetime import datetime
 
 from bes.files.bf_permission_error import bf_permission_error
-from bes.files.attr.bf_attr2_file import bf_attr2_file
-from bes.files.attr.bf_attr2_error import bf_attr2_error
+from bes.files.attr2.bf_attr2_file import bf_attr2_file
+from bes.files.attr2.bf_attr2_error import bf_attr2_error
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
-from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
+from _bes_unit_test_common.files.attr2.fruits_factory import fruits_factory
 
 class test_bf_attr2_file(unit_test, unit_test_media_files):
 

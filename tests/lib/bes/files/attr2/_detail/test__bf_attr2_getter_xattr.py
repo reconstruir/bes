@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.attr._detail._bf_attr2_getter_super_class import HAS_XATTR
-from bes.files.attr._detail._bf_attr2_getter_super_class import HAS_XATTR
+from bes.files.attr2._detail._bf_attr2_getter_super_class import HAS_XATTR
+from bes.files.attr2._detail._bf_attr2_getter_super_class import HAS_XATTR
 from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host
@@ -11,8 +11,8 @@ from bes.system.host import host
 from _bf_attr2_unit_test_common import make_test_case
 
 if HAS_XATTR:
-  from bes.files.attr._detail._bf_attr2_getter_xattr import _bf_attr2_getter_xattr
-  from bes.files.attr.bf_attr2 import _bf_attr2_mixin
+  from bes.files.attr2._detail._bf_attr2_getter_xattr import _bf_attr2_getter_xattr
+  from bes.files.attr2.bf_attr2 import _bf_attr2_mixin
 
   class _test_super_class_xattr(_bf_attr2_getter_xattr, _bf_attr2_mixin):
     pass

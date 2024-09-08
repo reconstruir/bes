@@ -8,7 +8,7 @@ from os import path
 from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 
-from bes.files.attr.bf_attr2_sql_db import bf_attr2_sql_db
+from bes.files.attr2.bf_attr2_sql_db import bf_attr2_sql_db
 
 class test_bf_attr2_sql_db(unit_test):
 
