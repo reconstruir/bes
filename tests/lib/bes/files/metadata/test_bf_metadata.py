@@ -6,6 +6,7 @@ import time
 
 from bes.docker.docker import docker
 from bes.files.bf_date import bf_date
+from bes.files.attr.bf_attr import bf_attr
 from bes.files.metadata.bf_metadata import bf_metadata
 from bes.files.metadata.bf_metadata_factory_registry import bf_metadata_factory_registry
 from bes.files.metadata.bf_metadata_error import bf_metadata_error
@@ -104,7 +105,7 @@ class test_bf_metadata(unit_test):
     tmp = self.make_temp_file(dir = __file__, content = b'1234567890', suffix = '.data')
     mtime = bf_date.get_modification_date(tmp)
     old_key = 'bes_double_size'
-    mtime_key = bf_metadata.make_mtime_key(old_key)
+    mtime_key = bf_attr.make_mtime_key(old_key)
     bf_metadata.set_date(tmp, mtime_key, mtime)
     bf_metadata.set_int(tmp, old_key, 666)
     bf_date.set_modification_date(tmp, mtime)

@@ -2,6 +2,7 @@
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.property.cached_class_property import cached_class_property
 
 from ..bf_date import bf_date
 from ..bf_check import bf_check
@@ -12,9 +13,37 @@ from .bf_metadata_error import bf_metadata_error
 from .bf_metadata_factory_registry import bf_metadata_factory_registry
 from .bf_metadata_key import bf_metadata_key
 
-class bf_metadata(bf_attr):
+class bf_metadata(object):
 
   _log = logger('metadata')
+
+  @cached_class_property
+  def _attr_instance(self):
+    return bf_attr()
+
+  @classmethod
+  def set_int(clazz, filename, key, value, encoding = 'utf-8'):
+    clazz._attr_instance.set_int(filename, key, value, encoding = encoding)
+
+  @classmethod
+  def get_int(clazz, filename, key):
+    return clazz._attr_instance.get_int(filename, key)
+  
+  @classmethod
+  def set_date(clazz, filename, key, value, encoding = 'utf-8'):
+    clazz._attr_instance.set_date(filename, key, value, encoding = encoding)
+
+  @classmethod
+  def get_date(clazz, filename, key):
+    return clazz._attr_instance.get_date(filename, key)
+
+  @classmethod
+  def get_cached_bytes_if_fresh(clazz, filename, key):
+    return clazz._attr_instance.get_cached_bytes_if_fresh(filename, key)
+
+  @classmethod
+  def keys(clazz, filename):
+    return clazz._attr_instance.keys(filename)
   
   @classmethod
   def get_metadata(clazz, filename, key):
@@ -35,14 +64,14 @@ class bf_metadata(bf_attr):
         clazz._log.log_d(f'get_metadata: returning cached value')
         return item._value
     value_maker = None
-    if not clazz.has_key(filename, key.as_string) and desc.old_getter:
+    if not clazz._attr_instance.has_key(filename, key.as_string) and desc.old_getter:
       old_value = clazz._find_old_value(filename, desc)
       if old_value != None:
         check.check_bytes(old_value)
         value_maker = lambda f__: old_value
     if not value_maker:
       value_maker = lambda f__: desc.encode(desc.getter(f__))
-    value_bytes, mtime = clazz._do_get_cached_bytes(filename,
+    value_bytes, mtime = clazz._attr_instance._do_get_cached_bytes(filename,
                                                     key.as_string,
                                                     value_maker)
     clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime}')
@@ -63,8 +92,8 @@ class bf_metadata(bf_attr):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
 
-    clazz.remove_mtime_key(filename, key.as_string)
-    clazz.remove(filename, key.as_string)
+    clazz._attr_instance.remove_mtime_key(filename, key.as_string)
+    clazz._attr_instance.remove(filename, key.as_string)
     
   @classmethod
   def get_metadata_getter_count(clazz, filename, key):
@@ -80,7 +109,7 @@ class bf_metadata(bf_attr):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
 
-    return clazz.has_key(filename, key.as_string)
+    return clazz._attr_instance.has_key(filename, key.as_string)
     
   _items = {}
   class _items_item(object):

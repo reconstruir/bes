@@ -11,13 +11,14 @@ from bes.testing.unit_test import unit_test
 from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
 
 class test_bf_file_matcher_item_attr(unit_test):
-  
+
+  _attr = bf_attr()
   def test_match_one_attr_any(self):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
     tmp2 = self.make_temp_file(dir = __file__, content = 'manchego')
 
-    bf_attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
-    bf_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
+    self._attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
+    self._attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
 
     self.assertEqual( True, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp1, match_type = 'ANY') )
     self.assertEqual( False, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp2, match_type = 'ANY') )
@@ -26,10 +27,10 @@ class test_bf_file_matcher_item_attr(unit_test):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
     tmp2 = self.make_temp_file(dir = __file__, content = 'manchego')
 
-    bf_attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
-    bf_attr.set_string(tmp1, 'acme/fruit/name/1.0', 'fred')
-    bf_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
-    bf_attr.set_string(tmp2, 'acme/fruit/name/1.0', 'joe')
+    self._attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
+    self._attr.set_string(tmp1, 'acme/fruit/name/1.0', 'fred')
+    self._attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
+    self._attr.set_string(tmp2, 'acme/fruit/name/1.0', 'joe')
 
     self.assertEqual( True, self._match({
       'acme/fruit/kiwi/1.0': 666,
