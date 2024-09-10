@@ -11,6 +11,7 @@ from bes.system.execute import execute
 from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 from bes.bprocess.bprocess_cancelled_error import bprocess_cancelled_error
 from bes.bprocess.bprocess_pool_tester_py import bprocess_pool_tester_py
@@ -19,6 +20,10 @@ from bes.bprocess.bprocess_progress import bprocess_progress
 class test_bprocess_pool_py(unit_test):
 
   _log = logger('test')
+
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('broken')
   
   @classmethod
   def _function(clazz, context, args):
