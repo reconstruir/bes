@@ -1,9 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
-class _bf_attr_getter_i(with_metaclass(ABCMeta, object)):
+class _bf_attr_getter_i(object, metaclass = ABCMeta):
 
   @abstractmethod
   def has_key(self, filename, key):

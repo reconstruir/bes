@@ -23,7 +23,7 @@ class test_pyinstaller_builder(unit_test):
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
-    project.install('pyinstaller', version = '6.5.0')
+    project.install('pyinstaller', version = '6.10.0')
 
     program_content = r'''
 #!/usr/bin/env python3

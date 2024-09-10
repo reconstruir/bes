@@ -1,12 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
 from ..system.check import check
 from ..bcli.bcli_type_i import bcli_type_i
 
-class dir_partition_criteria_base(with_metaclass(ABCMeta, object)):
+class dir_partition_criteria_base(object, metaclass = ABCMeta):
 
   @abstractmethod
   def classify(self, filename):

@@ -8,7 +8,6 @@ from abc import abstractmethod, ABCMeta
 from .check import check
 from .command_line import command_line
 from .compat import compat
-from .compat import with_metaclass
 from .env_override import env_override
 from .env_override_options import env_override_options
 from .execute import execute
@@ -18,7 +17,7 @@ from .log import logger
 from .system_popen import system_popen
 from .which import which
 
-class system_command(with_metaclass(ABCMeta, object)):
+class system_command(object, metaclass = ABCMeta):
   'Abstract base class for dealing with system commands.'
 
   _log = logger('system_command')

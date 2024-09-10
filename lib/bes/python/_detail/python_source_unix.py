@@ -7,10 +7,9 @@ from abc import abstractmethod, ABCMeta
 from bes.python.python_error import python_error
 from bes.python.python_version import python_version
 from bes.system.check import check
-from bes.system.compat import with_metaclass
 from bes.system.environment import environment
 
-class python_source_unix(with_metaclass(ABCMeta, object)):
+class python_source_unix(object, metaclass = ABCMeta):
   '''
   Abstract interface for dealing with the source of a python exe
   and other platform specific python information

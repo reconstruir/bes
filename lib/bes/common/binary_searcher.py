@@ -2,11 +2,10 @@
 
 from abc import abstractmethod, ABCMeta
 
-from ..system.compat import with_metaclass
 from ..system.check import check
 from ..system.log import logger
 
-class binary_searcher(with_metaclass(ABCMeta, object)):
+class binary_searcher(object, metaclass = ABCMeta):
 
   _log = logger('binary_searcher')
 

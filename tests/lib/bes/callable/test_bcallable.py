@@ -9,14 +9,14 @@ class test_bcallable(unit_test):
 
   def test_name_local_func(self):
     def _local_func(): pass
-    self.assertEqual( '__main__._local_func', bcallable.name(_local_func) )
+    self.assertEqual( f'{__name__}._local_func', bcallable.name(_local_func) )
 
   def test_name_global_func(self):
-    self.assertEqual( '__main__._global_func', bcallable.name(_global_func) )
+    self.assertEqual( f'{__name__}._global_func', bcallable.name(_global_func) )
 
   def test_name_lambda(self):
     f = lambda: 42
-    self.assertEqual( '__main__.<lambda>', bcallable.name(f) )
-    
+    self.assertEqual( f'{__name__}.<lambda>', bcallable.name(f) )
+
 if __name__ == '__main__':
   unit_test.main()

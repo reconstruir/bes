@@ -1,9 +1,8 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
-class cli_options_base(with_metaclass(ABCMeta, object)):
+class cli_options_base(object, metaclass = ABCMeta):
 
   @classmethod
   @abstractmethod

@@ -6,7 +6,6 @@ from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 import sys
 
-from bes.system.compat import with_metaclass
 from bes.system.host import host
 from bes.text.line_break import line_break
 from bes.system.log import logger
@@ -16,7 +15,7 @@ from .temp_file import temp_file
 
 cache_info = namedtuple('cache_info', 'cached_filename, checksum_filename, cached_checksum')
 
-class file_cache_item_base(with_metaclass(ABCMeta, object)):
+class file_cache_item_base(object, metaclass = ABCMeta):
 
   @abstractmethod
   def __init__(self):

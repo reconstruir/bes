@@ -3,7 +3,6 @@
 from .host_info import host_info
 from .platform_determiner import platform_determiner
 
-from .compat import with_metaclass
 
 class _host_info_holder(type):
   
@@ -26,7 +25,7 @@ class host_error(Exception):
   def __str__(self):
     return self.message
   
-class host(with_metaclass(_host_info_holder, object)):
+class host(object, metaclass = _host_info_holder):
 
   # systems
   LINUX = 'linux'

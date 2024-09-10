@@ -8,7 +8,6 @@ from abc import abstractmethod, ABCMeta
 from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 from bes.system.compat import compat
-from bes.system.compat import with_metaclass
 
 from .computer_setup_task_registry import computer_setup_task_registry
 
@@ -21,7 +20,7 @@ class _computer_setup_register_meta(ABCMeta):
       computer_setup_task_registry.register(clazz)
     return clazz
   
-class computer_setup_task(with_metaclass(_computer_setup_register_meta, object)):
+class computer_setup_task(object, metaclass = _computer_setup_register_meta):
 
   @abstractmethod
   def name(self):

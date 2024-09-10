@@ -2,15 +2,14 @@
 
 from abc import abstractmethod, ABCMeta
 
-from ..system.compat import with_metaclass
 from ..system.check import check
 
-class hconfig_type_base(with_metaclass(ABCMeta, object)):
+class hconfig_type_base(object, metaclass = ABCMeta):
 
   @classmethod
   @abstractmethod
   def cast(clazz, value, root):
     'Cast a value.'
-    raise NotImplemented('cast')
+    raise NotImplementedError('cast')
 
 check.register_class(hconfig_type_base, name = 'hconfig_type', include_seq = False)

@@ -2,7 +2,6 @@
 
 from abc import abstractmethod, ABCMeta
 
-from bes.system.compat import with_metaclass
 from bes.system.check import check
 from bes.property.cached_class_property import cached_class_property
 
@@ -15,7 +14,7 @@ class _bf_attr_desc_factory_meta(ABCMeta):
       bf_attr_desc_registry.register_factory(clazz)
     return clazz
 
-class bf_attr_desc_factory_base(with_metaclass(_bf_attr_desc_factory_meta)):
+class bf_attr_desc_factory_base(metaclass = _bf_attr_desc_factory_meta):
 
   @cached_class_property
   def cached_descriptions(clazz):

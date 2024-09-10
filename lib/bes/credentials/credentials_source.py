@@ -7,9 +7,8 @@ from collections import namedtuple
 from ..system.check import check
 from bes.common.variable import variable
 from bes.system.os_env import os_env
-from bes.system.compat import with_metaclass
 
-class credentials_source(with_metaclass(ABCMeta, object)):
+class credentials_source(object, metaclass = ABCMeta):
   
   @abstractmethod
   def is_valid(self):

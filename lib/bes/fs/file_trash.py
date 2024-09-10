@@ -5,7 +5,6 @@ from abc import abstractmethod, ABCMeta
 from ..system.check import check
 from bes.system.log import log
 from bes.thread.decorators import synchronized_method
-from bes.system.compat import with_metaclass
 
 from .file_util import file_util
 

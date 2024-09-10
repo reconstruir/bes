@@ -7,11 +7,10 @@ from bes.system.check import check
 from bes.system.log import log
 from bes.fs.dir_util import dir_util
 from bes.thread.decorators import synchronized_method
-from bes.system.compat import with_metaclass
 
 from bes.fs.file_util import file_util
 
-class deleter(with_metaclass(ABCMeta, object)):
+class deleter(object, metaclass = ABCMeta):
   
   @abstractmethod
   def delete_file(self, filename):

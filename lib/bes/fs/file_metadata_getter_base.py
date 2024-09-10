@@ -1,11 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
 from ..system.check import check
 
-class file_metadata_getter_base(with_metaclass(ABCMeta, object)):
+class file_metadata_getter_base(object, metaclass = ABCMeta):
 
   @classmethod
   @abstractmethod

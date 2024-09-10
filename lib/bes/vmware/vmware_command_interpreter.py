@@ -7,7 +7,6 @@ from abc import abstractmethod, ABCMeta
 from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 from bes.system.compat import compat
-from bes.system.compat import with_metaclass
 
 from .vmware_command_interpreter_registry import vmware_command_interpreter_registry
 
@@ -19,7 +18,7 @@ class _command_interpreter_register_meta(ABCMeta):
       vmware_command_interpreter_registry.register(clazz)
     return clazz
   
-class vmware_command_interpreter(with_metaclass(_command_interpreter_register_meta, object)):
+class vmware_command_interpreter(object, metaclass = command_interpreter_register_meta):
 
   @abstractmethod
   def name(self):

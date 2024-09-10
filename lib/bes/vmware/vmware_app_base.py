@@ -1,9 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
-class vmware_app_base(with_metaclass(ABCMeta, object)):
+class vmware_app_base(object, metaclass = ABCMeta):
   'Abstract interface for interacting with the vmware workstation or fusion main application.'
 
   @classmethod

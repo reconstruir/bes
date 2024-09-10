@@ -16,7 +16,6 @@ from bes.match.matcher_filename import matcher_multiple_filename
 from bes.match.matcher_always_false import matcher_always_false
 from bes.match.matcher_always_true import matcher_always_true
 from bes.match.matcher_util import matcher_util
-from bes.system.compat import with_metaclass
 
 from .archive_base import archive_base
 

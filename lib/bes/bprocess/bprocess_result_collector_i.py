@@ -8,13 +8,12 @@ import queue
 from bes.system.log import logger
 from bes.system.check import check
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
 from .bprocess_result import bprocess_result
 from .bprocess_progress import bprocess_progress
 from .bprocess_error import bprocess_error
 
-class bprocess_result_collector_i(with_metaclass(ABCMeta, object)):
+class bprocess_result_collector_i(object, metaclass = ABCMeta):
 
   _log = logger('bprocess')
 

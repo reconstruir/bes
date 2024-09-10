@@ -63,7 +63,7 @@ class archive_tar(archive):
                   strip_common_ancestor = False, strip_head = None):
     with tarfile.open(self.filename, mode = 'r') as archive:
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-      archive.extractall(path = dest_dir)
+      archive.extractall(path = dest_dir, filter = lambda info, _: info)
       self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
 
   #@abstractmethod
@@ -79,7 +79,7 @@ class archive_tar(archive):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     with tarfile.open(self.filename, mode = 'r') as archive:
       for member in filtered_members:
-        archive.extract(member, path = dest_dir)
+        archive.extract(member, path = dest_dir, filter = lambda info, _: info)
       self._handle_extract_strip_common_ancestor(filtered_members, strip_common_ancestor, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,

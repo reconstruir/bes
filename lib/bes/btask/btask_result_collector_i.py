@@ -8,13 +8,12 @@ import queue
 from bes.system.log import logger
 from bes.system.check import check
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
 from .btask_result import btask_result
 from .btask_progress import btask_progress
 from .btask_error import btask_error
 
-class btask_result_collector_i(with_metaclass(ABCMeta, object)):
+class btask_result_collector_i(object, metaclass = ABCMeta):
 
   _log = logger('btask')
 

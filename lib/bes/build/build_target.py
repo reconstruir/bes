@@ -2,7 +2,6 @@
 
 import fnmatch
 
-from bes.system.compat import with_metaclass
 from bes.system.host import host
 from ..system.check import check
 from bes.common.dict_util import dict_util

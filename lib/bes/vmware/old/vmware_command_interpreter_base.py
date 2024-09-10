@@ -3,12 +3,11 @@
 from collections import namedtuple
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 from ..system.check import check
 
 from .vmware_error import vmware_error
 
-class vmware_command_interpreter_base(with_metaclass(ABCMeta, object)):
+class vmware_command_interpreter_base(object, metaclass = ABCMeta):
   'Abstract interface for dealing with command interpreters in vms.'
   
   @classmethod

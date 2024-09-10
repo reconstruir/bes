@@ -156,7 +156,6 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 
 New 
 - there is not test for time_util.py instead a stub one is silly
-- move with_metaclass.py to its own module
 - s/ObservableValues/observable_values/
 - s/Waiter/waiter/
 - mv lib/bes/env to a unix only place

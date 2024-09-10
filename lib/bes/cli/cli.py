@@ -5,14 +5,13 @@ from abc import abstractmethod, ABCMeta
 
 from ..system.check import check
 from bes.script.blurb import blurb
-from bes.system.compat import with_metaclass
 from bes.system.log import log
 from bes.version.version_cli import version_cli
 
 from .argparser_handler import argparser_handler
 from .cli_command_list import cli_command_list
 
-class cli(with_metaclass(ABCMeta, object)):
+class cli(object, metaclass = ABCMeta):
 
   def __init__(self, name):
     check.check_string(name)

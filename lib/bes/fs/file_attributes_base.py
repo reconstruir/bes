@@ -5,7 +5,6 @@ import os
 from datetime import datetime
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
 from ..system.check import check
 from bes.common.bool_util import bool_util
@@ -13,7 +12,7 @@ from bes.fs.file_check import file_check
 
 from .file_attributes_error import file_attributes_permission_error
 
-class file_attributes_base(with_metaclass(ABCMeta, object)):
+class file_attributes_base(object, metaclass = ABCMeta):
 
   @classmethod
   @abstractmethod

@@ -2,7 +2,6 @@
 
 from abc import abstractmethod, ABCMeta
 
-from bes.system.compat import with_metaclass
 from bes.system.check import check
 from bes.property.cached_class_property import cached_class_property
 
@@ -16,7 +15,7 @@ class _bf_attr_type_desc_meta(ABCMeta):
       #bf_attr_desc_registry.register_factory(clazz)
     return clazz
 
-class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
+class bf_attr_type_desc_base(metaclass = _bf_attr_type_desc_meta):
 
   @classmethod
   @abstractmethod

@@ -5,9 +5,8 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.script.blurber import blurber
-from bes.system.compat import with_metaclass
 
-class native_package_base(with_metaclass(ABCMeta, object)):
+class native_package_base(object, metaclass = ABCMeta):
 
   def __init__(self, bl):
     bl = bl or blurber()

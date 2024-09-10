@@ -2,9 +2,8 @@
 
 from collections import namedtuple
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
-class archive_base(with_metaclass(ABCMeta, object)):
+class archive_base(object, metaclass = ABCMeta):
   'An archive interface.'
 
   item = namedtuple('item', [ 'filename', 'arcname' ])

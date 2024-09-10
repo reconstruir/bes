@@ -57,7 +57,7 @@ class test_temp_archive(unit_test):
     tmp_dir = temp_file.make_temp_dir()
 
     with tarfile.open(tmp_archive, mode = 'r') as archive:
-      archive.extractall(path = tmp_dir)
+      archive.extractall(path = tmp_dir, filter = lambda info, _: info)
       tmp_member_path = path.join(tmp_dir, 'foo.txt')
       self.assertTrue( path.isfile(tmp_member_path) )
       self.assertEqual( b'foo.txt\n', file_util.read(tmp_member_path) )

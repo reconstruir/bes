@@ -10,18 +10,18 @@ from bes.testing.unit_test import unit_test
 class test_bf_file_matcher_item_re(unit_test):
   
   def test_match_no_options(self):
-    self.assertEqual( True, self._match('.*\.py', 'kiwi.py') )
-    self.assertEqual( False, self._match('.*\.py', 'KIWI.PY') )
-    self.assertEqual( True, self._match('.*\.py', '/tmp/x/lemon.py') )
+    self.assertEqual( True, self._match(r'.*\.py', 'kiwi.py') )
+    self.assertEqual( False, self._match(r'.*\.py', 'KIWI.PY') )
+    self.assertEqual( True, self._match(r'.*\.py', '/tmp/x/lemon.py') )
 
   def test_match_ignore_case(self):
-    self.assertEqual( True, self._match('.*\.py', 'kiwi.py', ignore_case = True) )
-    self.assertEqual( True, self._match('.*\.py', 'KIWI.PY', ignore_case = True) )
-    self.assertEqual( True, self._match('.*\.py', '/tmp/x/lemon.py', ignore_case = True) )
+    self.assertEqual( True, self._match(r'.*\.py', 'kiwi.py', ignore_case = True) )
+    self.assertEqual( True, self._match(r'.*\.py', 'KIWI.PY', ignore_case = True) )
+    self.assertEqual( True, self._match(r'.*\.py', '/tmp/x/lemon.py', ignore_case = True) )
 
   def test_match_path_type_basename(self):
-    self.assertEqual( True, self._match('k.*\.py', '/foo/bar/kiwi.py', path_type = 'basename') )
-    self.assertEqual( False, self._match('k.*\.py', 'koo/bar/melon.py', path_type = 'basename') )
+    self.assertEqual( True, self._match(r'k.*\.py', '/foo/bar/kiwi.py', path_type = 'basename') )
+    self.assertEqual( False, self._match(r'k.*\.py', 'koo/bar/melon.py', path_type = 'basename') )
 
   def _match(self, pattern, filename, **options):
     entry = bf_entry(filename)

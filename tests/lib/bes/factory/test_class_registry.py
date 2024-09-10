@@ -6,7 +6,6 @@ from abc import abstractmethod, ABCMeta
 from bes.factory.class_registry import class_registry
 from bes.factory.singleton_class_registry import singleton_class_registry
 from bes.system.check import check
-from bes.system.compat import with_metaclass
 from bes.testing.unit_test import unit_test
 
 class _fruit_registry(singleton_class_registry):
@@ -22,7 +21,7 @@ class _fruit_register(ABCMeta):
       _fruit_registry.register(clazz)
     return clazz
 
-class _fruit_base(with_metaclass(_fruit_register, object)):
+class _fruit_base(object, metaclass = _fruit_register):
 
   @classmethod
   @abstractmethod

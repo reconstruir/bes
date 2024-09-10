@@ -13,7 +13,7 @@ class test_bcli_options(unit_test):
   def test_to_dict_with_hiding_secrets(self):
     options = self._make_test_options(password = 'foo')
     self.assertEqual( {
-      'callback': '__main__._unit_test_kiwi_options_desc._callback',
+      'callback': f'{__name__}._unit_test_kiwi_options_desc._callback',
       'kiwi': 42,
       'pear': 666,
       'password': '*************',
@@ -22,7 +22,7 @@ class test_bcli_options(unit_test):
   def test_to_dict_without_hiding_secrets(self):
     options = self._make_test_options(password = 'foo')
     self.assertEqual( {
-      'callback': '__main__._unit_test_kiwi_options_desc._callback',
+      'callback': f'{__name__}._unit_test_kiwi_options_desc._callback',
       'kiwi': 42,
       'pear': 666,
       'password': 'foo',

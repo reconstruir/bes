@@ -7,12 +7,11 @@ from ..system.check import check
 from bes.python.python_version import python_version
 from bes.python.python_version_list import python_version_list
 from bes.script.blurber import blurber
-from bes.system.compat import with_metaclass
 from bes.system.log import logger
 
 from .python_installer_options import python_installer_options
 
-class python_installer_base(with_metaclass(ABCMeta, object)):
+class python_installer_base(object, metaclass = ABCMeta):
 
   _log = logger('python_installer')
   
