@@ -2,7 +2,6 @@
 
 from collections import namedtuple
 from datetime import datetime
-from datetime import timezone
 
 import time
 import math
@@ -57,12 +56,6 @@ class time_util(object):
       return '{}:{}'.format(str(t.minutes).zfill(2),
                             str(t.seconds).zfill(2))
 
-  @classmethod
-  def datetime_to_utc(clazz, when):
-    check.check(when, datetime)
-    
-    return datetime.fromtimestamp(when.timestamp(), tz = timezone.utc)
-  
   @classmethod
   def timestamp_iso8601(clazz, when, milliseconds = True):
     check.check(when, datetime)

@@ -4,11 +4,15 @@ import sqlite3
 import os
 import os.path as path
 from collections import namedtuple
+from datetime import datetime
+from datetime import timezone
 
+from ..common.string_util import string_util
+from ..fs.file_util import file_util
 from ..system.check import check
-from bes.common.string_util import string_util
-from bes.fs.file_util import file_util
-from bes.system.log import log
+from ..system.log import log
+
+from .sqlite_connection import sqlite_connection
 
 class sqlite(object):
 
@@ -21,7 +25,7 @@ class sqlite(object):
     return _row_class(*row)
 
   def __init__(self, filename, log_tag = None, factory = None):
-    factory = factory or sqlite3.Connection
+    factory = factory or sqlite_connection
     
     log.add_logging(self, tag = log_tag or 'sqlite')
     
@@ -209,3 +213,27 @@ class sqlite(object):
     sql = f'select exists(select 1 from {table_name} where {column_name}=? limit 1)'
     row = self.select_one(sql, ( column_value, ))
     return bool(row[0])
+
+  _TABLE_VERSION_NAME = '__bes_table_version__'
+  _TABLE_VERSION_SCHEMA = fr'''
+CREATE TABLE {_TABLE_VERSION_NAME}(
+  name TEXT PRIMARY KEY NOT NULL,
+  version INTEGER NOT NULL
+);
+'''
+  def get_table_version(self, name):
+    check.check_string(name)
+    
+    self.ensure_table(self._TABLE_VERSION_NAME, self._TABLE_VERSION_SCHEMA)
+    row = self.select_one(f'SELECT version FROM {self._TABLE_VERSION_NAME} WHERE name=?', ( name, ))
+    if not row:
+      return 0
+    return row[0]
+
+  def set_table_version(self, name, version):
+    check.check_string(name)
+    check.check_int(version)
+    
+    self.ensure_table(self._TABLE_VERSION_NAME, self._TABLE_VERSION_SCHEMA)
+    self.execute(f'REPLACE INTO {self._TABLE_VERSION_NAME}(name, version) values(?, ?)',
+                 ( name, version ))
