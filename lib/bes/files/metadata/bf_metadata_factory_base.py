@@ -35,6 +35,6 @@ class bf_metadata_factory_base(metaclass = _bf_metadata_factory_meta):
   @abstractmethod
   def descriptions(clazz):
     'Return a list of descriptions this factory supports.'
-    raise NotImplemented('descriptions')
+    raise NotImplementedError('descriptions')
   
 check.register_class(bf_metadata_factory_base, name = 'bf_metadata_factory', include_seq = False)

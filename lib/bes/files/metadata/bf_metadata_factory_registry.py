@@ -33,7 +33,7 @@ class bf_metadata_factory_registry(object):
     descriptions = clazz.check_descriptions(factory_class.cached_descriptions)
     for description in descriptions:
       if description.key in clazz._factories:
-        raise bf_metadata_error(f'getter already registered: "{description.key}"')
+        clazz._log.log_w(f'overriding existing description {description.key} {description.getter}')
       clazz._factories[description.key] = description
       clazz._log.log_d(f'registered description {description.key} {description.getter}')
 

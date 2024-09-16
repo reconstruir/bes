@@ -17,13 +17,8 @@ class test_bf_metadata_factory_checksum(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    bf_metadata_factory_registry.unregister_factory(bf_metadata_factory_checksum)
     bf_metadata_factory_registry.register_factory(bf_metadata_factory_checksum)
 
-  @classmethod
-  def tearDownClass(clazz):
-    bf_metadata_factory_registry.unregister_factory(bf_metadata_factory_checksum)
-  
   def test_get_metadata(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True)
     #tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')

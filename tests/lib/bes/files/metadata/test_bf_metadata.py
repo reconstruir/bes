@@ -19,12 +19,6 @@ class test_bf_metadata(unit_test):
   @classmethod
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
-    #bf_metadata_factory_registry.unregister_factory(_test_fruits_factory)
-    #bf_metadata_factory_registry.register_factory(_test_fruits_factory)
-
-  #@classmethod
-  #def tearDownClass(clazz):
-  #  bf_metadata_factory_registry.unregister_factory(_test_fruits_factory)
 
   def test_get_metadata(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data')

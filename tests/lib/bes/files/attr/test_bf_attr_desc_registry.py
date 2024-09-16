@@ -14,13 +14,8 @@ class test_bf_attr_desc_registry(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    bf_attr_desc_registry.unregister_factory(fruits_factory)
     bf_attr_desc_registry.register_factory(fruits_factory)
 
-  @classmethod
-  def tearDownClass(clazz):
-    bf_attr_desc_registry.unregister_factory(fruits_factory)
-  
   def test_register_attr_value_desc_factory(self):
     self.assertEqual( True, bf_attr_desc_registry.has_value('acme/fruit/kiwi/1.0') )
     self.assertEqual( False, bf_attr_desc_registry.has_value('acme/fruit/kiwi/2.0') )

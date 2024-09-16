@@ -19,13 +19,8 @@ class test_bf_metadata_factory_mime(unit_test, unit_test_media_files):
 
   @classmethod
   def setUpClass(clazz):
-    bf_metadata_factory_registry.unregister_factory(bf_metadata_factory_mime)
     bf_metadata_factory_registry.register_factory(bf_metadata_factory_mime)
 
-  @classmethod
-  def tearDownClass(clazz):
-    bf_metadata_factory_registry.unregister_factory(bf_metadata_factory_mime)
-  
   def test_get_mime_type_jpeg(self):
     tmp = self.make_temp_file(dir = __file__, content = self.jpg_file, suffix = '.jpg')
     self.assertEqual( 'image/jpeg',
