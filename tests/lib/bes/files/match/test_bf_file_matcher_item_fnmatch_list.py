@@ -20,17 +20,13 @@ class test_bf_file_matcher_item_fnmatch_list(unit_test):
     self.assertEqual( True, self._match([ '*.py', 'something*' ], 'ANY', 'something.pdf') )
     self.assertEqual( False, self._match([ '*.py' ], 'ANY', 'KIWI.PY') )
     self.assertEqual( True, self._match([ '*.py' ], 'ANY', '/tmp/x/lemon.py') )
-    
-  '''
-  def test_match_ignore_case(self):
-    self.assertEqual( True, self._match('*.py', 'kiwi.py', ignore_case = True) )
-    self.assertEqual( True, self._match('*.py', 'KIWI.PY', ignore_case = True) )
-    self.assertEqual( True, self._match('*.py', '/tmp/x/lemon.py', ignore_case = True) )
 
-  def test_match_path_type_basename(self):
-    self.assertEqual( True, self._match('k*.py', '/foo/bar/kiwi.py', path_type = 'basename') )
-    self.assertEqual( False, self._match('k*.py', 'koo/bar/melon.py', path_type = 'basename') )
-'''    
+  def test_match_no_options_none(self):
+    self.assertEqual( False, self._match([ '*.py' ], 'NONE', 'kiwi.py') )
+    self.assertEqual( False, self._match([ '*.py', 'something*' ], 'NONE', 'something.pdf') )
+    self.assertEqual( True, self._match([ '*.py' ], 'NONE', 'KIWI.PY') )
+    self.assertEqual( False, self._match([ '*.py' ], 'NONE', '/tmp/x/lemon.py') )
+    
   def _match(self, patterns, match_type, filename, **options):
     entry = bf_entry(filename)
     matcher = bf_file_matcher_item_fnmatch_list(patterns, match_type)

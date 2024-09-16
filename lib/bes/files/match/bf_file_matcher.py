@@ -16,6 +16,7 @@ from .bf_file_matcher_item_i import bf_file_matcher_item_i
 from .bf_file_matcher_item_callable import bf_file_matcher_item_callable
 from .bf_file_matcher_item_datetime import bf_file_matcher_item_datetime
 from .bf_file_matcher_item_fnmatch import bf_file_matcher_item_fnmatch
+from .bf_file_matcher_item_fnmatch_list import bf_file_matcher_item_fnmatch_list
 from .bf_file_matcher_type import bf_file_matcher_type
 from .bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
 from .bf_file_matcher_options import bf_file_matcher_options
@@ -66,6 +67,9 @@ class bf_file_matcher(object):
   def add_matcher_fnmatch(self, pattern, negate = False):
     self.add_matcher(bf_file_matcher_item_fnmatch(pattern), negate = negate)
 
+  def add_matcher_fnmatch_list(self, patterns, match_type = bf_file_matcher_type.ANY):
+    self.add_matcher(bf_file_matcher_item_fnmatch_list(patterns, match_type))
+    
   def add_matcher_re(self, expression, negate = False):
     self.add_matcher(bf_file_matcher_item_re(expression), negate = negate)
 

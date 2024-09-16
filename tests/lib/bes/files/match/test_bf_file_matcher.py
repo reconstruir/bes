@@ -128,6 +128,6 @@ class test_bf_file_matcher(unit_test):
     options = bf_file_matcher_options(match_type = 'all')
     self.assertEqual( bf_entry_list(expected),
                       m.match_entries(filenames, options = options) )
-    
+
 if __name__ == '__main__':
   unit_test.main()

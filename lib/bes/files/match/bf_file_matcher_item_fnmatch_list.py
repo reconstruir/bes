@@ -71,7 +71,7 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_i):
     num = len(patterns)
     for i, next_pattern in enumerate(patterns, start = 1):
       matched = fnmatcher(filename, next_pattern)
-      clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.filename} pattern={next_matcher.matcher} => {matched}')
+      clazz._log.log_d(f'_match_none: {i} of {num}:  entry={filename} pattern={next_pattern} => {matched}')
       if matched:
         return False
     return True
