@@ -98,7 +98,7 @@ class test_bf_dir(unit_test):
       #'file emptyfile.txt',
       #'dir emptydir',
     ])
-    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, callables = ( lambda f: f.endswith('.jpg'), )) )
+    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, callables = ( lambda entry_, filename_: filename_.endswith('.jpg'), )) )
 
   def xtest_list_dirs(self):
     tmp_dir = self._make_temp_content([

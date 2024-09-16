@@ -4,7 +4,6 @@ import fnmatch
 
 from bes.system.check import check
 from bes.system.log import logger
-from bes.property.cached_property import cached_property
 
 from .bf_file_matcher_item_i import bf_file_matcher_item_i
 from .bf_file_matcher_options import bf_file_matcher_options
@@ -21,7 +20,7 @@ class bf_file_matcher_item_fnmatch(bf_file_matcher_item_i):
   def __str__(self):
     return f'bf_file_matcher_item_fnmatch("{self._pattern}")'
     
-  @cached_property
+  @property
   def _pattern_lowercase(self):
     return self._pattern.lower()
 
@@ -33,7 +32,8 @@ class bf_file_matcher_item_fnmatch(bf_file_matcher_item_i):
 
     pattern = self._pattern_lowercase if options.ignore_case else self._pattern
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
-    matched = fnmatch.fnmatchcase(filename, pattern)
+    fnmatcher = fnmatch.fnmatch if options.ignore_case else fnmatch.fnmatchcase
+    matched = fnmatcher(filename, pattern)
     self._log.log_d(f'{self}: match({entry.filename}) filename={filename} pattern="{pattern}" => {matched}')
     return matched
 

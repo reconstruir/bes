@@ -25,7 +25,7 @@ class bf_file_matcher_item_callable(bf_file_matcher_item_i):
     check.check_bf_file_matcher_options(options)
 
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
-    matched = self._callable(filename)
+    matched = self._callable(entry, filename)
     self._log.log_d(f'{self}: match({entry.filename}, {entry.root_dir}) filename={filename} => {matched}')
     return matched
 

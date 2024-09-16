@@ -33,7 +33,7 @@ class test_bf_file_matcher(unit_test):
     self.assertEqual( True, self._match(setup, 'KIWI.PY', None) )
     self.assertEqual( False, self._match(setup, '/tmp/x/lemon.py', None) )
     
-  def test_match_fnmatch_one_matcher_any_with_ignore_case(self):
+  def test_match_fnmatch_one_matcher_any_with_ignore_case_lowercase_pattern(self):
     def setup(m):
       m.add_matcher_fnmatch('*.py')
       
@@ -41,6 +41,14 @@ class test_bf_file_matcher(unit_test):
     self.assertEqual( True, self._match(setup, 'KIWI.PY', None, ignore_case = True) )
     self.assertEqual( True, self._match(setup, '/tmp/x/lemon.py', None, ignore_case = True) )
 
+  def test_match_fnmatch_one_matcher_any_with_ignore_case_uppercase_pattern(self):
+    def setup(m):
+      m.add_matcher_fnmatch('*.PY')
+      
+    self.assertEqual( True, self._match(setup, 'kiwi.py', None, ignore_case = True) )
+    self.assertEqual( True, self._match(setup, 'KIWI.PY', None, ignore_case = True) )
+    self.assertEqual( True, self._match(setup, '/tmp/x/lemon.py', None, ignore_case = True) )
+    
   def test_match_fnmatch_one_matcher_any_with_path_type_basename(self):
     def setup(m):
       m.add_matcher_fnmatch('f*')

@@ -10,7 +10,7 @@ from bes.testing.unit_test import unit_test
 class test_bf_file_matcher_item_callable(unit_test):
   
   def test_match_one_func_all(self):
-    f = lambda f: f.endswith('.py')
+    f = lambda entry, filename: filename.endswith('.py')
     self.assertEqual( True, self._match(f, 'kiwi.py') )
     self.assertEqual( False, self._match(f, 'KIWI.PY') )
     self.assertEqual( True, self._match(f, '/tmp/x/lemon.py') )

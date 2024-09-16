@@ -342,7 +342,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    matcher.add_matcher_callable(lambda entry_, filename_: filename_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -359,7 +359,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    matcher.add_matcher_callable(lambda entry_, filename_: filename_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -376,7 +376,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    matcher.add_matcher_callable(lambda entry_, filename_: filename_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
@@ -395,7 +395,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.startswith('brie'))
+    matcher.add_matcher_callable(lambda entry_, filename_: filename_.startswith('brie'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
     ], self._find(content, file_matcher = matcher, path_type = 'basename').sorted_filenames )
@@ -411,7 +411,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.startswith('cheese'))
+    matcher.add_matcher_callable(lambda entry_, filename_: filename_.startswith('cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
