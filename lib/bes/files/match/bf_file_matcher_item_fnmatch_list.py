@@ -43,7 +43,10 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_i):
     }
     func = func_map[self._match_type]
     matched = func(filename, self._patterns, fnmatcher)
-    self._log.log_d(f'{self}: match({entry.filename}) match_type={self._match_type.name} filename={filename} patterns="{patterns}" => {matched}')
+    import pprint
+    patterns = pprint.pformat(patterns)
+    #self._log.log_e(f'match({entry.root_dir},{entry.filename}) {filename} match_type={self._match_type.name} filename={filename} patterns="{patterns}" => {matched}')
+    self._log.log_d(f'match({entry.root_dir}-{filename}) {filename} match_type={self._match_type.name} filename={filename} => {matched}')
     return matched
 
   @classmethod

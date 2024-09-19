@@ -3,6 +3,8 @@
 import os.path as path
 import os
 
+from collections import namedtuple
+
 from bes.system.check import check
 from bes.system.log import logger
 from bes.common.object_util import object_util
@@ -18,6 +20,8 @@ from ..match.bf_file_matcher_type import bf_file_matcher_type
 from ..match.bf_file_matcher import bf_file_matcher
 
 from .bf_file_finder_options import bf_file_finder_options
+from .bf_file_finder_result import bf_file_finder_result
+from .bf_file_finder_stats import bf_file_finder_stats
 
 class bf_file_finder(object):
 
@@ -48,6 +52,7 @@ class bf_file_finder(object):
     for root, dirs, files in self.walk_with_depth(where,
                                                   max_depth = self._options.max_depth,
                                                   follow_links = self._options.follow_links):
+      #print(f'checking root={root} dirs={dirs}', flush = True)
       if done:
         break
       to_check = []

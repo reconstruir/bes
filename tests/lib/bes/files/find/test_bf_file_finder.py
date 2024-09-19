@@ -591,7 +591,7 @@ class test_bf_file_finder(unit_test):
                                     self._find(content, found_callback = _cb).sorted_filenames )
     self.assertEqual( set(expected), found )
 
-  def test_find_with_found_callback(self):
+  def test_find_with_multiple_dirs2(self):
     content = [
       'file 1/a/fruit/kiwi.fruit',
       'file 1/a/fruit/lemon.fruit',
@@ -640,6 +640,31 @@ class test_bf_file_finder(unit_test):
       'c/fruit/lemon.fruit',
       'c/fruit/strawberry.fruit',
     ], actual )
+
+  def test_find_with_match_include_and_exclude_patterns(self):
+    content = [
+      'file .git/HEAD "x"',
+      'file .git/config "x"',
+      'file .git/description "x"',
+      'file .git/hooks/applypatch-msg.sample "x"',
+      'file .git/info/exclude "x"',
+      'file kiwi.git "x"',
+      'file a/b/c/foo.txt "x"',
+      'file d/e/bar.txt "x"',
+    ]
+    matcher = bf_file_matcher()
+    matcher.add_matcher_fnmatch('.git*', negate = True)
+    matcher.add_matcher_fnmatch('*.git', negate = True)
+    self.assert_filename_list_equal( [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ], self._find(content, file_matcher = matcher, match_type = 'all', path_type = 'relative').sorted_filenames )
+    
+  def xtest_match_with_both_included_and_excluded_patterns(self):
+    self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi.py', 'proj') )
+    self.assertEqual( False, self._match_ie([ '*.py' ], [ '.*git*' ], '.git/cache', 'proj') )
+    self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi/.git/foo', 'proj') )
+    
     
 if __name__ == '__main__':
   unit_test.main()
