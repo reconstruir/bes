@@ -76,6 +76,8 @@ class bf_file_finder(object):
         abs_filename = path.normpath(path.join(root, name))
         entry = bf_entry(abs_filename, root_dir = where)
         depth = abs_filename.count(os.sep) - where_sep_count
+        if stats_dict:
+          stats_dict['num_checked'] += 1
         if self._entry_matches(entry, depth, self._options):
           if self._options.relative:
             relative_filename = bf_filename.remove_head(abs_filename, where)

@@ -688,10 +688,16 @@ class test_bf_file_finder(unit_test):
     matcher = bf_file_matcher()
     matcher.add_matcher_fnmatch('.git*', negate = True)
     matcher.add_matcher_fnmatch('*.git', negate = True)
+    result = self._find_with_stats(content,
+                                   file_matcher = matcher,
+                                   file_type = 'file',
+                                   match_type = 'all',
+                                   path_type = 'relative')
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',
-    ], self._find_with_stats(content, file_matcher = matcher, match_type = 'all', path_type = 'relative').sorted_filenames )
+    ], result.sorted_filenames )
+    self.assertEqual( 8, result.stats.num_checked )
     
 if __name__ == '__main__':
   unit_test.main()
