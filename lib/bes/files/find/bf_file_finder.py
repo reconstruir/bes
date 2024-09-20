@@ -3,6 +3,7 @@
 import os.path as path
 import os
 
+from datetime import datetime
 from collections import namedtuple
 
 from bes.system.check import check
@@ -35,10 +36,16 @@ class bf_file_finder(object):
   def find_gen(self, where):
     where = bf_check.check_dir_seq(object_util.listify(where))
     for next_where in where:
-      for entry in self._find_gen_one_dir(next_where):
+      for entry in self._find_gen_one_dir(next_where, None):
         yield entry
 
-  def _find_gen_one_dir(self, where):
+  def _find_gen_with_stats(self, where, stats_dict):
+    where = bf_check.check_dir_seq(object_util.listify(where))
+    for next_where in where:
+      for entry in self._find_gen_one_dir(next_where, stats_dict):
+        yield entry
+        
+  def _find_gen_one_dir(self, where, stats_dict):
     where = bf_check.check_dir(where)
     where = path.normpath(where)
     result = bf_entry_list()
@@ -80,6 +87,27 @@ class bf_file_finder(object):
           if self._options.stop_after == count:
             done = True
             
+  def find_with_stats(self, where):
+    stats_dict = {
+      'num_checked': 0,
+      'num_files_checked': 0,
+      'num_dirs_checked': 0,
+      'start_time': datetime.now(),
+      'end_time': None,
+      'depth': 0,
+    }
+    entries = bf_entry_list()
+    for entry in self._find_gen_with_stats(where, stats_dict):
+      entries.append(entry)
+    stats_dict['end_time'] = datetime.now()
+    stats = bf_file_finder_stats(stats_dict['num_checked'],
+                                 stats_dict['num_files_checked'],
+                                 stats_dict['num_dirs_checked'],
+                                 stats_dict['start_time'],
+                                 stats_dict['end_time'],
+                                 stats_dict['depth'])
+    return bf_file_finder_result(entries, stats)
+
   def find(self, where):
     result = bf_entry_list()
     for entry in self.find_gen(where):

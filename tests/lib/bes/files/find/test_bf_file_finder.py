@@ -23,7 +23,7 @@ class test_bf_file_finder(unit_test):
   def _make_temp_content(clazz, items):
     return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
 
-  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
+  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames, stats')
   def _find(self, items, **options):
     finder_options = bf_file_finder_options(**options)
     tmp_dir = self._make_temp_content(items)
@@ -31,7 +31,16 @@ class test_bf_file_finder(unit_test):
     entries = f.find(tmp_dir)
     filenames = entries.filenames()
     sorted_filenames = sorted(filenames)
-    return self._find_result(tmp_dir, entries, filenames, sorted_filenames)
+    return self._find_result(tmp_dir, entries, filenames, sorted_filenames, None)
+
+  def _find_with_stats(self, items, **options):
+    finder_options = bf_file_finder_options(**options)
+    tmp_dir = self._make_temp_content(items)
+    f = bf_file_finder(options = finder_options)
+    result = f.find_with_stats(tmp_dir)
+    filenames = result.entries.filenames()
+    sorted_filenames = sorted(filenames)
+    return self._find_result(tmp_dir, result.entries, filenames, sorted_filenames, result.stats)
   
   def test_find_with_no_options(self):
     content = [
@@ -664,7 +673,25 @@ class test_bf_file_finder(unit_test):
     self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi.py', 'proj') )
     self.assertEqual( False, self._match_ie([ '*.py' ], [ '.*git*' ], '.git/cache', 'proj') )
     self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi/.git/foo', 'proj') )
-    
+
+  def test_find_with_stats(self):
+    content = [
+      'file .git/HEAD "x"',
+      'file .git/config "x"',
+      'file .git/description "x"',
+      'file .git/hooks/applypatch-msg.sample "x"',
+      'file .git/info/exclude "x"',
+      'file kiwi.git "x"',
+      'file a/b/c/foo.txt "x"',
+      'file d/e/bar.txt "x"',
+    ]
+    matcher = bf_file_matcher()
+    matcher.add_matcher_fnmatch('.git*', negate = True)
+    matcher.add_matcher_fnmatch('*.git', negate = True)
+    self.assert_filename_list_equal( [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ], self._find_with_stats(content, file_matcher = matcher, match_type = 'all', path_type = 'relative').sorted_filenames )
     
 if __name__ == '__main__':
   unit_test.main()
