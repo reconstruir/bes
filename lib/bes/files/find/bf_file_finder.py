@@ -56,12 +56,14 @@ class bf_file_finder(object):
 
     count = 0
     done = False
-    for root, dirs, files in self.walk_with_depth(where,
-                                                  max_depth = self._options.max_depth,
-                                                  follow_links = self._options.follow_links):
-      #print(f'checking root={root} dirs={dirs}', flush = True)
+    for root, dirs, files, depth in self.walk_with_depth(where,
+                                                         max_depth = self._options.max_depth,
+                                                         follow_links = self._options.follow_links):
+      #print(f'checking root={root} dirs={dirs} depth={depth}', flush = True)
       if done:
         break
+      if stats_dict:
+        stats_dict['depth'] = max(stats_dict['depth'], depth)
       to_check = []
       if self._options.file_type.mask_matches(bf_file_type.ANY_FILE):
         to_check += files
@@ -140,8 +142,9 @@ class bf_file_finder(object):
       #print(" dirs: %s" % (' '.join(dirs)))
       #print("files: %s" % (' '.join(files)))
       #print("")
-      yield root, dirs, files
       num_sep_this = root.count(path.sep)
+      depth = num_sep_this - num_sep
+      yield root, dirs, files, depth
       if max_depth is not None:
         if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]

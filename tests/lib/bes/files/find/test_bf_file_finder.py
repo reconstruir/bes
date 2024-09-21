@@ -698,6 +698,7 @@ class test_bf_file_finder(unit_test):
       'd/e/bar.txt',
     ], result.sorted_filenames )
     self.assertEqual( 8, result.stats.num_checked )
+    self.assertEqual( 3, result.stats.depth )
     
 if __name__ == '__main__':
   unit_test.main()
