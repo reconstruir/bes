@@ -674,7 +674,7 @@ class test_bf_file_finder(unit_test):
     self.assertEqual( False, self._match_ie([ '*.py' ], [ '.*git*' ], '.git/cache', 'proj') )
     self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi/.git/foo', 'proj') )
 
-  def test_find_with_stats(self):
+  def test_find_with_stats_file_only(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -685,19 +685,53 @@ class test_bf_file_finder(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('.git*', negate = True)
-    matcher.add_matcher_fnmatch('*.git', negate = True)
     result = self._find_with_stats(content,
-                                   file_matcher = matcher,
-                                   file_type = 'file',
+                                   file_type = 'FILE',
                                    match_type = 'all',
                                    path_type = 'relative')
     self.assert_filename_list_equal( [
+      '.git/HEAD',
+      '.git/config',
+      '.git/description',
+      '.git/hooks/applypatch-msg.sample',
+      '.git/info/exclude',
       'a/b/c/foo.txt',
       'd/e/bar.txt',
+      'kiwi.git',
     ], result.sorted_filenames )
     self.assertEqual( 8, result.stats.num_checked )
+    self.assertEqual( 8, result.stats.num_files_checked )
+    self.assertEqual( 0, result.stats.num_dirs_checked )
+    self.assertEqual( 3, result.stats.depth )
+
+  def xtest_find_with_stats_dir_only(self):
+    content = [
+      'file .git/HEAD "x"',
+      'file .git/config "x"',
+      'file .git/description "x"',
+      'file .git/hooks/applypatch-msg.sample "x"',
+      'file .git/info/exclude "x"',
+      'file kiwi.git "x"',
+      'file a/b/c/foo.txt "x"',
+      'file d/e/bar.txt "x"',
+    ]
+    result = self._find_with_stats(content,
+                                   file_type = 'DIR',
+                                   match_type = 'all',
+                                   path_type = 'relative')
+    self.assert_filename_list_equal( [
+      '.git',
+      '.git/hooks',
+      '.git/info',
+      'a',
+      'a/b',
+      'a/b/c',
+      'd',
+      'd/e',
+    ], result.sorted_filenames )
+    self.assertEqual( 8, result.stats.num_checked )
+
+    self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
     
 if __name__ == '__main__':

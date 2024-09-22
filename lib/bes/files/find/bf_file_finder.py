@@ -64,33 +64,59 @@ class bf_file_finder(object):
         break
       if stats_dict:
         stats_dict['depth'] = max(stats_dict['depth'], depth)
-      to_check = []
+      to_check_files = []
+      to_check_dirs = []
+      to_check_links = []
       if self._options.file_type.mask_matches(bf_file_type.ANY_FILE):
-        to_check += files
+        to_check_files += files
       if self._options.file_type.mask_matches(bf_file_type.DIR):
-        to_check += dirs
+        to_check_dirs += dirs
       else:
         links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
-        to_check += links
-      for name in to_check:
+        to_check_links += links
+      for name in to_check_files + to_check_links:
         if done:
           break
-        abs_filename = path.normpath(path.join(root, name))
-        entry = bf_entry(abs_filename, root_dir = where)
-        depth = abs_filename.count(os.sep) - where_sep_count
-        if stats_dict:
-          stats_dict['num_checked'] += 1
-        if self._entry_matches(entry, depth, self._options):
-          if self._options.relative:
-            relative_filename = bf_filename.remove_head(abs_filename, where)
-            entry = bf_entry(relative_filename, root_dir = root)
+        matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
+        if matched_entry:
           count += 1
           if self._options.found_callback:
-            self._options.found_callback(entry)
-          yield entry
+            self._options.found_callback(matched_entry)
+          yield matched_entry
           if self._options.stop_after == count:
             done = True
-            
+      matched_dirs = []
+      for name in to_check_dirs:
+        if done:
+          break
+        matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
+        if matched_entry:
+          matched_dirs.append(name)
+          count += 1
+          if self._options.found_callback:
+            self._options.found_callback(matched_entry)
+          yield matched_entry
+          if self._options.stop_after == count:
+            done = True
+      #dirs[:] = matched_dirs
+
+  def _check_one(self, root, name, where, where_sep_count, stats_dict):
+    abs_filename = path.normpath(path.join(root, name))
+    entry = bf_entry(abs_filename, root_dir = where)
+    depth = abs_filename.count(os.sep) - where_sep_count
+    if stats_dict:
+      stats_dict['num_checked'] += 1
+      if entry.is_dir:
+        stats_dict['num_dirs_checked'] += 1
+      if entry.is_file:
+        stats_dict['num_files_checked'] += 1
+    if self._entry_matches(entry, depth, self._options):
+      if self._options.relative:
+        relative_filename = bf_filename.remove_head(abs_filename, where)
+        entry = bf_entry(relative_filename, root_dir = root)
+      return entry
+    return None
+    
   def find_with_stats(self, where):
     stats_dict = {
       'num_checked': 0,
