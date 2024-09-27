@@ -31,7 +31,8 @@ class bf_file_finder(object):
   def __init__(self, options = None):
     check.check_bf_file_finder_options(options, allow_none = True)
 
-    self._options = options or bf_file_finder_options()
+    self._options = bf_file_finder_options.clone_or_create(options)
+    check.check_bf_file_finder_options(self._options)
 
   def find_gen(self, where):
     where = bf_check.check_dir_seq(object_util.listify(where))
@@ -59,7 +60,6 @@ class bf_file_finder(object):
     for root, dirs, files, depth in self.walk_with_depth(where,
                                                          max_depth = self._options.max_depth,
                                                          follow_links = self._options.follow_links):
-      #print(f'checking root={root} dirs={dirs} depth={depth}', flush = True)
       if done:
         break
       if stats_dict:
@@ -67,14 +67,26 @@ class bf_file_finder(object):
       to_check_files = []
       to_check_dirs = []
       to_check_links = []
-      if self._options.file_type.mask_matches(bf_file_type.ANY_FILE):
-        to_check_files += files
-      if self._options.file_type.mask_matches(bf_file_type.DIR):
+
+      want_files = self._options.file_type.mask_matches(bf_file_type.FILE)
+      want_dirs = self._options.file_type.mask_matches(bf_file_type.DIR)
+      want_links = self._options.file_type.mask_matches(bf_file_type.LINK)
+
+      if want_files or want_links:
+        for next_file in files:
+          next_file_path = path.normpath(path.join(root, next_file))
+          is_link = path.islink(next_file_path)
+          if want_links and is_link:
+            to_check_links.append(next_file)
+          if want_files and not is_link:
+            to_check_files.append(next_file)
+
+      if want_dirs:
         to_check_dirs += dirs
-      else:
-        links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
-        to_check_links += links
-      for name in to_check_files + to_check_links:
+        
+      to_check_files_and_links = to_check_files + to_check_links
+      for i, name in enumerate(to_check_files_and_links, start = 1):
+        self._log.log_d(f'checking file|link {i} of {len(to_check_files_and_links)}: {name} done={done}')
         if done:
           break
         matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
@@ -86,7 +98,8 @@ class bf_file_finder(object):
           if self._options.stop_after == count:
             done = True
       matched_dirs = []
-      for name in to_check_dirs:
+      for i, name in enumerate(to_check_dirs, start = 1):
+        self._log.log_d(f'checking dirs {i} of {len(to_check_dirs)}: {name} done={done}')
         if done:
           break
         matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
@@ -98,6 +111,7 @@ class bf_file_finder(object):
           yield matched_entry
           if self._options.stop_after == count:
             done = True
+      self._log.log_d(f'matched_dirs={matched_dirs}')
       #dirs[:] = matched_dirs
 
   def _check_one(self, root, name, where, where_sep_count, stats_dict):

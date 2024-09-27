@@ -104,5 +104,22 @@ class bcli_options(object):
   @classmethod
   def register_check_class(clazz):
     check.register_class(clazz, include_seq = False)
-    
+
+  def clone(self):
+    d = self.to_dict(hide_secrets = False)
+    return self.__class__(**d)
+
+  def __eq__(self, other):
+    check.check_bcli_options(other)
+
+    dself = self.to_dict(hide_secrets = False)
+    dother = other.to_dict(hide_secrets = False)
+    return dself == dother
+
+  @classmethod
+  def clone_or_create(clazz, options):
+    if not options:
+      return clazz()
+    return options.clone()
+  
 check.register_class(bcli_options, include_seq = False)
