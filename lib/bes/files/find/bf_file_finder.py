@@ -86,7 +86,7 @@ class bf_file_finder(object):
         
       to_check_files_and_links = to_check_files + to_check_links
       for i, name in enumerate(to_check_files_and_links, start = 1):
-        self._log.log_d(f'checking file|link {i} of {len(to_check_files_and_links)}: {name} done={done}')
+        self._log.log_d(f'checking file|link {i} of {len(to_check_files_and_links)}: root={root} name={name} done={done}')
         if done:
           break
         matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
@@ -178,6 +178,9 @@ class bf_file_finder(object):
       raise RuntimeError('not a directory: %s' % (root_dir))
     num_sep = root_dir.count(path.sep)
     for root, dirs, files in os.walk(root_dir, topdown = True, followlinks = follow_links):
+      files[:] = sorted(files)
+      dirs[:] = sorted(dirs)
+      clazz._log.log_d(f'walk_with_depth: root={root} dirs={dirs} files={files}')
       #print(" root: %s" % (root))
       #print(" dirs: %s" % (' '.join(dirs)))
       #print("files: %s" % (' '.join(files)))
