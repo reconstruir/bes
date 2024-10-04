@@ -23,6 +23,7 @@ from ..match.bf_file_matcher import bf_file_matcher
 from .bf_file_finder_options import bf_file_finder_options
 from .bf_file_finder_result import bf_file_finder_result
 from .bf_file_finder_stats import bf_file_finder_stats
+from .bf_walk import bf_walk
 
 class bf_file_finder(object):
 
@@ -57,9 +58,9 @@ class bf_file_finder(object):
 
     count = 0
     done = False
-    for root, dirs, files, depth in self.walk_with_depth(where,
-                                                         max_depth = self._options.max_depth,
-                                                         follow_links = self._options.follow_links):
+    for root, dirs, files, depth in bf_walk.walk(where,
+                                                 max_depth = self._options.max_depth,
+                                                 follow_links = self._options.follow_links):
       if done:
         break
       if stats_dict:
@@ -170,28 +171,6 @@ class bf_file_finder(object):
       return False
     return True
               
-  #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
-  @classmethod
-  def walk_with_depth(clazz, root_dir, max_depth = None, follow_links = False):
-    root_dir = root_dir.rstrip(path.sep)
-    if not path.isdir(root_dir):
-      raise RuntimeError('not a directory: %s' % (root_dir))
-    num_sep = root_dir.count(path.sep)
-    for root, dirs, files in os.walk(root_dir, topdown = True, followlinks = follow_links):
-      files[:] = sorted(files)
-      dirs[:] = sorted(dirs)
-      clazz._log.log_d(f'walk_with_depth: root={root} dirs={dirs} files={files}')
-      #print(" root: %s" % (root))
-      #print(" dirs: %s" % (' '.join(dirs)))
-      #print("files: %s" % (' '.join(files)))
-      #print("")
-      num_sep_this = root.count(path.sep)
-      depth = num_sep_this - num_sep
-      yield root, dirs, files, depth
-      if max_depth is not None:
-        if num_sep + max_depth - 1 <= num_sep_this:
-          del dirs[:]
-
   @classmethod
   def find_with_options(clazz, where, **kwargs):
     options = bf_file_finder_options(**kwargs)
