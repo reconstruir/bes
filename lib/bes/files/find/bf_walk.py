@@ -8,29 +8,42 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.system.log import logger
 
+from ..bf_entry import bf_entry
+from ..bf_entry_list import bf_entry_list
+from ..bf_error import bf_error
+from ..bf_filename import bf_filename
+
 class bf_walk(object):
 
   _log = logger('bf_walk')
-  
-  #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
-  _bf_walk_item = namedtuple('_bf_walk_item', 'root, dirs, files, depth')
+
   @classmethod
-  def walk(clazz, root_dir, max_depth = None, follow_links = False):
-    root_dir = root_dir.rstrip(path.sep)
-    if not path.isdir(root_dir):
-      raise RuntimeError('not a directory: %s' % (root_dir))
-    num_sep = root_dir.count(path.sep)
-    for root, dirs, files in os.walk(root_dir, topdown = True, followlinks = follow_links):
+  def _make_entry(clazz, where, next_root_dir, filename):
+    return bf_entry(path.join(next_root_dir, filename), root_dir = where)
+
+  @classmethod
+  def _make_entry_list(clazz, where, next_root_dir, filenames):
+    return bf_entry_list([ clazz._make_entry(where, next_root_dir, f) for f in filenames ])
+  
+  # base on:
+  # https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
+  _bf_walk_item = namedtuple('_bf_walk_item', 'root_dir, dirs, files, depth')
+  @classmethod
+  def walk(clazz, where, max_depth = None, follow_links = False):
+    where = path.normpath(where.rstrip(path.sep))
+    if not path.isdir(where):
+      raise bf_error(f'not a directory: {where}')
+    num_sep = where.count(path.sep)
+    for next_root_dir, dirs, files in os.walk(where, topdown = True, followlinks = follow_links):
       files[:] = sorted(files)
       dirs[:] = sorted(dirs)
-      clazz._log.log_d(f'walk_with_depth: root={root} dirs={dirs} files={files}')
-      #print(" root: %s" % (root))
-      #print(" dirs: %s" % (' '.join(dirs)))
-      #print("files: %s" % (' '.join(files)))
-      #print("")
-      num_sep_this = root.count(path.sep)
+      clazz._log.log_d(f'walk_with_depth: next_root_dir={next_root_dir} dirs={dirs} files={files}')
+      num_sep_this = next_root_dir.count(path.sep)
       depth = num_sep_this - num_sep
-      yield root, dirs, files, depth
+      dir_entries = clazz._make_entry_list(where, next_root_dir, dirs)
+      file_entries = clazz._make_entry_list(where, next_root_dir, files)
+      walk_item = clazz._bf_walk_item(next_root_dir, dir_entries, file_entries, depth)
+      yield walk_item
       if max_depth is not None:
         if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]

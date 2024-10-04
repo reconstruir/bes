@@ -60,7 +60,10 @@ class bf_entry(object):
   
   def __str__(self):
     return self.filename
-    
+
+  def __repr__(self):
+    return self.filename
+  
   def __eq__(self, other):
     if other == None:
       return False
@@ -81,14 +84,6 @@ class bf_entry(object):
     else:
       raise ValueError(f'Trying to compare against unknown type: "{other}" - {type(other)}')
     
-  @cached_property
-  def _cached_stat(self):
-    return bf_mtime_cached_info(self.filename, lambda f_: os.stat(f_, follow_symlinks = True))
-  
-  @cached_property
-  def _cached_lstat(self):
-    return bf_mtime_cached_info(self.filename, lambda f_: os.stat(f_, follow_symlinks = False))
-  
   @cached_property
   def filename_lowercase(self):
     return self.filename.lower()
@@ -115,7 +110,7 @@ class bf_entry(object):
   
   @property
   def exists(self):
-    return  path.exists(self.filename)
+    return path.exists(self.filename)
 
   @property
   def is_readable(self):
@@ -145,11 +140,11 @@ class bf_entry(object):
   
   @property
   def stat(self):
-    return self._cached_stat.value
+    return os.stat(self.filename)
 
   @property
   def lstat(self):
-    return self._cached_lstat.value
+    return os.lstat(self.filename)
   
   @property
   def is_link(self):
