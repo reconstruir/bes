@@ -24,14 +24,14 @@ class test_bf_walk(unit_test):
   def _walk(self, items, **kwargs):
     tmp_dir = self._make_temp_content(items)
 
-    def _fix_root_dir(root_dir):
-      return root_dir.replace(tmp_dir, '/tmp')
-
     def _fix_entry(entry):
-      return bf_entry(entry.relative_filename, root_dir = _fix_root_dir(entry.root_dir))
+      return entry.clone_replace_root_dir('/tmp')
 
     def _fix_entries(entries):
       return bf_entry_list([ _fix_entry(entry) for entry in entries ])
+
+    def _fix_root_dir(root_dir):
+      return root_dir.replace(tmp_dir, '/tmp')
     
     def _fix_walk_item(item):
       fixed_root_dir = _fix_root_dir(item.root_dir)
