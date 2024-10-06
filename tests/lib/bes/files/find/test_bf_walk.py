@@ -50,11 +50,7 @@ class test_bf_walk(unit_test):
       return result
     
     walk_items = [ x for x in bf_walk.walk(tmp_dir, **kwargs) ]
-    for x in walk_items:
-      print(f' BAD: {x}')
     walk_items = _fix_walk_items(walk_items)
-    for x in walk_items:
-      print(f'GOOD: {x}')
     return self._walk_result(tmp_dir, walk_items)
 
   def test_walk_basic(self):
@@ -71,11 +67,6 @@ class test_bf_walk(unit_test):
       ( '/tmp/subdir', [ 'subberdir' ], [ 'bar.txt' ], 1 ),
       ( '/tmp/subdir/subberdir', [], [ 'baz.txt' ], 2 ),
     ], self._walk(content).result )
-
-#GOOD: _bf_walk_item(root_dir='/tmp', dirs=[/tmp/emptydir, /tmp/subdir], files=[/tmp/emptyfile.txt, /tmp/foo.txt], depth=0)
-#GOOD: _bf_walk_item(root_dir='/tmp/emptydir', dirs=[], files=[], depth=1)
-#GOOD: _bf_walk_item(root_dir='/tmp/subdir', dirs=[/tmp/subdir/subberdir], files=[/tmp/subdir/bar.txt], depth=1)
-#GOOD: _bf_walk_item(root_dir='/tmp/subdir/subberdir', dirs=[], files=[/tmp/subdir/subberdir/baz.txt], depth=2)
 
 if __name__ == '__main__':
   unit_test.main()
