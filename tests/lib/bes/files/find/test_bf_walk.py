@@ -47,9 +47,11 @@ class test_bf_walk(unit_test):
       return result
     
     walk_items = [ x for x in bf_walk.walk(tmp_dir, **kwargs) ]
+    for x in walk_items:
+      print(f' BAD: {x}')
     walk_items = _fix_walk_items(walk_items)
     for x in walk_items:
-      print(x)
+      print(f'GOOD: {x}')
     return self._walk_result(tmp_dir, walk_items)
 
   def test_walk_basic(self):

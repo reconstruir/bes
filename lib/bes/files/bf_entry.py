@@ -35,8 +35,15 @@ class bf_entry(object):
     check.check_string(filename)
     check.check_string(root_dir, allow_none = True)
 
-    self._filename = path.normpath(filename)
-    self._root_dir = path.normpath(root_dir) if root_dir else None
+    filename = path.normpath(filename)
+    root_dir = path.normpath(root_dir) if root_dir else None
+
+    if root_dir:
+      if path.isabs(filename):
+        raise bf_error(f'if root_dir is given then filename cannot be absolute: "{filename}"')
+    
+    self._filename = filename
+    self._root_dir = root_dir
 
   @property
   def filename(self):
@@ -47,16 +54,42 @@ class bf_entry(object):
     return self._root_dir
 
   @cached_property
+  def absolute_filename(self):
+    if self._root_dir:
+      return path.join(self._root_dir, self._filename)
+    if path.isabs(self._filename):
+      return self._filename
+    return path.abspath(self._filename)
+
+  @cached_property
+  def absolute_filename_lowercase(self):
+    absolute_filename = self.relative_filename
+    if absolute_filename == None:
+      return None
+    return absolute_filename.lower()
+  
+  @cached_property
   def relative_filename(self):
     if not self._root_dir:
-      return None
-    return bf_filename.remove_head(self._filename, self._root_dir)
+      return self._filename
+    if path.isabs(self._filename):
+      return bf_filename.remove_head(self._filename, self._root_dir)
+    return self._filename
 
   @cached_property
   def relative_filename_lowercase(self):
-    if not self._root_dir:
+    relative_filename = self.relative_filename
+    if relative_filename == None:
       return None
-    return self.relative_filename.lower()
+    return relative_filename.lower()
+
+  @cached_property
+  def is_absolute(self):
+    return path.isabs(self.filename)
+
+  @cached_property
+  def is_relative(self):
+    return not path.isabs(self.filename)
   
   def __str__(self):
     return self.filename
@@ -368,6 +401,7 @@ class bf_entry(object):
     path_type = check.check_bf_path_type(path_type)
     check.check_bool(ignore_case)
     
+#    print(f'path_type={path_type} filename={self._filename} root_dir={self._root_dir}')
     filename = None
     if path_type == bf_path_type.ABSOLUTE:
       filename = self.filename_lowercase if ignore_case else self.filename
@@ -422,5 +456,10 @@ class bf_entry(object):
       return ( self.size, self.filename_lowercase )
     else:
       assert False
-  
+
+  def clone_replace_root_dir(self, root_dir):
+    check.check_string(root_dir)
+
+    return bf_entry(self._filename, root_dir = root_dir)
+
 check.register_class(bf_entry, include_seq = False, cast_func = bf_entry._cast_func)

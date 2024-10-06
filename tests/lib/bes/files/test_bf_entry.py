@@ -40,7 +40,7 @@ class test_bf_entry(unit_test, unit_test_media_files):
     return self.make_temp_dir(prefix = 'test_bf_entry_', suffix = '.dir')
 
   def _make_test_entry_root_dir(self, root_dir, fragment, basename):
-    filename = path.join(root_dir, fragment, basename)
+    filename = path.join(fragment, basename)
     return bf_entry(filename, root_dir = root_dir)
   
   def test_exits_true(self):
@@ -216,6 +216,7 @@ class test_bf_entry(unit_test, unit_test_media_files):
   def test_filename_for_matcher(self):
     tmp_dir = self._make_tmp_dir()
     e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
+    print(f'CACA: e={e} filename={e.filename} _filename={e._filename} _root_dir={e._root_dir}')
     self.assert_filename_equal( path.join(tmp_dir, 'stuff/fruits/Kiwi.fruit'),
                                 e.filename_for_matcher('absolute', False) )
     self.assert_filename_equal( 'stuff/fruits/Kiwi.fruit',
@@ -301,6 +302,19 @@ class test_bf_entry(unit_test, unit_test_media_files):
     f1 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
     f2 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxy')
     self.assertEqual( False, f1.content_is_same(f2) )
+
+  def test_clone_replace_root_dir(self):
+    root_dir = '/foo/bar'
+    filename = 'stuff/fruits/Kiwi.fruit'
+    e = bf_entry('stuff/fruits/Kiwi.fruit', root_dir = root_dir)
+#    self.assertEqual( '/foo/bar/fruits/kiwi.txt', e.filename )
+#    print(path.join(root_dir, filename))
+    self.assert_filename_equal( 'caca',
+                                e.filename_for_matcher('absolute', False) )
+    self.assert_filename_equal( filename,
+                                e.filename_for_matcher('relative', False) )
+    self.assert_filename_equal( 'Kiwi.fruit',
+                                e.filename_for_matcher('basename', False) )
     
 if __name__ == '__main__':
   unit_test.main()
