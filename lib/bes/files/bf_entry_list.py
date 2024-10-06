@@ -22,6 +22,9 @@ class bf_entry_list(type_checked_list):
   def filenames(self):
     return [ entry.filename for entry in self ]
 
+  def basenames(self):
+    return [ entry.basename for entry in self ]
+  
   def as_relative_list(self, head):
     check.check_string(head)
 

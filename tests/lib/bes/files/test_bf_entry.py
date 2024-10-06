@@ -42,7 +42,25 @@ class test_bf_entry(unit_test, unit_test_media_files):
   def _make_test_entry_root_dir(self, root_dir, fragment, basename):
     filename = path.join(fragment, basename)
     return bf_entry(filename, root_dir = root_dir)
-  
+
+  def test_relative_filename_only(self):
+    e = bf_entry('fruits/kiwi.fruit')
+    self.assertEqual( 'fruits/kiwi.fruit', e.filename )
+    self.assertEqual( 'fruits/kiwi.fruit', e.relative_filename )
+    self.assertEqual( path.join(os.getcwd(), 'fruits/kiwi.fruit'), e.absolute_filename )
+
+  def test_absolute_filename_only(self):
+    e = bf_entry('/store/fruits/kiwi.fruit')
+    self.assertEqual( '/store/fruits/kiwi.fruit', e.filename )
+    self.assertEqual( '/store/fruits/kiwi.fruit', e.relative_filename )
+    self.assertEqual( '/store/fruits/kiwi.fruit', e.absolute_filename )
+
+  def test_relative_filename_and_root_dir(self):
+    e = bf_entry('fruits/kiwi.fruit', root_dir = '/store')
+    self.assertEqual( '/store/fruits/kiwi.fruit', e.filename )
+    self.assertEqual( 'fruits/kiwi.fruit', e.relative_filename )
+    self.assertEqual( '/store/fruits/kiwi.fruit', e.absolute_filename )
+    
   def test_exits_true(self):
     self.assertEqual( True, self._make_test_entry().exists )
 
@@ -213,19 +231,30 @@ class test_bf_entry(unit_test, unit_test_media_files):
     e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/kiwi.fruit')
     self.assert_filename_equal( 'stuff/fruits/kiwi.fruit', e.relative_filename )
 
-  def test_filename_for_matcher(self):
+  def test_filename_for_matcher_absolute(self):
     tmp_dir = self._make_tmp_dir()
     e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
-    print(f'CACA: e={e} filename={e.filename} _filename={e._filename} _root_dir={e._root_dir}')
     self.assert_filename_equal( path.join(tmp_dir, 'stuff/fruits/Kiwi.fruit'),
                                 e.filename_for_matcher('absolute', False) )
-    self.assert_filename_equal( 'stuff/fruits/Kiwi.fruit',
-                                e.filename_for_matcher('relative', False) )
+
+  def test_filename_for_matcher_basename(self):
+    tmp_dir = self._make_tmp_dir()
+    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
     self.assert_filename_equal( 'Kiwi.fruit',
                                 e.filename_for_matcher('basename', False) )
+
+  def test_filename_for_matcher_relative(self):
+    tmp_dir = self._make_tmp_dir()
+    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
+    self.assert_filename_equal( 'stuff/fruits/Kiwi.fruit',
+                                e.filename_for_matcher('relative', False) )
+
+  def test_filename_for_matcher_relative_ignore_case(self):
+    tmp_dir = self._make_tmp_dir()
+    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
     self.assert_filename_equal( 'stuff/fruits/kiwi.fruit',
                                 e.filename_for_matcher('relative', True) )
-
+    
   def test_compare_modification_date(self):
     e = self._make_test_entry()
     dold = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
@@ -304,17 +333,10 @@ class test_bf_entry(unit_test, unit_test_media_files):
     self.assertEqual( False, f1.content_is_same(f2) )
 
   def test_clone_replace_root_dir(self):
-    root_dir = '/foo/bar'
-    filename = 'stuff/fruits/Kiwi.fruit'
-    e = bf_entry('stuff/fruits/Kiwi.fruit', root_dir = root_dir)
-#    self.assertEqual( '/foo/bar/fruits/kiwi.txt', e.filename )
-#    print(path.join(root_dir, filename))
-    self.assert_filename_equal( 'caca',
-                                e.filename_for_matcher('absolute', False) )
-    self.assert_filename_equal( filename,
-                                e.filename_for_matcher('relative', False) )
-    self.assert_filename_equal( 'Kiwi.fruit',
-                                e.filename_for_matcher('basename', False) )
+    e1 = bf_entry('fruits/Kiwi.fruit', root_dir = '/store')
+    self.assertEqual( '/store/fruits/Kiwi.fruit', e1.filename )
+    e2 = e1.clone_replace_root_dir('/foo')
+    self.assertEqual( '/foo/fruits/Kiwi.fruit', e2.filename )
     
 if __name__ == '__main__':
   unit_test.main()

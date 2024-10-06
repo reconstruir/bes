@@ -41,12 +41,16 @@ class bf_entry(object):
     if root_dir:
       if path.isabs(filename):
         raise bf_error(f'if root_dir is given then filename cannot be absolute: "{filename}"')
+      if not path.isabs(root_dir):
+        raise bf_error(f'root_dir has to be absolute: "{root_dir}"')
     
     self._filename = filename
     self._root_dir = root_dir
 
-  @property
+  @cached_property
   def filename(self):
+    if self._root_dir:
+      return path.join(self._root_dir, self._filename)
     return self._filename
 
   @property
@@ -401,10 +405,9 @@ class bf_entry(object):
     path_type = check.check_bf_path_type(path_type)
     check.check_bool(ignore_case)
     
-#    print(f'path_type={path_type} filename={self._filename} root_dir={self._root_dir}')
     filename = None
     if path_type == bf_path_type.ABSOLUTE:
-      filename = self.filename_lowercase if ignore_case else self.filename
+      filename = self.absolute_filename_lowercase if ignore_case else self.absolute_filename
     elif path_type == bf_path_type.BASENAME:
       filename = self.basename_lowercase if ignore_case else self.basename
     elif path_type == bf_path_type.RELATIVE:

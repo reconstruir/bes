@@ -25,10 +25,10 @@ class test_bf_walk(unit_test):
     tmp_dir = self._make_temp_content(items)
 
     def _fix_root_dir(root_dir):
-      return root_dir.replace(tmp_dir, '${tmp_dir}')
+      return root_dir.replace(tmp_dir, '/tmp')
 
     def _fix_entry(entry):
-      return bf_entry(entry.filename, root_dir = _fix_root_dir(entry.root_dir))
+      return bf_entry(entry.relative_filename, root_dir = _fix_root_dir(entry.root_dir))
 
     def _fix_entries(entries):
       return bf_entry_list([ _fix_entry(entry) for entry in entries ])
@@ -37,7 +37,10 @@ class test_bf_walk(unit_test):
       fixed_root_dir = _fix_root_dir(item.root_dir)
       fixed_dirs = _fix_entries(item.dirs)
       fixed_files = _fix_entries(item.files)
-      return bf_walk._bf_walk_item(fixed_root_dir, fixed_dirs, fixed_files, item.depth)
+      return bf_walk._bf_walk_item(fixed_root_dir,
+                                   fixed_dirs.basenames(),
+                                   fixed_files.basenames(),
+                                   item.depth)
 
     def _fix_walk_items(items):
       result = []
@@ -63,11 +66,16 @@ class test_bf_walk(unit_test):
       'dir emptydir',
     ]
     self.assertEqual( [
-      ( '${tmp_dir}', ['emptydir', 'subdir'], ['emptyfile.txt', 'foo.txt'], 0 ),
-      ( '${tmp_dir}/emptydir', [], [], 1 ),
-      ( '${tmp_dir}/subdir', ['subberdir'], ['bar.txt'], 1 ),
-      ( '${tmp_dir}/subdir/subberdir', [], ['baz.txt'], 2 ),
+      ( '/tmp', [ 'emptydir', 'subdir' ], [ 'emptyfile.txt', 'foo.txt' ], 0 ),
+      ( '/tmp/emptydir', [], [], 1 ),
+      ( '/tmp/subdir', [ 'subberdir' ], [ 'bar.txt' ], 1 ),
+      ( '/tmp/subdir/subberdir', [], [ 'baz.txt' ], 2 ),
     ], self._walk(content).result )
-    
+
+#GOOD: _bf_walk_item(root_dir='/tmp', dirs=[/tmp/emptydir, /tmp/subdir], files=[/tmp/emptyfile.txt, /tmp/foo.txt], depth=0)
+#GOOD: _bf_walk_item(root_dir='/tmp/emptydir', dirs=[], files=[], depth=1)
+#GOOD: _bf_walk_item(root_dir='/tmp/subdir', dirs=[/tmp/subdir/subberdir], files=[/tmp/subdir/bar.txt], depth=1)
+#GOOD: _bf_walk_item(root_dir='/tmp/subdir/subberdir', dirs=[], files=[/tmp/subdir/subberdir/baz.txt], depth=2)
+
 if __name__ == '__main__':
   unit_test.main()

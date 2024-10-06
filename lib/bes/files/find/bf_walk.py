@@ -17,15 +17,7 @@ class bf_walk(object):
 
   _log = logger('bf_walk')
 
-  @classmethod
-  def _make_entry(clazz, where, next_root_dir, filename):
-    return bf_entry(path.join(next_root_dir, filename), root_dir = where)
-
-  @classmethod
-  def _make_entry_list(clazz, where, next_root_dir, filenames):
-    return bf_entry_list([ clazz._make_entry(where, next_root_dir, f) for f in filenames ])
-  
-  # base on:
+  # based on:
   # https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   _bf_walk_item = namedtuple('_bf_walk_item', 'root_dir, dirs, files, depth')
   @classmethod
@@ -47,3 +39,16 @@ class bf_walk(object):
       if max_depth is not None:
         if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]
+
+  @classmethod
+  def _make_entry(clazz, where, next_root_dir, filename):
+    abs_filename = path.join(next_root_dir, filename)
+    rel_filename = bf_filename.remove_head(abs_filename, where)
+    #print(f'where={where} next_root_dir={next_root_dir} filename={filename}')
+    return bf_entry(rel_filename, root_dir = where)
+
+  @classmethod
+  def _make_entry_list(clazz, where, next_root_dir, filenames):
+    return bf_entry_list([ clazz._make_entry(where, next_root_dir, f) for f in filenames ])
+  
+          
