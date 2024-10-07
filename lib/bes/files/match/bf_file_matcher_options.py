@@ -20,9 +20,9 @@ class _bf_file_matcher_options_desc(bcli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return '''
-ignore_case bool          default=False
+ignore_case bool                 default=False
  match_type bf_file_matcher_type default=ANY
-  path_type bf_path_type  default=ABSOLUTE
+  path_type bf_path_type         default=RELATIVE
 '''
   
 class bf_file_matcher_options(bcli_options):

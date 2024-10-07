@@ -14,13 +14,13 @@ class test_bf_file_matcher_options(unit_test):
     self.assertEqual( {
       'ignore_case': False,
       'match_type': bf_file_matcher_type.ANY,
-      'path_type': bf_path_type.ABSOLUTE,
+      'path_type': bf_path_type.RELATIVE,
     }, o.to_dict() )
     o.ignore_case = True
     self.assertEqual( {
       'ignore_case': True,
       'match_type': bf_file_matcher_type.ANY,
-      'path_type': bf_path_type.ABSOLUTE,
+      'path_type': bf_path_type.RELATIVE,
     }, o.to_dict() )
 
   def test___setattr__match_type(self):

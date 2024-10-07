@@ -28,9 +28,9 @@ class test_bf_file_matcher_item_fnmatch_list(unit_test):
     self.assertEqual( False, self._match([ '*.py' ], 'NONE', '/tmp/x/lemon.py', None) )
 
   def test_match_with_both_included_and_excluded_patterns(self):
-    self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi.py', 'proj') )
-    self.assertEqual( False, self._match_ie([ '*.py' ], [ '.*git*' ], '.git/cache', 'proj') )
-    self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi/.git/foo', 'proj') )
+    self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi.py', '/proj') )
+    self.assertEqual( False, self._match_ie([ '*.py' ], [ '.*git*' ], '.git/cache', '/proj') )
+    self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi/.git/foo', '/proj') )
     
   def _match(self, patterns, match_type, filename, root_dir, **options):
     entry = bf_entry(filename, root_dir = root_dir)
