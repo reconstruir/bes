@@ -33,15 +33,15 @@ class test_bf_dir(unit_test):
       #'file emptyfile.txt',
       #'dir emptydir',
     ])
-    expected_files = [
-      'foo.txt',
+    expected_filenames = [
       'bar.txt',
+      'foo.txt',
       'kiwi.jpg',
       'kiwi.png',
       'orange.png',
     ]
-    expected_files = [ path.join(tmp_dir, f) for f in expected_files ]
-    self.assertEqual( sorted(expected_files), self._list(tmp_dir, relative = False) )
+    expected_filenames = sorted([ path.join(tmp_dir, f) for f in expected_filenames ])
+    self.assertEqual( expected_filenames, self._list(tmp_dir).absolute_filenames() )
 
   def test_list_relative(self):
     tmp_dir = self._make_temp_content([
@@ -50,18 +50,15 @@ class test_bf_dir(unit_test):
       'file kiwi.jpg "kiwi.jpg"',
       'file kiwi.png "kiwi.png"',
       'file orange.png "orange.png"',
-      #'file emptyfile.txt',
-      #'dir emptydir',
     ])
-    expected_files = [
-      'foo.txt',
+    self.assertEqual( [
       'bar.txt',
+      'foo.txt',
       'kiwi.jpg',
       'kiwi.png',
       'orange.png',
-    ]
-    self.assertEqual( sorted(expected_files), self._list(tmp_dir) )
-
+    ], self._list(tmp_dir).relative_filenames() )
+    
   def test_list_pattern(self):
     tmp_dir = self._make_temp_content([
       'file foo.txt "foo.txt"',
@@ -72,8 +69,8 @@ class test_bf_dir(unit_test):
       #'file emptyfile.txt',
       #'dir emptydir',
     ])
-    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, patterns = ( '*.jpg', )) )
-    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], self._list(tmp_dir, patterns = ( '*kiwi*', )) )
+    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, patterns = ( '*.jpg', )).relative_filenames() )
+    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], self._list(tmp_dir, patterns = ( '*kiwi*', )).relative_filenames() )
 
   def test_list_pattern_path_type_basename(self):
     tmp_dir = self._make_temp_content([
@@ -85,8 +82,8 @@ class test_bf_dir(unit_test):
       #'file emptyfile.txt',
       #'dir emptydir',
     ])
-    self.assertEqual( [], self._list(tmp_dir, patterns = ( 'kiwi*', ), path_type = 'absolute') )
-    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], self._list(tmp_dir, patterns = ( 'kiwi*', ), path_type = 'basename') )
+    self.assertEqual( [], self._list(tmp_dir, patterns = ( 'kiwi*', ), path_type = 'absolute').relative_filenames() )
+    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], self._list(tmp_dir, patterns = ( 'kiwi*', ), path_type = 'basename').relative_filenames() )
     
   def test_list_callable(self):
     tmp_dir = self._make_temp_content([
@@ -98,7 +95,8 @@ class test_bf_dir(unit_test):
       #'file emptyfile.txt',
       #'dir emptydir',
     ])
-    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, callables = ( lambda f: f.endswith('.jpg'), )) )
+    callables = ( lambda f: f.endswith('.jpg'), )
+    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, callables = callables).relative_filenames() )
 
   def xtest_list_dirs(self):
     tmp_dir = self._make_temp_content([
@@ -122,18 +120,17 @@ class test_bf_dir(unit_test):
       #'file emptyfile.txt',
       'dir emptydir',
     ])
-    self.assertEqual( [ 'emptydir' ], bf_dir.list_dirs(tmp_dir, relative = True) )
+    self.assertEqual( [ 'emptydir' ], bf_dir.list_dirs(tmp_dir) )
     
   def xtest_all_parents(self):
     self.assertEqual( [ '/', '/usr', '/usr/lib' ], bf_dir.all_parents('/usr/lib/foo' ) )
 
-  def _list(self, where, relative = True, patterns = None, expressions = None, callables = None, path_type = 'absolute'):
+  def _list(self, where, patterns = None, expressions = None, callables = None, path_type = 'absolute'):
     match = bf_file_matcher(patterns = patterns,
-                        expressions = expressions,
-                        callables = callables)
+                            expressions = expressions,
+                            callables = callables)
     options = bf_file_matcher_options(path_type = path_type)
-    entries = bf_dir.list(where, relative = relative, file_match = match, options = options)
-    return entries.filenames()
+    return bf_dir.list(where, file_match = match, options = options)
     
 if __name__ == '__main__':
   unit_test.main()

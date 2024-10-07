@@ -22,17 +22,19 @@ class bf_dir(object):
     return True
 
   @classmethod
-  def list(clazz, where, relative = False, file_match = None, options = None):
-    'Return a list of where contents.  Returns absolute paths unless relative is True.'
+  def list(clazz, where, file_match = None, options = None):
+    'Return a list of where contents.'
     where = bf_check.check_dir(where)
-    check.check_bool(relative)
-    file_match = check.check_bf_file_matcher(file_match, allow_none = True, default_value_class = bf_file_matcher)
-    options = check.check_bf_file_matcher_options(options, allow_none = True, default_value_class = bf_file_matcher_options)
+    
+    file_match = check.check_bf_file_matcher(file_match,
+                                             allow_none = True,
+                                             default_value_class = bf_file_matcher)
+    options = check.check_bf_file_matcher_options(options,
+                                                  allow_none = True,
+                                                  default_value_class = bf_file_matcher_options)
 
     entries = bf_entry_list.listdir(where)
     matched_entries = file_match.match_entries(entries, options = options)
-    if relative:
-      return matched_entries.as_relative_list(where + path.sep)
     return matched_entries
 
   @classmethod

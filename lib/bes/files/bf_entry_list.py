@@ -56,10 +56,10 @@ class bf_entry_list(type_checked_list):
   @classmethod
   def listdir(clazz, where):
     where = bf_check.check_dir(where)
-    
-    files = sorted(os.listdir(where))
-    files_abs = [ path.join(where, f) for f in files ]
-    return bf_entry_list([ bf_entry(f, root_dir = where) for f in files_abs ])
+
+    filenames = os.listdir(where)
+    sorted_filenames = sorted(filenames)
+    return bf_entry_list([ bf_entry(f, root_dir = where) for f in sorted_filenames ])
 
   def sort_bt_criteria(self, sort_criteria, reverse = False):
     sort_criteria = check.check_bf_entry_sort_criteria(sort_criteria)
