@@ -29,8 +29,8 @@ class test_bf_file_finder(unit_test):
     tmp_dir = self._make_temp_content(items)
     f = bf_file_finder(options = finder_options)
     entries = f.find(tmp_dir)
-    filenames = entries.filenames()
-    sorted_filenames = sorted(filenames)
+    filenames = entries.relative_filenames(False)
+    sorted_filenames = entries.relative_filenames(True)
     return self._find_result(tmp_dir, entries, filenames, sorted_filenames, None)
 
   def _find_with_stats(self, items, **options):

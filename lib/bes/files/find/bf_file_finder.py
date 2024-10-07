@@ -58,9 +58,13 @@ class bf_file_finder(object):
 
     count = 0
     done = False
-    for root, dirs, files, depth in bf_walk.walk(where,
-                                                 max_depth = self._options.max_depth,
-                                                 follow_links = self._options.follow_links):
+    for item in bf_walk.walk(where,
+                             max_depth = self._options.max_depth,
+                             follow_links = self._options.follow_links):
+      root = item.root_dir
+      dirs = item.dirs.basenames()
+      files = item.files.basenames()
+      depth = item.depth
       if done:
         break
       if stats_dict:
@@ -116,8 +120,11 @@ class bf_file_finder(object):
       #dirs[:] = matched_dirs
 
   def _check_one(self, root, name, where, where_sep_count, stats_dict):
+    #print(f'_check_one: root={root} name={name} where={where} where_sep_count={where_sep_count}')
+    
     abs_filename = path.normpath(path.join(root, name))
-    entry = bf_entry(abs_filename, root_dir = where)
+    rel_filename = bf_filename.remove_head(abs_filename, where)
+    entry = bf_entry(rel_filename, root_dir = where)
     depth = abs_filename.count(os.sep) - where_sep_count
     if stats_dict:
       stats_dict['num_checked'] += 1

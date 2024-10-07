@@ -19,12 +19,24 @@ class bf_entry_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
-  def filenames(self):
-    return [ entry.filename for entry in self ]
+  def filenames(self, sort = False):
+    result = [ entry.filename for entry in self ]
+    if sort:
+      result.sort()
+    return result
 
-  def basenames(self):
-    return [ entry.basename for entry in self ]
+  def relative_filenames(self, sort = False):
+    result = [ entry.relative_filename for entry in self ]
+    if sort:
+      result.sort()
+    return result
   
+  def basenames(self, sort = False):
+    result = [ entry.basename for entry in self ]
+    if sort:
+      result.sort()
+    return result
+
   def as_relative_list(self, head):
     check.check_string(head)
 
