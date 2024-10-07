@@ -30,6 +30,12 @@ class bf_entry_list(type_checked_list):
     if sort:
       result.sort()
     return result
+
+  def absolute_filenames(self, sort = False):
+    result = [ entry.absolute_filename for entry in self ]
+    if sort:
+      result.sort()
+    return result
   
   def basenames(self, sort = False):
     result = [ entry.basename for entry in self ]

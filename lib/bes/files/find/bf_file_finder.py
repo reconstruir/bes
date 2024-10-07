@@ -133,9 +133,6 @@ class bf_file_finder(object):
       if entry.is_file:
         stats_dict['num_files_checked'] += 1
     if self._entry_matches(entry, depth, self._options):
-      if self._options.relative:
-        relative_filename = bf_filename.remove_head(abs_filename, where)
-        entry = bf_entry(relative_filename, root_dir = root)
       return entry
     return None
     

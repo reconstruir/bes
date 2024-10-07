@@ -43,7 +43,6 @@ class _bf_file_finder_options_desc(bcli_options_desc):
        ignore_broken_links bool                 default=True
                  max_depth int
                  min_depth int
-                  relative bool                 default=True
               file_matcher bf_file_matcher 
                      limit int
              stop_function callable

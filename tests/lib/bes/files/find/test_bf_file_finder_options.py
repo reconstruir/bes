@@ -11,14 +11,14 @@ class test_bf_file_finder_options(unit_test):
 
   def test_clone__eq__(self):
     o1 = bf_file_finder_options()
-    o1.relative = False
+    o1.limit = 2
     o2 = o1.clone()
     self.assertEqual( o1, o2 )
 
   def test_clone_not__eq__(self):
     o1 = bf_file_finder_options()
     o2 = o1.clone()
-    o1.relative = False
+    o1.limit = 2
     self.assertNotEqual( o1, o2 )
     
 if __name__ == '__main__':
