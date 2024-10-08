@@ -106,6 +106,8 @@ def make_test_case(archive_class, xarchive_type):
       tmp_archive.extract_all(tmp_dir, strip_head = self.native_filename('foo'))
   
       actual_files = file_find.find(tmp_dir, relative = True)
+      for f in actual_files:
+        print(f'FILE: {f}')
   
       expected_files = [
         self.native_filename('apple.txt'),

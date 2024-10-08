@@ -56,85 +56,79 @@ class bf_file_finder(object):
 
     self._log.log_d(f'find_gen: where={where} options={self._options}')
 
+    want_files = self._options.file_type.mask_matches(bf_file_type.FILE)
+    want_dirs = self._options.file_type.mask_matches(bf_file_type.DIR)
+    want_links = self._options.file_type.mask_matches(bf_file_type.LINK)
     count = 0
     done = False
     for item in bf_walk.walk(where,
                              max_depth = self._options.max_depth,
                              follow_links = self._options.follow_links):
-      root = item.root_dir
-      dirs = item.dirs.basenames()
-      files = item.files.basenames()
-      depth = item.depth
       if done:
         break
       if stats_dict:
-        stats_dict['depth'] = max(stats_dict['depth'], depth)
-      to_check_files = []
-      to_check_dirs = []
-      to_check_links = []
-
-      want_files = self._options.file_type.mask_matches(bf_file_type.FILE)
-      want_dirs = self._options.file_type.mask_matches(bf_file_type.DIR)
-      want_links = self._options.file_type.mask_matches(bf_file_type.LINK)
+        stats_dict['depth'] = max(stats_dict['depth'], item.depth)
+      to_check_files = bf_entry_list()
+      to_check_dirs = bf_entry_list()
 
       if want_files or want_links:
-        for next_file in files:
-          next_file_path = path.normpath(path.join(root, next_file))
-          is_link = path.islink(next_file_path)
+        for next_file_entry in item.files:
+          is_link = next_file_entry.is_link
           if want_links and is_link:
-            to_check_links.append(next_file)
+            to_check_files.append(next_file_entry)
           if want_files and not is_link:
-            to_check_files.append(next_file)
+            to_check_files.append(next_file_entry)
 
       if want_dirs:
-        to_check_dirs += dirs
-        
-      to_check_files_and_links = to_check_files + to_check_links
-      for i, name in enumerate(to_check_files_and_links, start = 1):
-        self._log.log_d(f'checking file|link {i} of {len(to_check_files_and_links)}: root={root} name={name} done={done}')
+        to_check_dirs += item.dirs
+
+      num_to_check_files = len(to_check_files)
+      for i, next_file_entry in enumerate(to_check_files, start = 1):
         if done:
+          self._log.log_d(f'done at file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           break
-        matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
-        if matched_entry:
+        if self._entry_matches(next_file_entry, where_sep_count, stats_dict):
+          self._log.log_d(f'matched file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           count += 1
           if self._options.found_callback:
-            self._options.found_callback(matched_entry)
-          yield matched_entry
+            self._options.found_callback(next_file_entry)
+          yield next_file_entry
           if self._options.stop_after == count:
             done = True
-      matched_dirs = []
-      for i, name in enumerate(to_check_dirs, start = 1):
-        self._log.log_d(f'checking dirs {i} of {len(to_check_dirs)}: {name} done={done}')
+      matched_dirs = bf_entry_list()
+      num_to_check_dirs = len(to_check_dirs)
+      for i, next_dir_entry in enumerate(to_check_dirs, start = 1):
         if done:
+          self._log.log_d(f'done at dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
           break
-        matched_entry = self._check_one(root, name, where, where_sep_count, stats_dict)
-        if matched_entry:
-          matched_dirs.append(name)
+        if self._entry_matches(next_dir_entry, where_sep_count, stats_dict):
+          self._log.log_d(f'matched dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
+          matched_dirs.append(next_dir_entry)
           count += 1
           if self._options.found_callback:
-            self._options.found_callback(matched_entry)
-          yield matched_entry
+            self._options.found_callback(next_dir_entry)
+          yield next_dir_entry
           if self._options.stop_after == count:
             done = True
-      self._log.log_d(f'matched_dirs={matched_dirs}')
+      self._log.log_d(f'matched_dirs={matched_dirs.basenames()}')
       #dirs[:] = matched_dirs
 
-  def _check_one(self, root, name, where, where_sep_count, stats_dict):
-    #print(f'_check_one: root={root} name={name} where={where} where_sep_count={where_sep_count}')
-    
-    abs_filename = path.normpath(path.join(root, name))
-    rel_filename = bf_filename.remove_head(abs_filename, where)
-    entry = bf_entry(rel_filename, root_dir = where)
-    depth = abs_filename.count(os.sep) - where_sep_count
+  def _entry_matches(self, entry, where_sep_count, stats_dict):
+    #print(f'_entry_matches: root={root} name={name} where={where} where_sep_count={where_sep_count}')
+    depth = entry.absolute_filename.count(os.sep) - where_sep_count
     if stats_dict:
       stats_dict['num_checked'] += 1
       if entry.is_dir:
         stats_dict['num_dirs_checked'] += 1
       if entry.is_file:
         stats_dict['num_files_checked'] += 1
-    if self._entry_matches(entry, depth, self._options):
-      return entry
-    return None
+    if not self._options.depth_in_range(depth):
+      return False
+    if self._options.ignore_broken_links and bf_symlink.is_broken(entry.filename):
+      return False
+    if not self._options.file_matcher_matches(entry):
+      return False
+    return True
     
   def find_with_stats(self, where):
     stats_dict = {
@@ -163,18 +157,6 @@ class bf_file_finder(object):
       result.append(entry)
     return result
   
-  @classmethod
-  def _entry_matches(clazz, entry, depth, options):
-    if not options.depth_in_range(depth):
-      return False
-    if options.ignore_broken_links and bf_symlink.is_broken(entry.filename):
-      return False
-    if not entry.file_type_matches(options.file_type):
-      return False
-    if not options.file_matcher_matches(entry):
-      return False
-    return True
-              
   @classmethod
   def find_with_options(clazz, where, **kwargs):
     options = bf_file_finder_options(**kwargs)

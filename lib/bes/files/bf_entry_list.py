@@ -68,5 +68,8 @@ class bf_entry_list(type_checked_list):
 
   def sorted_by_criteria(self, sort_criteria, reverse = False):
     return self.sorted_(key = lambda entry: entry._compare_criteria(sort_criteria), reverse = reverse)
-    
+
+  def unreadable_files(self):
+    return bf_entry_list([ entry for entry in self if not entry.is_readable ])
+  
 bf_entry_list.register_check_class()

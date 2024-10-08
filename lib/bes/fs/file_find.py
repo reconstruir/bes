@@ -24,10 +24,31 @@ class file_find(object):
   FILE_OR_LINK = FILE | LINK
   
   @classmethod
-  def find(clazz, root_dir, relative = True, min_depth = None,
+  def find(clazz, root_dir, min_depth = None,
+           relative = True,
            max_depth = None, file_type = FILE, follow_links = False,
            match_patterns = None, match_type = None, match_basename = True,
            match_function = None, match_re = None):
+    entries = clazz.find_entries(root_dir,
+                                 min_depth = min_depth,
+                                 max_depth = max_depth,
+                                 file_type = file_type,
+                                 follow_links = follow_links,
+                                 match_patterns = match_patterns,
+                                 match_type = match_type,
+                                 match_basename = match_basename,
+                                 match_function = match_function,
+                                 match_re = match_re)
+    if relative:
+      return entries.relative_filenames(True)
+    else:
+      return entries.absolute_filenames(True)
+
+  @classmethod
+  def find_entries(clazz, root_dir, min_depth = None,
+                   max_depth = None, file_type = FILE, follow_links = False,
+                   match_patterns = None, match_type = None, match_basename = True,
+                   match_function = None, match_re = None):
     if match_re and not isinstance(match_re, ( list, tuple, set )):
       match_re = object_util.listify(match_re)
     if match_patterns and not isinstance(match_patterns, ( list, tuple, set )):
@@ -58,51 +79,48 @@ class file_find(object):
       match_type = match_type_map[match_type]
     else:
       match_type = bf_file_matcher_type.ANY
-    entries = bf_file_finder.find_with_options(root_dir,
-                                               relative = relative,
-                                               min_depth = min_depth,
-                                               max_depth = max_depth,
-                                               file_type = file_type,
-                                               follow_links = follow_links,
-                                               path_type = path_type,
-                                               file_matcher = matcher,
-                                               match_type = match_type)
-
-    return sorted(entries.filenames())
-
+    return bf_file_finder.find_with_options(root_dir,
+                                            min_depth = min_depth,
+                                            max_depth = max_depth,
+                                            file_type = file_type,
+                                            follow_links = follow_links,
+                                            path_type = path_type,
+                                            file_matcher = matcher,
+                                            match_type = match_type)
+  
   @classmethod
   def find_function(clazz, root_dir, function,
-                    relative = True, min_depth = None, max_depth = None,
+                    min_depth = None, max_depth = None,
                     file_type = FILE, follow_links = False, match_basename = True):
     assert callable(function)
-    return clazz.find(root_dir, relative = relative, min_depth = min_depth,
+    return clazz.find(root_dir, min_depth = min_depth,
                       max_depth = max_depth, file_type = file_type, follow_links = follow_links,
                       match_function = function, match_basename = match_basename)
 
   @classmethod
   def find_fnmatch(clazz, root_dir, patterns, match_type = file_match.ANY,
-                   relative = True, min_depth = None, max_depth = None,
+                   min_depth = None, max_depth = None,
                    file_type = FILE, follow_links = False, match_basename = True):
     assert patterns
     assert match_type
-    return clazz.find(root_dir, relative = relative, min_depth = min_depth,
+    return clazz.find(root_dir, min_depth = min_depth,
                       max_depth = max_depth, file_type = file_type, follow_links = follow_links,
                       match_patterns = patterns, match_type = match_type, match_basename = match_basename)
 
   @classmethod
   def find_re(clazz, root_dir, expressions, match_type = file_match.ANY,
-              relative = True, min_depth = None, max_depth = None,
+              min_depth = None, max_depth = None,
               file_type = FILE, follow_links = False, match_basename = True):
     assert expressions
     assert match_type
-    return clazz.find(root_dir, relative = relative, min_depth = min_depth,
+    return clazz.find(root_dir, min_depth = min_depth,
                       max_depth = max_depth, file_type = file_type, follow_links = follow_links,
                       match_re = expressions, match_type = match_type, match_basename = match_basename)
 
   @classmethod
-  def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None,
+  def find_dirs(clazz, root_dir, min_depth = None, max_depth = None,
                 follow_links = False, match_basename = True):
-    return clazz.find(root_dir, relative = relative, min_depth = min_depth,  max_depth = max_depth,
+    return clazz.find(root_dir, min_depth = min_depth,  max_depth = max_depth,
                       file_type = clazz.DIR, follow_links = follow_links, match_basename = match_basename)
 
   @classmethod
@@ -121,16 +139,12 @@ class file_find(object):
   @classmethod
   def find_unreadable(clazz, d, relative = True):
     'Return files and dirs that are unreadable.'
-    files = clazz.find(d, relative = relative, file_type = file_find.ANY)
-    result = []
-    for filename in files:
-      if relative:
-        filename_abs = path.join(d, filename)
-      else:
-        filename_abs = filename
-      if not os.access(filename_abs, os.R_OK):
-        result.append(filename)
-    return result
+    entries = clazz.find_entries(d, file_type = file_find.ANY)
+    unreadable = entries.unreadable_files()
+    if relative:
+      return entries.relative_filenames(True)
+    else:
+      return entries.absolute_filenames(True)
 
   @classmethod
   def find_empty_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):
