@@ -8,7 +8,6 @@ from bes.common.node import node
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_checksum import file_checksum
 from bes.fs.file_checksum_db import file_checksum_db
-from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.file_mime import file_mime
 from bes.system.log import logger

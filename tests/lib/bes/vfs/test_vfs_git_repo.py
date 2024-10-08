@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os
-from os import path
-
 from bes.testing.unit_test import unit_test
-from bes.fs.testing.temp_content import temp_content
 from bes.git.git_temp_repo import git_temp_repo
 from bes.fs.file_util import file_util
-from bes.fs.file_find import file_find
 
 from bes.vfs.vfs_git_repo import vfs_git_repo
 from bes.vfs.vfs_error import vfs_error

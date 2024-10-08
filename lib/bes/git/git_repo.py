@@ -129,7 +129,7 @@ class git_repo(object):
                                                match_type = 'all',
                                                path_type = 'relative',
                                                exclude_patterns = [ '.git*', '*.git' ])
-    return entries.filenames()
+    return entries.relative_filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):
     return os.linesep.join(self.find_all_files(file_type = file_type))

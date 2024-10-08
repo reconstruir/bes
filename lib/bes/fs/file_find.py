@@ -40,9 +40,9 @@ class file_find(object):
                                  match_function = match_function,
                                  match_re = match_re)
     if relative:
-      return entries.relative_filenames(True)
+      return entries.relative_filenames(False)
     else:
-      return entries.absolute_filenames(True)
+      return entries.absolute_filenames(False)
 
   @classmethod
   def find_entries(clazz, root_dir, min_depth = None,
@@ -142,9 +142,9 @@ class file_find(object):
     entries = clazz.find_entries(d, file_type = file_find.ANY)
     unreadable = entries.unreadable_files()
     if relative:
-      return entries.relative_filenames(True)
+      return entries.relative_filenames(False)
     else:
-      return entries.absolute_filenames(True)
+      return entries.absolute_filenames(False)
 
   @classmethod
   def find_empty_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):

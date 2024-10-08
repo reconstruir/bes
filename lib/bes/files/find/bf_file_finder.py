@@ -64,6 +64,7 @@ class bf_file_finder(object):
     for item in bf_walk.walk(where,
                              max_depth = self._options.max_depth,
                              follow_links = self._options.follow_links):
+      self._log.log_d(f'next: {count + 1}: dirs={item.dirs} files={item.files}')
       if done:
         break
       if stats_dict:
@@ -168,7 +169,6 @@ class bf_file_finder(object):
                         file_type = bf_file_type.FILE_OR_LINK,
                         path_type = bf_path_type.BASENAME,
                         match_type = bf_file_matcher_type.ALL,
-                        relative = True,
                         min_depth = None,
                         max_depth = None,
                         follow_links = False,
@@ -185,7 +185,6 @@ class bf_file_finder(object):
                                    file_type = file_type,
                                    path_type = path_type,
                                    match_type = match_type,
-                                   relative = relative,
                                    min_depth = min_depth,
                                    max_depth = max_depth,
                                    follow_links = follow_links,

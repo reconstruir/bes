@@ -132,7 +132,9 @@ class archive(archive_base):
         #sys.stdout.flush()
         clazz._move_dir(from_dir, dest_dir)
     if strip_head:
+      print(f'CACA: strip_head={strip_head}')
       from_dir = path.join(dest_dir, strip_head)
+      print(f'CACA: from_dir={from_dir}')
       if path.isdir(from_dir):
         #sys.stdout.write('FOO: 2 copy from %s to %s\n' % (from_dir, dest_dir))
         #sys.stdout.flush()
@@ -149,6 +151,7 @@ class archive(archive_base):
 #      shutil.move(from_dir, dest_dir)
 #      return
     file_copy.copy_tree(from_dir, dest_dir)
+    print(f'CACA: dest_dir={dest_dir}')
     file_util.remove(from_dir)
         
   def _pre_create(self):
