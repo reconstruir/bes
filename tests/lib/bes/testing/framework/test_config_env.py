@@ -5,7 +5,7 @@ import os.path as path
 from bes.system.env_override import env_override
 
 from bes.testing.unit_test import unit_test
-from bes.testing.framework.config_env import config_env as CE
+from bes.testing.framework.config_env import config_env
 from bes.docker.docker import docker
 
 from example_data import example_data
@@ -18,7 +18,7 @@ class test_config_env(unit_test):
   
   def xtest_dependency_map(self):
     tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
-    a = CE(tmp_dir)
+    a = config_env(tmp_dir)
     self.assertEqual( {
       'citrus': set(),
       'fiber': set(),
@@ -39,7 +39,7 @@ class test_config_env(unit_test):
       self.native_filename('water/env/water.bescfg')
     ]
     with env_override.clean_env() as ctx:
-      actual = CE._find_config_files(tmp_dir)
+      actual = config_env._find_config_files(tmp_dir)
       expected = [ path.join(tmp_dir, x) for x in expected_files ]
       self.assertEqual( expected, actual )
     
