@@ -23,6 +23,7 @@ from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
 from .vfs_file_info_options import vfs_file_info_options
 from .vfs_path_util import vfs_path_util
+from .vfs_file_find import vfs_file_find
 
 class vfs_local(vfs_base):
   'Local filesystem'
@@ -87,7 +88,7 @@ class vfs_local(vfs_base):
     setattr(result, '_is_file', False)
 
     num_added = 0
-    for root, dirs, files in bf_file_finder.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
+    for root, dirs, files in vfs_file_find.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
       if root == local_dir_path:
         rel = os.sep
       else:
