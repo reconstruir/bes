@@ -90,30 +90,33 @@ class file_find(object):
   
   @classmethod
   def find_function(clazz, root_dir, function,
+                    relative = True,
                     min_depth = None, max_depth = None,
                     file_type = FILE, follow_links = False, match_basename = True):
     assert callable(function)
-    return clazz.find(root_dir, min_depth = min_depth,
+    return clazz.find(root_dir, min_depth = min_depth, relative = relative,
                       max_depth = max_depth, file_type = file_type, follow_links = follow_links,
                       match_function = function, match_basename = match_basename)
 
   @classmethod
   def find_fnmatch(clazz, root_dir, patterns, match_type = file_match.ANY,
+                   relative = True,
                    min_depth = None, max_depth = None,
                    file_type = FILE, follow_links = False, match_basename = True):
     assert patterns
     assert match_type
-    return clazz.find(root_dir, min_depth = min_depth,
+    return clazz.find(root_dir, min_depth = min_depth, relative = relative,
                       max_depth = max_depth, file_type = file_type, follow_links = follow_links,
                       match_patterns = patterns, match_type = match_type, match_basename = match_basename)
 
   @classmethod
   def find_re(clazz, root_dir, expressions, match_type = file_match.ANY,
+              relative = True,
               min_depth = None, max_depth = None,
               file_type = FILE, follow_links = False, match_basename = True):
     assert expressions
     assert match_type
-    return clazz.find(root_dir, min_depth = min_depth,
+    return clazz.find(root_dir, min_depth = min_depth, relative = relative,
                       max_depth = max_depth, file_type = file_type, follow_links = follow_links,
                       match_re = expressions, match_type = match_type, match_basename = match_basename)
 
