@@ -52,7 +52,6 @@ class bf_file_finder(object):
     where = path.normpath(where)
     result = bf_entry_list()
     where = path.normpath(where)
-    where_sep_count = where.count(os.sep)
 
     self._log.log_d(f'find_gen: where={where} options={self._options}')
 
@@ -88,7 +87,7 @@ class bf_file_finder(object):
         if done:
           self._log.log_d(f'done at file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           break
-        if self._entry_matches(next_file_entry, where_sep_count, stats_dict):
+        if self._entry_matches(next_file_entry, where, stats_dict):
           self._log.log_d(f'matched file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           count += 1
           if self._options.found_callback:
@@ -102,7 +101,7 @@ class bf_file_finder(object):
         if done:
           self._log.log_d(f'done at dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
           break
-        if self._entry_matches(next_dir_entry, where_sep_count, stats_dict):
+        if self._entry_matches(next_dir_entry, where, stats_dict):
           self._log.log_d(f'matched dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
           matched_dirs.append(next_dir_entry)
           count += 1
@@ -114,8 +113,9 @@ class bf_file_finder(object):
       self._log.log_d(f'matched_dirs={matched_dirs.basenames()}')
       #dirs[:] = matched_dirs
 
-  def _entry_matches(self, entry, where_sep_count, stats_dict):
-    #print(f'_entry_matches: root={root} name={name} where={where} where_sep_count={where_sep_count}')
+  def _entry_matches(self, entry, where, stats_dict):
+    where_sep_count = where.count(os.sep)
+    #print(f'_entry_matches: entry={entry.relative_filename} where={where} where_sep_count={where_sep_count}')
     depth = entry.absolute_filename.count(os.sep) - where_sep_count
     if stats_dict:
       stats_dict['num_checked'] += 1
