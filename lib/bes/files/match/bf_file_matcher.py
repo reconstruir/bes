@@ -10,18 +10,19 @@ from bes.common.object_util import object_util
 
 from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
+from ..bf_file_type import bf_file_type
+from ..bf_path_type import bf_path_type
 
 from .bf_file_matcher_item_attr import bf_file_matcher_item_attr
-from .bf_file_matcher_item_i import bf_file_matcher_item_i
 from .bf_file_matcher_item_callable import bf_file_matcher_item_callable
 from .bf_file_matcher_item_datetime import bf_file_matcher_item_datetime
 from .bf_file_matcher_item_fnmatch import bf_file_matcher_item_fnmatch
 from .bf_file_matcher_item_fnmatch_list import bf_file_matcher_item_fnmatch_list
-from .bf_file_matcher_type import bf_file_matcher_type
+from .bf_file_matcher_item_i import bf_file_matcher_item_i
 from .bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
-from .bf_file_matcher_options import bf_file_matcher_options
 from .bf_file_matcher_item_re import bf_file_matcher_item_re
 from .bf_file_matcher_item_timedelta import bf_file_matcher_item_timedelta
+from .bf_file_matcher_type import bf_file_matcher_type
 
 class bf_file_matcher(object):
 
@@ -63,9 +64,18 @@ class bf_file_matcher(object):
     check.check_bool(negate)
 
     self._matchers.append(self._matcher_item(matcher, negate))
-
-  def add_matcher_fnmatch(self, pattern, negate = False):
-    self.add_matcher(bf_file_matcher_item_fnmatch(pattern), negate = negate)
+    
+  def add_matcher_fnmatch(self,
+                          pattern,
+                          file_type = None,
+                          path_type = None,
+                          ignore_case = False,
+                          negate = False):
+    item = bf_file_matcher_item_fnmatch(pattern,
+                                        file_type = file_type,
+                                        path_type = path_type,
+                                        ignore_case = ignore_case)
+    self.add_matcher(item, negate = negate)
 
   def add_matcher_fnmatch_list(self, patterns, match_type = bf_file_matcher_type.ANY):
     self.add_matcher(bf_file_matcher_item_fnmatch_list(patterns, match_type))
@@ -73,8 +83,15 @@ class bf_file_matcher(object):
   def add_matcher_re(self, expression, negate = False):
     self.add_matcher(bf_file_matcher_item_re(expression), negate = negate)
 
-  def add_matcher_callable(self, callable_, negate = False):
-    self.add_matcher(bf_file_matcher_item_callable(callable_), negate = negate)
+  def add_matcher_callable(self,
+                           callable_,
+                           file_type = None,
+                           path_type = None,
+                           negate = False):
+    item = bf_file_matcher_item_callable(callable_,
+                                         file_type = file_type,
+                                         path_type = path_type)
+    self.add_matcher(item, negate = negate)
 
   def add_matcher_datetime(self, date, comparison_type, negate = False):
     self.add_matcher(bf_file_matcher_item_datetime(date, comparison_type), negate = negate)
@@ -88,11 +105,12 @@ class bf_file_matcher(object):
   def add_matcher_metadata(self, metadatas, negate = False):
     self.add_matcher(bf_file_matcher_item_metadata(metadatas), negate = negate)
     
-  def match(self, entry, options = None):
+  def match(self, entry, match_type = None):
     check.check_bf_entry(entry)
-    options = check.check_bf_file_matcher_options(options, allow_none = True) or bf_file_matcher_options()
-
-    self._log.log_d(f'match: entry={entry.filename} options={options}')
+    match_type = check.check_bf_file_matcher_type(match_type, allow_none = True)
+    match_type = match_type or bf_file_matcher_type.ANY
+    
+    self._log.log_d(f'match: entry={entry.filename} match_type={match_type}')
     
     if self.empty:
       self._log.log_d(f'match: no matchers found')
@@ -103,28 +121,27 @@ class bf_file_matcher(object):
       bf_file_matcher_type.ANY: self._match_any,
       bf_file_matcher_type.NONE: self._match_none,
     }
-    func = func_map[options.match_type]
-    return func(entry, self._matchers, options)
+    func = func_map[match_type]
+    return func(entry, self._matchers)
 
-  def match_entries(self, entries, options = None):
+  def match_entries(self, entries, match_type = None):
     entries = check.check_bf_entry_list(entries)
-    options = check.check_bf_file_matcher_options(options, allow_none = True) or bf_file_matcher_options()
 
     if self.empty:
       return entries[:]
 
     result = bf_entry_list()
     for entry in entries:
-      match_result = self.match(entry, options = options)
+      match_result = self.match(entry, match_type = match_type)
       if match_result:
         result.append(entry)
     return result
   
   @classmethod
-  def _match_any(clazz, entry, matchers, options):
+  def _match_any(clazz, entry, matchers):
     num = len(matchers)
     for i, next_matcher in enumerate(matchers, start = 1):
-      matched = next_matcher.matcher.match(entry, options)
+      matched = next_matcher.matcher.match(entry)
       if next_matcher.negate:
         matched = not matched
       clazz._log.log_d(f'_match_any: {i} of {num}: entry={entry.filename} matcher={next_matcher.matcher} => {matched}')
@@ -133,10 +150,10 @@ class bf_file_matcher(object):
     return False
 
   @classmethod
-  def _match_all(clazz, entry, matchers, options):
+  def _match_all(clazz, entry, matchers):
     num = len(matchers)
     for i, next_matcher in enumerate(matchers, start = 1):
-      matched = next_matcher.matcher.match(entry, options)
+      matched = next_matcher.matcher.match(entry)
       if next_matcher.negate:
         matched = not matched
       clazz._log.log_d(f'_match_all: {i} of {num}:  entry={entry.filename} matcher={next_matcher.matcher} => {matched}')
@@ -145,10 +162,10 @@ class bf_file_matcher(object):
     return True
 
   @classmethod
-  def _match_none(clazz, entry, matchers, options):
+  def _match_none(clazz, entry, matchers):
     num = len(matchers)
     for i, next_matcher in enumerate(matchers, start = 1):
-      matched = next_matcher.matcher.match(entry, options)
+      matched = next_matcher.matcher.match(entry)
       if next_matcher.negate:
         matched = not matched
       clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.filename} matcher={next_matcher.matcher} => {matched}')

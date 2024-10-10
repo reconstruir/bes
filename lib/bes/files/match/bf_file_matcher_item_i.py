@@ -9,13 +9,13 @@ from ..bf_entry import bf_entry
 class bf_file_matcher_item_i(object, metaclass = ABCMeta):
 
   @abstractmethod
-  def match(self, entry, options):
+  def match(self, entry):
     'Return True if entry matches.'
-    raise NotImplemented('match')
+    raise NotImplementedError('match')
 
   @abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    raise NotImplemented('clone')
+    raise NotImplementedError('clone')
   
 check.register_class(bf_file_matcher_item_i, name = 'bf_file_matcher_item', include_seq = False)

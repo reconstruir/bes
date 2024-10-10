@@ -2,7 +2,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.files.match.bf_file_matcher_item_callable import bf_file_matcher_item_callable
-from bes.files.match.bf_file_matcher_options import bf_file_matcher_options
 from bes.files.bf_entry import bf_entry
 
 from bes.testing.unit_test import unit_test
@@ -23,10 +22,11 @@ class test_bf_file_matcher_item_callable(unit_test):
     self.assertEqual( True, self._match( ( lambda f: f.startswith('k'), f ), 'kiwi.py', match_type = 'ANY') )
     self.assertEqual( True, self._match( ( lambda f: f.startswith('k'), f ), 'lemon.py', match_type = 'ANY') )
 
-  def _match(self, patterns, filename, **options):
+  def _match(self, callable_, filename, file_type = None):
     entry = bf_entry(filename)
-    matcher = bf_file_matcher_item_callable(patterns)
-    return matcher.match(entry, bf_file_matcher_options(**options))
+    matcher = bf_file_matcher_item_callable(callable_,
+                                            file_type = file_type)
+    return matcher.match(entry)
   
 if __name__ == '__main__':
   unit_test.main()

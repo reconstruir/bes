@@ -320,6 +320,7 @@ class bf_entry(object):
     else:
       assert False, f'Not reached'
 
+  # FIXME: this is kinda wrong
   def modification_date_matches_delta(self, delta, comparison_type):
     check.check_timedelta(delta)
     comparison_type = check.check_bf_date_comparison_type(comparison_type)
@@ -402,9 +403,10 @@ class bf_entry(object):
       raise TypeError(f'unknown cast type for bf_entry: "{o}" - {type(o)}')
 
   def filename_for_matcher(self, path_type, ignore_case):
-    path_type = check.check_bf_path_type(path_type)
+    path_type = check.check_bf_path_type(path_type, allow_none = True)
     check.check_bool(ignore_case)
-    
+
+    path_type = path_type or bf_path_type.BASENAME
     filename = None
     if path_type == bf_path_type.ABSOLUTE:
       filename = self.absolute_filename_lowercase if ignore_case else self.absolute_filename

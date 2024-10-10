@@ -44,6 +44,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
                  max_depth int
                  min_depth int
               file_matcher bf_file_matcher 
+      walk_exclude_matcher bf_file_matcher 
                      limit int
              stop_function callable
          progress_function callable

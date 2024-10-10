@@ -4,48 +4,49 @@ import fnmatch
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.property.cached_property import cached_property
 
-from .bf_file_matcher_item_i import bf_file_matcher_item_i
-from .bf_file_matcher_options import bf_file_matcher_options
+from .bf_file_matcher_item_base import bf_file_matcher_item_base
 from .bf_file_matcher_type import bf_file_matcher_type
 
-class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_i):
+class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
 
   _log = logger('bf_file_matcher')
   
-  def __init__(self, patterns, match_type):
-    check.check_string_seq(patterns)
-    match_type = check.check_bf_file_matcher_type(match_type)
-
-    self._patterns = patterns
-    self._match_type = match_type
+  def __init__(self, patterns, match_type, file_type = None, path_type = None, ignore_case = False):
+    super().__init__(file_type, path_type)
+    self._patterns = check.check_string_seq(patterns)[:]
+    self._match_type = check.check_bf_file_matcher_type(match_type)
+    self._ignore_case = ignore_case
 
   def __str__(self):
     return f'bf_file_matcher_item_fnmatch_list("{self._patterns}")'
     
-  @property
+  @cached_property
   def _patterns_lowercase(self):
     return [ pattern.lower() for pattern in self._patterns ]
 
   #@abstractmethod
-  def match(self, entry, options):
+  def match(self, entry):
     'Return True if filename matches.'
     check.check_bf_entry(entry)
-    check.check_bf_file_matcher_options(options)
 
-    patterns = self._patterns_lowercase if options.ignore_case else self._patterns
-    filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
-    fnmatcher = fnmatch.fnmatch if options.ignore_case else fnmatch.fnmatchcase
-    func_map = {
-      bf_file_matcher_type.ALL: self._match_all,
-      bf_file_matcher_type.ANY: self._match_any,
-      bf_file_matcher_type.NONE: self._match_none,
-    }
-    func = func_map[self._match_type]
-    matched = func(filename, self._patterns, fnmatcher)
-    import pprint
-    patterns = pprint.pformat(patterns)
-    #self._log.log_e(f'match({entry.root_dir},{entry.filename}) {filename} match_type={self._match_type.name} filename={filename} patterns="{patterns}" => {matched}')
+    matched_type = self.match_file_type(entry)
+    matched = False
+    if matched_type:
+      patterns = self._patterns_lowercase if self._ignore_case else self._patterns
+      filename = entry.filename_for_matcher(self.path_type, self._ignore_case)
+      fnmatcher = fnmatch.fnmatch if self._ignore_case else fnmatch.fnmatchcase
+      func_map = {
+        bf_file_matcher_type.ALL: self._match_all,
+        bf_file_matcher_type.ANY: self._match_any,
+        bf_file_matcher_type.NONE: self._match_none,
+      }
+      func = func_map[self._match_type]
+      matched = func(filename, self._patterns, fnmatcher)
+      import pprint
+      patterns = pprint.pformat(patterns)
+      #self._log.log_e(f'match({entry.root_dir},{entry.filename}) {filename} match_type={self._match_type.name} filename={filename} patterns="{patterns}" => {matched}')
     self._log.log_d(f'match({entry.root_dir}-{filename}) {filename} match_type={self._match_type.name} filename={filename} => {matched}')
     return matched
 
@@ -82,4 +83,8 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_i):
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    return bf_file_matcher_item_fnmatch_list(self._patterns[:])
+    return bf_file_matcher_item_fnmatch_list(self._patterns[:],
+                                             self._match_type,
+                                             file_type = self.file_type,
+                                             path_type = self.path_type,
+                                             ignore_case = self._ignore_case)

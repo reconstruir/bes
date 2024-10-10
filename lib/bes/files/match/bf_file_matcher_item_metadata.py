@@ -4,28 +4,30 @@ import copy
 
 from bes.system.check import check
 
-from .bf_file_matcher_item_i import bf_file_matcher_item_i
-from .bf_file_matcher_options import bf_file_matcher_options
+from .bf_file_matcher_item_base import bf_file_matcher_item_base
 
-class bf_file_matcher_item_metadata(bf_file_matcher_item_i):
+class bf_file_matcher_item_metadata(bf_file_matcher_item_base):
 
-  def __init__(self, metadatas):
-    check.check_dict(metadatas)
-
-    self._metadatas = metadatas
+  def __init__(self, metadatas, file_type = None):
+    super().__init__(file_type, None)
+    self._metadatas = check.check_dict(metadatas)
 
   #@abstractmethod
-  def match(self, entry, options):
+  def match(self, entry):
     'Return True if entry matches.'
     check.check_bf_entry(entry)
-    check.check_bf_file_matcher_options(options)
 
-    for key, value in self._metadatas.items():
-      if not entry.metadata[key] == value:
-        return False
-    return True
+    matched_type = self.match_file_type(entry)
+    matched = False
+    if matched_type:
+      matched = True
+      for key, value in self._metadatas.items():
+        if not entry.metadata[key] == value:
+          matched = False
+          break
+    return matched
 
   #@abstractmethod
   def clone(self):
     'Clone the matcher item.'
-    return bf_file_matcher_item_metadata(copy.deepcopy(self._metadatas))
+    return bf_file_matcher_item_metadata(copy.deepcopy(self._metadatas), self.file_type)

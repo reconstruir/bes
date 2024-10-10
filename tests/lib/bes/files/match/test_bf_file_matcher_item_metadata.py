@@ -2,7 +2,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.files.match.bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
-from bes.files.match.bf_file_matcher_options import bf_file_matcher_options
 from bes.files.bf_entry import bf_entry
 from bes.files.metadata.bf_metadata import bf_metadata
 
@@ -16,8 +15,8 @@ class test_bf_file_matcher_item_metadata(unit_test):
     tmp1 = self.make_temp_file(dir = __file__, content = b'1234')
     tmp2 = self.make_temp_file(dir = __file__, content = b'123456')
 
-    self.assertEqual( True, self._match({ 'acme/fruit/kiwi/1.0': 4 }, tmp1, match_type = 'ANY') )
-    self.assertEqual( False, self._match({ 'acme/fruit/kiwi/1.0': 4 }, tmp2, match_type = 'ANY') )
+    self.assertEqual( True, self._match({ 'acme/fruit/kiwi/1.0': 4 }, tmp1) )
+    self.assertEqual( False, self._match({ 'acme/fruit/kiwi/1.0': 4 }, tmp2) )
 
   def xtest_match_two_metadata_all(self):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
@@ -31,17 +30,16 @@ class test_bf_file_matcher_item_metadata(unit_test):
     self.assertEqual( True, self._match({
       'acme/fruit/kiwi/1.0': 666,
       'acme/fruit/name/1.0': 'fred',
-    }, tmp1, match_type = 'ALL') )
+    }, tmp1) )
     self.assertEqual( False, self._match({
       'acme/fruit/kiwi/1.0': 666,
       'acme/fruit/name/1.0': 'fred',
-    }, tmp2, match_type = 'ALL') )
+    }, tmp2) )
 
-  def _match(self, metadata, filename, **options_args):
+  def _match(self, metadata, filename):
     entry = bf_entry(filename)
-    options = bf_file_matcher_options(**options_args)
     matcher = bf_file_matcher_item_metadata(metadata)
-    return matcher.match(entry, options)
+    return matcher.match(entry)
                                      
 if __name__ == '__main__':
   unit_test.main()

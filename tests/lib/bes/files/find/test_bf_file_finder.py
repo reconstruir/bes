@@ -738,6 +738,25 @@ class test_bf_file_finder(unit_test):
 
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
+
+  def test_find_with_match_pattern_and_file_type(self):
+    content = [
+      'file .git/HEAD "x"',
+      'file .git/config "x"',
+      'file .git/description "x"',
+      'file .git/hooks/applypatch-msg.sample "x"',
+      'file .git/info/exclude "x"',
+      'file kiwi.git "x"',
+      'file a/b/c/foo.txt "x"',
+      'file d/e/bar.txt "x"',
+      'file f/g/.git "x"',
+    ]
+    matcher = bf_file_matcher()
+    matcher.add_matcher_fnmatch('.git*', file_type = 'DIR', negate = True)
+    self.assert_filename_list_equal( [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ], self._find(content, file_type = 'FILE|LINK|DIR',  file_matcher = matcher, match_type = 'all', path_type = 'relative').sorted_relative_filenames )
     
 if __name__ == '__main__':
   unit_test.main()
