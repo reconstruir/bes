@@ -77,7 +77,7 @@ class python_testing(object):
     _log.log_d('ANY_PYTHON2: {}'.format(_PYTHONS.ANY_PYTHON2))
     _log.log_d('ANY_PYTHON3: {}'.format(_PYTHONS.ANY_PYTHON3))
 
-  PYTHON_VERSIONS = ( '3.8', '3.9', '3.10', '3.11', '3.12' )
+  PYTHON_VERSIONS = ( '3.8', '3.9', '3.10', '3.11', '3.12', '3.13' )
   @classmethod
   def make_fake_python_installation(clazz, root_dir, py_version, pip_version,
                                     source, system = None):
