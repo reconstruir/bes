@@ -9,8 +9,8 @@ class bf_file_matcher_item_callable(bf_file_matcher_item_base):
 
   _log = logger('bf_file_matcher')
   
-  def __init__(self, callable_, file_type = None):
-    super().__init__(file_type, None)
+  def __init__(self, callable_, file_type = None, path_type = None):
+    super().__init__(file_type, path_type)
     self._callable = check.check_callable(callable_)
 
   def __str__(self):

@@ -8,7 +8,6 @@ from bes.property.cached_property import cached_property
 
 from ..match.bf_file_matcher_type import bf_file_matcher_type
 from ..match.bf_file_matcher_type import bf_cli_file_matcher_type
-from ..match.bf_file_matcher_options import bf_file_matcher_options
 from ..match.bf_file_matcher import bf_cli_match
 from ..match.bf_file_matcher import bf_file_matcher
 
@@ -35,9 +34,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def options_desc(self):
     return '''
-               ignore_case bool                 default=False
                 match_type bf_file_matcher_type default=ANY
-                 path_type bf_path_type         default=ABSOLUTE
                  file_type bf_file_type         default=FILE|LINK
               follow_links bool                 default=False
        ignore_broken_links bool                 default=True
@@ -75,9 +72,6 @@ class bf_file_finder_options(bcli_options):
     if self.min_depth and self.min_depth < 1:
       raise bf_file_finder_error('min_depth needs to be >= 1.')
   
-  def pass_through_keys(self):
-    return ( 'matcher_options', )
-    
   def depth_in_range(self, depth):
     if self.min_depth and self.max_depth:
       return depth >= self.min_depth and depth <= self.max_depth
@@ -87,18 +81,12 @@ class bf_file_finder_options(bcli_options):
       return depth <= self.max_depth
     return True
 
-  @property
-  def matcher_options(self):
-    return bf_file_matcher_options(ignore_case = self.ignore_case,
-                                   match_type = self.match_type,
-                                   path_type = self.path_type)
-  
   def file_matcher_matches(self, entry):
     check.check_bf_entry(entry)
     
     if not self.file_matcher:
       return True
-    return self.file_matcher.match(entry, self.matcher_options)
+    return self.file_matcher.match(entry, self.match_type)
     
   def call_stop_function(self):
     if not self.stop_function:

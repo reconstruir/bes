@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 import os.path as path
 from bes.files.bf_dir import bf_dir
 from bes.files.match.bf_file_matcher import bf_file_matcher
-from bes.files.match.bf_file_matcher_options import bf_file_matcher_options
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 
@@ -24,15 +25,14 @@ class test_bf_dir(unit_test):
     self.assertEqual( False, bf_dir.is_empty(tmp_dir) )
     
   def test_list_absolute(self):
-    tmp_dir = self._make_temp_content([
+    content = [
       'file foo.txt "foo.txt"',
       'file bar.txt "bar.txt"',
       'file kiwi.jpg "kiwi.jpg"',
       'file kiwi.png "kiwi.png"',
       'file orange.png "orange.png"',
-      #'file emptyfile.txt',
-      #'dir emptydir',
-    ])
+    ]
+    t = self._call_list(content, relative = False)
     expected_filenames = [
       'bar.txt',
       'foo.txt',
@@ -40,40 +40,48 @@ class test_bf_dir(unit_test):
       'kiwi.png',
       'orange.png',
     ]
-    expected_filenames = sorted([ path.join(tmp_dir, f) for f in expected_filenames ])
-    self.assertEqual( expected_filenames, self._list(tmp_dir).absolute_filenames() )
+    expected_filenames = sorted([ path.join(t.tmp_dir, f) for f in expected_filenames ])
+    self.assertEqual( expected_filenames, t.filenames )
 
   def test_list_relative(self):
-    tmp_dir = self._make_temp_content([
+    content = [
       'file foo.txt "foo.txt"',
       'file bar.txt "bar.txt"',
       'file kiwi.jpg "kiwi.jpg"',
       'file kiwi.png "kiwi.png"',
       'file orange.png "orange.png"',
-    ])
+    ]
+    t = self._call_list(content, relative = True)
     self.assertEqual( [
       'bar.txt',
       'foo.txt',
       'kiwi.jpg',
       'kiwi.png',
       'orange.png',
-    ], self._list(tmp_dir).relative_filenames() )
-    
-  def test_list_pattern(self):
-    tmp_dir = self._make_temp_content([
-      'file foo.txt "foo.txt"',
-      'file bar.txt "bar.txt"',
-      'file kiwi.jpg "kiwi.jpg"',
-      'file kiwi.png "kiwi.png"',
-      'file orange.png "orange.png"',
-      #'file emptyfile.txt',
-      #'dir emptydir',
-    ])
-    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, patterns = ( '*.jpg', )).relative_filenames() )
-    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], self._list(tmp_dir, patterns = ( '*kiwi*', )).relative_filenames() )
+    ], t.filenames )
 
-  def test_list_pattern_path_type_basename(self):
-    tmp_dir = self._make_temp_content([
+  def test_list_with_pattern(self):
+    content = [
+      'file foo.txt "foo.txt"',
+      'file bar.txt "bar.txt"',
+      'file kiwi.jpg "kiwi.jpg"',
+      'file kiwi.png "kiwi.png"',
+      'file orange.png "orange.png"',
+    ]
+    t = self._call_list(content, relative = True,
+                        matcher = bf_file_matcher(patterns = ( '*.jpg', )))
+    self.assertEqual( [
+      'kiwi.jpg',
+    ], t.filenames )
+    t = self._call_list(content, relative = True,
+                        matcher = bf_file_matcher(patterns = ( '*kiwi*', )))
+    self.assertEqual( [
+      'kiwi.jpg',
+      'kiwi.png',
+    ], t.filenames )
+
+  def test_list_with_pattern_path_type_absolute(self):
+    content = [
       'file foo.txt "foo.txt"',
       'file bar.txt "bar.txt"',
       'file kiwi.jpg "kiwi.jpg"',
@@ -81,12 +89,14 @@ class test_bf_dir(unit_test):
       'file orange.png "orange.png"',
       #'file emptyfile.txt',
       #'dir emptydir',
-    ])
-    self.assertEqual( [], self._list(tmp_dir, patterns = ( 'kiwi*', ), path_type = 'absolute').relative_filenames() )
-    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], self._list(tmp_dir, patterns = ( 'kiwi*', ), path_type = 'basename').relative_filenames() )
+    ]
+    matcher = bf_file_matcher()
+    matcher.add_item_fnmatch('kiwi*', path_type = 'absolute')
+    t = self._call_list(content, relative = True, matcher = matcher)
+    self.assertEqual( [], t.filenames )
     
-  def test_list_callable(self):
-    tmp_dir = self._make_temp_content([
+  def test_list_with_pattern_path_type_basename(self):
+    content = [
       'file foo.txt "foo.txt"',
       'file bar.txt "bar.txt"',
       'file kiwi.jpg "kiwi.jpg"',
@@ -94,9 +104,27 @@ class test_bf_dir(unit_test):
       'file orange.png "orange.png"',
       #'file emptyfile.txt',
       #'dir emptydir',
-    ])
-    callables = ( lambda f: f.endswith('.jpg'), )
-    self.assertEqual( [ 'kiwi.jpg' ], self._list(tmp_dir, callables = callables).relative_filenames() )
+    ]
+    matcher = bf_file_matcher()
+    matcher.add_item_fnmatch('kiwi*', path_type = 'basename')
+    t = self._call_list(content, relative = True, matcher = matcher)
+    self.assertEqual( [ 'kiwi.jpg', 'kiwi.png' ], t.filenames )
+    
+  def test_list_with_callable(self):
+    content = [
+      'file foo.txt "foo.txt"',
+      'file bar.txt "bar.txt"',
+      'file kiwi.jpg "kiwi.jpg"',
+      'file kiwi.png "kiwi.png"',
+      'file orange.png "orange.png"',
+    ]
+    t = self._call_list(content, relative = True,
+                        matcher = bf_file_matcher(callables = ( lambda f: f.endswith('.jpg'), )))
+    self.assertEqual( [
+      'kiwi.jpg',
+    ], t.filenames )
+    t = self._call_list(content, relative = True,
+                        matcher = bf_file_matcher(patterns = ( '*kiwi*', )))
 
   def xtest_list_dirs(self):
     tmp_dir = self._make_temp_content([
@@ -125,12 +153,11 @@ class test_bf_dir(unit_test):
   def xtest_all_parents(self):
     self.assertEqual( [ '/', '/usr', '/usr/lib' ], bf_dir.all_parents('/usr/lib/foo' ) )
 
-  def _list(self, where, patterns = None, expressions = None, callables = None, path_type = 'absolute'):
-    match = bf_file_matcher(patterns = patterns,
-                            expressions = expressions,
-                            callables = callables)
-    options = bf_file_matcher_options(path_type = path_type)
-    return bf_dir.list(where, file_match = match, options = options)
-    
+  _test_result = namedtuple('_test_result', 'tmp_dir, filenames')
+  def _call_list(self, content, **kwargs):
+    tmp_dir = self._make_temp_content(content)
+    filenames = bf_dir.list(tmp_dir, **kwargs)
+    return self._test_result(tmp_dir, filenames)
+  
 if __name__ == '__main__':
   unit_test.main()

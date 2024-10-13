@@ -41,7 +41,7 @@ class bf_file_matcher_item_re(bf_file_matcher_item_base):
         if next_entry:
           matched = True
           break
-      self._log.log_d(f'{self}: match({entry.relative_filename}) expression="{self._expression}" => {matched}')
+      self._log.log_d(f'{self}: match({entry.relative_filename}) expression="{self._expression}" filename="{filename}" => {matched}')
     return matched
 
   #@abstractmethod

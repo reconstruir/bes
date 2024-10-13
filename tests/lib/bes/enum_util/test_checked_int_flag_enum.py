@@ -20,16 +20,20 @@ class test_checked_int_flag_enum(unit_test):
     self.assertEqual( self._fruit.PEACH, self._fruit.parse_string('PEACH') )
     self.assertEqual( self._fruit.PEACH, self._fruit.parse_string('peach') )
 
+  def test_parse_string_with_alias(self):
+    self.assertEqual( self._fruit.PEACH | self._fruit.ORANGE, self._fruit.parse_string('nonsense') )
+    
   def test_parse_string_with_or(self):
     self.assertEqual( self._fruit.LEMON | self._fruit.PEACH, self._fruit.parse_string('LEMON|PEACH') )
     self.assertEqual( self._fruit.LEMON | self._fruit.PEACH, self._fruit.parse_string('PEACH|LEMON') )
     
   def xtest_value_is_valid(self):
     self.assertTrue( self._fruit.value_is_valid(0x01) )
-    #self.assertTrue( self._fruit.value_is_valid(0x02) )
-    #self.assertFalse( self._fruit.value_is_valid(0x03) )
+    self.assertTrue( self._fruit.value_is_valid(0x02) )
+    self.assertFalse( self._fruit.value_is_valid(0x03) )
+    self.assertFalse( self._fruit.value_is_valid(0x03 | 0x04) )
 
-  def xtest_name_is_valid(self):
+  def test_name_is_valid(self):
     self.assertTrue( self._fruit.name_is_valid('LEMON') )
     self.assertTrue( self._fruit.name_is_valid('PEACH') )
     self.assertFalse( self._fruit.name_is_valid('COCONUT') )

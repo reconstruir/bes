@@ -17,7 +17,7 @@ class test_bf_file_matcher(unit_test):
 
   def test_match_fnmatch_one_matcher_any(self):
     def setup(m):
-      m.add_matcher_fnmatch('*.py')
+      m.add_item_fnmatch('*.py')
       
     self.assertEqual( True, self._match(setup, 'kiwi.py') )
     self.assertEqual( False, self._match(setup, 'KIWI.PY') )
@@ -25,7 +25,7 @@ class test_bf_file_matcher(unit_test):
 
   def test_match_fnmatch_one_matcher_any_with_negate(self):
     def setup(m):
-      m.add_matcher_fnmatch('*.py', negate = True)
+      m.add_item_fnmatch('*.py', negate = True)
       
     self.assertEqual( False, self._match(setup, 'kiwi.py') )
     self.assertEqual( True, self._match(setup, 'KIWI.PY') )
@@ -33,7 +33,7 @@ class test_bf_file_matcher(unit_test):
     
   def test_match_fnmatch_one_matcher_any_with_ignore_case(self):
     def setup(m):
-      m.add_matcher_fnmatch('*.py', ignore_case = True)
+      m.add_item_fnmatch('*.py', ignore_case = True)
       
     self.assertEqual( True, self._match(setup, 'kiwi.py') )
     self.assertEqual( True, self._match(setup, 'KIWI.PY') )
@@ -41,7 +41,7 @@ class test_bf_file_matcher(unit_test):
 
   def test_match_fnmatch_one_matcher_any_with_path_type_basename(self):
     def setup(m):
-      m.add_matcher_fnmatch('f*', path_type = 'basename')
+      m.add_item_fnmatch('f*', path_type = 'basename')
       
     #self.assertEqual( False, self._match(setup, 'fruit/kiwi.py') )
     #self.assertEqual( True, self._match(setup, 'fruit/fig.py') )
@@ -50,7 +50,7 @@ class test_bf_file_matcher(unit_test):
 
   def test_match_fnmatch_one_matcher_any_with_ignore_case_and_path_type_basename(self):
     def setup(m):
-      m.add_matcher_fnmatch('f*', ignore_case = True, path_type = 'basename')
+      m.add_item_fnmatch('f*', ignore_case = True, path_type = 'basename')
       
     self.assertEqual( False, self._match(setup, 'fruit/kiwi.py') )
     self.assertEqual( True, self._match(setup, 'fruit/fig.py') )
@@ -59,8 +59,8 @@ class test_bf_file_matcher(unit_test):
     
   def test_match_fnmatch_two_matchers_all(self):
     def setup(m):
-      m.add_matcher_fnmatch('*.py')
-      m.add_matcher_fnmatch('k*')
+      m.add_item_fnmatch('*.py')
+      m.add_item_fnmatch('k*')
     
     self.assertEqual( True, self._match(setup, 'kiwi.py', match_type = 'all') )
     self.assertEqual( False, self._match(setup, 'lemon.py', match_type = 'all') )
@@ -69,8 +69,8 @@ class test_bf_file_matcher(unit_test):
     
   def test_match_fnmatch_two_matchers_none(self):
     def setup(m):
-      m.add_matcher_fnmatch('*.py')
-      m.add_matcher_fnmatch('k*')
+      m.add_item_fnmatch('*.py')
+      m.add_item_fnmatch('k*')
     
     self.assertEqual( False, self._match(setup, 'kiwi.py', match_type = 'none') )
     self.assertEqual( False, self._match(setup, 'lemon.py', match_type = 'none') )
@@ -78,8 +78,8 @@ class test_bf_file_matcher(unit_test):
     
   def test_match_fnmatch_two_matchers_any(self):
     def setup(m):
-      m.add_matcher_fnmatch('*.py')
-      m.add_matcher_fnmatch('k*')
+      m.add_item_fnmatch('*.py')
+      m.add_item_fnmatch('k*')
 
     self.assertEqual( True, self._match(setup, 'kiwi.txt', match_type = 'any') )
     self.assertEqual( True, self._match(setup, 'lemon.py', match_type = 'any') )
@@ -99,8 +99,8 @@ class test_bf_file_matcher(unit_test):
       '/foo/bar/vaca.txt',
     ]
     m = bf_file_matcher()
-    m.add_matcher_fnmatch('*.txt')
-    m.add_matcher_fnmatch('*.pdf')
+    m.add_item_fnmatch('*.txt')
+    m.add_item_fnmatch('*.pdf')
     self.assertEqual( bf_entry_list(expected), m.match_entries(filenames) )
 
   def test_match_entries_fnmatch_two_matchers_all_with_negate(self):
@@ -119,8 +119,8 @@ class test_bf_file_matcher(unit_test):
       'd/e/bar.txt',
     ]
     m = bf_file_matcher()
-    m.add_matcher_fnmatch('.git*', path_type = 'relative', negate = True)
-    m.add_matcher_fnmatch('*.git', path_type = 'relative', negate = True)
+    m.add_item_fnmatch('.git*', path_type = 'relative', negate = True)
+    m.add_item_fnmatch('*.git', path_type = 'relative', negate = True)
     self.assertEqual( bf_entry_list(expected),
                       m.match_entries(filenames, match_type = 'all') )
 

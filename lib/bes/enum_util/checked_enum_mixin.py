@@ -48,21 +48,14 @@ class checked_enum_mixin:
   def names_lowercase(clazz):
     'Return a set all names.'
     return set([ item.name.lower() for item in clazz ])
-  
+
   @cached_class_property
   def name_to_item_dict(clazz):
     'Return a dict of names to items.'
     result = {}
-    for item in clazz:
-      result[item.name] = item
-    return result
 
-  @cached_class_property
-  def new_name_to_item_dict(clazz):
-    'Return a dict of names to items.'
-    result = {}
-    for item in clazz:
-      name_lower = item.name.lower()
+    for name, item in clazz.__members__.items(): 
+      name_lower = name.lower()
       if name_lower in result:
         exisiting_item = result[name_lower]
         raise ValueError(f'{clazz.__name__}: Enumeration names are case insensitive: "{item.name}" "{exisiting_item.name}"')
@@ -70,10 +63,10 @@ class checked_enum_mixin:
     return result
 
   @cached_class_property
-  def new_value_to_item_dict(clazz):
+  def value_to_item_dict(clazz):
     'Return a dict of values to item.'
     result = {}
-    for item in clazz:
+    for name, item in clazz.__members__.items(): 
       if not item.value in result:
         result[item.value] = []
       result[item.value].append(item)
@@ -144,7 +137,7 @@ class checked_enum_mixin:
   def parse_name(clazz, s):
     'Parse name.'
 
-    item = clazz.new_name_to_item_dict.get(s.lower(), None)
+    item = clazz.name_to_item_dict.get(s.lower(), None)
     if item == None:
       return None
     return clazz(item)
@@ -153,7 +146,7 @@ class checked_enum_mixin:
   def parse_value(clazz, value):
     'Parse name.'
 
-    items = clazz.new_value_to_item_dict.get(value, None)
+    items = clazz.value_to_item_dict.get(value, None)
     if items == None:
       return None
     return clazz(items[0])

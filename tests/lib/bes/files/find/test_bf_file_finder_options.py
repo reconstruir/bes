@@ -2,7 +2,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.files.match.bf_file_matcher import bf_file_matcher
-from bes.files.match.bf_file_matcher_options import bf_file_matcher_options
 from bes.files.find.bf_file_finder_options import bf_file_finder_options
 
 from bes.testing.unit_test import unit_test

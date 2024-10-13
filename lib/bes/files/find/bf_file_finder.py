@@ -178,12 +178,11 @@ class bf_file_finder(object):
     if include_patterns or exclude_patterns:
       matcher = bf_file_matcher()
       for pattern in (include_patterns or []):
-        matcher.add_matcher_fnmatch(pattern)
+        matcher.add_item_fnmatch(pattern, path_type = path_type)
       for pattern in (exclude_patterns or []):
-        matcher.add_matcher_fnmatch(pattern, negate = True)
+        matcher.add_item_fnmatch(pattern, path_type = path_type, negate = True)
     return clazz.find_with_options(where,
                                    file_type = file_type,
-                                   path_type = path_type,
                                    match_type = match_type,
                                    min_depth = min_depth,
                                    max_depth = max_depth,

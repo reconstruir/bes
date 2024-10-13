@@ -115,7 +115,7 @@ class test_bf_file_finder(unit_test):
       'dir emptydir',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('*.py')
+    matcher.add_item_fnmatch('*.py')
     self.assert_filename_list_equal( [
       'kiwi.py',
       'subdir/subberdir/melon.py',
@@ -281,7 +281,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('*.cheese')
+    matcher.add_item_fnmatch('*.cheese')
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -298,7 +298,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('*.cheese')
+    matcher.add_item_fnmatch('*.cheese')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
@@ -318,7 +318,7 @@ class test_bf_file_finder(unit_test):
       'file bonus/fig.fruit',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('f*')
+    matcher.add_item_fnmatch('f*')
     self.assert_filename_list_equal( [
       'bonus/fig.fruit',
     ], self._find(content, file_matcher = matcher, path_type = 'basename').sorted_filenames )
@@ -335,7 +335,7 @@ class test_bf_file_finder(unit_test):
       'file bonus/fig.fruit',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch(self.native_filename('*fruit/kiwi.fruit'))
+    matcher.add_item_fnmatch(self.native_filename('*fruit/kiwi.fruit'))
     self.assert_filename_list_equal( [
       'fruit/kiwi.fruit',
     ], self._find(content, file_matcher = matcher, path_type = 'absolute').sorted_filenames )
@@ -351,7 +351,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    matcher.add_item_callable(lambda f_: f_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -368,7 +368,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    matcher.add_item_callable(lambda f_: f_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -385,7 +385,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    matcher.add_item_callable(lambda f_: f_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
@@ -404,7 +404,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.startswith('brie'))
+    matcher.add_item_callable(lambda f_: f_.startswith('brie'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
     ], self._find(content, file_matcher = matcher, path_type = 'basename').sorted_filenames )
@@ -420,7 +420,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_callable(lambda f_: f_.startswith('cheese'))
+    matcher.add_item_callable(lambda f_: f_.startswith('cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -437,7 +437,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_re(r'^.*\.cheese$')
+    matcher.add_item_re(r'^.*\.cheese$')
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -456,8 +456,8 @@ class test_bf_file_finder(unit_test):
       'file wine/chablis.wine',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_re(r'^.*\.cheese$')
-    matcher.add_matcher_re(r'^.*\.wine$')
+    matcher.add_item_re(r'^.*\.cheese$')
+    matcher.add_item_re(r'^.*\.wine$')
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
@@ -476,7 +476,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_re(r'^.*\.cheese$')
+    matcher.add_item_re(r'^.*\.cheese$')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
@@ -495,7 +495,7 @@ class test_bf_file_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_re(r'^f.*$')
+    matcher.add_item_re(r'^f.*$')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
@@ -517,8 +517,8 @@ class test_bf_file_finder(unit_test):
       'file d/e/bar.txt "x"',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('.git*', negate = True)
-    matcher.add_matcher_fnmatch('*.git', negate = True)
+    matcher.add_item_fnmatch('.git*', negate = True)
+    matcher.add_item_fnmatch('*.git', negate = True)
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',
@@ -662,8 +662,8 @@ class test_bf_file_finder(unit_test):
       'file d/e/bar.txt "x"',
     ]
     matcher = bf_file_matcher()
-    matcher.add_matcher_fnmatch('.git*', negate = True)
-    matcher.add_matcher_fnmatch('*.git', negate = True)
+    matcher.add_item_fnmatch('.git*', negate = True)
+    matcher.add_item_fnmatch('*.git', negate = True)
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',

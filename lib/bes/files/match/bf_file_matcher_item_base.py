@@ -35,5 +35,5 @@ class bf_file_matcher_item_base(bf_file_matcher_item_i):
       matched = self._file_type.mask_matches(entry.file_type)
     else:
       matched = True
-    self._log.log_d(f'{self}: match_file_type({entry.relative_filename}) file_type="{self._file_type}" => {matched}')
+    #self._log.log_d(f'{self}: match_file_type({entry.relative_filename}) file_type="{self._file_type}" => {matched}')
     return matched

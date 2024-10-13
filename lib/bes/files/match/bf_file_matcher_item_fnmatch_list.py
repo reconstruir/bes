@@ -13,10 +13,10 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
 
   _log = logger('bf_file_matcher')
   
-  def __init__(self, patterns, match_type, file_type = None, path_type = None, ignore_case = False):
+  def __init__(self, patterns, list_match_type, file_type = None, path_type = None, ignore_case = False):
     super().__init__(file_type, path_type)
     self._patterns = check.check_string_seq(patterns)[:]
-    self._match_type = check.check_bf_file_matcher_type(match_type)
+    self._list_match_type = check.check_bf_file_matcher_type(list_match_type)
     self._ignore_case = ignore_case
 
   def __str__(self):
@@ -42,12 +42,12 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
         bf_file_matcher_type.ANY: self._match_any,
         bf_file_matcher_type.NONE: self._match_none,
       }
-      func = func_map[self._match_type]
+      func = func_map[self._list_match_type]
       matched = func(filename, self._patterns, fnmatcher)
       import pprint
       patterns = pprint.pformat(patterns)
-      #self._log.log_e(f'match({entry.root_dir},{entry.filename}) {filename} match_type={self._match_type.name} filename={filename} patterns="{patterns}" => {matched}')
-    self._log.log_d(f'match({entry.root_dir}-{filename}) {filename} match_type={self._match_type.name} filename={filename} => {matched}')
+      #self._log.log_e(f'match({entry.root_dir},{entry.filename}) {filename} list_match_type={self._list_match_type.name} filename={filename} patterns="{patterns}" => {matched}')
+    self._log.log_d(f'match({entry.root_dir}-{filename}) {filename} list_match_type={self._list_match_type.name} filename={filename} => {matched}')
     return matched
 
   @classmethod
@@ -84,7 +84,7 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
   def clone(self):
     'Clone the matcher item.'
     return bf_file_matcher_item_fnmatch_list(self._patterns[:],
-                                             self._match_type,
+                                             self._list_match_type,
                                              file_type = self.file_type,
                                              path_type = self.path_type,
                                              ignore_case = self._ignore_case)

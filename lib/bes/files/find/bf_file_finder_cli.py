@@ -84,7 +84,7 @@ class bf_file_finder_cli(object):
     stop_after = None
     if args.name:
       matcher = bf_file_matcher()
-      matcher.add_matcher_fnmatch(args.name)
+      matcher.add_item_fnmatch(args.name)
       if args.quit:
         stop_after = 1
         

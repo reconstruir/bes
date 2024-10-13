@@ -56,19 +56,19 @@ class file_find(object):
     matcher = None
     if match_patterns or match_function or match_re:
       matcher = bf_file_matcher()
-    if match_patterns:
-      for pattern in match_patterns:
-        matcher.add_matcher_fnmatch(pattern)
-    if match_re:
-      for expression in match_re:
-        matcher.add_matcher_re(expression)
-    if match_function:
-      matcher.add_matcher_callable(match_function)
-    assert isinstance(match_basename, bool)
     if match_basename:
       path_type = bf_path_type.RELATIVE
     else:
       path_type = bf_path_type.ABSOLUTE
+    if match_patterns:
+      for pattern in match_patterns:
+        matcher.add_item_fnmatch(pattern, path_type = path_type)
+    if match_re:
+      for expression in match_re:
+        matcher.add_item_re(expression, path_type = path_type)
+    if match_function:
+      matcher.add_item_callable(match_function, path_type = path_type)
+    assert isinstance(match_basename, bool)
 
     match_type_map = {
       file_match.ALL: bf_file_matcher_type.ALL,
@@ -84,7 +84,6 @@ class file_find(object):
                                             max_depth = max_depth,
                                             file_type = file_type,
                                             follow_links = follow_links,
-                                            path_type = path_type,
                                             file_matcher = matcher,
                                             match_type = match_type)
   

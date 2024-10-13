@@ -59,9 +59,9 @@ class test_checked_enum(unit_test):
 
   def test_name_to_item_dict(self):
     self.assertEqual( {
-      'LEMON': self._fruit.LEMON,
-      'ORANGE': self._fruit.ORANGE,
-      'PEACH': self._fruit.PEACH,
+      'lemon': self._fruit.LEMON,
+      'orange': self._fruit.ORANGE,
+      'peach': self._fruit.PEACH,
     }, self._fruit.name_to_item_dict )
 
   def test_value_to_name_dict(self):

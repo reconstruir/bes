@@ -35,7 +35,7 @@ class bf_file_matcher_item_fnmatch(bf_file_matcher_item_base):
       pattern = self._pattern_lowercase if self._ignore_case else self._pattern
       filename = entry.filename_for_matcher(self.path_type, self._ignore_case)
       matched = fnmatch.fnmatchcase(filename, pattern)
-    self._log.log_d(f'{self}: match({entry.relative_filename}) pattern="{pattern}" => {matched}')
+      self._log.log_d(f'{self}: match({entry.relative_filename}) pattern="{self._pattern}" filename="{filename}" => {matched}')
     return matched
 
   #@abstractmethod
