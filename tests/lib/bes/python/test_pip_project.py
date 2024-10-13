@@ -50,17 +50,17 @@ class test_pip_project(unit_test):
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( 0, rv.exit_code )
     
-  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
-  def test_install_specific_version(self):
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.PYTHON_311, 'test_install - no python3 found', warning = True)
+  def test_install_specific_version_py311(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
+                                  python_exe = python_testing._PYTHONS.PYTHON_311,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
-    project.install('pyinstaller', version = '6.4.0')
+    project.install('pyinstaller', version = '6.9.0')
     rv = project.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '6.4.0', rv.stdout.strip() )
-    self.assertEqual( '6.4.0', project.version('pyinstaller') )
+    self.assertEqual( '6.9.0', rv.stdout.strip() )
+    self.assertEqual( '6.9.0', project.version('pyinstaller') )
     self.assertTrue( project.needs_upgrade('pyinstaller') )
 
   @unit_test_function_skip.skip_if(not python_testing._PYTHONS.PYTHON_311, 'test_upgrade - no python3.11 found', warning = True)
@@ -70,10 +70,10 @@ class test_pip_project(unit_test):
                                   python_exe = python_testing._PYTHONS.PYTHON_311,
                                   debug = self.DEBUG)
     project = pip_project(options = options)
-    project.install('pyinstaller', version = '6.4.0')
+    project.install('pyinstaller', version = '6.9.0')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     old_version = semantic_version(project.version('pyinstaller'))
-    self.assertEqual( '6.4.0', old_version )
+    self.assertEqual( '6.9.0', old_version )
     project.upgrade('pyinstaller')
     new_version = semantic_version(project.version('pyinstaller'))
     self.assertTrue( new_version > old_version )
@@ -85,13 +85,13 @@ class test_pip_project(unit_test):
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
     p1 = pip_project(options = options)
-    p1.install('pyinstaller', version = '6.5.0')
+    p1.install('pyinstaller', version = '6.10.0')
     rv = p1.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '6.5.0', p1.version('pyinstaller') )
+    self.assertEqual( '6.10.0', p1.version('pyinstaller') )
     p2 = pip_project(options = options)
-    p2.install('pyinstaller', version = '6.5.0')
+    p2.install('pyinstaller', version = '6.10.0')
     rv = p2.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '6.5.0', p2.version('pyinstaller') )
+    self.assertEqual( '6.10.0', p2.version('pyinstaller') )
     
 if __name__ == '__main__':
   unit_test.main()
