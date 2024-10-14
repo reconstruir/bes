@@ -17,7 +17,7 @@ class bf_file_matcher_item_datetime(bf_file_matcher_item_base):
     self._comparison_type = check.check_bf_date_comparison_type(comparison_type)
 
   def __str__(self):
-    return f'bf_file_matcher_item_datetime({self._date}, {self._comparison_type})'
+    return f'fmi_datetime({self._date}, {self._comparison_type})'
     
   #@abstractmethod
   def match(self, entry):

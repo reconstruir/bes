@@ -22,7 +22,7 @@ class bf_file_matcher_item_re(bf_file_matcher_item_base):
     self._ignore_case = ignore_case
 
   def __str__(self):
-    return f'bf_file_matcher_item_re("{self._expression}")'
+    return f'fmi_re("{self._expression}")'
     
   #@abstractmethod
   def match(self, entry):

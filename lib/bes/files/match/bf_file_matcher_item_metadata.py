@@ -12,6 +12,9 @@ class bf_file_matcher_item_metadata(bf_file_matcher_item_base):
     super().__init__(file_type, None)
     self._metadatas = check.check_dict(metadatas)
 
+  def __str__(self):
+    return f'fmi_metadata("{[ key for key in self._metadatas.keys()]}")'
+    
   #@abstractmethod
   def match(self, entry):
     'Return True if entry matches.'

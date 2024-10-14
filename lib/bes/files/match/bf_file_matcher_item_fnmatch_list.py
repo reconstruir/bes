@@ -20,7 +20,7 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
     self._ignore_case = ignore_case
 
   def __str__(self):
-    return f'bf_file_matcher_item_fnmatch_list("{self._patterns}")'
+    return f'fmi_fnmatch_list("{self._patterns}")'
     
   @cached_property
   def _patterns_lowercase(self):

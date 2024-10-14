@@ -779,12 +779,11 @@ class test_bf_file_finder(unit_test):
     ]
     matcher = bf_file_matcher()
     matcher.add_item_fnmatch('.git*', file_type = 'any', path_type = 'relative', negate = True)
-    matcher.add_item_fnmatch('.git', file_type = 'DIR|FILE', path_type = 'relative', negate = True)
-    matcher.add_item_fnmatch('*', file_type = 'DIR|FILE', path_type = 'relative')
+    matcher.add_item_fnmatch('*.git', file_type = 'any', path_type = 'relative', negate = True)
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',
-    ], self._find(content, file_type = 'FILE|LINK',  file_matcher = matcher, match_type = 'all').sorted_relative_filenames )
+    ], self._find(content, file_type = 'file',  file_matcher = matcher, match_type = 'all').sorted_relative_filenames )
     
 if __name__ == '__main__':
   unit_test.main()

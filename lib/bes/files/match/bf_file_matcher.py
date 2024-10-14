@@ -130,7 +130,7 @@ class bf_file_matcher(object):
     match_type = check.check_bf_file_matcher_type(match_type, allow_none = True)
     match_type = match_type or bf_file_matcher_type.ANY
     
-    self._log.log_d(f'match: entry={entry.relative_filename} match_type={match_type}')
+    self._log.log_d(f'match: entry={entry.relative_filename} match_type={match_type.name}')
     
     if self.empty:
       self._log.log_d(f'match: no matchers found')
@@ -164,7 +164,7 @@ class bf_file_matcher(object):
       matched = next_matcher.matcher.match(entry)
       if next_matcher.negate:
         matched = not matched
-      clazz._log.log_d(f'_match_any: {i} of {num}: entry={entry.relative_filename} matcher={next_matcher.matcher} => {matched}')
+      clazz._log.log_d(f'_match_any: {i} of {num}: entry={entry.relative_filename} matcher={next_matcher.matcher} negate={next_matcher.negate} => {matched}')
       if matched:
         return True
     return False
@@ -176,7 +176,7 @@ class bf_file_matcher(object):
       matched = next_matcher.matcher.match(entry)
       if next_matcher.negate:
         matched = not matched
-      clazz._log.log_d(f'_match_all: {i} of {num}:  entry={entry.relative_filename} matcher={next_matcher.matcher} => {matched}')
+      clazz._log.log_d(f'_match_all: {i} of {num}:  entry={entry.relative_filename} matcher={next_matcher.matcher} negate={next_matcher.negate} => {matched}')
       if not matched:
         return False
     return True
@@ -188,7 +188,7 @@ class bf_file_matcher(object):
       matched = next_matcher.matcher.match(entry)
       if next_matcher.negate:
         matched = not matched
-      clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.relative_filename} matcher={next_matcher.matcher} => {matched}')
+      clazz._log.log_d(f'_match_none: {i} of {num}:  entry={entry.relative_filename} matcher={next_matcher.matcher} negate={next_matcher.negate} => {matched}')
       if matched:
         return False
     return True

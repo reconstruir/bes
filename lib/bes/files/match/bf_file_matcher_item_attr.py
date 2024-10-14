@@ -12,6 +12,9 @@ class bf_file_matcher_item_attr(bf_file_matcher_item_base):
     super().__init__(file_type, None)
     self._attrs = check.check_dict(attrs)
 
+  def __str__(self):
+    return f'fmi_attr("{[ key for key in self._attrs.keys()]}")'
+    
   #@abstractmethod
   def match(self, entry):
     'Return True if entry matches.'

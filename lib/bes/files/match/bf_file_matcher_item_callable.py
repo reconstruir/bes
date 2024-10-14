@@ -14,7 +14,7 @@ class bf_file_matcher_item_callable(bf_file_matcher_item_base):
     self._callable = check.check_callable(callable_)
 
   def __str__(self):
-    return f'bf_file_matcher_item_callable("{self._callable}")'
+    return f'fmi_callable("{self._callable}")'
     
   #@abstractmethod
   def match(self, entry):
