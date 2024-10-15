@@ -62,7 +62,9 @@ class bf_file_finder(object):
     done = False
     for item in bf_walk.walk(where,
                              max_depth = self._options.max_depth,
-                             follow_links = self._options.follow_links):
+                             follow_links = self._options.follow_links,
+                             walk_dir_matcher = self._options.walk_dir_matcher,
+                             walk_dir_match_type = self._options.walk_dir_match_type):
       self._log.log_d(f'next: {count + 1}: dirs={item.dirs} files={item.files}')
       if done:
         break

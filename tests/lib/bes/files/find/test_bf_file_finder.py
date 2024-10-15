@@ -736,6 +736,37 @@ class test_bf_file_finder(unit_test):
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
 
+  def test_find_with_stats_file_only_with_dir_walk_matcher(self):
+    content = [
+      'file .git/HEAD "x"',
+      'file .git/config "x"',
+      'file .git/description "x"',
+      'file .git/hooks/applypatch-msg.sample "x"',
+      'file .git/info/exclude "x"',
+      'file kiwi.git "x"',
+      'file a/b/c/foo.txt "x"',
+      'file d/e/bar.txt "x"',
+    ]
+    walk_dir_matcher = bf_file_matcher()
+    walk_dir_matcher.add_item_fnmatch('.git',
+                                      file_type = 'dir',
+                                      path_type = 'basename',
+                                      negate = True)
+    result = self._find_with_stats(content,
+                                   file_type = 'FILE',
+                                   match_type = 'all',
+                                   walk_dir_matcher = walk_dir_matcher,
+                                   walk_dir_match_type = 'all')
+    self.assert_filename_list_equal( [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+      'kiwi.git',
+    ], result.sorted_relative_filenames )
+    self.assertEqual( 3, result.stats.num_checked )
+    self.assertEqual( 3, result.stats.num_files_checked )
+    self.assertEqual( 0, result.stats.num_dirs_checked )
+    self.assertEqual( 3, result.stats.depth )
+    
   def xtest_find_with_stats_dir_only(self):
     content = [
       'file .git/HEAD "x"',
