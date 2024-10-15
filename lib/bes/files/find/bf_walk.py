@@ -12,6 +12,8 @@ from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
 from ..bf_error import bf_error
 from ..bf_filename import bf_filename
+from ..match.bf_file_matcher import bf_file_matcher
+from ..match.bf_file_matcher_type import bf_file_matcher_type
 
 class bf_walk(object):
 
@@ -21,7 +23,14 @@ class bf_walk(object):
   # https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   _bf_walk_item = namedtuple('_bf_walk_item', 'root_dir, dirs, files, depth')
   @classmethod
-  def walk(clazz, where, max_depth = None, follow_links = False):
+  def walk(clazz, where, max_depth = None, follow_links = False,
+           walk_dir_matcher = None, walk_dir_match_type = None):
+    check.check_string(where)
+    check.check_int(max_depth, allow_none = True)
+    check.check_bool(follow_links)
+    check.check_bf_file_matcher(walk_dir_matcher, allow_none = True)
+    walk_dir_match_type = check.check_bf_file_matcher_type(walk_dir_match_type, allow_none = True)
+    
     where = path.normpath(where.rstrip(path.sep))
     if not path.isdir(where):
       raise bf_error(f'not a directory: {where}')
@@ -39,6 +48,18 @@ class bf_walk(object):
       if max_depth is not None:
         if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]
+      else:
+        if walk_dir_matcher:
+          clazz._log.log_d(f'walk_with_depth: filtering dirs because of walk_dir_matcher')
+          filtered_dir_entries = walk_dir_matcher.match_entries(dir_entries,
+                                                                match_type = walk_dir_match_type)
+          filtered_dirs = filtered_dir_entries.basenames()
+          if set(filtered_dirs) != set(dirs):
+            clazz._log.log_d(f'walk_with_depth: filtered_dirs={filtered_dirs}')
+          else:
+            clazz._log.log_d(f'walk_with_depth: filtered_dirs unchanged')
+          dirs[:] = filtered_dirs
+
 
   @classmethod
   def _make_entry(clazz, where, next_root_dir, filename):

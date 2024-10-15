@@ -7,6 +7,7 @@ from collections import namedtuple
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.files.find.bf_walk import bf_walk
+from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.fs.testing.temp_content import temp_content
 from bes.system.log import logger
 
@@ -68,5 +69,27 @@ class test_bf_walk(unit_test):
       ( '/tmp/subdir/subberdir', [], [ 'baz.txt' ], 2 ),
     ], self._walk(content).result )
 
+  def test_walk_with_walk_dir_matcher(self):
+    content = [
+      'file foo.txt "foo.txt\n"',
+      'file subdir1/bar.txt "bar.txt\n"',
+      'file subdir1/subberdir1/baz.txt "baz.txt\n"',
+      'file subdir2/bar2.txt "bar2.txt\n"',
+      'file subdir2/subberdir2/baz2.txt "baz2.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ]
+    matcher = bf_file_matcher()
+    matcher.add_item_fnmatch('subdir2',
+                             file_type = 'dir',
+                             path_type = 'basename',
+                             negate = True)
+    self.assertEqual( [
+      ( '/tmp', [ 'emptydir', 'subdir1', 'subdir2' ], [ 'emptyfile.txt', 'foo.txt' ], 0 ),
+      ( '/tmp/emptydir', [], [], 1 ),
+      ( '/tmp/subdir1', [ 'subberdir1' ], [ 'bar.txt' ], 1 ),
+      ( '/tmp/subdir1/subberdir1', [], [ 'baz.txt' ], 2 ),
+    ], self._walk(content, walk_dir_matcher = matcher, walk_dir_match_type = 'all').result )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -35,13 +35,14 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   def options_desc(self):
     return '''
                 match_type bf_file_matcher_type default=ANY
-                 file_type bf_file_type         default=FILE|LINK
+                 file_type bf_file_type         default=FILE_OR_LINK
               follow_links bool                 default=False
        ignore_broken_links bool                 default=True
                  max_depth int
                  min_depth int
               file_matcher bf_file_matcher 
-      walk_exclude_matcher bf_file_matcher 
+          walk_dir_matcher bf_file_matcher 
+       walk_dir_match_type bf_file_matcher_type default=ANY
                      limit int
              stop_function callable
          progress_function callable
