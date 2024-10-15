@@ -76,6 +76,8 @@ class test_bf_walk(unit_test):
       'file subdir1/subberdir1/baz.txt "baz.txt\n"',
       'file subdir2/bar2.txt "bar2.txt\n"',
       'file subdir2/subberdir2/baz2.txt "baz2.txt\n"',
+      'file subdir3/bar3.txt "bar3.txt\n"',
+      'file subdir3/subberdir3/baz3.txt "baz3.txt\n"',
       'file emptyfile.txt',
       'dir emptydir',
     ]
@@ -84,8 +86,12 @@ class test_bf_walk(unit_test):
                              file_type = 'dir',
                              path_type = 'basename',
                              negate = True)
+    matcher.add_item_fnmatch('subdir3',
+                             file_type = 'dir',
+                             path_type = 'basename',
+                             negate = True)
     self.assertEqual( [
-      ( '/tmp', [ 'emptydir', 'subdir1', 'subdir2' ], [ 'emptyfile.txt', 'foo.txt' ], 0 ),
+      ( '/tmp', [ 'emptydir', 'subdir1', 'subdir2', 'subdir3' ], [ 'emptyfile.txt', 'foo.txt' ], 0 ),
       ( '/tmp/emptydir', [], [], 1 ),
       ( '/tmp/subdir1', [ 'subberdir1' ], [ 'bar.txt' ], 1 ),
       ( '/tmp/subdir1/subberdir1', [], [ 'baz.txt' ], 2 ),
