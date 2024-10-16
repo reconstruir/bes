@@ -17,6 +17,7 @@ from bes.version.software_version import software_version
 
 from ..files.bf_file_type import bf_file_type
 from ..files.find.bf_file_finder import bf_file_finder
+from ..files.match.bf_file_matcher import bf_file_matcher
 
 from .git import git
 from .git_address_util import git_address_util
@@ -119,16 +120,29 @@ class git_repo(object):
         raise git_error('You need a clean tree with no changes to add temp content.')
       self.add('.')
       self.commit(commit_message, '.')
-
+#
   def _dot_git_path(self):
     return path.join(self.root, '.git')
 
   def find_all_files(self, file_type = bf_file_type.FILE_OR_LINK):
-    entries = bf_file_finder.find_with_fnmatch(self.root,
+    # we dont want to include the files in the .git dir
+    walk_dir_matcher = bf_file_matcher()
+    walk_dir_matcher.add_item_fnmatch('.git',
+                                      file_type = 'dir',
+                                      path_type = 'basename',
+                                      negate = True)
+    # we need to ignore files such as "foo.git" which are submodule
+    # "links"
+    matcher = bf_file_matcher()
+    matcher.add_item_fnmatch('.git',
+                             file_type = 'any',
+                             path_type = 'basename',
+                             negate = True)
+    entries = bf_file_finder.find_with_options(self.root,
+                                               file_matcher = matcher,
                                                file_type = file_type,
                                                match_type = 'all',
-                                               path_type = 'relative',
-                                               exclude_patterns = [ '.git*', '*.git' ])
+                                               walk_dir_matcher = walk_dir_matcher)
     return entries.relative_filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):

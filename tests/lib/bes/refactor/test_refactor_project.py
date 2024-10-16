@@ -147,6 +147,7 @@ R tests/lib/fruit/test_lemon.py -> tests/lib/cheese/test_lemon.py
 R tests/lib/fruity/test_lemonb.py -> tests/lib/cheesey/test_lemonb.py
 ''', r.status_as_string('.') )
     self.assert_string_equal_fuzzy( '''\
+.gitignore
 empty_rootdir
 kiwi
 kiwi/xdata2

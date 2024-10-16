@@ -46,8 +46,7 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
       matched = func(filename, self._patterns, fnmatcher)
       import pprint
       patterns = pprint.pformat(patterns)
-      #self._log.log_e(f'match({entry.root_dir},{entry.filename}) {filename} list_match_type={self._list_match_type.name} filename={filename} patterns="{patterns}" => {matched}')
-    self._log.log_d(f'match({entry.root_dir}-{filename}) {filename} list_match_type={self._list_match_type.name} filename={filename} => {matched}')
+      self._log.log_d(f'{self}: match({entry.relative_filename}) patterns="{self._patterns}" filename="{filename}" => {matched}')
     return matched
 
   @classmethod

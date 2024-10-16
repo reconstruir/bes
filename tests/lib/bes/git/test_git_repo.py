@@ -551,21 +551,30 @@ class test_git_repo(unit_test):
     content = [
       'file foo.txt "this is foo" 644',
     ]
-    r = self._make_repo(remote = True, content = content, prefix = '-main-')
-    self.assertEqual( [ 'foo.txt' ], r.find_all_files() )
+    r1 = self._make_repo(remote = True, content = content, prefix = '-main-')
+    self.assertEqual( [ 'foo.txt' ], r1.find_all_files() )
 
-    r.submodule_add(sub_repo.address, 'mod')
-    r.commit('add mod submodule', '.')
-    r.push()
-    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r.find_all_files() )
-
-    r2 = git_repo(self.make_temp_dir(), address = r.address)
+    r1.submodule_add(sub_repo.address, 'mod')
+    r1.commit('add mod submodule', '.')
+    r1.push()
+    expected = [
+      '.gitmodules',
+      'foo.txt',
+      'mod/subfoo.txt',
+    ]
+    self.assert_filename_list_equal( expected, r1.find_all_files() )
+    r2 = git_repo(self.make_temp_dir(), address = r1.address)
     r2.clone()
     self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), False, None ),
                       r2.submodule_status_one('mod') )
-    self.assertEqual( [ 'foo.txt' ], r2.find_all_files() )
+    self.assertEqual( [ '.gitmodules', 'foo.txt' ], r2.find_all_files() )
     r2.submodule_init(submodule = 'mod')
-    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r2.find_all_files() )
+    expected = [
+      '.gitmodules',
+      'foo.txt',
+      'mod/subfoo.txt',
+    ]
+    self.assert_filename_list_equal( expected, r2.find_all_files() )
     self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
                       r2.submodule_status_one('mod') )
     
@@ -586,7 +595,12 @@ class test_git_repo(unit_test):
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
+    expected = [
+      '.gitmodules',
+      'foo.txt',
+      'mod/subfoo.txt',
+    ]
+    self.assert_filename_list_equal( expected, r1.find_all_files() )
 
     rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
     
@@ -789,7 +803,13 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', self.native_filename('mod/sub_kiwi.txt'), self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
+    expected = [
+      '.gitmodules',
+      'foo.txt',
+      'mod/sub_kiwi.txt',
+      'mod/subfoo.txt',
+    ]
+    self.assert_filename_list_equal( expected, r1.find_all_files() )
     self.assertFalse( r1.has_changes(submodules = True) )
 
     rv = r1.submodule_update_revision('mod', rev1)
@@ -816,7 +836,13 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', self.native_filename('mod/sub_kiwi.txt'), self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
+    expected = [
+      '.gitmodules',
+      'foo.txt',
+      'mod/sub_kiwi.txt',
+      'mod/subfoo.txt',
+    ]
+    self.assert_filename_list_equal( expected, r1.find_all_files() )
     self.assertFalse( r1.has_changes() )
 
     r1.save_file('mod/untracked_junk.txt', content = 'this is untracked junk', add = False, commit = False)

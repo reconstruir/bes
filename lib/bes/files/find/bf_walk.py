@@ -42,6 +42,11 @@ class bf_walk(object):
       num_sep_this = next_root_dir.count(path.sep)
       depth = num_sep_this - num_sep
       dir_entries = clazz._make_entry_list(where, next_root_dir, dirs)
+      if walk_dir_matcher:
+        filtered_dir_entries = walk_dir_matcher.match_entries(dir_entries,
+                                                              match_type = walk_dir_match_type)
+        dir_entries = filtered_dir_entries
+      
       file_entries = clazz._make_entry_list(where, next_root_dir, files)
       walk_item = clazz._bf_walk_item(next_root_dir, dir_entries, file_entries, depth)
       yield walk_item

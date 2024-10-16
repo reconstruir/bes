@@ -175,7 +175,9 @@ class bf_file_finder(object):
                         max_depth = None,
                         follow_links = False,
                         include_patterns = None,
-                        exclude_patterns = None):
+                        exclude_patterns = None,
+                        walk_dir_matcher = None,
+                        walk_dir_match_type = None):
     matcher = None
     if include_patterns or exclude_patterns:
       matcher = bf_file_matcher()
@@ -189,4 +191,6 @@ class bf_file_finder(object):
                                    min_depth = min_depth,
                                    max_depth = max_depth,
                                    follow_links = follow_links,
-                                   file_matcher = matcher)
+                                   file_matcher = matcher,
+                                   walk_dir_matcher = walk_dir_matcher,
+                                   walk_dir_match_type = walk_dir_match_type)

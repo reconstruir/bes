@@ -91,7 +91,7 @@ class test_bf_walk(unit_test):
                              path_type = 'basename',
                              negate = True)
     self.assertEqual( [
-      ( '/tmp', [ 'emptydir', 'subdir1', 'subdir2', 'subdir3' ], [ 'emptyfile.txt', 'foo.txt' ], 0 ),
+      ( '/tmp', [ 'emptydir', 'subdir1' ], [ 'emptyfile.txt', 'foo.txt' ], 0 ),
       ( '/tmp/emptydir', [], [], 1 ),
       ( '/tmp/subdir1', [ 'subberdir1' ], [ 'bar.txt' ], 1 ),
       ( '/tmp/subdir1/subberdir1', [], [ 'baz.txt' ], 2 ),
