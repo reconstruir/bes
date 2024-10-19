@@ -138,7 +138,9 @@ class btask_processor(object):
     else:
       target_category = '__main'
     assert target_category in self._pools
-    return self._pools[target_category]
+    result = self._pools[target_category]
+    self._log.log_i(f'_pool_for_category: category={category} result={target_category}')
+    return result
     
   _task_id = 1
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
