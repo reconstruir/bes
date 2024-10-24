@@ -21,7 +21,6 @@ from .bf_file_matcher_item_fnmatch_list import bf_file_matcher_item_fnmatch_list
 from .bf_file_matcher_item_i import bf_file_matcher_item_i
 from .bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
 from .bf_file_matcher_item_re import bf_file_matcher_item_re
-from .bf_file_matcher_item_timedelta import bf_file_matcher_item_timedelta
 from .bf_file_matcher_type import bf_file_matcher_type
 
 class bf_file_matcher(object):
@@ -111,10 +110,6 @@ class bf_file_matcher(object):
 
   def add_item_datetime(self, date, comparison_type, file_type = None, negate = False):
     item = bf_file_matcher_item_datetime(date, comparison_type, file_type = file_type)
-    self.add_item(item, negate = negate)
-
-  def add_item_timedelta(self, delta, comparison_type, file_type = None, negate = False):
-    item = bf_file_matcher_item_timedelta(delta, comparison_type, file_type = file_type)
     self.add_item(item, negate = negate)
 
   def add_item_attr(self, attrs, file_type = None, negate = False):
