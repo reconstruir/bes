@@ -114,7 +114,7 @@ class bf_file_matcher(object):
     self.add_item(item, negate = negate)
 
   def add_item_timedelta(self, delta, comparison_type, file_type = None, negate = False):
-    item = bf_file_matcher_item_timedelta(date, comparison_type, file_type = file_type)
+    item = bf_file_matcher_item_timedelta(delta, comparison_type, file_type = file_type)
     self.add_item(item, negate = negate)
 
   def add_item_attr(self, attrs, file_type = None, negate = False):
