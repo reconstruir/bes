@@ -32,7 +32,7 @@ class data_output(object):
     else:
       with file_util.open_with_default(filename = options.output_filename) as fout:
         clazz._output_table_to_stream(data, fout, options)
-      
+
   @classmethod
   def _output_table_to_stream(clazz, data, stream, options):
     if options.style == data_output_style.BRIEF:
@@ -107,10 +107,6 @@ class data_output(object):
       raise RuntimeError('Unhandled data output style: {}'.format(style))
 
   @classmethod
-  def _output_string_to_stream(clazz, s, stream):
-    stream.write(s)
-    
-  @classmethod
   def _normalize_data(clazz, data):
     if isinstance(data, dict):
       return clazz._normalize_dict(data)
@@ -137,15 +133,27 @@ class data_output(object):
     return result
   
   @classmethod
-  def output_value(clazz, data, key, options = None):
+  def output_value(clazz, data, key, options = None, stream = None):
     check.check_dict(data)
     check.check_string(key)
     check.check_data_output_options(options, allow_none = True)
 
     options = options or data_output_options()
-    with file_util.open_with_default(filename = options.output_filename) as fout:
-      if options.style == data_output_style.BRIEF:
-        value = data[key]
-        clazz._output_string_to_stream(str(value) + os.linesep, fout)
-      else:
-        clazz._output_table_to_stream(data, fout, options)
+    if stream:
+      self._output_value_to_stream(data, key, options, stream)
+    else:
+      with file_util.open_with_default(filename = options.output_filename) as fout:
+        self._output_value_to_stream(data, key, options, fout)
+
+  @classmethod
+  def _output_value_to_stream(clazz, data, key, options, stream):
+    check.check_dict(data)
+    check.check_string(key)
+    check.check_data_output_options(options, allow_none = True)
+
+    if options.style == data_output_style.BRIEF:
+      value = data[key]
+      stream.write(str(value) + os.linesep)
+    else:
+      clazz._output_table_to_stream(data, stream, options)
+        
