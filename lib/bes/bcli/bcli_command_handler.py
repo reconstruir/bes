@@ -6,16 +6,18 @@ import inspect
 from bes.cli.argparser_handler import argparser_handler
 from ..system.check import check
 from bes.common.inspect_util import inspect_util
+from bes.script.blurber import blurber
 
 from .bcli_missing_command_error import bcli_missing_command_error
 from .bcli_options import bcli_options
 
 class bcli_command_handler(object):
 
-  def __init__(self, cli_args, options_class = None, delegate = None):
+  def __init__(self, cli_args, options_class = None, delegate = None, label = None):
     check.check_dict(cli_args)
     check.check_class(options_class, allow_none = True)
     check.check_callable(delegate, allow_none = True)
+    check.check_string(label, allow_none = True)
 
     if delegate:
       self._check_delegate(delegate)
@@ -23,6 +25,7 @@ class bcli_command_handler(object):
     self._cli_args = cli_args
     self._delegate = delegate
     self.options, self._kwargs = self.make_options(options_class, cli_args)
+    self._blurber = blurber(label)
 
   @classmethod
   def make_options(clazz, options_class, cli_args):
@@ -78,13 +81,10 @@ class bcli_command_handler(object):
   
   @property
   def blurber(self):
-    blurber = getattr(self.options, 'blurber', None)
-    if not blurber:
-      raise RuntimeError(f'ERROR: no blurber in self.options')
-    return blurber
+    return self._blurber
   
   def blurb(self, *args, **kargs):
-    self.blurber.blurb(*args, **kargs)
+    self._blurber.blurb(*args, **kargs)
 
   def blurb_verbose(self, *args, **kargs):
-    self.blurber.blurb_verbose(*args, **kargs)
+    self._blurber.blurb_verbose(*args, **kargs)
