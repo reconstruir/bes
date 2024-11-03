@@ -354,10 +354,6 @@ class bf_entry(object):
     return self.metadata['bes/mime/mime_type/1.0']
 
   @property
-  def mime_type(self):
-    return self.metadata['bes/mime/mime_type/1.0']
-
-  @property
   def checksum_md5(self):
     return self.metadata['bes/checksum/md5/0.0']
   
@@ -467,4 +463,8 @@ class bf_entry(object):
 
     return bf_entry(self._filename, root_dir = root_dir)
 
+  def read_content(self):
+    with open(self.filename, 'rb') as f:
+      return f.read()
+  
 check.register_class(bf_entry, include_seq = False, cast_func = bf_entry._cast_func)
