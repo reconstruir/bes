@@ -23,12 +23,15 @@ from .data_output_style import data_output_style
 class data_output(object):
 
   @classmethod
-  def output_table(clazz, data, options = None):
+  def output_table(clazz, data, options = None, stream = None):
     check.check_data_output_options(options, allow_none = True)
 
     options = options or data_output_options()
-    with file_util.open_with_default(filename = options.output_filename) as fout:
-      clazz._output_table_to_stream(data, fout, options)
+    if stream:
+      clazz._output_table_to_stream(data, stream, options)
+    else:
+      with file_util.open_with_default(filename = options.output_filename) as fout:
+        clazz._output_table_to_stream(data, fout, options)
       
   @classmethod
   def _output_table_to_stream(clazz, data, stream, options):
