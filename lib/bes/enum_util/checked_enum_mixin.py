@@ -114,9 +114,11 @@ class checked_enum_mixin:
     return name in clazz.names
 
   @classmethod
-  def parse(clazz, what, ignore_case = True):
+  def parse(clazz, what, ignore_case = True, allow_none = False):
     'Parse a string, int or enum return an enum item or raise an error if name is invalid.'
-    
+
+    if what == None and allow_none:
+      return None
     if isinstance(what, clazz):
       return what
     if check.is_string(what):
