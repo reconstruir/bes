@@ -7,6 +7,7 @@ from datetime import timezone
 
 from ..system.log import logger
 from ..system.check import check
+from ..common.time_util import time_util
 
 class sqlite_datetime_adapter_converter(object):
 
@@ -42,10 +43,4 @@ class sqlite_datetime_adapter_converter(object):
     check.check_bytes(ts_bytes)
 
     ts_str = ts_bytes.decode('utf-8')
-    clazz._log.log_d(f'_timestamp_convert: ts_str={ts_str}')
-    if '+' in ts_str:
-      tz_format = '%Y-%m-%d %H:%M:%S%z'
-    else:
-      tz_format = '%Y-%m-%d %H:%M:%S'
-    date = datetime.strptime(ts_str, tz_format)
-    return date
+    return time_util.parse_datetime_with_tz(ts_str)
