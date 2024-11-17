@@ -64,3 +64,15 @@ class time_util(object):
     if milliseconds:
       fmt = fmt + ':%f'
     return when.strftime(fmt)
+
+  @classmethod
+  def parse_datetime_with_tz(clazz, datetime_text):
+    check.check_string(datetime_text)
+
+    if '+' in datetime_text:
+      tz_format = '%Y-%m-%d %H:%M:%S%z'
+    else:
+      tz_format = '%Y-%m-%d %H:%M:%S'
+    date = datetime.strptime(datetime_text, tz_format)
+    return date
+  
