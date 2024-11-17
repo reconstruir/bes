@@ -53,16 +53,16 @@ class bf_dir(object):
   @classmethod
   def list_files(clazz, where, relative = False, patterns = None, basename = False):
     'Like list() but only returns files.'
-    match = bf_file_matcher(patterns = patterns)
-    match.add_item_callable(path.isfile, path_type = 'absolute')
-    return clazz.list(where, relative = relative, file_match = match)
+    matcher = bf_file_matcher(patterns = patterns)
+    matcher.add_item_callable(path.isfile, path_type = 'absolute')
+    return clazz.list(where, relative = relative, matcher = matcher)
   
   @classmethod
   def empty_dirs(clazz, where):
-    match = bf_file_matcher(patterns = patterns)
-    match.add_item_callable(path.isdir)
-    match.add_item_callable(clazz.is_empty)
-    return clazz.list(where, relative = relative, file_match = match)
+    matcher = bf_file_matcher(patterns = patterns)
+    matcher.add_item_callable(path.isdir)
+    matcher.add_item_callable(clazz.is_empty)
+    return clazz.list(where, relative = relative, matcher = matcher)
 
   @classmethod
   def all_parents(clazz, d):
