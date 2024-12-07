@@ -16,7 +16,7 @@ class dir_operation_item_list(type_checked_list):
   __value_type__ = dir_operation_item
   
   def __init__(self, values = None):
-    super(dir_operation_item_list, self).__init__(values = values)
+    super().__init__(values = values)
 
   def move_files(self, timestamp, count, callback = None, touch = False):
     check.check_string(timestamp, allow_none = True)

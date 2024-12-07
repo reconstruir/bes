@@ -251,6 +251,10 @@ class cli_options(cli_options_base):
     check.check_tuple(values, allow_none = True)
 
     return clazz._call_super_method_tuple('sensitive_keys', values)
+
+  def clone(self):
+    d = self.to_dict(hide_sensitive_keys = False)
+    return self.__class__(**d)
   
 class _special_attributes(object):
   '''

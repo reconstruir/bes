@@ -17,15 +17,15 @@ from .files_cli_options import _files_cli_options_desc
 class _dir_partition_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
-  def types(self):
+  def _types(self):
     return [
       cli_dir_partition_type,
       cli_dir_partition_criteria,
     ]
   
   #@abstractmethod
-  def options_desc(self):
-    return self.combine_options_desc(super().options_desc(), f'''
+  def _options_desc(self):
+    return self.combine_options_desc(super()._options_desc(), f'''
     partition_type dir_partition_type default={dir_partition_defaults.PARTITION_TYPE}
 partition_criteria dir_partition_criteria
            flatten bool default={dir_partition_defaults.FLATTEN},

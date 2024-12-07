@@ -23,7 +23,7 @@ from .bf_file_finder_progress_state import bf_file_finder_progress_state
 class _bf_file_finder_options_desc(bcli_options_desc):
 
   #@abstractmethod
-  def types(self):
+  def _types(self):
     return [
       bf_cli_file_type,
       bf_cli_match,
@@ -32,7 +32,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
     ]
   
   #@abstractmethod
-  def options_desc(self):
+  def _options_desc(self):
     return '''
                 match_type bf_file_matcher_type default=ANY
                  file_type bf_file_type         default=FILE_OR_LINK
@@ -52,7 +52,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
 '''
   
   #@abstractmethod
-  def error_class(self):
+  def _error_class(self):
     return bf_file_finder_error
   
 class bf_file_finder_options(bcli_options):

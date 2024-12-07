@@ -17,22 +17,18 @@ class test_bcli_options_desc(unit_test):
       super().__init__()
 
     #@abstractmethod
-    def name(self):
-      return '_kiwi_options_desc'
-  
-    #@abstractmethod
-    def types(self):
+    def _types(self):
       return []
 
     #@abstractmethod
-    def options_desc(self):
+    def _options_desc(self):
       return '''
 kiwi int default=${_var_foo}
 pear int default=${_var_bar}
   '''
   
     #@abstractmethod
-    def variables(self):
+    def _variables(self):
       return {
         '_var_foo': lambda: '42',
         '_var_bar': lambda: '666',
@@ -40,8 +36,7 @@ pear int default=${_var_bar}
 
   def test___init__(self):
     desc = self._unit_test_kiwi_options_desc()
-    self.assertEqual( '_kiwi_options_desc', desc.name() )
-    self.assertEqual( [], desc.types() )
+    self.assertEqual( [], desc.types )
     self.assertEqual( True, desc.has_option('kiwi') )
     self.assertEqual( True, desc.has_option('pear') )
     self.assertEqual( False, desc.has_option('notthere') )

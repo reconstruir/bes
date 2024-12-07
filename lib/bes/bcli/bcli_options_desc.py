@@ -19,14 +19,14 @@ class bcli_options_desc(bcli_options_desc_i):
   _log = logger('bcli')
   
   def __init__(self):
-    types = self.types() or []
+    types = self.types or []
     for t in types:
       if not issubclass(t, bcli_type_i):
         raise TypeError(f't should be a subclass of bcli_type_i instead of "{t}".')
     
-    variables = self.variables() or {}
+    variables = self.variables or {}
     check.check_dict(variables, key_type = str)
-    variables = copy.deepcopy(variables) if variables else {}
+    variables = copy.deepcopy(variables)
 
     self._manager = bcli_type_manager()
     self._manager.add_types(types[:])
@@ -36,20 +36,36 @@ class bcli_options_desc(bcli_options_desc_i):
     return self._manager.to_json()
     
   #@abstractmethod
-  def types(self):
-    return None
-    
-  #@abstractmethod
-  def variables(self):
+  def _types(self):
     return None
 
+  @cached_property
+  def types(self):
+    return self._types()
+  
   #@abstractmethod
-  def error_class(self):
+  def _variables(self):
+    return None
+
+  @cached_property
+  def variables(self):
+    return self._variables()
+  
+  #@abstractmethod
+  def _error_class(self):
     return RuntimeError
+
+  @cached_property
+  def error_class(self):
+    return self._error_class()
+
+  @cached_property
+  def options_desc(self):
+    return self._options_desc()
   
   @cached_property
   def items(self):
-    options_desc = self.options_desc() or ''
+    options_desc = self.options_desc # or ''
     check.check_string(options_desc)
     return bcli_option_desc_item_list.parse_text(self._manager, options_desc)
     

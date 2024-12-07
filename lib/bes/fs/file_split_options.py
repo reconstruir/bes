@@ -15,8 +15,8 @@ from .files_cli_options import _files_cli_options_desc
 class _file_split_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
-  def options_desc(self):
-    return self.combine_options_desc(super().options_desc(), '''
+  def _options_desc(self):
+    return self.combine_options_desc(super()._options_desc(), '''
           check_downloading bool      default=False
 check_downloading_extension str       default=part
              check_modified bool      default=False
@@ -28,8 +28,8 @@ check_downloading_extension str       default=part
 ''')
   
   #@abstractmethod
-  def variables(self):
-    return self.combine_variables(super().variables(), {
+  def _variables(self):
+    return self.combine_variables(super()._variables(), {
       '_datetime_now': lambda: datetime.now(),
     })
 

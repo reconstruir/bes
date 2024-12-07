@@ -22,14 +22,14 @@ from .file_duplicates_defaults import file_duplicates_defaults
 class _file_duplicates_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
-  def types(self):
+  def _types(self):
     return [
       cli_file_duplicates_setup,
     ]
   
   #@abstractmethod
-  def options_desc(self):
-    return self.combine_options_desc(super().options_desc(), f'''
+  def _options_desc(self):
+    return self.combine_options_desc(super()._options_desc(), f'''
 small_checksum_size int                    default={file_duplicates_defaults.SMALL_CHECKSUM_SIZE}
     prefer_prefixes list[str]
            sort_key callable               default=${{_default_sort_key}}
@@ -39,8 +39,8 @@ include_empty_files bool                   default={file_duplicates_defaults.INC
 ''')
 
   #@abstractmethod
-  def variables(self):
-    return self.combine_variables(super().variables(), {
+  def _variables(self):
+    return self.combine_variables(super()._variables(), {
       '_default_sort_key': lambda: file_duplicates_options.mtime_sort_key,
     })
   

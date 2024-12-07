@@ -65,70 +65,62 @@ class test_bcli_options(unit_test):
     options = self._make_test_options()
     self.assertEqual( ( 'callback', 'kiwi', 'password', 'pear' ), options.keys() )
       
-  class _test_kiwi_options_shape(bcli_options_desc):
+  class _test_kiwi_options_shape_desc(bcli_options_desc):
 
     def __init__(self):
       super().__init__()
 
     #@abstractmethod
-    def name(self):
-      return '_test_kiwi_options_shape'
-  
-    #@abstractmethod
-    def types(self):
+    def _types(self):
       return []
 
     #@abstractmethod
-    def options_desc(self):
+    def _options_desc(self):
       return '''
 color str
   '''
   
     #@abstractmethod
-    def variables(self):
+    def _variables(self):
       return {
         '_var_shape_foo': lambda: '42',
         '_var_shape_bar': lambda: '666',
       }
 
-  class _test_kiwi_options_square(_test_kiwi_options_shape):
+  class _test_kiwi_options_square_desc(_test_kiwi_options_shape_desc):
 
     def __init__(self):
       super().__init__()
 
     #@abstractmethod
-    def name(self):
-      return '_test_kiwi_options_square'
-  
-    #@abstractmethod
-    def types(self):
-      return super().types() + []
+    def _types(self):
+      return super()._types() + []
 
     #@abstractmethod
-    def options_desc(self):
-      return self.combine_options_desc(super().options_desc(), '''
+    def _options_desc(self):
+      return self.combine_options_desc(super()._options_desc(), '''
 size int default=0
 ''')
   
     #@abstractmethod
-    def variables(self):
-      return self.combine_variables(super().variables(), {
+    def _variables(self):
+      return self.combine_variables(super()._variables(), {
         '_var_square_foo': lambda: '42',
         '_var_square_bar': lambda: '666',
       })
     
   def test_subclass(self):
-    shape_desc = self._test_kiwi_options_shape()
+    shape_desc = self._test_kiwi_options_shape_desc()
     shape_options = bcli_options(shape_desc)
 
-    square_desc = self._test_kiwi_options_square()
+    square_desc = self._test_kiwi_options_square_desc()
     square_options = bcli_options(square_desc,
                                   color = 'blue',
                                   size = 42)
     self.assertEqual( [
       '_var_shape_foo',
       '_var_shape_bar',
-    ], list(shape_desc.variables().keys()) )
+    ], list(shape_desc.variables.keys()) )
 
     d = shape_options.to_dict()
     import pprint
@@ -141,7 +133,7 @@ size int default=0
       '_var_shape_bar',
       '_var_square_foo',
       '_var_square_bar',
-    ], list(square_desc.variables().keys()) )
+    ], list(square_desc.variables.keys()) )
     self.assertEqual( True, square_desc.has_option('size') )
     self.assertEqual( 'blue', square_options.color )
     self.assertEqual( 42, square_options.size )
@@ -152,18 +144,14 @@ size int default=0
       super().__init__()
 
     #@abstractmethod
-    def name(self):
-      return '_kiwi_options_desc'
-  
-    #@abstractmethod
-    def types(self):
+    def _types(self):
       return []
 
     def _callback():
       pass
     
     #@abstractmethod
-    def options_desc(self):
+    def _options_desc(self):
       return '''
 kiwi int default=${_var_foo}
 pear int default=${_var_bar}
@@ -172,7 +160,7 @@ callback callable default=${_var_callback}
   '''
   
     #@abstractmethod
-    def variables(self):
+    def _variables(self):
       return {
         '_var_foo': lambda: '42',
         '_var_bar': lambda: '666',

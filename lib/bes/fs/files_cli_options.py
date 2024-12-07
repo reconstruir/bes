@@ -14,7 +14,7 @@ from .file_resolver_options import file_resolver_options
 class _files_cli_options_desc(bcli_options_desc):
 
   #@abstractmethod
-  def options_desc(self):
+  def _options_desc(self):
     return '''
                 debug bool      default=False
               dry_run bool      default=False,
@@ -27,13 +27,13 @@ class _files_cli_options_desc(bcli_options_desc):
 '''
   
   #@abstractmethod
-  def variables(self):
+  def _variables(self):
     return {
       '_dup_file_timestamp': lambda: time_util.timestamp(),
     }
 
   #@abstractmethod
-  def error_class(self):
+  def _error_class(self):
     return IOError
   
 class files_cli_options(bcli_options):

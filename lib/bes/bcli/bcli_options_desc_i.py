@@ -5,17 +5,18 @@ from abc import abstractmethod, ABCMeta
 class bcli_options_desc_i(metaclass = ABCMeta):
 
   @abstractmethod
-  def types(self):
-    raise NotImplementedError('types')
+  def _types(self):
+    raise NotImplementedError('_types')
 
   @abstractmethod
-  def options_desc(self):
-    raise NotImplementedError('options_desc')
+  def _variables(self):
+    raise NotImplementedError('_variables')
 
   @abstractmethod
-  def variables(self):
-    raise NotImplementedError('variables')
-
+  def _error_class(self):
+    raise NotImplementedError('_error_class')
+  
   @abstractmethod
-  def error_class(self):
-    return RuntimeError
+  def _options_desc(self):
+    raise NotImplementedError('_options_desc')
+

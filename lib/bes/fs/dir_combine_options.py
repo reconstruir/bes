@@ -13,8 +13,8 @@ from .dir_combine_defaults import dir_combine_defaults
 class _dir_combine_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
-  def options_desc(self):
-    return self.combine_options_desc(super().options_desc(), f'''
+  def _options_desc(self):
+    return self.combine_options_desc(super()._options_desc(), f'''
   destination_dir str
      ignore_empty bool default={dir_combine_defaults.IGNORE_EMPTY}
           flatten bool default={dir_combine_defaults.FLATTEN},

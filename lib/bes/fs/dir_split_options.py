@@ -18,14 +18,14 @@ from .files_cli_options import files_cli_options
 class _dir_split_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
-  def types(self):
+  def _types(self):
     return [
       cli_file_sort_order_type,
     ]
   
   #@abstractmethod
-  def options_desc(self):
-    return self.combine_options_desc(super().options_desc(), f'''
+  def _options_desc(self):
+    return self.combine_options_desc(super()._options_desc(), f'''
   chunk_size int             default={dir_split_defaults.CHUNK_SIZE}
       prefix str             default={dir_split_defaults.PREFIX}
   sort_order file_sort_order default={dir_split_defaults.SORT_ORDER}
