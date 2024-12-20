@@ -77,7 +77,7 @@ class filesystem(filesystem_base):
   @classmethod
   def remove(clazz, files, raise_not_found_error = False, raise_permission_error = False):
     '''
-    Remove a mixutre of files, directories or a list of files and directories.
+    Remove a mixture of files, directories or a list of files and directories.
     Errors are propagated unless its file not found in which case it is
     only propagated if raise_not_found_error is True.
     '''
