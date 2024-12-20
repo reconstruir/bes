@@ -117,9 +117,12 @@ class bcli_options(object):
     return dself == dother
 
   @classmethod
-  def clone_or_create(clazz, options):
+  def clone_or_create(clazz, options, check_class_name = None):
     if not options:
       return clazz()
+    if check_class_name:
+      check_func = getattr(check, check_class_name)
+      options = check_func(options)
     return options.clone()
   
 check.register_class(bcli_options, include_seq = False)
