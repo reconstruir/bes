@@ -234,7 +234,7 @@ class btask_processor(object):
       callback = item.callback
       self._pump_i()
     callback_name = callback.__name__ if callback else 'None'
-    self._log.log_d(f'complete: callback={callback_name}')
+    self._log.log_d(f'complete: callback={callback_name} result={result}')
     if callback:
       callback(result)
 
