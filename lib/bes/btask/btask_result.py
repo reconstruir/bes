@@ -24,10 +24,10 @@ class btask_result(namedtuple('btask_result', 'task_id, state, data, metadata, e
     return clazz.__bases__[0].__new__(clazz,
                                       task_id,
                                       state,
-                                      copy.deepcopy(data),
+                                      copy.copy(data),
                                       metadata,
                                       error,
-                                      copy.deepcopy(args))
+                                      copy.copy(args))
 
   def __str__(self):
     if self.data:
