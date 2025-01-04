@@ -76,3 +76,29 @@ class time_util(object):
     date = datetime.strptime(datetime_text, tz_format)
     return date
   
+  @classmethod
+  def format_eta_with_seconds(clazz, seconds):
+    hours = int(seconds // 3600)
+    mins = int((seconds % 3600) // 60)
+    return f"{hours:02}:{mins:02}"
+
+  @classmethod
+  def format_eta(clazz, seconds):
+    """
+    Formats a float representing seconds into an ETA string (HH:MM:SS).
+
+    Args:
+        seconds: A float representing the time in seconds.
+
+    Returns:
+        A string representing the ETA in the format HH:MM:SS.
+    """
+    hours = int(seconds // 3600)
+    remaining_seconds = int(seconds % 3600)
+    minutes = int(remaining_seconds // 60)
+    seconds = int(remaining_seconds % 60)
+
+    if hours:
+      return f'{hours:02d}:{minutes:02d}:{seconds:02d}'
+    else:
+      return f'{minutes:02d}:{seconds:02d}'
