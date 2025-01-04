@@ -3,7 +3,6 @@
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-from bes.cli.cli_options import cli_options
 from ..system.check import check
 from bes.common.time_util import time_util
 from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
@@ -17,10 +16,10 @@ class _files_cli_options_desc(bcli_options_desc):
   def _options_desc(self):
     return '''
                 debug bool      default=False
-              dry_run bool      default=False,
-                quiet bool      default=False,
-            recursive bool      default=False,
-              verbose bool      default=False,
+              dry_run bool      default=False
+                quiet bool      default=False
+            recursive bool      default=False
+              verbose bool      default=False
          ignore_files list[str] default=None
    dup_file_timestamp str       default=${_dup_file_timestamp}
        dup_file_count int       default=1
