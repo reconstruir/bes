@@ -57,7 +57,12 @@ class test_text_replace(unit_test):
     self.assertEqual( 'foo foond bar barut not foobarfoo',
                       f('a and b but not aba', { 'a': 'foo', 'b': 'bar' }, word_boundary = False) )
 
-
+  def test_replace_case_insensitive(self):
+    f = text_replace.replace
+    self.assertEqual( 'foo bar',
+                      f('A B', { 'a': 'foo', 'b': 'bar' }, case_insensitive = True) )
+    self.assertEqual( 'foo fooND bar barUT NOT foobarfoo',
+                      f('A AND B BUT NOT ABA', { 'a': 'foo', 'b': 'bar' }, case_insensitive = True) )
     
   def test_replace_with_word_boundary(self):
     f = text_replace.replace
