@@ -278,7 +278,7 @@ class btask_processor(object):
       if not item:
         if not raise_error:
           return
-        btask_error(f'No task_id "{progress.task_id}" found to cancel')
+        btask_error(f'No task_id "{progress.task_id}" found to report progress')
       progress_callback = item.progress_callback
       if progress_callback:
         progress_callback(progress)
@@ -296,5 +296,32 @@ class btask_processor(object):
           return False
         btask_error(f'No task_id "{task_id}" found to check for interruption')
       return item.cancelled_value.value
+
+  def add_task_sync(self, function, config = None, args = None):
+    event = multiprocessing.Event()
+    result_container = self._manager.list()
+
+    def _callback(result_):
+      self._log.log_e(f'CACA: result_={result_}')
       
+    task_id = self.add_task(function,
+                            callback = _callback,
+                            config = config,
+                            args = args)
+    
+    
+    #def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
+
+  def xadd_task_sync(self, function, config=None, args=None, timeout=None):
+    if args is None:
+      args = ()
+    event = multiprocessing.Event()
+    result_container = self.manager.list()
+    self.queue.put((function, args, event, result_container))
+    if event.wait(timeout):  # Block until the event is set or timeout occurs
+      return result_container[0]  # Return the computed result
+    else:
+      raise TimeoutError("Task execution timed out")
+      
+    
 check.register_class(btask_processor, include_seq = False)

@@ -444,6 +444,48 @@ class test_btask_processor_py(unit_test):
     tester.stop()
 
     self.assertEqual( len(task_ids), len(results) )
+
+  def test_add_task_sync(self):
+    tester = btask_processor_tester_py('test', 1)
+    tester.start()
+  
+    r = tester.add_task_sync(self._function,
+                             #callback = lambda r: tester.on_callback(r),
+                             args = { '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' } })
+    print(f'r={r}')
+#    results = tester.results()
+    tester.stop()
+
+    return
+    pids = [ r.metadata.pid for r in results.values() ]
+    self.assertEqual( 1, len(set(pids)) )
+    
+    lemon_result = results[lemon_id]
+    grape_result = results[grape_id]
+
+    r = results[kiwi_id]
+    self.assertEqual( kiwi_id, r.task_id )
+    self.assertEqual( 'success', r.state )
+    self.assertEqual( {
+      'fruit': 'kiwi',
+      'color': 'green',
+    }, r.data )
+    self.assertEqual( None, r.error )
+
+    r = results[lemon_id]
+    self.assertEqual( lemon_id, r.task_id )
+    self.assertEqual( 'success', r.state )
+    self.assertEqual( {
+      'fruit': 'lemon',
+      'color': 'yellow',
+    }, r.data )
+    self.assertEqual( None, r.error )
+
+    r = results[grape_id]
+    self.assertEqual( grape_id, r.task_id )
+    self.assertEqual( 'failed', r.state )
+    self.assertEqual( None, r.data )
+    self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
     
 if __name__ == '__main__':
   unit_test.main()

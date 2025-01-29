@@ -55,6 +55,9 @@ class btask_process(object):
   @property
   def name(self):
     return self._data.name
+
+  def is_alive(self):
+    return self._process and self._process.is_alive()
   
   @classmethod
   def _process_set_nice_level(clazz, name, nice_level):
@@ -156,18 +159,19 @@ class btask_process(object):
                                             args = ( encoded_task_data, ))
     self._process.start()
 
-  def join(self):
+  def join(self, timeout = None):
     if not self._process:
       self._log.log_d(f'join: process not started')
       return
-    self._process.join()
+    self._process.join(timeout = timeout)
     
   def terminate(self):
     if not self._process:
       self._log.log_d(f'stop: process not started')
       return
-    input_queue = task_data.input_queue
     # drain the queue first ?
+    #input_queue = self._data.input_queue
+    self._process.terminate()
     
   def stop(self):
     pass

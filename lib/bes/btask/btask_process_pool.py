@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import time
 
 from collections import namedtuple
 from datetime import datetime
@@ -31,7 +32,7 @@ class btask_process_pool(object):
 
   _log = logger('btask')
 
-  def __init__(self, name, num_processes, manager, initializer = None):
+  def __init__(self, name, num_processes, manager, initializer = None, stop_timeout = 5):
     check.check_string(name)
     check.check_int(num_processes)
     initializer = check.check_btask_initializer(initializer, allow_none = True)
@@ -48,6 +49,7 @@ class btask_process_pool(object):
     self._result_thread = None
     self._task_callbacks = {}
     self._task_callbacks_lock = threading.Lock()
+    self._stop_timeout = stop_timeout
 
   @classmethod
   def _result_thread_main(clazz, result_queue, task_callbacks, task_callbacks_lock, name):
@@ -104,16 +106,21 @@ class btask_process_pool(object):
     return processes
 
   @classmethod
-  def _processes_stop(self, processes, input_queue):
+  def _processes_stop(self, processes, input_queue, timeout):
     for _ in processes:
       input_queue.put(None)
+    start_time = time.time()
     for process in processes:
       self._log.log_i(f'_processes_stop: joining process {process.name}')
-      process.join()
+      process.join(timeout)
+      if process.is_alive():
+        self._log.log_w(f'_processes_stop: force killing process {process.name}')
+        process.terminate()
+        process.join()
   
   def start(self):
     if self._processes:
-      self._log.log_d(f'start: pool_caca already started')
+      self._log.log_d(f'start: pool already started')
       return
     self._processes = self._processes_start()
     self._result_thread = self._result_thread_start(self._result_thread_main,
@@ -124,11 +131,11 @@ class btask_process_pool(object):
 
   def stop(self):
     if not self._processes:
-      self._log.log_d(f'stop: pool_caca not started')
+      self._log.log_d(f'stop: pool not started')
       return
     self._result_thread_stop(self._result_thread, self._process_result_queue)
     self._result_thread = None
-    self._processes_stop(self._processes, self._input_queue)
+    self._processes_stop(self._processes, self._input_queue, self._stop_timeout)
     self._processes = None
       
   @property
