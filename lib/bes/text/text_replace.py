@@ -13,7 +13,8 @@ class text_replace(object):
 
   @classmethod
   def replace_all(clazz, text, src_string, dst_string,
-                  word_boundary = False, word_boundary_chars = None):
+                  word_boundary = False, word_boundary_chars = None,
+                  case_insensitive = False):
     'Replace src_string with dst_string optionally respecting word boundaries.'
     check.check_string(text)
     check.check_string(src_string)
@@ -24,7 +25,8 @@ class text_replace(object):
     spans = text_search.find_all(text,
                                  src_string,
                                  word_boundary = word_boundary,
-                                 word_boundary_chars = word_boundary_chars)
+                                 word_boundary_chars = word_boundary_chars,
+                                 case_insensitive = case_insensitive)
     if not spans:
       return text
     last_start = 0
@@ -76,17 +78,24 @@ class text_replace(object):
     return buf.getvalue()
   
   @classmethod
-  def replace(clazz, s, replacements, word_boundary = False, word_boundary_chars = None):
+  def replace(clazz,
+              s,
+              replacements,
+              word_boundary = False,
+              word_boundary_chars = None,
+              case_insensitive = False):
     'Replace all instances of dict d in string s.'
     check.check_string(s)
     check.check_dict(replacements, check.STRING_TYPES, check.STRING_TYPES)
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
+    check.check_bool(case_insensitive)
 
     for src_string, dst_string in replacements.items():
       s = clazz.replace_all(s, src_string, dst_string,
                             word_boundary = word_boundary,
-                            word_boundary_chars = word_boundary_chars)
+                            word_boundary_chars = word_boundary_chars,
+                            case_insensitive = case_insensitive)
     return s
 
   @classmethod

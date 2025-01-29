@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import enum
+import typing
 
 from ..common.string_util import string_util
 from ..property.cached_class_property import cached_class_property
@@ -164,6 +165,7 @@ class checked_enum_mixin:
   
   @classmethod
   def register_check_class(clazz):
+    setattr(clazz, 'TYPING_HINT', typing.Optional[typing.Union[str, clazz]])
     check.register_class(clazz,
                          include_seq = False,
                          cast_func = clazz.parse)

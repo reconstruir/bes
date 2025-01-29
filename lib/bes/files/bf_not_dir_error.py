@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class bf_error(Exception):
+class bf_not_dir_error(Exception):
   def __init__(self, message = None):
     super().__init__()
     self.message = message

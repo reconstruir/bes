@@ -21,7 +21,7 @@ class json_util(object):
       return False
 
   @classmethod
-  def to_json(clazz, o, indent = None, sort_keys = False, ensure_last_line_sep = False):
+  def to_json(clazz, o, indent = None, sort_keys = False, ensure_last_line_sep = False, use_default = True):
     check.check_int(indent, allow_none = True)
     check.check_bool(sort_keys)
     check.check_bool(ensure_last_line_sep)
@@ -31,8 +31,13 @@ class json_util(object):
      - same white space results on both python 2 and 3
      - __dict__ is used when object is not json encodable
     '''
-    def default(o):
-      return o.__dict__
+    def _default(o):
+      try:
+        return o.__dict__
+      except Exception as ex:
+        print(f'json encoding failed on {o.__class__} {o}', flush = True)
+        raise
+    default = _default if use_default else None
     js = json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
     if not ensure_last_line_sep:
       return js
