@@ -337,6 +337,14 @@ class test_bf_entry(unit_test, unit_test_media_files):
     self.assertEqual( '/store/fruits/Kiwi.fruit', e1.filename )
     e2 = e1.clone_replace_root_dir('/foo')
     self.assertEqual( '/foo/fruits/Kiwi.fruit', e2.filename )
+
+  def test_decomposed_path(self):
+    e = bf_entry('fruits/Kiwi.fruit', root_dir = '/store')
+    self.assertEqual( [
+      '/store',
+      '/store/fruits',
+      '/store/fruits/Kiwi.fruit',
+    ], e.decomposed_path )
     
 if __name__ == '__main__':
   unit_test.main()
