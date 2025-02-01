@@ -25,12 +25,13 @@ class bf_walk(object):
   @classmethod
   def walk(clazz, where, max_depth = None, follow_links = False,
            walk_dir_matcher = None, walk_dir_match_type = None,
-           entry_class = bf_entry):
+           entry_class = None):
     check.check_string(where)
     check.check_int(max_depth, allow_none = True)
     check.check_bool(follow_links)
     check.check_bf_file_matcher(walk_dir_matcher, allow_none = True)
     walk_dir_match_type = check.check_bf_file_matcher_type(walk_dir_match_type, allow_none = True)
+    entry_class = check.check_class(entry_class, allow_none = True) or bf_entry
 
     if not issubclass(entry_class, bf_entry):
       raise TypeError(f'entry_class should be a subclass of bf_entry instead of: "{entry_class}" - {type(entry_class)}')
