@@ -815,6 +815,18 @@ class test_bf_file_finder(unit_test):
       'a/b/c/foo.txt',
       'd/e/bar.txt',
     ], self._find(content, file_type = 'file',  file_matcher = matcher, match_type = 'all').sorted_relative_filenames )
+
+  def test_find_with_custom_entry_type(self):
+    class _test_bf_entry(bf_entry):
+      pass
+    content = [
+      'file foo.txt "foo.txt\n"',
+    ]
+    result = self._find(content, file_type = 'file', entry_class = _test_bf_entry)
+    self.assert_filename_list_equal( [
+      'foo.txt',
+    ], result.sorted_relative_filenames )
+    self.assertEqual( type(result.entries[0]), _test_bf_entry )
     
 if __name__ == '__main__':
   unit_test.main()

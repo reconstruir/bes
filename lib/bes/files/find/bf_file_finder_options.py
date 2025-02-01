@@ -15,6 +15,7 @@ from ..bf_path_type import bf_path_type
 from ..bf_path_type import bf_cli_path_type
 from ..bf_file_type import bf_file_type
 from ..bf_file_type import bf_cli_file_type
+from ..bf_entry import bf_entry
 
 from .bf_file_finder_error import bf_file_finder_error
 from .bf_file_finder_progress import bf_file_finder_progress
@@ -30,6 +31,12 @@ class _bf_file_finder_options_desc(bcli_options_desc):
       bf_cli_file_matcher_type,
       bf_cli_path_type,
     ]
+
+  #@abstractmethod
+  def _variables(self):
+    return {
+      '_bf_entry_default_type': lambda: bf_entry,
+    }
   
   #@abstractmethod
   def _options_desc(self):
@@ -49,6 +56,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
  progress_interval_percent float                default=5.0
                 stop_after int
             found_callback callable
+               entry_class type                 default=${_bf_entry_default_type}
 '''
   
   #@abstractmethod

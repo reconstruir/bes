@@ -64,7 +64,8 @@ class bf_file_finder(object):
                              max_depth = self._options.max_depth,
                              follow_links = self._options.follow_links,
                              walk_dir_matcher = self._options.walk_dir_matcher,
-                             walk_dir_match_type = self._options.walk_dir_match_type):
+                             walk_dir_match_type = self._options.walk_dir_match_type,
+                             entry_class = self._options.entry_class):
       self._log.log_d(f'next: {count + 1}: dirs={item.dirs} files={item.files}')
       if done:
         break
