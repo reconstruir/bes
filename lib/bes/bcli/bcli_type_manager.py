@@ -14,6 +14,7 @@ from .bcli_type_i import bcli_type_i
 
 from .types.bcli_type_bool import bcli_type_bool
 from .types.bcli_type_callable import bcli_type_callable
+from .types.bcli_type_type import bcli_type_type
 from .types.bcli_type_datetime import bcli_type_datetime
 from .types.bcli_type_dict import bcli_type_dict
 from .types.bcli_type_float import bcli_type_float
@@ -31,6 +32,7 @@ class bcli_type_manager(object):
   _BASIC_TYPES = [
     bcli_type_bool,
     bcli_type_callable,
+    bcli_type_type,
     bcli_type_datetime,
     bcli_type_dict,
     bcli_type_float,
