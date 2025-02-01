@@ -21,6 +21,7 @@ from .bf_file_type import bf_file_type
 from .bf_filename import bf_filename
 from .bf_mtime_cached_info import bf_mtime_cached_info
 from .bf_path_type import bf_path_type
+from .bf_path import bf_path
 from .bf_permission_error import bf_permission_error
 from .bf_symlink import bf_symlink
 
@@ -466,5 +467,9 @@ class bf_entry(object):
   def read_content(self):
     with open(self.filename, 'rb') as f:
       return f.read()
-  
+
+  @cached_property
+  def decomposed_path(self):
+    return bf_path.decompose(self.absolute_filename)
+    
 check.register_class(bf_entry, include_seq = False, cast_func = bf_entry._cast_func)
