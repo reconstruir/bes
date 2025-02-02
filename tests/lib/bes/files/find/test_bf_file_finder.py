@@ -590,7 +590,7 @@ class test_bf_file_finder(unit_test):
       'fruit/strawberry.fruit',
     ], self._find(content).sorted_relative_filenames )
 
-  def xtest_find_with_broken_symlink_without_ignore_broken_links(self):
+  def test_find_with_broken_symlink_without_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
@@ -599,11 +599,14 @@ class test_bf_file_finder(unit_test):
       'file cheese/brie.cheese',
       'link cheese/cheddar.cheese "/foo/notthere"',
     ]
-    with self.assertRaises(OSError) as context:
-      self._find(content, ignore_broken_links = False)
-      print(f'context={context}')
-      print(f'msg={context.msg}')
-      self.assertTrue( 'broken symlink' in context.error.message.lower() ) 
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, ignore_broken_links = False).sorted_relative_filenames )
 
   def test_find_with_stop_after(self):
     content = [

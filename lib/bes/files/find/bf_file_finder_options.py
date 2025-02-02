@@ -35,7 +35,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def _variables(self):
     return {
-      '_bf_entry_default_type': lambda: bf_entry,
+      '_bf_file_finder_entry_default_type': lambda: bf_entry,
     }
   
   #@abstractmethod
@@ -56,7 +56,8 @@ class _bf_file_finder_options_desc(bcli_options_desc):
  progress_interval_percent float                default=5.0
                 stop_after int
             found_callback callable
-               entry_class type                 default=${_bf_entry_default_type}
+               entry_class type                 default=${_bf_file_finder_entry_default_type}
+          ignore_filenames list[str]
 '''
   
   #@abstractmethod
@@ -74,6 +75,20 @@ class bf_file_finder_options(bcli_options):
     if name in ( 'min_depth', 'max_depth' ):
       self._check_depth_limits()
 
+  def pass_through_keys(self):
+    return ( 'file_resolver_options', )
+
+  @cached_property
+  def file_ignore_list(self):
+    if self.ignore_filenames:
+      from ..ignore.bf_file_ignore_list import bf_file_ignore_list
+      return bf_file_ignore_list(self.ignore_filenames)
+    return None
+
+  def should_ignore_entry(self, entry):
+    if self.file_ignore_list:
+      return self.file_ignore_list.should_ignore(entry)
+    
   def _check_depth_limits(self):
     if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
       raise bf_file_finder_error('max_depth needs to be >= min_depth.')

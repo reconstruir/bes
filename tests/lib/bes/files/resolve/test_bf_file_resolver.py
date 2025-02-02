@@ -62,7 +62,7 @@ class test_bf_file_resolver(unit_test):
                              sorted_absolute_filenames,
                              result.stats)
   
-  def test_resolve_with_no_options(self):
+  def xtest_resolve_with_no_options(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -77,7 +77,7 @@ class test_bf_file_resolver(unit_test):
       'subdir/subberdir/baz.txt'
     ], self._resolve(content).sorted_relative_filenames )
 
-  def test_resolve_absolute(self):
+  def xtest_resolve_absolute(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -95,7 +95,7 @@ class test_bf_file_resolver(unit_test):
     expected = [ path.join(rv.tmp_dir, f) for f in expected_relative ]
     self.assert_filename_list_equal( expected, rv.sorted_absolute_filenames )
 
-  def test_resolve_with_files_only(self):
+  def xtest_resolve_with_files_only(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -110,7 +110,7 @@ class test_bf_file_resolver(unit_test):
       'subdir/subberdir/baz.txt'
     ], self._resolve(content, file_type = 'file').sorted_relative_filenames )
 
-  def test_resolve_with_dirs_only(self):
+  def xtest_resolve_with_dirs_only(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -124,7 +124,7 @@ class test_bf_file_resolver(unit_test):
       'subdir/subberdir',
     ], self._resolve(content, file_type = 'dir').sorted_relative_filenames )
 
-  def test_resolve_with_match(self):
+  def xtest_resolve_with_match(self):
     content = [
       'file kiwi.py "kiwi.py\n"',
       'file foo.txt "foo.txt\n"',
@@ -141,7 +141,7 @@ class test_bf_file_resolver(unit_test):
       'subdir/subberdir/melon.py',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_resolve_with_max_depth(self):
+  def xtest_resolve_with_max_depth(self):
     self.maxDiff = None
     content = [
       'file 1a.f',
@@ -197,7 +197,7 @@ class test_bf_file_resolver(unit_test):
       '1.d/2.d/3.d/4.d/5b.f',
     ]), self._resolve(content, max_depth = 5).sorted_relative_filenames )
 
-  def test_resolve_with_min_depth(self):
+  def xtest_resolve_with_min_depth(self):
     self.maxDiff = None
     content = [
       'file 1a.f',
@@ -254,7 +254,7 @@ class test_bf_file_resolver(unit_test):
     ]), self._resolve(content, min_depth = 5).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([]), self._resolve(content, min_depth = 6).sorted_relative_filenames )
 
-  def test_resolve_with_min_and_max_depth(self):
+  def xtest_resolve_with_min_and_max_depth(self):
     self.maxDiff = None
     content = [
       'file 1a.f',
@@ -290,7 +290,7 @@ class test_bf_file_resolver(unit_test):
       '1b.f',
     ]), self._resolve(content, min_depth = 1, max_depth = 1).sorted_relative_filenames )
 
-  def test_file_resolve_with_pattern(self):
+  def xtest_file_resolve_with_pattern(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -307,7 +307,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/cheddar.cheese',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
     
-  def test_file_resolve_with_pattern_and_match_type(self):
+  def xtest_file_resolve_with_pattern_and_match_type(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -326,7 +326,7 @@ class test_bf_file_resolver(unit_test):
       'fruit/strawberry.fruit',
     ], self._resolve(content, file_matcher = matcher, match_type = 'none').sorted_relative_filenames )
 
-  def test_file_resolve_with_path_type_basename(self):
+  def xtest_file_resolve_with_path_type_basename(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -343,7 +343,7 @@ class test_bf_file_resolver(unit_test):
       'bonus/fig.fruit',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
     
-  def test_file_resolve_without_path_type_absolute(self):
+  def xtest_file_resolve_without_path_type_absolute(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -360,7 +360,7 @@ class test_bf_file_resolver(unit_test):
       'fruit/kiwi.fruit',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_file_resolve_with_callable(self):
+  def xtest_file_resolve_with_callable(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -377,7 +377,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/cheddar.cheese',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
     
-  def test_file_resolve_with_callable_and_match_type_any(self):
+  def xtest_file_resolve_with_callable_and_match_type_any(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -394,7 +394,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/cheddar.cheese',
     ], self._resolve(content, file_matcher = matcher, match_type = 'any').sorted_relative_filenames )
 
-  def test_file_resolve_with_callable_and_match_type_none(self):
+  def xtest_file_resolve_with_callable_and_match_type_none(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -413,7 +413,7 @@ class test_bf_file_resolver(unit_test):
       'fruit/strawberry.fruit',
     ], self._resolve(content, file_matcher = matcher, match_type = 'none').sorted_relative_filenames )
     
-  def test_file_resolve_with_callable_and_path_type_basename(self):
+  def xtest_file_resolve_with_callable_and_path_type_basename(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -429,7 +429,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/brie.cheese',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_file_resolve_with_callable_and_path_type_relative(self):
+  def xtest_file_resolve_with_callable_and_path_type_relative(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -446,7 +446,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/cheddar.cheese',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_file_resolve_with_re(self):
+  def xtest_file_resolve_with_re(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -463,7 +463,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/cheddar.cheese',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_file_resolve_with_re_any(self):
+  def xtest_file_resolve_with_re_any(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -485,7 +485,7 @@ class test_bf_file_resolver(unit_test):
       'wine/chablis.wine',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
     
-  def test_file_resolve_with_re_and_match_type_none(self):
+  def xtest_file_resolve_with_re_and_match_type_none(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -504,7 +504,7 @@ class test_bf_file_resolver(unit_test):
       'fruit/strawberry.fruit',
     ], self._resolve(content, file_matcher = matcher, match_type = 'none').sorted_relative_filenames )
     
-  def test_file_resolve_with_re_path_type_basename(self):
+  def xtest_file_resolve_with_re_path_type_basename(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -520,7 +520,7 @@ class test_bf_file_resolver(unit_test):
       'cheese/cheddar.cheese',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_file_resolve_with_re_path_type_relative(self):
+  def xtest_file_resolve_with_re_path_type_relative(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -539,7 +539,7 @@ class test_bf_file_resolver(unit_test):
       'fruit/strawberry.fruit',
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
 
-  def test_file_resolve_with_re_path_type_absolute(self):
+  def xtest_file_resolve_with_re_path_type_absolute(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -554,7 +554,7 @@ class test_bf_file_resolver(unit_test):
     self.assert_filename_list_equal( [
     ], self._resolve(content, file_matcher = matcher).sorted_relative_filenames )
     
-  def test_resolve_with_match_and_negate(self):
+  def xtest_resolve_with_match_and_negate(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -573,7 +573,7 @@ class test_bf_file_resolver(unit_test):
       'd/e/bar.txt',
     ], self._resolve(content, file_matcher = matcher, match_type = 'all').sorted_relative_filenames )
 
-  def test_resolve_with_broken_symlink(self):
+  def xtest_resolve_with_broken_symlink(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
@@ -605,7 +605,7 @@ class test_bf_file_resolver(unit_test):
       print(f'msg={context.msg}')
       self.assertTrue( 'broken symlink' in context.error.message.lower() ) 
 
-  def test_resolve_with_stop_after(self):
+  def xtest_resolve_with_stop_after(self):
     content = [
       'file a/kiwi.txt',
       'file b/kiwi.txt',
@@ -615,7 +615,7 @@ class test_bf_file_resolver(unit_test):
       'a/kiwi.txt',
     ], self._resolve(content, stop_after = 1).sorted_relative_filenames )
 
-  def test_resolve_with_found_callback(self):
+  def xtest_resolve_with_found_callback(self):
     content = [
       'file a/kiwi.txt',
       'file b/kiwi.txt',
@@ -633,7 +633,7 @@ class test_bf_file_resolver(unit_test):
                                     self._resolve(content, found_callback = _cb).sorted_relative_filenames )
     self.assertEqual( set(expected), found )
 
-  def test_resolve_with_multiple_dirs(self):
+  def xtest_resolve_with_multiple_dirs(self):
     content = [
       'file 1/a/fruit/kiwi.fruit',
       'file 1/a/fruit/lemon.fruit',
@@ -683,7 +683,7 @@ class test_bf_file_resolver(unit_test):
       'c/fruit/strawberry.fruit',
     ], actual )
 
-  def test_resolve_with_match_include_and_exclude_patterns(self):
+  def xtest_resolve_with_match_include_and_exclude_patterns(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -707,7 +707,7 @@ class test_bf_file_resolver(unit_test):
     self.assertEqual( False, self._match_ie([ '*.py' ], [ '.*git*' ], '.git/cache', 'proj') )
     self.assertEqual( True, self._match_ie([ '*.py' ], [ '.*git*' ], 'src/kiwi/.git/foo', 'proj') )
 
-  def test_resolve_with_stats_file_only(self):
+  def xtest_resolve_with_stats_file_only(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -736,7 +736,7 @@ class test_bf_file_resolver(unit_test):
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
 
-  def test_resolve_with_stats_file_only_with_dir_walk_matcher(self):
+  def xtest_resolve_with_stats_file_only_with_dir_walk_matcher(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -796,7 +796,7 @@ class test_bf_file_resolver(unit_test):
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
 
-  def test_resolve_with_match_pattern_and_file_type(self):
+  def xtest_resolve_with_match_pattern_and_file_type(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',

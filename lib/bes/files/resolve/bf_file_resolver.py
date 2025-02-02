@@ -35,7 +35,7 @@ class bf_file_resolver(object):
     self._options = bf_file_resolver_options.clone_or_create(options)
     check.check_bf_file_resolver_options(self._options)
 
-  def resolve_gen(self, where):
+  def resolve_gen(self, wheres):
     where = bf_check.check_dir_seq(object_util.listify(where))
     for next_where in where:
       for entry in self._resolve_gen_one_dir(next_where, None):

@@ -128,7 +128,7 @@ class bf_file_finder(object):
         stats_dict['num_files_checked'] += 1
     if not self._options.depth_in_range(depth):
       return False
-    if self._options.ignore_broken_links and bf_symlink.is_broken(entry.filename):
+    if self._options.ignore_broken_links and entry.is_broken_link:
       return False
     if not self._options.file_matcher_matches(entry):
       return False

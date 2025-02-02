@@ -10,14 +10,14 @@ class test_bf_file_resolver_options(unit_test):
 
   def test_clone__eq__(self):
     o1 = bf_file_resolver_options()
-    o1.limit = 2
+    o1.sort_order = 'basename'
     o2 = o1.clone()
     self.assertEqual( o1, o2 )
 
   def test_clone_not__eq__(self):
     o1 = bf_file_resolver_options()
     o2 = o1.clone()
-    o1.limit = 2
+    o1.sort_order = 'basename'
     self.assertNotEqual( o1, o2 )
     
 if __name__ == '__main__':

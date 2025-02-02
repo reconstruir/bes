@@ -23,6 +23,7 @@ class _file_duplicates_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
+    
     return [
       cli_file_duplicates_setup,
     ]
