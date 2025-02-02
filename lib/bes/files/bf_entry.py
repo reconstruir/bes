@@ -188,13 +188,9 @@ class bf_entry(object):
   def is_link(self):
     return stat.S_ISLNK(self.lstat.st_mode)
 
-  @cached_property
-  def _cached_is_broken_link(self):
-    return bf_mtime_cached_info(self.filename, lambda f_: bf_symlink.is_broken(f_))
-
   @property
   def is_broken_link(self):
-    return self._cached_is_broken_link.value
+    return bf_symlink.is_broken(self.filename)
 
   @cached_property
   def _cached_resolved_link(self):
