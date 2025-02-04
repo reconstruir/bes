@@ -6,6 +6,7 @@ from os import path
 from ..compat.cmp import cmp
 from ..system.check import check
 from ..common.type_checked_list import type_checked_list
+from ..common.json_util import json_util
 
 from .bf_check import bf_check
 from .bf_entry import bf_entry
@@ -19,6 +20,12 @@ class bf_entry_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
+  def to_dict_list(self):
+    return [ entry.to_dict() for entry in self ]
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict_list())
+  
   def filenames(self, sort = False):
     result = [ entry.filename for entry in self ]
     if sort:

@@ -8,6 +8,7 @@ from collections import namedtuple
 
 from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
+from bes.common.json_util import json_util
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
@@ -47,6 +48,15 @@ class bf_entry(object):
     
     self._filename = filename
     self._root_dir = root_dir
+
+  def to_dict(self):
+    return {
+      'filename': self._filename,
+      'root_dir': self._root_dir,
+    }
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict())
 
   @cached_property
   def filename(self):
