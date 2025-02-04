@@ -11,19 +11,7 @@ from bes.system.log import logger
 from bes.common.object_util import object_util
 
 from ..bf_check import bf_check
-#from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
-#from ..bf_filename import bf_filename
-#from ..bf_file_type import bf_file_type
-#from ..bf_path_type import bf_path_type
-#from ..bf_symlink import bf_symlink
-#from ..match.bf_file_matcher_type import bf_file_matcher_type
-#from ..match.bf_file_matcher import bf_file_matcher
-#
-#from .bf_file_resolver_options import bf_file_resolver_options
-#from .bf_file_resolver_result import bf_file_resolver_result
-#from .bf_file_resolver_stats import bf_file_resolver_stats
-#from .bf_walk import bf_walk
 
 from ..find.bf_file_finder_options import bf_file_finder_options
 from ..find.bf_file_finder import bf_file_finder

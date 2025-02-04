@@ -20,20 +20,28 @@ class test_bf_file_resolver(unit_test):
   def _make_temp_content(clazz, items):
     return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
 
-  _resolve_result = namedtuple('_resolve_result', 'tmp_dir, entries, relative_filenames, absolute_filenames, sorted_relative_filenames, sorted_absolute_filenames, stats')
-  def _resolve(self, items, **options):
+  _resolve_result = namedtuple('_resolve_result', 'tmp_dir, entries, entries_json, relative_filenames, absolute_filenames, sorted_relative_filenames, sorted_absolute_filenames, stats')
+  def _resolve(self, items, where, **options):
     resolver_options = bf_file_resolver_options(**options)
     tmp_dir = self._make_temp_content(items)
     f = bf_file_resolver(options = resolver_options)
-    entries = f.resolve(tmp_dir)
+    abs_where = [ path.join(tmp_dir, next_where) for next_where in where ]
+    print(abs_where)
+    entries = f.resolve(abs_where)
 
     relative_filenames = entries.relative_filenames(False)
     absolute_filenames = entries.absolute_filenames(False)
 
     sorted_relative_filenames = entries.relative_filenames(True)
     sorted_absolute_filenames = entries.absolute_filenames(True)
+
+    replacements = {
+      tmp_dir: '${tmp_dir}',
+    }
+    entries_json = entries.to_json(replacements = replacements)
     return self._resolve_result(tmp_dir,
                                 entries,
+                                entries_json,
                                 relative_filenames,
                                 absolute_filenames,
                                 sorted_relative_filenames,
@@ -42,18 +50,34 @@ class test_bf_file_resolver(unit_test):
   
   def test_resolve_with_no_options(self):
     content = [
-      'file foo.txt "foo.txt\n"',
-      'file subdir/bar.txt "bar.txt\n"',
-      'file subdir/subberdir/baz.txt "baz.txt\n"',
-      'file emptyfile.txt',
-      'dir emptydir',
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
     ]
-    self.assert_filename_list_equal( [
-      'emptyfile.txt',
-      'foo.txt',
-      'subdir/bar.txt',
-      'subdir/subberdir/baz.txt'
-    ], self._resolve(content).sorted_relative_filenames )
+    r = self._resolve(content, [ 'kiwi' ])
+
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "emptyfile.txt",
+    "root_dir": "${tmp_dir}/kiwi"
+  },
+  {
+    "filename": "foo.txt",
+    "root_dir": "${tmp_dir}/kiwi"
+  },
+  {
+    "filename": "subdir/bar.txt",
+    "root_dir": "${tmp_dir}/kiwi"
+  },
+  {
+    "filename": "subdir/subberdir/baz.txt",
+    "root_dir": "${tmp_dir}/kiwi"
+  }
+]
+''', r.entries_json )
     
 if __name__ == '__main__':
   unit_test.main()
