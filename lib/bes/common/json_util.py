@@ -25,6 +25,8 @@ class json_util(object):
     check.check_int(indent, allow_none = True)
     check.check_bool(sort_keys)
     check.check_bool(ensure_last_line_sep)
+
+    indent = 2 if indent == None else indent
     
     '''
     Like json.dumps plus the following:
