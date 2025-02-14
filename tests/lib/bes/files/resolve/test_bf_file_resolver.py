@@ -78,6 +78,102 @@ class test_bf_file_resolver(unit_test):
   }
 ]
 ''', r.entries_json )
+
+  def test_resolve_one_file(self):
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+    ]
+    r = self._resolve(content, [ 'kiwi/foo.txt' ])
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "${tmp_dir}/kiwi/foo.txt",
+    "root_dir": null
+  }
+]
+''', r.entries_json )
+
+  def test_resolve_two_files(self):
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+    ]
+    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir/subberdir/baz.txt' ])
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "${tmp_dir}/kiwi/foo.txt",
+    "root_dir": null
+  },
+  {
+    "filename": "${tmp_dir}/kiwi/subdir/subberdir/baz.txt",
+    "root_dir": null
+  }
+]
+''', r.entries_json )
+
+  def test_resolve_one_file_and_one_dir(self):
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+    ]
+    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir' ])
+
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "${tmp_dir}/kiwi/foo.txt",
+    "root_dir": null
+  },
+  {
+    "filename": "bar.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  },
+  {
+    "filename": "subberdir/baz.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  }
+]
+''', r.entries_json )
+
+  def test_resolve_two_dirs(self):
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+      'file lemon/bar2.txt "bar2.txt\n"',
+      'file lemon/subdir/bar3.txt "bar3.txt\n"',
+    ]
+    r = self._resolve(content, [ 'kiwi/subdir', 'lemon/subdir' ])
+
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "bar.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  },
+  {
+    "filename": "subberdir/baz.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  },
+  {
+    "filename": "bar3.txt",
+    "root_dir": "${tmp_dir}/lemon/subdir"
+  }
+]
+''', r.entries_json )
     
 if __name__ == '__main__':
   unit_test.main()
