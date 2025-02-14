@@ -9,6 +9,7 @@ class data_output_style(checked_enum):
   JSON = 'json'
   PLAIN_TABLE = 'plain_table'
   RAW = 'raw'
+  RAW_PRETTY = 'raw_pretty'
   TABLE = 'table'
 
 data_output_style.register_check_class()
