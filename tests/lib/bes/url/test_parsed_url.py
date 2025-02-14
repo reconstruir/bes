@@ -21,7 +21,9 @@ class test_parsed_url(unit_test):
     self.assertEqual( 'example', _t('http://www.example.com/foo.cgi') )
     self.assertEqual( 'example', _t('http://example.com/foo.cgi') )
     self.assertEqual( 'example', _t('http://example.edu/foo.cgi') )
-    self.assertEqual( 'example', _t('http://something.example/foo.cgi') )
+    self.assertEqual( 'something', _t('http://something.example/foo.cgi') )
+    self.assertEqual( 'kiwi', _t('http://kiwi.io') )
+    self.assertEqual( 'kiwi', _t('http://kiwi.notathing') )
     
   def test_remove_query(self):
     def _t(s):

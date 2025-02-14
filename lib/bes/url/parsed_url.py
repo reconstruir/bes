@@ -97,6 +97,8 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
       parts.pop(0)
     if not parts:
       return None
+    if len(parts) == 2:
+      return parts[0]
     return parts[-1]
 
   @cached_property
@@ -127,24 +129,30 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     return self.clone(mutations = { 'query': query })
   
   _COMMON_SUFFIXES = set([
+    'ai',
     'au',
     'ca',
     'ch',
+    'club',
     'com',
     'de',
     'edu',
     'es',
     'fr',
     'gov',
+    'io',
     'it',
     'jp',
+    'me',
     'mil',
     'net',
     'nl',
     'no',
     'org',
+    'porn',
     'ru',
     'se',
+    'tv',
     'uk',
     'us',
   ])
