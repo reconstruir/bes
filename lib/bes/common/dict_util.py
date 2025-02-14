@@ -87,12 +87,20 @@ class dict_util(object):
   @staticmethod
   def substitute_variables(d, substitutions, word_boundary = True):
     for key in d.iterkeys():
-      d[key] = variable.substitute(d[key], substitutions, word_boundary = word_boundary)
+      current_value = d[key]
+      if check.is_string(current_value):
+        d[key] = variable.substitute(current_value,
+                                     substitutions,
+                                     word_boundary = word_boundary)
 
   @staticmethod
   def replace_values(d, replacements, word_boundary = True):
     for key in d.keys():
-      d[key] = text_replace.replace(d[key], replacements, word_boundary = True)
+      current_value = d[key]
+      if check.is_string(current_value):
+        d[key] = text_replace.replace(current_value,
+                                      replacements,
+                                      word_boundary = word_boundary)
       
   @staticmethod
   def del_keys(d, keys):
