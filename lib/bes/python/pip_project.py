@@ -42,6 +42,7 @@ class pip_project(object):
 
     self._extra_env = {}
     self._options = options or check_pip_project_options()
+    self._log.log_d(f'__init__: options={options}')
     self._root_dir = self._options.resolve_root_dir()
     self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
     self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
@@ -374,7 +375,7 @@ class pip_project(object):
     kargs['env'] = env
     self._log.log_d('call_program: env={}'.format(env))
 
-    kargs['shell'] = True
+#    kargs['shell'] = True
     kargs['check_python_script'] = False
 
     for key, value in sorted(env.items()):
