@@ -6,7 +6,9 @@ from collections import namedtuple
 
 from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.files.resolve.bf_file_resolver import bf_file_resolver
+from bes.files.bf_entry import bf_entry
 from bes.files.resolve.bf_file_resolver_options import bf_file_resolver_options
+from bes.files.resolve.bf_file_resolver_entry import bf_file_resolver_entry
 from bes.fs.testing.temp_content import temp_content
 from bes.system.log import logger
 
@@ -26,7 +28,7 @@ class test_bf_file_resolver(unit_test):
     tmp_dir = self._make_temp_content(items)
     f = bf_file_resolver(options = resolver_options)
     abs_where = [ path.join(tmp_dir, next_where) for next_where in where ]
-    print(abs_where)
+    #print(abs_where)
     entries = f.resolve(abs_where)
 
     relative_filenames = entries.relative_filenames(False)
@@ -174,6 +176,39 @@ class test_bf_file_resolver(unit_test):
   }
 ]
 ''', r.entries_json )
+
+  def test_resolve_with_entry_class(self):
+    class _test_entry_class(bf_file_resolver_entry):
+      pass
+    
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+    ]
+    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir' ], entry_class = _test_entry_class)
+
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "${tmp_dir}/kiwi/foo.txt",
+    "root_dir": null
+  },
+  {
+    "filename": "bar.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  },
+  {
+    "filename": "subberdir/baz.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  }
+]
+''', r.entries_json )
+
+    for entry in r.entries:
+      self.assertTrue( isinstance(entry, _test_entry_class) )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -32,12 +32,14 @@ class bf_file_resolver(object):
   def resolve_gen(self, where):
     where = bf_check.check_file_or_dir_seq(object_util.listify(where))
 
+    entry_class = self._options.entry_class or bf_file_resolver_entry
+    
     options = bf_file_finder_options()
-    options.entry_class = bf_file_resolver_entry
+    options.entry_class = entry_class
     finder = bf_file_finder(options = options)
     for next_where in where:
       if path.isfile(next_where):
-        entry = bf_file_resolver_entry(next_where)
+        entry = entry_class(next_where)
         if finder._entry_matches(entry, next_where, {}):
           yield entry
       elif path.isdir(next_where):
