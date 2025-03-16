@@ -34,9 +34,9 @@ class bf_file_resolver(object):
 
     entry_class = self._options.entry_class or bf_file_resolver_entry
     
-    options = bf_file_finder_options()
-    options.entry_class = entry_class
-    finder = bf_file_finder(options = options)
+    finder_options = bf_file_finder_options()
+    finder_options.entry_class = entry_class
+    finder = bf_file_finder(options = finder_options)
     for next_where in where:
       if path.isfile(next_where):
         entry = entry_class(next_where)
