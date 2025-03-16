@@ -209,6 +209,34 @@ class test_bf_file_resolver(unit_test):
 
     for entry in r.entries:
       self.assertTrue( isinstance(entry, _test_entry_class) )
+
+  def test_resolve_with_match_function(self):
+
+    def _test_match_function(entry_):
+      return entry_.basename == 'foo.txt'
     
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+    ]
+    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir' ], match_function = _test_match_function)
+
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "${tmp_dir}/kiwi/foo.txt",
+    "root_dir": null
+  },
+  {
+    "filename": "foo.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir"
+  }
+]
+''', r.entries_json )
+
 if __name__ == '__main__':
   unit_test.main()
