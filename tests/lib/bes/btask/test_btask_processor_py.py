@@ -265,7 +265,7 @@ class test_btask_processor_py(unit_test):
 
     for value in range(minimum, maximum + 1):
       time.sleep(sleep_time_before)
-      context.report_progress(minimum, maximum, value, f'doing stuff {value} of {maximum}')
+      context.report_status(minimum, maximum, value, f'doing stuff {value} of {maximum}')
       time.sleep(sleep_time_after)
     clazz._log.log_d(f'_function_with_progress: done')
     return {}

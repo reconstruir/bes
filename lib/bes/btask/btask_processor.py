@@ -265,13 +265,13 @@ class btask_processor(object):
       self._log.log_d(f'cancel: task {task_id} removed from in_progress queue')
       in_progress_item.cancelled_value.value = True
 
-  def report_progress(self, progress, raise_error = True):
+  def report_status(self, progress, raise_error = True):
     check.check_btask_status(progress)
     check.check_bool(raise_error)
 
-    self._log.log_d(f'report_progress: task_id={progress.task_id}')
+    self._log.log_d(f'report_status: task_id={progress.task_id}')
     
-    btask_threading.check_main_process(label = 'btask.report_progress')
+    btask_threading.check_main_process(label = 'btask.report_status')
     
     with self._lock as lock:
       item = self._in_progress_queue.find_by_task_id(progress.task_id)
