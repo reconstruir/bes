@@ -6,7 +6,7 @@ from bes.system.log import logger
 from bes.system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
-from .btask_progress import btask_progress
+from .btask_status import btask_status
 
 class btask_function_context(namedtuple('btask_function_context', 'task_id, progress_queue, cancelled_value')):
   
@@ -23,7 +23,7 @@ class btask_function_context(namedtuple('btask_function_context', 'task_id, prog
       raise btask_cancelled_error(message)
 
   def report_progress(self, minimum, maximum, value, message):
-    progress = btask_progress(self.task_id, minimum, maximum, value, message)
+    progress = btask_status(self.task_id, minimum, maximum, value, message)
     self.progress_queue.put(progress)
     
 check.register_class(btask_function_context, include_seq = False)

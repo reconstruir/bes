@@ -29,7 +29,7 @@ class btask_result_collector_py(btask_result_collector_i):
 
   #@abstractmethod
   def handle_progress(self, progress):
-    check.check_btask_progress(progress)
+    check.check_btask_status(progress)
 
     self._log.log_d(f'btask_result_collector_py.handle_progress: task_id={progress.task_id}')
     self._runner.call_in_main_thread(self._handle_progress_in_main_thread, progress)
@@ -40,6 +40,6 @@ class btask_result_collector_py(btask_result_collector_i):
     self._pool.complete(result)
 
   def _handle_progress_in_main_thread(self, progress):
-    check.check_btask_progress(progress)
+    check.check_btask_status(progress)
     self._log.log_d(f'btask_result_collector_py._handle_progress_in_main_thread: task_id={progress.task_id}')
     self._pool.report_progress(progress)

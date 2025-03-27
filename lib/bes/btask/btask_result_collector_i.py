@@ -10,7 +10,7 @@ from bes.system.check import check
 from abc import abstractmethod, ABCMeta
 
 from .btask_result import btask_result
-from .btask_progress import btask_progress
+from .btask_status import btask_status
 from .btask_error import btask_error
 
 class btask_result_collector_i(object, metaclass = ABCMeta):
@@ -57,7 +57,7 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
     assert item != None
     if isinstance(item, btask_result):
       self.handle_result(item)
-    elif isinstance(item, btask_progress):
+    elif isinstance(item, btask_status):
       self.handle_progress(item)
       time.sleep(self._progress_sleep_time)
     else:

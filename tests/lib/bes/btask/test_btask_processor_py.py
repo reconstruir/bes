@@ -11,7 +11,7 @@ from bes.testing.unit_test import unit_test
 
 from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_processor_tester_py import btask_processor_tester_py
-from bes.btask.btask_progress import btask_progress
+from bes.btask.btask_status import btask_status
 
 class test_btask_processor_py(unit_test):
 

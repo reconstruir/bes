@@ -17,7 +17,7 @@ from .btask_task import btask_task
 from .btask_processor_queue import btask_processor_queue
 from .btask_priority import btask_priority
 from .btask_result import btask_result
-from .btask_progress import btask_progress
+from .btask_status import btask_status
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
@@ -209,7 +209,7 @@ class btask_processor(object):
     return True
           
   def _callback(self, result):
-    check.check(result, ( btask_result, btask_progress ))
+    check.check(result, ( btask_result, btask_status ))
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
@@ -266,7 +266,7 @@ class btask_processor(object):
       in_progress_item.cancelled_value.value = True
 
   def report_progress(self, progress, raise_error = True):
-    check.check_btask_progress(progress)
+    check.check_btask_status(progress)
     check.check_bool(raise_error)
 
     self._log.log_d(f'report_progress: task_id={progress.task_id}')

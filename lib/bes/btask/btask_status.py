@@ -5,7 +5,7 @@ from collections import namedtuple
 from ..system.check import check
 from ..property.cached_property import cached_property
 
-class btask_progress(namedtuple('btask_progress', 'task_id, minimum, maximum, value, message')):
+class btask_status(namedtuple('btask_status', 'task_id, minimum, maximum, value, message')):
   
   def __new__(clazz, task_id, minimum, maximum, value, message):
     check.check_int(task_id)
@@ -43,4 +43,4 @@ class btask_progress(namedtuple('btask_progress', 'task_id, minimum, maximum, va
     delta = float(self.maximum - self.minimum)
     return (left * 100.0) / delta
   
-check.register_class(btask_progress, include_seq = False)
+check.register_class(btask_status, include_seq = False)
