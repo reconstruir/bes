@@ -28,18 +28,18 @@ class btask_result_collector_py(btask_result_collector_i):
     self._runner.call_in_main_thread(self._handle_result_in_main_thread, result)
 
   #@abstractmethod
-  def handle_progress(self, progress):
+  def handle_status(self, progress):
     check.check_btask_status(progress)
 
-    self._log.log_d(f'btask_result_collector_py.handle_progress: task_id={progress.task_id}')
-    self._runner.call_in_main_thread(self._handle_progress_in_main_thread, progress)
+    self._log.log_d(f'btask_result_collector_py.handle_status: task_id={progress.task_id}')
+    self._runner.call_in_main_thread(self._handle_status_in_main_thread, progress)
     
   def _handle_result_in_main_thread(self, result):
     check.check_btask_result(result)
     self._log.log_d(f'btask_result_collector_py._handle_result_in_main_thread: task_id={result.task_id}')
     self._pool.complete(result)
 
-  def _handle_progress_in_main_thread(self, progress):
+  def _handle_status_in_main_thread(self, progress):
     check.check_btask_status(progress)
-    self._log.log_d(f'btask_result_collector_py._handle_progress_in_main_thread: task_id={progress.task_id}')
+    self._log.log_d(f'btask_result_collector_py._handle_status_in_main_thread: task_id={progress.task_id}')
     self._pool.report_progress(progress)
