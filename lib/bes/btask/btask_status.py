@@ -1,41 +1,41 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
+import dataclasses
+import typing
 
 from ..system.check import check
-from ..property.cached_property import cached_property
 
-class btask_status(namedtuple('btask_status', 'task_id, minimum, maximum, value, message')):
-  
-  def __new__(clazz, task_id, minimum, maximum, value, message):
-    check.check_int(task_id)
-    check.check_int(minimum, allow_none = True)
-    check.check_int(maximum, allow_none = True)
-    check.check_int(value)
-    check.check_string(message, allow_none = True)
+from bes.data_classes.bdata_class_base import bdata_class_base
 
-    if maximum == None:
-      if minimum != None:
-        raise ValueError(f'"minimum" ({minimum}) should be None when maximum is None')
+@dataclasses.dataclass
+class btask_status(bdata_class_base):
+  task_id: int
+  value: int
+  minimum: typing.Optional[int] = None
+  maximum: typing.Optional[int] = None
+  message: typing.Optional[str] = None
+
+  def __post_init__(self):
+    if self.maximum == None:
+      if self.minimum != None:
+        raise ValueError(f'"minimum" ({self.minimum}) should be None when maximum is None')
       
-      if value not in ( 0, 1 ):
-        raise ValueError(f'"value" should be either 0 or 1 when maximum is None: value="{value}"')
+      if self.value not in ( 0, 1 ):
+        raise ValueError(f'"value" should be either 0 or 1 when maximum is None: value="{self.value}"')
     else:
-      if minimum == None:
-        raise ValueError(f'"minimum" should be given if "maximum" ({maximum}) is given')
+      if self.minimum == None:
+        raise ValueError(f'"minimum" should be given if "maximum" ({self.maximum}) is given')
 
-      if maximum < minimum:
-        raise ValueError(f'"maximum" should be >= "minimum" : maximum="{maximum}" maximum="{maximum}"')
+      if self.maximum < self.minimum:
+        raise ValueError(f'"maximum" should be >= "minimum" : minimum="{self.minimum}" maximum="{self.maximum}"')
 
-      if value < minimum:
-        raise ValueError(f'"value" ({value}) should be >/ "minimum" {minimum}')
+      if self.value < self.minimum:
+        raise ValueError(f'"value" ({self.value}) should be >= "minimum" {self.minimum}')
 
-      if value > maximum:
-        raise ValueError(f'"value" ({value}) should be <= "maximum" {maximum}')
-    
-    return clazz.__bases__[0].__new__(clazz, task_id, minimum, maximum, value, message)
+      if self.value > self.maximum:
+        raise ValueError(f'"value" ({self.value}) should be <= "maximum" {self.maximum}')
 
-  @cached_property
+  @property
   def percent_done(self):
     if self.maximum == None:
       raise ValueError('cannot compute percent done because maximum is not given.')
@@ -43,4 +43,4 @@ class btask_status(namedtuple('btask_status', 'task_id, minimum, maximum, value,
     delta = float(self.maximum - self.minimum)
     return (left * 100.0) / delta
   
-check.register_class(btask_status, include_seq = False)
+btask_status.register_check_class()

@@ -23,7 +23,11 @@ class btask_function_context(namedtuple('btask_function_context', 'task_id, prog
       raise btask_cancelled_error(message)
 
   def report_progress(self, minimum, maximum, value, message):
-    progress = btask_status(self.task_id, minimum, maximum, value, message)
+    progress = btask_status(task_id = self.task_id,
+                            minimum = minimum,
+                            maximum = maximum,
+                            value = value,
+                            message = message)
     self.progress_queue.put(progress)
     
 check.register_class(btask_function_context, include_seq = False)

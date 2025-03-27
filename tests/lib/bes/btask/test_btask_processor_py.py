@@ -299,11 +299,31 @@ class test_btask_processor_py(unit_test):
     self.assertEqual( None, r.error )
 
     self.assertEqual( [
-      ( 1, 1, 5, 1, 'doing stuff 1 of 5' ),
-      ( 1, 1, 5, 2, 'doing stuff 2 of 5' ),
-      ( 1, 1, 5, 3, 'doing stuff 3 of 5' ),
-      ( 1, 1, 5, 4, 'doing stuff 4 of 5' ),
-      ( 1, 1, 5, 5, 'doing stuff 5 of 5' ),
+      btask_status(task_id=1,
+                   value=1,
+                   minimum=1,
+                   maximum=5,
+                   message='doing stuff 1 of 5'),
+      btask_status(task_id=1,
+                   value=2,
+                   minimum=1,
+                   maximum=5,
+                   message='doing stuff 2 of 5'),
+      btask_status(task_id=1,
+                   value=3,
+                   minimum=1,
+                   maximum=5,
+                   message='doing stuff 3 of 5'),
+      btask_status(task_id=1,
+                   value=4,
+                   minimum=1,
+                   maximum=5,
+                   message='doing stuff 4 of 5'),
+      btask_status(task_id=1,
+                   value=5,
+                   minimum=1,
+                   maximum=5,
+                   message='doing stuff 5 of 5')
     ], pl )
 
   def test_add_task_with_cancel_waiting(self):
