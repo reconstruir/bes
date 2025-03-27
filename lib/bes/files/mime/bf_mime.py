@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 import fnmatch
 
 from collections import OrderedDict
@@ -73,3 +75,10 @@ class bf_mime(object):
       if fnmatch.fnmatch(mime_type, pattern):
         return media_type
     return None
+
+  @classmethod
+  def is_apple_resource_fork(clazz, filename):
+    basename = path.basename(filename)
+    if not basename.startswith('._'):
+      return False
+    return clazz.mime_type(filename) == 'application/applefile'

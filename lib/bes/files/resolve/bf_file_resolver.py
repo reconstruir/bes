@@ -19,6 +19,8 @@ from ..find.bf_file_finder import bf_file_finder
 from .bf_file_resolver_entry import bf_file_resolver_entry
 from .bf_file_resolver_options import bf_file_resolver_options
 
+from ..mime.bf_mime import bf_mime
+
 class bf_file_resolver(object):
 
   _log = logger('bf_file_resolver')
@@ -34,10 +36,12 @@ class bf_file_resolver(object):
 
     entry_class = self._options.entry_class or bf_file_resolver_entry
 
-    if self._options.match_function:
-      matcher = self._options.match_function
-    else:
-      matcher = lambda entry_: True
+    def _matcher(entry):
+      if bf_mime.is_apple_resource_fork(entry.filename):
+        return False
+      if self._options.match_function:
+        return self._options.match_function(entry)
+      return True
     
     finder_options = bf_file_finder_options()
     finder_options.entry_class = entry_class
@@ -45,11 +49,11 @@ class bf_file_resolver(object):
     for next_where in where:
       if path.isfile(next_where):
         entry = entry_class(next_where)
-        if matcher(entry):
+        if _matcher(entry):
           yield entry
       elif path.isdir(next_where):
         for entry in finder.find_gen(next_where):
-          if matcher(entry):
+          if _matcher(entry):
             yield entry
     
   def resolve(self, where):

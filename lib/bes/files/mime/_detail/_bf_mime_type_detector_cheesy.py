@@ -68,6 +68,9 @@ class _bf_mime_type_detector_cheesy(_bf_mime_type_detector_base):
       b'\x66\x74\x79\x70\x69\x73\x6f\x6d',
       b'\x66\x74\x79\x70\x6D\x70\x34\x32',
     }),
+    _magic_item('application/applefile', 0, {
+      b'\x00\x05\x16\x07'
+    }),
   ]
   
   _NUM_BYTES = 32
