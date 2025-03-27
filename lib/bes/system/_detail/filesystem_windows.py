@@ -268,3 +268,11 @@ class filesystem_windows(filesystem_base):
     if not hasattr(st, 'st_file_attributes'):
       return False
     return bool(st.st_file_attributes & stat.FILE_ATTRIBUTE_HIDDEN)
+
+  @classmethod
+  #@abstractmethod
+  def filesystem_id(clazz, filename):
+    'Return the id for the filesystem filename is found in.'
+    statvfs = os.statvfs(filename)
+    return statvfs.f_fsid
+  

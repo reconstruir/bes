@@ -46,3 +46,10 @@ class filesystem_base(object, metaclass = ABCMeta):
   def file_is_hidden(clazz, filename):
     'Return True if filename is a hidden file.'
     raise NotImplemented('file_is_hidden')
+
+  @classmethod
+  @abstractmethod
+  def filesystem_id(clazz, filename):
+    'Return the id for the filesystem filename is found in.'
+    raise NotImplemented('filesystem_id')
+  

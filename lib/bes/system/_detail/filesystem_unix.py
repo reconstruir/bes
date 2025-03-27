@@ -59,3 +59,10 @@ class filesystem_unix(filesystem_base):
     normalized_filename = path.normpath(path.abspath(filename))
     basename = path.basename(normalized_filename)
     return basename.startswith('.')
+
+  @classmethod
+  #@abstractmethod
+  def filesystem_id(clazz, filename):
+    'Return the id for the filesystem filename is found in.'
+    statvfs = os.statvfs(filename)
+    return statvfs.f_fsid
