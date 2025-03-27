@@ -29,9 +29,10 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-sort_order  bf_entry_sort_criteria  default=FILENAME
-entry_class type                    default=${_bf_file_resolver_entry_default_type}
-match_function                      callable
+sort_order             bf_entry_sort_criteria default=FILENAME
+entry_class            type                   default=${_bf_file_resolver_entry_default_type}
+match_function         callable
+include_resource_forks bool                   default=False
 '''
   
   #@abstractmethod

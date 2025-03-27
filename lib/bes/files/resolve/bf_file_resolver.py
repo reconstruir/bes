@@ -38,7 +38,7 @@ class bf_file_resolver(object):
 
     def _matcher(entry):
       if bf_mime.is_apple_resource_fork(entry.filename):
-        return False
+        return self._options.include_resource_forks
       if self._options.match_function:
         return self._options.match_function(entry)
       return True
