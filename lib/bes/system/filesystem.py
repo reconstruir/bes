@@ -73,6 +73,12 @@ class filesystem(filesystem_base):
   def file_is_hidden(clazz, filename):
     'Return True if filename is a hidden file.'
     return clazz._impl_class.file_is_hidden(filename)
+
+  @classmethod
+  #@abstractmethod
+  def filesystem_id(clazz, filename):
+    'Return the id for the filesystem filename is found in.'
+    return clazz._impl_class.filesystem_id(filename)
   
   @classmethod
   def remove(clazz, files, raise_not_found_error = False, raise_permission_error = False):
