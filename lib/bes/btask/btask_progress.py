@@ -27,12 +27,12 @@ class btask_progress(bdata_class_base):
         raise ValueError(f'"minimum" should be given if "maximum" ({self.maximum}) is given')
 
       if self.maximum < self.minimum:
-        raise ValueError(f'"maximum" should be >= "minimum" : maximum="{self.maximum}" maximum="{self.maximum}"')
+        raise ValueError(f'"maximum" should be >= "minimum" : minimum="{self.minimum}" maximum="{self.maximum}"')
 
-      if value < self.minimum:
+      if self.value < self.minimum:
         raise ValueError(f'"value" ({self.value}) should be >= "minimum" {self.minimum}')
 
-      if value > self.maximum:
+      if self.value > self.maximum:
         raise ValueError(f'"value" ({self.value}) should be <= "maximum" {self.maximum}')
 
   @property
