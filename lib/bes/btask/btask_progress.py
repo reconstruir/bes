@@ -9,7 +9,6 @@ from bes.data_classes.bdata_class_base import bdata_class_base
 
 @dataclasses.dataclass
 class btask_progress(bdata_class_base):
-  task_id: int
   value: int
   minimum: typing.Optional[int] = None
   maximum: typing.Optional[int] = None

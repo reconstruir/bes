@@ -11,7 +11,8 @@ from bes.testing.unit_test import unit_test
 
 from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_processor_tester_py import btask_processor_tester_py
-from bes.btask.btask_status import btask_status
+from bes.btask.btask_progress import btask_progress
+from bes.btask.btask_status_progress import btask_status_progress
 
 class test_btask_processor_py(unit_test):
 
@@ -265,7 +266,7 @@ class test_btask_processor_py(unit_test):
 
     for value in range(minimum, maximum + 1):
       time.sleep(sleep_time_before)
-      context.report_status(minimum, maximum, value, f'doing stuff {value} of {maximum}')
+      context.report_progress(minimum, maximum, value, f'doing stuff {value} of {maximum}')
       time.sleep(sleep_time_after)
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
@@ -274,8 +275,8 @@ class test_btask_processor_py(unit_test):
     tester = btask_processor_tester_py('test', 1)
 
     pl = []
-    def _progress_callback(progress):
-      self._log.log_d(f'_progress_callback: progress={progress}')
+    def _status_callback(progress):
+      self._log.log_d(f'_status_callback: progress={progress}')
       pl.append(progress)
       time.sleep(0.250)
       
@@ -286,7 +287,7 @@ class test_btask_processor_py(unit_test):
                                 'maximum': 5,
                               },
                               callback = lambda r: tester.on_callback(r),
-                              progress_callback = _progress_callback)
+                              status_callback = _status_callback)
     
     tester.start()
     results = tester.results()
@@ -299,31 +300,11 @@ class test_btask_processor_py(unit_test):
     self.assertEqual( None, r.error )
 
     self.assertEqual( [
-      btask_status(task_id=1,
-                   value=1,
-                   minimum=1,
-                   maximum=5,
-                   message='doing stuff 1 of 5'),
-      btask_status(task_id=1,
-                   value=2,
-                   minimum=1,
-                   maximum=5,
-                   message='doing stuff 2 of 5'),
-      btask_status(task_id=1,
-                   value=3,
-                   minimum=1,
-                   maximum=5,
-                   message='doing stuff 3 of 5'),
-      btask_status(task_id=1,
-                   value=4,
-                   minimum=1,
-                   maximum=5,
-                   message='doing stuff 4 of 5'),
-      btask_status(task_id=1,
-                   value=5,
-                   minimum=1,
-                   maximum=5,
-                   message='doing stuff 5 of 5')
+      btask_status_progress(1, btask_progress(value=1, minimum=1, maximum=5, message='doing stuff 1 of 5')),
+      btask_status_progress(1, btask_progress(value=2, minimum=1, maximum=5, message='doing stuff 2 of 5')),
+      btask_status_progress(1, btask_progress(value=3, minimum=1, maximum=5, message='doing stuff 3 of 5')),
+      btask_status_progress(1, btask_progress(value=4, minimum=1, maximum=5, message='doing stuff 4 of 5')),
+      btask_status_progress(1, btask_progress(value=5, minimum=1, maximum=5, message='doing stuff 5 of 5')),
     ], pl )
 
   def test_add_task_with_cancel_waiting(self):

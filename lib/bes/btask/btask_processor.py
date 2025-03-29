@@ -11,19 +11,19 @@ from bes.system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_config import btask_config
+from .btask_dedicated_category_config import btask_dedicated_category_config
 from .btask_error import btask_error
 from .btask_function_context import btask_function_context
-from .btask_task import btask_task
-from .btask_processor_queue import btask_processor_queue
+from .btask_initializer import btask_initializer
 from .btask_priority import btask_priority
+from .btask_process_pool import btask_process_pool
+from .btask_processor_queue import btask_processor_queue
 from .btask_result import btask_result
-from .btask_status import btask_status
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
+from .btask_status_base import btask_status_base
+from .btask_task import btask_task
 from .btask_threading import btask_threading
-from .btask_dedicated_category_config import btask_dedicated_category_config
-from .btask_process_pool import btask_process_pool
-from .btask_initializer import btask_initializer
 
 class btask_processor(object):
 
@@ -143,10 +143,10 @@ class btask_processor(object):
     return result
     
   _task_id = 1
-  def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
+  def add_task(self, function, callback = None, status_callback = None, config = None, args = None):
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
-    check.check_callable(progress_callback, allow_none = True)
+    check.check_callable(status_callback, allow_none = True)
     config = check.check_btask_config(config, allow_none = True)
     check.check_dict(args, allow_none = True)
 
@@ -172,7 +172,7 @@ class btask_processor(object):
                         function,
                         args,
                         callback,
-                        progress_callback,
+                        status_callback,
                         cancelled)
       self._waiting_queue.add(item)
     self._log.log_d(f'add: calling pump for task_id={task_id}')
@@ -209,7 +209,7 @@ class btask_processor(object):
     return True
           
   def _callback(self, result):
-    check.check(result, ( btask_result, btask_status ))
+    check.check(result, ( btask_result, btask_status_base ))
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
@@ -238,7 +238,6 @@ class btask_processor(object):
     if callback:
       callback(result)
 
-  _cancel_count = 1
   def cancel(self, task_id):
     check.check_int(task_id)
     
@@ -246,16 +245,14 @@ class btask_processor(object):
 
     cancelled = None
     with self._lock as lock:
-      self._log.log_d(f'cancel: task_id={task_id} cancel_count={self._cancel_count}')
-      self._cancel_count += 1
-      #assert self._cancel_count == 2
+      self._log.log_d(f'cancel: task_id={task_id}')
       waiting_item = self._waiting_queue.find_by_task_id(task_id)
       if waiting_item:
         self._log.log_d(f'cancel: task {task_id} removed from waiting queue')
         metadata = btask_result_metadata(None,
-                                            waiting_item.add_time,
-                                            None,
-                                            datetime.now())
+                                         waiting_item.add_time,
+                                         None,
+                                         datetime.now())
         result = btask_result(waiting_item.task_id, btask_result_state.CANCELLED, None, metadata, None, waiting_item.args)
         self._result_queue.put(result)
       in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
@@ -265,23 +262,23 @@ class btask_processor(object):
       self._log.log_d(f'cancel: task {task_id} removed from in_progress queue')
       in_progress_item.cancelled_value.value = True
 
-  def report_status(self, progress, raise_error = True):
-    check.check_btask_status(progress)
+  def report_status(self, status, raise_error = True):
+    check.check_btask_status(status)
     check.check_bool(raise_error)
 
-    self._log.log_d(f'report_status: task_id={progress.task_id}')
+    self._log.log_d(f'report_status: task_id={status.task_id}')
     
     btask_threading.check_main_process(label = 'btask.report_status')
     
     with self._lock as lock:
-      item = self._in_progress_queue.find_by_task_id(progress.task_id)
+      item = self._in_progress_queue.find_by_task_id(status.task_id)
       if not item:
         if not raise_error:
           return
-        btask_error(f'No task_id "{progress.task_id}" found to cancel')
-      progress_callback = item.progress_callback
-      if progress_callback:
-        progress_callback(progress)
+        btask_error(f'No task_id "{status.task_id}" found to cancel')
+      status_callback = item.status_callback
+      if status_callback:
+        status_callback(status)
       
   def is_cancelled(self, task_id, raise_error = True):
     check.check_int(task_id)

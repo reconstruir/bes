@@ -13,12 +13,13 @@ from bes.system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_function_context import btask_function_context
+from .btask_initializer import btask_initializer
 from .btask_process_task import btask_process_task
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
-from .btask_initializer import btask_initializer
+from .btask_error import btask_error
 
 class _process_data(namedtuple('_process_data', 'name, input_queue, result_queue, nice_level, initializer')):
   
@@ -121,17 +122,21 @@ class btask_process(object):
     debug = task.config.debug
     try:
       result_data = task.function(context, task.args)
-      #clazz._log.log_d(f'{name}: _task_handle:: task_id={task.task_id} data={result_data}')
-      if not check.is_dict(result_data):
-        raise btask_error(f'Function "{function}" should return a dict: "{result_data}" - {type(result_data)}')
+      if result_data != None:
+        #clazz._log.log_d(f'{name}: _task_handle:: task_id={task.task_id} data={result_data}')
+        if not check.is_dict(result_data):
+          message = f'Function "{task.function}" should return a dict or None instead of "{result_data}" - {type(result_data)}'
+          clazz._log.log_e(message)
+          raise btask_error(message)
       state = btask_result_state.SUCCESS
     except Exception as ex:
-      if debug:
-        clazz._log.log_exception(ex)
+      #if debug:
+      #  clazz._log.log_exception(ex)
       if isinstance(ex, btask_cancelled_error):
         state = btask_result_state.CANCELLED
         error = None
       else:
+        clazz._log.log_exception(ex)
         state = btask_result_state.FAILED
         error = ex
 

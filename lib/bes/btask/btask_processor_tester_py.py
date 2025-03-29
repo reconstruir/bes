@@ -48,10 +48,10 @@ class btask_processor_tester_py(object):
     self._num_completed_tasks += 1
     self._after_callback()
       
-  def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
+  def add_task(self, function, callback = None, status_callback = None, config = None, args = None):
     task_id = self._processor.add_task(function,
                                        callback = callback,
-                                       progress_callback = progress_callback,
+                                       status_callback = status_callback,
                                        config = config,
                                        args = args)
     self._num_added_tasks += 1
