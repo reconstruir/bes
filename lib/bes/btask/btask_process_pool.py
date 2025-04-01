@@ -14,7 +14,7 @@ from .btask_error import btask_error
 from .btask_task import btask_task
 from .btask_process_task import btask_process_task
 from .btask_result import btask_result
-from .btask_status_base import btask_status_base
+from .btask_status import btask_status
 from ._btask_status_queue_item import _btask_status_queue_item
 from .btask_threading import btask_threading
 from .btask_process import btask_process

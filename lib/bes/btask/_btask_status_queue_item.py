@@ -6,10 +6,10 @@ import typing
 from ..system.check import check
 from ..data_classes.bdata_class_base import bdata_class_base
 
-from .btask_status_base import btask_status_base
+from .btask_status import btask_status
 @dataclasses.dataclass
 class _btask_status_queue_item(bdata_class_base):
   task_id: int
-  status: btask_status_base
+  status: btask_status
     
 check.register_class(_btask_status_queue_item, include_seq = False)

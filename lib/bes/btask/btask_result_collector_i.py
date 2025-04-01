@@ -10,7 +10,7 @@ from bes.system.check import check
 from abc import abstractmethod, ABCMeta
 
 from .btask_result import btask_result
-from .btask_status_base import btask_status_base
+from .btask_status import btask_status
 from .btask_status_progress import btask_status_progress
 from ._btask_status_queue_item import _btask_status_queue_item
 from .btask_error import btask_error

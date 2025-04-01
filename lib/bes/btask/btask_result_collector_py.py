@@ -30,7 +30,7 @@ class btask_result_collector_py(btask_result_collector_i):
   #@abstractmethod
   def handle_status(self, task_id, status):
     check.check_int(task_id)
-    check.check_btask_status_base(status)
+    check.check_btask_status(status)
 
     self._log.log_d(f'btask_result_collector_py.handle_status: task_id={task_id}')
     self._runner.call_in_main_thread(self._handle_status_in_main_thread, task_id, status)
@@ -42,7 +42,7 @@ class btask_result_collector_py(btask_result_collector_i):
 
   def _handle_status_in_main_thread(self, task_id, status):
     check.check_int(task_id)
-    check.check_btask_status_base(status)
+    check.check_btask_status(status)
 
     self._log.log_d(f'btask_result_collector_py._handle_status_in_main_thread: task_id={task_id}')
     self._processor.report_status(task_id, status)

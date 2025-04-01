@@ -22,7 +22,7 @@ from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
 from ._btask_status_queue_item import _btask_status_queue_item
-from .btask_status_base import btask_status_base
+from .btask_status import btask_status
 from .btask_task import btask_task
 from .btask_threading import btask_threading
 
@@ -265,7 +265,7 @@ class btask_processor(object):
 
   def report_status(self, task_id, status, raise_error = True):
     check.check_int(task_id)
-    check.check_btask_status_base(status)
+    check.check_btask_status(status)
     check.check_bool(raise_error)
 
     self._log.log_d(f'report_status: task_id={task_id}')
@@ -280,7 +280,7 @@ class btask_processor(object):
         btask_error(f'No task_id "{task_id}" found to cancel')
       status_callback = item.status_callback
       if status_callback:
-        status_callback(status)
+        status_callback(task_id, status)
       
   def is_cancelled(self, task_id, raise_error = True):
     check.check_int(task_id)

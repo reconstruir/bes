@@ -275,9 +275,9 @@ class test_btask_processor_py(unit_test):
     tester = btask_processor_tester_py('test', 1)
 
     pl = []
-    def _status_callback(progress):
+    def _status_callback(task_id, progress):
       self._log.log_d(f'_status_callback: progress={progress}')
-      pl.append(progress)
+      pl.append(( task_id, progress ))
       time.sleep(0.250)
       
     task_id = tester.add_task(self._function_with_progress,
@@ -300,11 +300,11 @@ class test_btask_processor_py(unit_test):
     self.assertEqual( None, r.error )
 
     self.assertEqual( [
-      btask_status_progress(btask_progress(value=1, minimum=1, maximum=5, message='doing stuff 1 of 5')),
-      btask_status_progress(btask_progress(value=2, minimum=1, maximum=5, message='doing stuff 2 of 5')),
-      btask_status_progress(btask_progress(value=3, minimum=1, maximum=5, message='doing stuff 3 of 5')),
-      btask_status_progress(btask_progress(value=4, minimum=1, maximum=5, message='doing stuff 4 of 5')),
-      btask_status_progress(btask_progress(value=5, minimum=1, maximum=5, message='doing stuff 5 of 5')),
+      ( 1, btask_status_progress(btask_progress(value=1, minimum=1, maximum=5, message='doing stuff 1 of 5')) ),
+      ( 1, btask_status_progress(btask_progress(value=2, minimum=1, maximum=5, message='doing stuff 2 of 5')) ),
+      ( 1, btask_status_progress(btask_progress(value=3, minimum=1, maximum=5, message='doing stuff 3 of 5')) ),
+      ( 1, btask_status_progress(btask_progress(value=4, minimum=1, maximum=5, message='doing stuff 4 of 5')) ),
+      ( 1, btask_status_progress(btask_progress(value=5, minimum=1, maximum=5, message='doing stuff 5 of 5')) ),
     ], pl )
 
   def test_add_task_with_cancel_waiting(self):
