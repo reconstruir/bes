@@ -9,14 +9,14 @@ from .btask_cancelled_error import btask_cancelled_error
 from .btask_status_progress import btask_status_progress
 from .btask_progress import btask_progress
 
-class btask_function_context(namedtuple('btask_function_context', 'task_id, progress_queue, cancelled_value')):
+class btask_function_context(namedtuple('btask_function_context', 'task_id, status_queue, cancelled_value')):
 
   _log = logger('btask')
   
-  def __new__(clazz, task_id, progress_queue, cancelled_value):
+  def __new__(clazz, task_id, status_queue, cancelled_value):
     check.check_int(task_id)
     
-    return clazz.__bases__[0].__new__(clazz, task_id, progress_queue, cancelled_value)
+    return clazz.__bases__[0].__new__(clazz, task_id, status_queue, cancelled_value)
 
   def was_cancelled(self):
     return self.cancelled_value.value
@@ -27,7 +27,7 @@ class btask_function_context(namedtuple('btask_function_context', 'task_id, prog
 
   def report_status(self, status):
     check.check_btask_status(status)
-    self.progress_queue.put(status)
+    self.status_queue.put(status)
 
   def report_progress(self, minimum, maximum, value, message):
     progress = btask_progress(minimum = minimum,

@@ -80,7 +80,7 @@ class btask_processor(object):
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = btask_processor_queue()
-    self._in_progress_queue = btask_processor_queue()
+    self._in_status_queue = btask_processor_queue()
     self._category_limits = {}
     self._start()
 
@@ -192,7 +192,7 @@ class btask_processor(object):
         pass
 
   def _pump_item_i(self, label, category, limit):
-    in_progress_count = self._in_progress_queue.category_count(category)
+    in_progress_count = self._in_status_queue.category_count(category)
     self._log.log_d(f'{label}: category={category} limit={limit} in_progress_count={in_progress_count}')
     if in_progress_count >= limit:
       return False
@@ -201,7 +201,7 @@ class btask_processor(object):
       return False
     assert isinstance(task, btask_task)
     self._log.log_d(f'{label}: got task task_id={task.task_id}')
-    self._in_progress_queue.add(task)
+    self._in_status_queue.add(task)
     self._log.log_d(f'{label}: calling apply_async for task_id={task.task_id}')
     pool = self._pool_for_category(category)
     assert pool
@@ -224,7 +224,7 @@ class btask_processor(object):
     btask_threading.check_main_process(label = 'btask.complete')
     
     with self._lock as lock:
-      item = self._in_progress_queue.remove_by_task_id(result.task_id)
+      item = self._in_status_queue.remove_by_task_id(result.task_id)
       if not item:
         item = self._waiting_queue.remove_by_task_id(result.task_id)
       if not item:
@@ -255,7 +255,7 @@ class btask_processor(object):
                                          datetime.now())
         result = btask_result(waiting_item.task_id, btask_result_state.CANCELLED, None, metadata, None, waiting_item.args)
         self._result_queue.put(result)
-      in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
+      in_progress_item = self._in_status_queue.find_by_task_id(task_id)
       if not in_progress_item:
         self._log.log_d(f'cancel: no task {task_id} found in either waiting or in_progress queues')
         return
@@ -271,7 +271,7 @@ class btask_processor(object):
     btask_threading.check_main_process(label = 'btask.report_status')
     
     with self._lock as lock:
-      item = self._in_progress_queue.find_by_task_id(status.task_id)
+      item = self._in_status_queue.find_by_task_id(status.task_id)
       if not item:
         if not raise_error:
           return
@@ -287,7 +287,7 @@ class btask_processor(object):
     self._log.log_d(f'is_cancelled: task_id={task_id}')
     
     with self._lock as lock:
-      item = self._in_progress_queue.find_by_task_id(task_id)
+      item = self._in_status_queue.find_by_task_id(task_id)
       if not item:
         if not raise_error:
           return False
