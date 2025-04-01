@@ -300,11 +300,11 @@ class test_btask_processor_py(unit_test):
     self.assertEqual( None, r.error )
 
     self.assertEqual( [
-      btask_status_progress(1, btask_progress(value=1, minimum=1, maximum=5, message='doing stuff 1 of 5')),
-      btask_status_progress(1, btask_progress(value=2, minimum=1, maximum=5, message='doing stuff 2 of 5')),
-      btask_status_progress(1, btask_progress(value=3, minimum=1, maximum=5, message='doing stuff 3 of 5')),
-      btask_status_progress(1, btask_progress(value=4, minimum=1, maximum=5, message='doing stuff 4 of 5')),
-      btask_status_progress(1, btask_progress(value=5, minimum=1, maximum=5, message='doing stuff 5 of 5')),
+      btask_status_progress(btask_progress(value=1, minimum=1, maximum=5, message='doing stuff 1 of 5')),
+      btask_status_progress(btask_progress(value=2, minimum=1, maximum=5, message='doing stuff 2 of 5')),
+      btask_status_progress(btask_progress(value=3, minimum=1, maximum=5, message='doing stuff 3 of 5')),
+      btask_status_progress(btask_progress(value=4, minimum=1, maximum=5, message='doing stuff 4 of 5')),
+      btask_status_progress(btask_progress(value=5, minimum=1, maximum=5, message='doing stuff 5 of 5')),
     ], pl )
 
   def test_add_task_with_cancel_waiting(self):

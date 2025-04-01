@@ -21,6 +21,7 @@ from .btask_processor_queue import btask_processor_queue
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
+from ._btask_status_queue_item import _btask_status_queue_item
 from .btask_status_base import btask_status_base
 from .btask_task import btask_task
 from .btask_threading import btask_threading
@@ -209,7 +210,7 @@ class btask_processor(object):
     return True
           
   def _callback(self, result):
-    check.check(result, ( btask_result, btask_status_base ))
+    check.check(result, ( btask_result, _btask_status_queue_item ))
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
@@ -262,20 +263,21 @@ class btask_processor(object):
       self._log.log_d(f'cancel: task {task_id} removed from in_progress queue')
       in_progress_item.cancelled_value.value = True
 
-  def report_status(self, status, raise_error = True):
-    check.check_btask_status(status)
+  def report_status(self, task_id, status, raise_error = True):
+    check.check_int(task_id)
+    check.check_btask_status_base(status)
     check.check_bool(raise_error)
 
-    self._log.log_d(f'report_status: task_id={status.task_id}')
+    self._log.log_d(f'report_status: task_id={task_id}')
     
     btask_threading.check_main_process(label = 'btask.report_status')
     
     with self._lock as lock:
-      item = self._in_status_queue.find_by_task_id(status.task_id)
+      item = self._in_status_queue.find_by_task_id(task_id)
       if not item:
         if not raise_error:
           return
-        btask_error(f'No task_id "{status.task_id}" found to cancel')
+        btask_error(f'No task_id "{task_id}" found to cancel')
       status_callback = item.status_callback
       if status_callback:
         status_callback(status)

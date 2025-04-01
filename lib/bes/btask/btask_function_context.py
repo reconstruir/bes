@@ -8,6 +8,9 @@ from bes.system.check import check
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_status_progress import btask_status_progress
 from .btask_progress import btask_progress
+from ._btask_status_queue_item import _btask_status_queue_item
+#from .btask_status import btask_status
+from .btask_status_base import btask_status_base
 
 class btask_function_context(namedtuple('btask_function_context', 'task_id, status_queue, cancelled_value')):
 
@@ -26,15 +29,16 @@ class btask_function_context(namedtuple('btask_function_context', 'task_id, stat
       raise btask_cancelled_error(message)
 
   def report_status(self, status):
-    check.check_btask_status(status)
-    self.status_queue.put(status)
+    check.check_btask_status_base(status)
+    
+    self.status_queue.put(_btask_status_queue_item(self.task_id, status))
 
   def report_progress(self, minimum, maximum, value, message):
     progress = btask_progress(minimum = minimum,
                               maximum = maximum,
                               value = value,
                               message = message)
-    status = btask_status_progress(task_id = self.task_id, progress = progress)
+    status = btask_status_progress(progress = progress)
     self.report_status(status)
     
 check.register_class(btask_function_context, include_seq = False)

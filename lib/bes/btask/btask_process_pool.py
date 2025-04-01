@@ -15,6 +15,7 @@ from .btask_task import btask_task
 from .btask_process_task import btask_process_task
 from .btask_result import btask_result
 from .btask_status_base import btask_status_base
+from ._btask_status_queue_item import _btask_status_queue_item
 from .btask_threading import btask_threading
 from .btask_process import btask_process
 from .btask_initializer import btask_initializer
@@ -52,11 +53,11 @@ class btask_process_pool(object):
         break
       task_id = next_result.task_id
       is_result = isinstance(next_result, btask_result)
-      is_progress = isinstance(next_result, btask_status_base)
+      is_progress = isinstance(next_result, _btask_status_queue_item)
       type_name = type(next_result).__name__
       clazz._log.log_d(f'_result_thread_main: got next_result with task_id={task_id} type={type_name}')
       if not (is_result or is_progress):
-        clazz._log.log_e(f'_result_thread_main: got unexpected type "{type_name}" instead of btask_result or btask_status_base task_id={task_id}')
+        clazz._log.log_e(f'_result_thread_main: got unexpected type "{type_name}" instead of btask_result or _btask_status_queue_item task_id={task_id}')
         continue
       callback = None
       with task_callbacks_lock as lock:

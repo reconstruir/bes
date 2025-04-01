@@ -28,18 +28,21 @@ class btask_result_collector_py(btask_result_collector_i):
     self._runner.call_in_main_thread(self._handle_result_in_main_thread, result)
 
   #@abstractmethod
-  def handle_status(self, status):
-    check.check_btask_status(status)
+  def handle_status(self, task_id, status):
+    check.check_int(task_id)
+    check.check_btask_status_base(status)
 
-    self._log.log_d(f'btask_result_collector_py.handle_status: task_id={status.task_id}')
-    self._runner.call_in_main_thread(self._handle_status_in_main_thread, status)
+    self._log.log_d(f'btask_result_collector_py.handle_status: task_id={task_id}')
+    self._runner.call_in_main_thread(self._handle_status_in_main_thread, task_id, status)
     
   def _handle_result_in_main_thread(self, result):
     check.check_btask_result(result)
     self._log.log_d(f'btask_result_collector_py._handle_result_in_main_thread: task_id={result.task_id}')
     self._processor.complete(result)
 
-  def _handle_status_in_main_thread(self, status):
-    check.check_btask_status(status)
-    self._log.log_d(f'btask_result_collector_py._handle_status_in_main_thread: task_id={status.task_id}')
-    self._processor.report_status(status)
+  def _handle_status_in_main_thread(self, task_id, status):
+    check.check_int(task_id)
+    check.check_btask_status_base(status)
+
+    self._log.log_d(f'btask_result_collector_py._handle_status_in_main_thread: task_id={task_id}')
+    self._processor.report_status(task_id, status)

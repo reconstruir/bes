@@ -11,6 +11,8 @@ from abc import abstractmethod, ABCMeta
 
 from .btask_result import btask_result
 from .btask_status_base import btask_status_base
+from .btask_status_progress import btask_status_progress
+from ._btask_status_queue_item import _btask_status_queue_item
 from .btask_error import btask_error
 
 class btask_result_collector_i(object, metaclass = ABCMeta):
@@ -27,7 +29,7 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
     raise NotImplemented('handle_result')
 
   @abstractmethod
-  def handle_status(self, progress):
+  def handle_status(self, task_id, status):
     raise NotImplemented('handle_status')
   
   def _result_collector_thread_main(self):
@@ -57,12 +59,13 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
     assert item != None
     if isinstance(item, btask_result):
       self.handle_result(item)
-    elif isinstance(item, btask_status_base):
-      self.handle_status(item)
-      time.sleep(self._progress_sleep_time)
+    elif isinstance(item, _btask_status_queue_item):
+      self.handle_status(item.task_id, item.status)
+      if isinstance(item.status, btask_status_progress):
+        time.sleep(self._progress_sleep_time)
     else:
       raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
-  
+    
   def start(self):
     if self._thread:
       return
