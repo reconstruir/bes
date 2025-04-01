@@ -11,13 +11,13 @@ class btask_result_collector_py(btask_result_collector_i):
 
   _log = logger('btask')
   
-  def __init__(self, pool, runner):
-    check.check_btask_processor(pool)
+  def __init__(self, processor, runner):
+    check.check_btask_processor(processor)
     check.check_btask_main_thread_runner(runner)
     
-    super().__init__(pool.result_queue)
+    super().__init__(processor.result_queue)
     
-    self._pool = pool
+    self._processor = processor
     self._runner = runner
   
   #@abstractmethod
@@ -28,18 +28,18 @@ class btask_result_collector_py(btask_result_collector_i):
     self._runner.call_in_main_thread(self._handle_result_in_main_thread, result)
 
   #@abstractmethod
-  def handle_status(self, progress):
-    check.check_btask_status(progress)
+  def handle_status(self, status):
+    check.check_btask_status(status)
 
-    self._log.log_d(f'btask_result_collector_py.handle_status: task_id={progress.task_id}')
-    self._runner.call_in_main_thread(self._handle_status_in_main_thread, progress)
+    self._log.log_d(f'btask_result_collector_py.handle_status: task_id={status.task_id}')
+    self._runner.call_in_main_thread(self._handle_status_in_main_thread, status)
     
   def _handle_result_in_main_thread(self, result):
     check.check_btask_result(result)
     self._log.log_d(f'btask_result_collector_py._handle_result_in_main_thread: task_id={result.task_id}')
-    self._pool.complete(result)
+    self._processor.complete(result)
 
-  def _handle_status_in_main_thread(self, progress):
-    check.check_btask_status(progress)
-    self._log.log_d(f'btask_result_collector_py._handle_status_in_main_thread: task_id={progress.task_id}')
-    self._pool.report_status(progress)
+  def _handle_status_in_main_thread(self, status):
+    check.check_btask_status(status)
+    self._log.log_d(f'btask_result_collector_py._handle_status_in_main_thread: task_id={status.task_id}')
+    self._processor.report_status(status)
