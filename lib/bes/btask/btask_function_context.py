@@ -9,7 +9,6 @@ from .btask_cancelled_error import btask_cancelled_error
 from .btask_status_progress import btask_status_progress
 from .btask_progress import btask_progress
 from ._btask_status_queue_item import _btask_status_queue_item
-#from .btask_status import btask_status
 from .btask_status_base import btask_status_base
 
 class btask_function_context(namedtuple('btask_function_context', 'task_id, status_queue, cancelled_value')):
