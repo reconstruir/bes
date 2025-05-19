@@ -223,7 +223,8 @@ class btask_processor(object):
     self._log.log_d(f'complete: task_id={result.task_id}')
     
     btask_threading.check_main_process(label = 'btask.complete')
-    
+
+    callback = None
     with self._lock as lock:
       item = self._in_status_queue.remove_by_task_id(result.task_id)
       if not item:
@@ -235,9 +236,11 @@ class btask_processor(object):
       callback = item.callback
       self._pump_i()
     callback_name = callback.__name__ if callback else 'None'
-    self._log.log_d(f'complete: callback={callback_name} result={result}')
+    self._log.log_d(f'CACA: complete: callback_name={callback_name} result={result}')
     if callback:
+      self._log.log_d(f'CACA: complete: calling callback')
       callback(result)
+      self._log.log_d(f'CACA: complete: calling returns')
 
   def cancel(self, task_id):
     check.check_int(task_id)
