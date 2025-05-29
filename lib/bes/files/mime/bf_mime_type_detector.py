@@ -20,8 +20,8 @@ class bf_mime_type_detector(_bf_mime_type_detector_base):
 
   _ALL_DETECTORS = [
     _bf_mime_type_detector_magic,
-    _bf_mime_type_detector_puremagic,
     _bf_mime_type_detector_cheesy,
+    _bf_mime_type_detector_puremagic,
     _bf_mime_type_detector_file_exe,
     _bf_mime_type_detector_mimetypes,
   ]

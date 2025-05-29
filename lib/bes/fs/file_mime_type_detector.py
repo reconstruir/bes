@@ -20,8 +20,8 @@ class file_mime_type_detector(_file_mime_type_detector_base):
 
   _ALL_DETECTORS = [
     _file_mime_type_detector_magic,
-    _file_mime_type_detector_puremagic,
     _file_mime_type_detector_cheesy,
+    _file_mime_type_detector_puremagic,
     _file_mime_type_detector_file_exe,
     _file_mime_type_detector_mimetypes,
   ]
