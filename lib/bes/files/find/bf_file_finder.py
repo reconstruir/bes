@@ -76,11 +76,15 @@ class bf_file_finder(object):
 
       if want_files or want_links:
         for next_file_entry in item.files:
-          is_link = next_file_entry.is_link
-          if want_links and is_link:
-            to_check_files.append(next_file_entry)
-          if want_files and not is_link:
-            to_check_files.append(next_file_entry)
+          try:
+            is_link = next_file_entry.is_link
+            if want_links and is_link:
+              to_check_files.append(next_file_entry)
+            if want_files and not is_link:
+              to_check_files.append(next_file_entry)
+          except FileNotFoundError as ex:
+            print(f'caught {ex} - ignore {next_file_entry.filename}')
+            pass
 
       if want_dirs:
         to_check_dirs += item.dirs
