@@ -165,6 +165,7 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     'w3',
     'web',
     'www',
+    'm',
   ])
 
   @cached_property
