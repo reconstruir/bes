@@ -354,35 +354,35 @@ class bf_entry(object):
 
   @property
   def media_type(self):
-    return self.metadata['bes/mime/media_type/1.0']
+    return self.metadata['bes__mime__media_type__1.0']
 
   @property
   def mime_type(self):
-    return self.metadata['bes/mime/mime_type/1.0']
+    return self.metadata['bes__mime__mime_type__1.0']
 
   @property
   def checksum_md5(self):
-    return self.metadata['bes/checksum/md5/0.0']
+    return self.metadata['bes__checksum__md5__0.0']
   
   @property
   def checksum_sha1(self):
-    return self.metadata['bes/checksum/sha1/0.0']
+    return self.metadata['bes__checksum__sha1__0.0']
 
   @property
   def checksum_sha256(self):
-    return self.metadata['bes/checksum/sha256/0.0']
+    return self.metadata['bes__checksum__sha256__0.0']
 
   @property
   def has_checksum_md5(self):
-    return 'bes/checksum/md5/0.0' in self.metadata
+    return 'bes__checksum__md5__0.0' in self.metadata
 
   @property
   def has_checksum_sha1(self):
-    return 'bes/checksum/sha1/0.0' in self.metadata
+    return 'bes__checksum__sha1__0.0' in self.metadata
   
   @property
   def has_checksum_sha256(self):
-    return 'bes/checksum/sha256/0.0' in self.metadata
+    return 'bes__checksum__sha256__0.0' in self.metadata
   
   @property
   def is_media(self):

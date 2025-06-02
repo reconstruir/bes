@@ -18,21 +18,21 @@ class example_metadata_fruits_factory(bf_metadata_factory_base):
   def descriptions(clazz):
     return [
       (
-        'acme/fruit/kiwi/1.0',
+        'acme__fruit__kiwi__1.0',
         'Kiwi',
         lambda f: os.stat(f).st_size,
         bf_attr_type_desc_int,
         None
       ),
       (
-        'acme/fruit/cherry/2.0',
+        'acme__fruit__cherry__2.0',
         'Cherry',
         lambda f: float(os.stat(f).st_size / 2.0),
         bf_attr_type_desc_float,
         None
       ),
       (
-        'acme/fruit/melon/1.0',
+        'acme__fruit__melon__1.0',
         'Melon',
         lambda f: os.stat(f).st_size * 2,
         bf_attr_type_desc_int,

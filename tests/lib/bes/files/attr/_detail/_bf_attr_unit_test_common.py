@@ -111,31 +111,31 @@ def make_test_case(impl):
 
     def test_get_value_int(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
-      self.assertEqual( None, impl.get_value(tmp, 'acme/fruit/kiwi/1.0') )
-      impl.set_int(tmp, 'acme/fruit/kiwi/1.0', 666)
-      self.assertEqual( 666, impl.get_value(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( None, impl.get_value(tmp, 'acme__fruit__kiwi__1.0') )
+      impl.set_int(tmp, 'acme__fruit__kiwi__1.0', 666)
+      self.assertEqual( 666, impl.get_value(tmp, 'acme__fruit__kiwi__1.0') )
 
     def test_get_value_float(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
-      self.assertEqual( None, impl.get_value(tmp, 'acme/fruit/cherry/2.0') )
-      impl.set_float(tmp, 'acme/fruit/cherry/2.0', 42.3)
-      self.assertEqual( 42.3, impl.get_value(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( None, impl.get_value(tmp, 'acme__fruit__cherry__2.0') )
+      impl.set_float(tmp, 'acme__fruit__cherry__2.0', 42.3)
+      self.assertEqual( 42.3, impl.get_value(tmp, 'acme__fruit__cherry__2.0') )
 
     def test_get_value_date(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
-      self.assertEqual( None, impl.get_value(tmp, 'acme/fruit/birthday/1.0') )
+      self.assertEqual( None, impl.get_value(tmp, 'acme__fruit__birthday__1.0') )
       now = datetime.now()
-      impl.set_date(tmp, 'acme/fruit/birthday/1.0', now)
-      self.assertEqual( now, impl.get_value(tmp, 'acme/fruit/birthday/1.0') )
+      impl.set_date(tmp, 'acme__fruit__birthday__1.0', now)
+      self.assertEqual( now, impl.get_value(tmp, 'acme__fruit__birthday__1.0') )
 
     def test_get_value_with_old_keys(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
-      self.assertEqual( False, impl.has_key(tmp, 'acme/fruit/is_favorite/1.0') )
+      self.assertEqual( False, impl.has_key(tmp, 'acme__fruit__is_favorite__1.0') )
       impl.set_bool(tmp, 'old_is_favorite1', True)
-      self.assertEqual( True, impl.get_value(tmp, 'acme/fruit/is_favorite/1.0') )
-      self.assertEqual( True, impl.has_key(tmp, 'acme/fruit/is_favorite/1.0') )
+      self.assertEqual( True, impl.get_value(tmp, 'acme__fruit__is_favorite__1.0') )
+      self.assertEqual( True, impl.has_key(tmp, 'acme__fruit__is_favorite__1.0') )
       impl.set_bool(tmp, 'old_is_favorite1', False)
-      self.assertEqual( True, impl.get_value(tmp, 'acme/fruit/is_favorite/1.0') )
+      self.assertEqual( True, impl.get_value(tmp, 'acme__fruit__is_favorite__1.0') )
 
     def test_get_cached_bytes(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')

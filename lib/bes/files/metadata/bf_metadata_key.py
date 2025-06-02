@@ -11,7 +11,7 @@ from .bf_metadata_error import bf_metadata_error
 
 class bf_metadata_key(namedtuple('bf_metadata_key', 'domain, group, name, version')):
 
-  DELIMITER = '/'
+  DELIMITER = '__'
   
   def __new__(clazz, domain, group, name, version):
     clazz.check_part(domain)

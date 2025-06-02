@@ -114,57 +114,57 @@ class test_bf_attr_file(unit_test, unit_test_media_files):
 
   def test_get_value_int(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( None, tmp.get_value('acme/fruit/kiwi/1.0') )
-    tmp.set_int('acme/fruit/kiwi/1.0', 666)
-    self.assertEqual( 666, tmp.get_value('acme/fruit/kiwi/1.0') )
+    self.assertEqual( None, tmp.get_value('acme__fruit__kiwi__1.0') )
+    tmp.set_int('acme__fruit__kiwi__1.0', 666)
+    self.assertEqual( 666, tmp.get_value('acme__fruit__kiwi__1.0') )
 
   def test_get_value_float(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( None, tmp.get_value('acme/fruit/cherry/2.0') )
-    tmp.set_float('acme/fruit/cherry/2.0', 42.3)
-    self.assertEqual( 42.3, tmp.get_value('acme/fruit/cherry/2.0') )
+    self.assertEqual( None, tmp.get_value('acme__fruit__cherry__2.0') )
+    tmp.set_float('acme__fruit__cherry__2.0', 42.3)
+    self.assertEqual( 42.3, tmp.get_value('acme__fruit__cherry__2.0') )
 
   def test_get_value_date(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( None, tmp.get_value('acme/fruit/birthday/1.0') )
+    self.assertEqual( None, tmp.get_value('acme__fruit__birthday__1.0') )
     now = datetime.now()
-    tmp.set_date('acme/fruit/birthday/1.0', now)
-    self.assertEqual( now, tmp.get_value('acme/fruit/birthday/1.0') )
+    tmp.set_date('acme__fruit__birthday__1.0', now)
+    self.assertEqual( now, tmp.get_value('acme__fruit__birthday__1.0') )
 
   def test___getitem___int(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( None, tmp['acme/fruit/kiwi/1.0'] )
-    tmp['acme/fruit/kiwi/1.0'] = 666
-    self.assertEqual( 666, tmp['acme/fruit/kiwi/1.0'] )
+    self.assertEqual( None, tmp['acme__fruit__kiwi__1.0'] )
+    tmp['acme__fruit__kiwi__1.0'] = 666
+    self.assertEqual( 666, tmp['acme__fruit__kiwi__1.0'] )
 
   def test___getitem___float(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( None, tmp['acme/fruit/cherry/2.0'] )
-    tmp['acme/fruit/cherry/2.0'] = 42.3
-    self.assertEqual( 42.3, tmp['acme/fruit/cherry/2.0'] )
+    self.assertEqual( None, tmp['acme__fruit__cherry__2.0'] )
+    tmp['acme__fruit__cherry__2.0'] = 42.3
+    self.assertEqual( 42.3, tmp['acme__fruit__cherry__2.0'] )
 
   def test___getitem___date(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( None, tmp['acme/fruit/birthday/1.0'] )
+    self.assertEqual( None, tmp['acme__fruit__birthday__1.0'] )
     now = datetime.now()
-    tmp['acme/fruit/birthday/1.0'] = now
-    self.assertEqual( now, tmp['acme/fruit/birthday/1.0'] )
+    tmp['acme__fruit__birthday__1.0'] = now
+    self.assertEqual( now, tmp['acme__fruit__birthday__1.0'] )
 
   def test__contains__(self):
     tmp = self._make_test_entry(content = 'foo')
-    self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp )
-    self.assertEqual( None, tmp['acme/fruit/kiwi/1.0'] )
-    tmp['acme/fruit/kiwi/1.0'] = 5
-    self.assertEqual( 5, tmp['acme/fruit/kiwi/1.0'] )
-    self.assertEqual( True, 'acme/fruit/kiwi/1.0' in tmp )
-    del tmp['acme/fruit/kiwi/1.0']
-    self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp )
-    self.assertEqual( None, tmp['acme/fruit/kiwi/1.0'] )
+    self.assertEqual( False, 'acme__fruit__kiwi__1.0' in tmp )
+    self.assertEqual( None, tmp['acme__fruit__kiwi__1.0'] )
+    tmp['acme__fruit__kiwi__1.0'] = 5
+    self.assertEqual( 5, tmp['acme__fruit__kiwi__1.0'] )
+    self.assertEqual( True, 'acme__fruit__kiwi__1.0' in tmp )
+    del tmp['acme__fruit__kiwi__1.0']
+    self.assertEqual( False, 'acme__fruit__kiwi__1.0' in tmp )
+    self.assertEqual( None, tmp['acme__fruit__kiwi__1.0'] )
     
   def test__delitem__not_found(self):
     tmp = self._make_test_entry(content = 'foo')
     with self.assertRaises(bf_attr_error) as ctx:
-      del tmp['acme/fruit/notfound/1.0']
+      del tmp['acme__fruit__notfound__1.0']
     
 if __name__ == '__main__':
   unit_test.main()

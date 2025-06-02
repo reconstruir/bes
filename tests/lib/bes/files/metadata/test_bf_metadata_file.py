@@ -27,39 +27,39 @@ class test_bf_metadata_file(unit_test):
       fout.flush()
       os.fsync(fout.fileno())
 
-      self.assertEqual( 0, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 0, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 5,  tmp.get_metadata('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 5, tmp.get_metadata('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
+      self.assertEqual( 0, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 0, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 5,  tmp.get_metadata('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 1, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 5, tmp.get_metadata('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 1, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
       kiwi_mtime = bf_date.get_modification_date(tmp.filename)
       self.assertEqual( [
-        '__bes_mtime_acme/fruit/kiwi/1.0__',
-        'acme/fruit/kiwi/1.0',
+        '__bes_mtime_acme__fruit__kiwi__1.0__',
+        'acme__fruit__kiwi__1.0',
       ], tmp.keys() )
       
-      self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme/fruit/kiwi/1.0__') )
-      self.assertEqual( 5, tmp.get_int('acme/fruit/kiwi/1.0') )
+      self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme__fruit__kiwi__1.0__') )
+      self.assertEqual( 5, tmp.get_int('acme__fruit__kiwi__1.0') )
     
-      self.assertEqual( 0, tmp.get_metadata_getter_count('acme/fruit/cherry/2.0') )
-      self.assertEqual( 2.5, tmp.get_metadata('acme/fruit/cherry/2.0') )
-      self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/cherry/2.0') )
-      self.assertEqual( 2.5, tmp.get_metadata('acme/fruit/cherry/2.0') )
-      self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/cherry/2.0') )
+      self.assertEqual( 0, tmp.get_metadata_getter_count('acme__fruit__cherry__2.0') )
+      self.assertEqual( 2.5, tmp.get_metadata('acme__fruit__cherry__2.0') )
+      self.assertEqual( 1, tmp.get_metadata_getter_count('acme__fruit__cherry__2.0') )
+      self.assertEqual( 2.5, tmp.get_metadata('acme__fruit__cherry__2.0') )
+      self.assertEqual( 1, tmp.get_metadata_getter_count('acme__fruit__cherry__2.0') )
       cherry_mtime = bf_date.get_modification_date(tmp.filename)
 
       self.assertEqual( [
-        '__bes_mtime_acme/fruit/cherry/2.0__',
-        '__bes_mtime_acme/fruit/kiwi/1.0__',
-        'acme/fruit/cherry/2.0',
-        'acme/fruit/kiwi/1.0',
+        '__bes_mtime_acme__fruit__cherry__2.0__',
+        '__bes_mtime_acme__fruit__kiwi__1.0__',
+        'acme__fruit__cherry__2.0',
+        'acme__fruit__kiwi__1.0',
       ], tmp.keys() )
       
-      self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme/fruit/kiwi/1.0__') )
-      self.assertEqual( 5, tmp.get_int('acme/fruit/kiwi/1.0') )
-      self.assertEqual( cherry_mtime, tmp.get_date('__bes_mtime_acme/fruit/cherry/2.0__') )
-      self.assertEqual( 2.5, tmp.get_float('acme/fruit/cherry/2.0') )
+      self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme__fruit__kiwi__1.0__') )
+      self.assertEqual( 5, tmp.get_int('acme__fruit__kiwi__1.0') )
+      self.assertEqual( cherry_mtime, tmp.get_date('__bes_mtime_acme__fruit__cherry__2.0__') )
+      self.assertEqual( 2.5, tmp.get_float('acme__fruit__cherry__2.0') )
 
       time.sleep(.01)
       fout.seek(0)
@@ -68,31 +68,31 @@ class test_bf_metadata_file(unit_test):
       fout.flush()
       os.fsync(fout.fileno())
 
-      self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 10, tmp.get_metadata('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 2, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 10, tmp.get_metadata('acme/fruit/kiwi/1.0') )
-      self.assertEqual( 2, tmp.get_metadata_getter_count('acme/fruit/kiwi/1.0') )
+      self.assertEqual( 1, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 10, tmp.get_metadata('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 2, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 10, tmp.get_metadata('acme__fruit__kiwi__1.0') )
+      self.assertEqual( 2, tmp.get_metadata_getter_count('acme__fruit__kiwi__1.0') )
       kiwi_mtime = bf_date.get_modification_date(tmp.filename)
 
-      self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/cherry/2.0') )
-      self.assertEqual( 5, tmp.get_metadata('acme/fruit/cherry/2.0') )
-      self.assertEqual( 2, tmp.get_metadata_getter_count('acme/fruit/cherry/2.0') )
-      self.assertEqual( 5, tmp.get_metadata('acme/fruit/cherry/2.0') )
-      self.assertEqual( 2, tmp.get_metadata_getter_count('acme/fruit/cherry/2.0' ) )
+      self.assertEqual( 1, tmp.get_metadata_getter_count('acme__fruit__cherry__2.0') )
+      self.assertEqual( 5, tmp.get_metadata('acme__fruit__cherry__2.0') )
+      self.assertEqual( 2, tmp.get_metadata_getter_count('acme__fruit__cherry__2.0') )
+      self.assertEqual( 5, tmp.get_metadata('acme__fruit__cherry__2.0') )
+      self.assertEqual( 2, tmp.get_metadata_getter_count('acme__fruit__cherry__2.0' ) )
       cherry_mtime = bf_date.get_modification_date(tmp.filename)
       
       self.assertEqual( [
-        '__bes_mtime_acme/fruit/cherry/2.0__',
-        '__bes_mtime_acme/fruit/kiwi/1.0__',
-        'acme/fruit/cherry/2.0',
-        'acme/fruit/kiwi/1.0',
+        '__bes_mtime_acme__fruit__cherry__2.0__',
+        '__bes_mtime_acme__fruit__kiwi__1.0__',
+        'acme__fruit__cherry__2.0',
+        'acme__fruit__kiwi__1.0',
       ], tmp.keys() )
 
-      self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme/fruit/kiwi/1.0__') )
-      self.assertEqual( 10, tmp.get_int('acme/fruit/kiwi/1.0') )
-      self.assertEqual( cherry_mtime, tmp.get_date('__bes_mtime_acme/fruit/cherry/2.0__') )
-      self.assertEqual( 5, tmp.get_float('acme/fruit/cherry/2.0') )
+      self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme__fruit__kiwi__1.0__') )
+      self.assertEqual( 10, tmp.get_int('acme__fruit__kiwi__1.0') )
+      self.assertEqual( cherry_mtime, tmp.get_date('__bes_mtime_acme__fruit__cherry__2.0__') )
+      self.assertEqual( 5, tmp.get_float('acme__fruit__cherry__2.0') )
 
 if __name__ == '__main__':
   unit_test.main()

@@ -16,28 +16,28 @@ class test_bf_file_matcher_item_attr(unit_test):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
     tmp2 = self.make_temp_file(dir = __file__, content = 'manchego')
 
-    self._attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
-    self._attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
+    self._attr.set_int(tmp1, 'acme__fruit__kiwi__1.0', 666)
+    self._attr.set_int(tmp2, 'acme__fruit__kiwi__1.0', 42)
 
-    self.assertEqual( True, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp1) )
-    self.assertEqual( False, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp2) )
+    self.assertEqual( True, self._match({ 'acme__fruit__kiwi__1.0': 666 }, tmp1) )
+    self.assertEqual( False, self._match({ 'acme__fruit__kiwi__1.0': 666 }, tmp2) )
 
   def test_match_two_attr_all(self):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
     tmp2 = self.make_temp_file(dir = __file__, content = 'manchego')
 
-    self._attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
-    self._attr.set_string(tmp1, 'acme/fruit/name/1.0', 'fred')
-    self._attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
-    self._attr.set_string(tmp2, 'acme/fruit/name/1.0', 'joe')
+    self._attr.set_int(tmp1, 'acme__fruit__kiwi__1.0', 666)
+    self._attr.set_string(tmp1, 'acme__fruit__name__1.0', 'fred')
+    self._attr.set_int(tmp2, 'acme__fruit__kiwi__1.0', 42)
+    self._attr.set_string(tmp2, 'acme__fruit__name__1.0', 'joe')
 
     self.assertEqual( True, self._match({
-      'acme/fruit/kiwi/1.0': 666,
-      'acme/fruit/name/1.0': 'fred',
+      'acme__fruit__kiwi__1.0': 666,
+      'acme__fruit__name__1.0': 'fred',
     }, tmp1) )
     self.assertEqual( False, self._match({
-      'acme/fruit/kiwi/1.0': 666,
-      'acme/fruit/name/1.0': 'fred',
+      'acme__fruit__kiwi__1.0': 666,
+      'acme__fruit__name__1.0': 'fred',
     }, tmp2) )
 
   def _match(self, attrs, filename):

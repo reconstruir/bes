@@ -17,14 +17,14 @@ class bf_metadata_factory_mime(bf_metadata_factory_base):
   def descriptions(clazz):
     return [
       (
-        'bes/mime/mime_type/1.0',
+        'bes__mime__mime_type__1.0',
         'Mime Type',
         lambda f: bf_mime.mime_type(f),
         bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_mime_type')
       ),
       (
-        'bes/mime/media_type/1.0',
+        'bes__mime__media_type__1.0',
         'Media Type',
         lambda f: clazz._media_type_1_0(f),
         bf_attr_type_desc_string,
@@ -34,7 +34,7 @@ class bf_metadata_factory_mime(bf_metadata_factory_base):
   
   @classmethod
   def _media_type_1_0(clazz, filename):
-    mime_type = clazz.metadata.get_metadata(filename, 'bes/mime/mime_type/1.0')
+    mime_type = clazz.metadata.get_metadata(filename, 'bes__mime__mime_type__1.0')
     media_type = bf_mime.media_type_for_mime_type(mime_type)
     if media_type == None:
       media_type = 'unknown'

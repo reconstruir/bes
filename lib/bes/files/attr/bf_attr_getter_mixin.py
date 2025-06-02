@@ -23,7 +23,7 @@ class bf_attr_getter_mixin:
   def check_key(clazz, key):
     check.check_string(key)
 
-    for c in ( ' ', ':' ):
+    for c in ( ' ', ':', '/' ):
       if c in key:
         if c == ' ':
           label = 'space'

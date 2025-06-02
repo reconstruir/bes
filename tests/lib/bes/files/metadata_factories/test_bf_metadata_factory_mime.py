@@ -24,32 +24,32 @@ class test_bf_metadata_factory_mime(unit_test, unit_test_media_files):
   def test_get_mime_type_jpeg(self):
     tmp = self.make_temp_file(dir = __file__, content = self.jpg_file, suffix = '.jpg')
     self.assertEqual( 'image/jpeg',
-                      bf_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
+                      bf_metadata.get_metadata(tmp, 'bes__mime__mime_type__1.0') )
 
   def test_get_mime_type_png(self):
     tmp = self.make_temp_file(dir = __file__, content = self.png_file, suffix = '.png')
     self.assertEqual( 'image/png',
-                      bf_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
+                      bf_metadata.get_metadata(tmp, 'bes__mime__mime_type__1.0') )
 
   def test_get_media_type_image_jpg(self):
     tmp = self.make_temp_file(dir = __file__, content = self.jpg_file, suffix = '.jpg')
     self.assertEqual( 'image',
-                      bf_metadata.get_metadata(tmp, 'bes/mime/media_type/1.0') )
+                      bf_metadata.get_metadata(tmp, 'bes__mime__media_type__1.0') )
 
   def test_get_media_type_image_png(self):
     tmp = self.make_temp_file(dir = __file__, content = self.png_file, suffix = '.png')
     self.assertEqual( 'image',
-                      bf_metadata.get_metadata(tmp, 'bes/mime/media_type/1.0') )
+                      bf_metadata.get_metadata(tmp, 'bes__mime__media_type__1.0') )
 
   def test_get_media_type_video_mp4(self):
     tmp = self.make_temp_file(dir = __file__, content = self.mp4_file, suffix = '.mp4')
     self.assertEqual( 'video',
-                      bf_metadata.get_metadata(tmp, 'bes/mime/media_type/1.0') )
+                      bf_metadata.get_metadata(tmp, 'bes__mime__media_type__1.0') )
 
   def test_get_media_type_unknown(self):
     tmp = self.make_temp_file(dir = __file__, content = self.unknown_file, suffix = '.unknown')
     self.assertEqual( 'unknown',
-                      bf_metadata.get_metadata(tmp, 'bes/mime/media_type/1.0') )
+                      bf_metadata.get_metadata(tmp, 'bes__mime__media_type__1.0') )
     
   def test_get_mime_type_change(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.png')
@@ -58,7 +58,7 @@ class test_bf_metadata_factory_mime(unit_test, unit_test_media_files):
         fout.write(png_file.read())
       fout.flush()
       os.fsync(fout.fileno())
-      self.assertEqual( 'image/png', bf_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
+      self.assertEqual( 'image/png', bf_metadata.get_metadata(tmp, 'bes__mime__mime_type__1.0') )
 
       time.sleep(0.01)
       with open(self.jpg_file, 'rb') as jpg_file:
@@ -68,7 +68,7 @@ class test_bf_metadata_factory_mime(unit_test, unit_test_media_files):
         fout.flush()
         os.fsync(fout.fileno())
       
-      self.assertEqual( 'image/jpeg', bf_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
+      self.assertEqual( 'image/jpeg', bf_metadata.get_metadata(tmp, 'bes__mime__mime_type__1.0') )
 
 if __name__ == '__main__':
   unit_test.main()
