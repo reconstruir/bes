@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..system.check import check
+from bes.system.check import check
 from bes.system.which import which
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -18,7 +18,7 @@ class command_line_tools(object):
   
   @classmethod
   def installed(clazz, verbose = False):
-    'Return True of command line tools are installed.'
+    'Return True if command line tools are installed.'
 
     exe = which.which('xcode-select')
     if not exe:

@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..system.check import check
+from bes.system.check import check
 from bes.common.json_util import json_util
 from bes.compat.plistlib import plistlib_loads
 from bes.fs.temp_file import temp_file
