@@ -9,10 +9,10 @@ from bes.text.text_line_parser import text_line_parser
 
 from collections import namedtuple
 
-from .docker_exe import docker_exe
-from .docker_util import docker_util
+from .bat_docker_exe import bat_docker_exe
+from .bat_docker_util import bat_docker_util
 
-class docker_container(object):
+class bat_docker_container(object):
   'Class to deal with docker containers.'
   
   _logger = logger('docker')
@@ -33,14 +33,14 @@ class docker_container(object):
       '--all',
       '--format', '@@@'.join(format_parts),
     ]
-    rv = docker_exe.call_docker(args, non_blocking = False)
-    lines = docker_util.parse_lines(rv.stdout)
+    rv = bat_docker_exe.call_docker(args, non_blocking = False)
+    lines = bat_docker_util.parse_lines(rv.stdout)
     return [ clazz._parse_container(line) for line in lines ]
 
   @classmethod
   def last_container(clazz):
     'Return id of the last container that ran.'
-    return docker_exe.call_docker('ps --last 1 --quiet').stdout.strip()
+    return bat_docker_exe.call_docker('ps --last 1 --quiet').stdout.strip()
         
   @classmethod
   def remove_container(clazz, container_id, force = False, volumes = False):
@@ -51,7 +51,7 @@ class docker_container(object):
     if volumes:
       args.append('--volumes')
     args.append(container_id)
-    docker_exe.call_docker(args)
+    bat_docker_exe.call_docker(args)
         
   @classmethod
   def _parse_container(clazz, s):
@@ -94,7 +94,7 @@ class docker_container(object):
   @classmethod
   def create(clazz, image_id):
     'Create a container with image_id.'
-    return docker_exe.call_docker('create {}'.format(image_id)).stdout.strip()
+    return bat_docker_exe.call_docker('create {}'.format(image_id)).stdout.strip()
 
   @classmethod
   def copy_file_from(clazz, container_id, remote_filename, local_filename,
@@ -109,4 +109,4 @@ class docker_container(object):
       '{}:{}'.format(container_id, remote_filename),
       local_filename,
     ]
-    docker_exe.call_docker(cmd)
+    bat_docker_exe.call_docker(cmd)

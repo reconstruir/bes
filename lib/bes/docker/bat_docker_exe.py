@@ -6,16 +6,16 @@ from bes.system.which import which
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 
-from .docker_error import docker_error
+from .bat_docker_error import bat_docker_error
 
-class docker_exe(object):
+class bat_docker_exe(object):
   'Class to deal with the docker executable.'
   
   @classmethod
   def call_docker(clazz, args, cwd = None, non_blocking = True, shell = False):
     exe = which.which('docker')
     if not exe:
-      raise docker_error('docker not found')
+      raise bat_docker_error('docker not found')
     cmd = [ exe ] + command_line.parse_args(args)
     env = os_env.clone_current_env(d = {})
     rv = execute.execute(cmd,
@@ -28,5 +28,5 @@ class docker_exe(object):
     if rv.exit_code != 0:
       cmd_flag = ' '.join(cmd)
       msg = 'docker command failed: {}\n{}'.format(cmd_flag, rv.stdout)
-      raise docker_error(msg)
+      raise bat_docker_error(msg)
     return rv

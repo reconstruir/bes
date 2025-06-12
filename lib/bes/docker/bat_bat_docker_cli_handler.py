@@ -11,25 +11,25 @@ from bes.fs.file_util import file_util
 from bes.script.blurber import blurber as script_blurber
 from bes.system.log import logger
 
-from .docker_cleanup import docker_cleanup
-from .docker_cli_options import docker_cli_options
-from .docker_container import docker_container
-from .docker_image_stash import docker_image_stash
-from .docker_images import docker_images
+from .bat_docker_cleanup import bat_docker_cleanup
+from .bat_docker_cli_options import bat_docker_cli_options
+from .bat_docker_container import bat_docker_container
+from .bat_docker_image_stash import bat_docker_image_stash
+from .bat_docker_images import bat_docker_images
 
-class docker_cli_handler(cli_command_handler):
+class bat_docker_cli_handler(cli_command_handler):
 
   _log = logger('docker')
   
   def __init__(self, cli_args):
-    super().__init__(cli_args, options_class = docker_cli_options)
+    super().__init__(cli_args, options_class = bat_docker_cli_options)
   
   def images(self, untagged, repo, style):
     check.check_bool(untagged)
     check.check_string(repo, allow_none = True)
     check.check_string(style)
 
-    images = docker_images.list_images()
+    images = bat_docker_images.list_images()
     if untagged:
       images = images.untagged()
 
@@ -54,7 +54,7 @@ class docker_cli_handler(cli_command_handler):
   def backup(self, tagged_repository, output_archive):
     check.check_string(tagged_repository)
 
-    images = docker_images.list_images()
+    images = bat_docker_images.list_images()
     image = images.find_image(tagged_repository)
     if not image:
       self.options.blurber.blurb('Image not found: "{}"'.format(tagged_repository))
@@ -69,15 +69,15 @@ class docker_cli_handler(cli_command_handler):
     check.check_string(where)
     check.check_bool(force)
 
-    return docker_image_stash.save(self.options.blurber, repo, where, force)
+    return bat_docker_image_stash.save(self.options.blurber, repo, where, force)
 
   def stash_restore(self, where):
     check.check_string(where)
                        
-    return docker_image_stash.restore(self.options.blurber, where)
+    return bat_docker_image_stash.restore(self.options.blurber, where)
   
   def ps(self, brief, status):
-    containers = docker_container.list_containers()
+    containers = bat_docker_container.list_containers()
     if status:
       containers = [ c for c in containers if c.status == status ]
     if not containers:
@@ -94,13 +94,13 @@ class docker_cli_handler(cli_command_handler):
   def image_inspect(self, image, checksum):
 
     if checksum:
-      chk = docker_images.inspect_checksum(image)
+      chk = bat_docker_images.inspect_checksum(image)
       print(chk)
     else:
-      data = docker_images.inspect(image)
+      data = bat_docker_images.inspect(image)
       print(data)
     return 0
 
   def cleanup(self, untagged_images, exited_containers, running_containers):
-    docker_cleanup.cleanup(untagged_images, exited_containers, running_containers)
+    bat_docker_cleanup.cleanup(untagged_images, exited_containers, running_containers)
     return 0

@@ -6,10 +6,10 @@ from ..system.check import check
 
 from bes.fs.dir_util import dir_util
 
-from .docker_images import docker_images
-from .docker_exe import docker_exe
+from .bat_docker_images import bat_docker_images
+from .bat_docker_exe import bat_docker_exe
 
-class docker_image_stash(object):
+class bat_docker_image_stash(object):
 
   @classmethod
   def save(clazz, blurber, repo, where, force):
@@ -18,7 +18,7 @@ class docker_image_stash(object):
     check.check_string(where)
     check.check_bool(force)
                        
-    images = docker_images.list_images()
+    images = bat_docker_images.list_images()
     images = images.matching_repository_pattern(repo)
 
     if not images:
@@ -40,7 +40,7 @@ class docker_image_stash(object):
       image.backup(output_archive)
 
     for image in images:
-      docker_images.remove(image.image_id, force = force)
+      bat_docker_images.remove(image.image_id, force = force)
       
     return 0
 
@@ -63,6 +63,6 @@ class docker_image_stash(object):
 
     for filename in files:
       args = [ 'load', '--input', filename ]
-      docker_exe.call_docker(args, non_blocking = False)
+      bat_docker_exe.call_docker(args, non_blocking = False)
       
     return 0

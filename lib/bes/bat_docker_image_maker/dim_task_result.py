@@ -22,7 +22,7 @@ class dim_task_result(namedtuple('dim_task_result', 'success, log, descriptor'))
     return path.relpath(self.log)
 
   @cached_property
-  def docker_tag(self):
-    return self.descriptor.docker_tag
+  def bat_docker_tag(self):
+    return self.descriptor.bat_docker_tag
   
 check.register_class(dim_task_result)

@@ -10,13 +10,13 @@ from bes.text.text_line_parser import text_line_parser
 
 from collections import namedtuple
 
-from .docker_error import docker_error
-from .docker_exe import docker_exe
-from .docker_image import docker_image
-from .docker_image_list import docker_image_list
-from .docker_util import docker_util
+from .bat_docker_error import bat_docker_error
+from .bat_docker_exe import bat_docker_exe
+from .bat_docker_image import bat_docker_image
+from .bat_bat_docker_image_list import bat_bat_docker_image_list
+from .bat_docker_util import bat_docker_util
 
-class docker_images(object):
+class bat_docker_images(object):
   'Class to deal with docker images.'
   
   _logger = logger('docker')
@@ -35,9 +35,9 @@ class docker_images(object):
       'images',
       '--format', '@@@'.join(format_parts),
     ]
-    rv = docker_exe.call_docker(args, non_blocking = False)
-    lines = docker_util.parse_lines(rv.stdout)
-    return docker_image_list([ clazz._parse_image(line) for line in lines ])
+    rv = bat_docker_exe.call_docker(args, non_blocking = False)
+    lines = bat_docker_util.parse_lines(rv.stdout)
+    return bat_bat_docker_image_list([ clazz._parse_image(line) for line in lines ])
 
   @classmethod
   def list_untagged_images(clazz):
@@ -52,14 +52,14 @@ class docker_images(object):
     try:
       clazz.inspect(image)
       return True
-    except docker_error as ex:
+    except bat_docker_error as ex:
       pass
     return False
   
   @classmethod
   def inspect(clazz, image):
     args = [ 'image', 'inspect', image ]
-    rv = docker_exe.call_docker(args, non_blocking = False)
+    rv = bat_docker_exe.call_docker(args, non_blocking = False)
     return json_util.normalize_text(rv.stdout)
   
   @classmethod
@@ -77,7 +77,7 @@ class docker_images(object):
     tag = clazz._resolve_none(parts.pop())
     repository = clazz._resolve_none(parts.pop())
     image_id = parts.pop()
-    return docker_image(image_id, repository, tag, digest, created_at, size)
+    return bat_docker_image(image_id, repository, tag, digest, created_at, size)
 
   @classmethod
   def _resolve_none(clazz, s):
@@ -93,7 +93,7 @@ class docker_images(object):
     if force:
       args.append('--force')
     args.append(image)
-    docker_exe.call_docker(args, non_blocking = False)
+    bat_docker_exe.call_docker(args, non_blocking = False)
 
   @classmethod
   def remove_all_untagged(clazz):
@@ -104,4 +104,4 @@ class docker_images(object):
   @classmethod
   def pull(clazz, image):
     args = [ 'pull', image ]
-    docker_exe.call_docker(args, non_blocking = False)
+    bat_docker_exe.call_docker(args, non_blocking = False)

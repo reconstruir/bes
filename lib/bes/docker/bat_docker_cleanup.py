@@ -5,10 +5,10 @@ import multiprocessing
 from ..system.check import check
 from bes.system.log import logger
 
-from .docker_images import docker_images
-from .docker_container import docker_container
+from .bat_docker_images import bat_docker_images
+from .bat_docker_container import bat_docker_container
 
-class docker_cleanup(object):
+class bat_docker_cleanup(object):
   'Class to deal with cleaning up docker side effects.'
   
   _logger = logger('docker')
@@ -26,10 +26,10 @@ class docker_cleanup(object):
   @classmethod
   def _cleanup_i(clazz, untagged_images, exited_containers, running_containers):
     if running_containers:
-      docker_container.remove_all_running()
+      bat_docker_container.remove_all_running()
       
     if exited_containers:
-      docker_container.remove_all_exited()
+      bat_docker_container.remove_all_exited()
 
     if untagged_images:
-      docker_images.remove_all_untagged()
+      bat_docker_images.remove_all_untagged()

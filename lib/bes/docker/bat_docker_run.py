@@ -13,12 +13,12 @@ from bes.fs.file_replace import file_replace
 
 from collections import namedtuple
 
-from .docker_exe import docker_exe
-from .docker_error import docker_error
-from .docker_util import docker_util
-from .docker_container import docker_container
+from .bat_docker_exe import bat_docker_exe
+from .bat_docker_error import bat_docker_error
+from .bat_docker_util import bat_docker_util
+from .bat_docker_container import bat_docker_container
 
-class docker_run(object):
+class bat_docker_run(object):
   'Class to deal with docker run.'
   
   log = logger('docker')
@@ -66,37 +66,37 @@ class docker_run(object):
       src_file = path.join(os.getcwd(), cf)
       dst_file = path.join(input_dir, cf)
       if not path.isfile(src_file):
-        raise docker_error('run file not found: "{}"'.format(src_file))
+        raise bat_docker_error('run file not found: "{}"'.format(src_file))
       if run_files_substitutions and file_mime.is_text(src_file):
         file_replace.copy_with_substitute(src_file, dst_file, run_files_substitutions, backup = False)
       else:
         file_util.copy(src_file, dst_file)
     
-    docker_run_args = [ 'run' ]
+    bat_docker_run_args = [ 'run' ]
     if detach:
-      docker_run_args.append('--detach')
+      bat_docker_run_args.append('--detach')
     if tty:
-      docker_run_args.append('--tty')
+      bat_docker_run_args.append('--tty')
     if interactive:
-      docker_run_args.append('--interactive')
+      bat_docker_run_args.append('--interactive')
     if remove:
-      docker_run_args.append('--rm')
-    docker_run_args.extend(clazz._make_env_args(env))
+      bat_docker_run_args.append('--rm')
+    bat_docker_run_args.extend(clazz._make_env_args(env))
     volumes[input_dir] = '/input'
     volumes[output_dir] = '/output'
-    docker_run_args.extend(clazz._make_volume_args(volumes))
+    bat_docker_run_args.extend(clazz._make_volume_args(volumes))
     if expose:
-      docker_run_args.extend([ '--expose', str(expose) ])
+      bat_docker_run_args.extend([ '--expose', str(expose) ])
     if restart:
-      docker_run_args.extend([ '--restart', restart ])
+      bat_docker_run_args.extend([ '--restart', restart ])
     if name:
-      docker_run_args.extend([ '--name', name ])
-    docker_run_args.append(image_id)
-    docker_run_args.append(cli[0])
-    docker_run_args.extend(cli[1:])
-    clazz.log.log_d('running docker: {}'.format(' '.join(docker_run_args)))
-    rv = docker_exe.call_docker(docker_run_args, non_blocking = non_blocking)
-    container_id = docker_container.last_container()
+      bat_docker_run_args.extend([ '--name', name ])
+    bat_docker_run_args.append(image_id)
+    bat_docker_run_args.append(cli[0])
+    bat_docker_run_args.extend(cli[1:])
+    clazz.log.log_d('running docker: {}'.format(' '.join(bat_docker_run_args)))
+    rv = bat_docker_exe.call_docker(bat_docker_run_args, non_blocking = non_blocking)
+    container_id = bat_docker_container.last_container()
     return clazz._run_result(container_id, rv.exit_code, rv.stdout, input_dir, output_dir)
 
   @classmethod

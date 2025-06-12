@@ -11,13 +11,13 @@ from bes.system.log import logger
 
 from collections import namedtuple
 
-from .docker_error import docker_error
-from .docker_exe import docker_exe
-from .docker_images import docker_images
-from .docker_tag import docker_tag
-from .docker_util import docker_util
+from .bat_docker_error import bat_docker_error
+from .bat_docker_exe import bat_docker_exe
+from .bat_docker_images import bat_docker_images
+from .bat_docker_tag import bat_docker_tag
+from .bat_docker_util import bat_docker_util
 
-class docker_build(object):
+class bat_docker_build(object):
   'Class to deal with docker build.'
   
   log = logger('docker')
@@ -37,7 +37,7 @@ class docker_build(object):
 #    check.check_bool(non_blocking)
 
     if tag and not repo_name:
-      raise docker_error('If tag is given then repo_name shoudld be given too.')
+      raise bat_docker_error('If tag is given then repo_name shoudld be given too.')
     
     dockerfile = dockerfile or 'Dockerfile'
     dockerfile_substitutions = dockerfile_substitutions or {}
@@ -46,7 +46,7 @@ class docker_build(object):
     context_label = context_label or 'docker.build'
 
     if not path.isfile(dockerfile):
-      raise docker_error('Dockerfile not found: "{}"'.format(dockerfile))
+      raise bat_docker_error('Dockerfile not found: "{}"'.format(dockerfile))
     
     tmp_context_dir = temp_file.make_temp_dir(suffix = '-{}'.format(context_label), delete = not debug)
     if debug:
@@ -62,30 +62,30 @@ class docker_build(object):
       build_args_args.append('--build-arg')
       build_args_args.append('{}={}'.format(key, value))
       
-    docker_build_args = [ 'build' ]
-    docker_build_args.extend(build_args_args)
-    docker_build_args.extend([ '--file', dockerfile ])
-    docker_build_args.append('.')
+    bat_docker_build_args = [ 'build' ]
+    bat_docker_build_args.extend(build_args_args)
+    bat_docker_build_args.extend([ '--file', dockerfile ])
+    bat_docker_build_args.append('.')
 
     if repo_name:
-      named_tag = docker_util.make_tagged_image_name(repo_name, tag)
+      named_tag = bat_docker_util.make_tagged_image_name(repo_name, tag)
     else:
       named_tag = None
     
     old_checksum = None
     if named_tag:
       try:
-        old_checksum = docker_images.inspect_checksum(named_tag)
-      except docker_error as ex:
+        old_checksum = bat_docker_images.inspect_checksum(named_tag)
+      except bat_docker_error as ex:
         pass
 
-    rv = docker_exe.call_docker(docker_build_args, cwd = tmp_context_dir, non_blocking = non_blocking)
+    rv = bat_docker_exe.call_docker(bat_docker_build_args, cwd = tmp_context_dir, non_blocking = non_blocking)
     if rv.exit_code == 0:
       image_id = clazz._parse_build_result(rv.stdout)
       if named_tag:
-        new_checksum = docker_images.inspect_checksum(image_id)
+        new_checksum = bat_docker_images.inspect_checksum(image_id)
         if new_checksum != old_checksum:
-          docker_tag.tag_image(image_id, repo_name, tag or 'latest')
+          bat_docker_tag.tag_image(image_id, repo_name, tag or 'latest')
     else:
       image_id = None
     file_util.remove(tmp_context_dir)
@@ -93,12 +93,12 @@ class docker_build(object):
 
   @classmethod
   def _parse_build_result(clazz, text):
-    lines = docker_util.parse_lines(text)
+    lines = bat_docker_util.parse_lines(text)
     for line in reversed(lines):
       instance_id = clazz._parse_successfully_built_line(line)
       if instance_id:
         return instance_id
-    raise docker_error('failed to parse successfully built status')
+    raise bat_docker_error('failed to parse successfully built status')
 
   @classmethod
   def _parse_successfully_built_line(clazz, line):
@@ -114,7 +114,7 @@ class docker_build(object):
     src_file = path.join(src_dir, filename)
     dst_file = clazz._make_dst_file(dst_dir, filename)
     if not path.isfile(src_file):
-      raise docker_error('context file not found: "{}"'.format(src_file))
+      raise bat_docker_error('context file not found: "{}"'.format(src_file))
     if substitutions:
       file_replace.copy_with_substitute(src_file, dst_file, substitutions, backup = False)
     else:

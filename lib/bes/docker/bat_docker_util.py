@@ -3,7 +3,7 @@
 from ..system.check import check
 from bes.text.text_line_parser import text_line_parser
 
-class docker_util(object):
+class bat_docker_util(object):
   'Misc docker helper stuff.'
   
   @classmethod

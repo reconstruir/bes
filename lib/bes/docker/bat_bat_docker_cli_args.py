@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class docker_cli_args(object):
+class bat_docker_cli_args(object):
 
   def __init__(self):
     pass
@@ -63,5 +63,5 @@ class docker_cli_args(object):
                    help = 'Cleanup running containers. [ False ]')
 
   def _command_docker(self, command, *args, **kargs):
-    from .docker_cli_handler import docker_cli_handler
-    return docker_cli_handler(kargs).handle_command(command)
+    from .bat_docker_cli_handler import bat_docker_cli_handler
+    return bat_docker_cli_handler(kargs).handle_command(command)

@@ -25,8 +25,8 @@ from bes.docker_image_maker.dim_task_processor import dim_task_processor
 from bes.docker_image_maker.dim_task_result import dim_task_result
 from bes.docker_image_maker.dim_task_run_result import dim_task_run_result
 
-from bes.docker.docker_images import docker_images
-from bes.docker.docker_error import docker_error
+from bes.docker.bat_docker_images import bat_docker_images
+from bes.docker.bat_docker_error import bat_docker_error
 
 from bes.aws.aws_ecr import aws_ecr
 
@@ -120,7 +120,7 @@ class dim_build_cli(object):
       return 0
 
     for failed_entry in result.failed_entries:
-      self.blurb('FAILED: {} => {}'.format(failed_entry.descriptor.docker_tag,
+      self.blurb('FAILED: {} => {}'.format(failed_entry.descriptor.bat_docker_tag,
                                            failed_entry.log))
     return 1
 
@@ -162,7 +162,7 @@ class dim_build_cli(object):
   def _very_clean(self):
     self._cleanup()
     self._docker_remove_image('builder-cacerts')
-    images = docker_images.list_images()
+    images = bat_docker_images.list_images()
     for image in images:
       repo = image.repository
       if repo is not None and self._repo_should_be_cleaned_up(image.repository):
@@ -196,9 +196,9 @@ class dim_build_cli(object):
       
   def _docker_remove_image(self, image):
     try:
-      info = docker_images.inspect(image)
-      docker_images.remove(image, force = True)
-    except docker_error as ex:
+      info = bat_docker_images.inspect(image)
+      bat_docker_images.remove(image, force = True)
+    except bat_docker_error as ex:
       pass
            
   @classmethod
@@ -247,7 +247,7 @@ class dim_build_cli(object):
     bes_version_args = [ 'bes_version={}'.format(self.bes_version) ]
     log = path.join(self.logs_dir, descriptor.log_filename())
     cmd = [ self.egoist, 'script', 'run', build_script, descriptor.system ] + script_args + bes_version_args
-    self.blurb('building {} => {}'.format(descriptor.docker_tag, path.relpath(log)))
+    self.blurb('building {} => {}'.format(descriptor.bat_docker_tag, path.relpath(log)))
     rv = execute.execute(cmd, raise_error = False,
                          non_blocking = descriptor.options.follow,
                          stderr_to_stdout = True,

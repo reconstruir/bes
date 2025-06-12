@@ -11,10 +11,10 @@ from bes.fs.file_util import file_util
 from bes.fs.compressed_file import compressed_file
 from bes.system.execute import execute
 
-from .docker_util import docker_util
-from .docker_exe import docker_exe
+from .bat_docker_util import bat_docker_util
+from .bat_docker_exe import bat_docker_exe
 
-class docker_image(namedtuple('docker_image', 'image_id, repository, tag, digest, created_at, size')):
+class bat_docker_image(namedtuple('bat_docker_image', 'image_id, repository, tag, digest, created_at, size')):
 
   def __new__(clazz, image_id, repository, tag, digest, created_at, size):
     check.check_string(image_id)
@@ -29,7 +29,7 @@ class docker_image(namedtuple('docker_image', 'image_id, repository, tag, digest
   @cached_property
   def tagged_repository(self):
     'Return a string in the repo:tag format.'
-    return docker_util.make_tagged_image_name(self.repository, self.tag)
+    return bat_docker_util.make_tagged_image_name(self.repository, self.tag)
 
   def repository_matches(self, pattern):
     'Return True of the repository matches pattern using fnmatch.'
@@ -39,8 +39,8 @@ class docker_image(namedtuple('docker_image', 'image_id, repository, tag, digest
     'Backup image to an gzipped tarball.'
     tmp_tar = temp_file.make_temp_file(suffix = '.tar')
     args = [ 'save', self.tagged_repository, '-o', tmp_tar ]
-    docker_exe.call_docker(args, non_blocking = False)
+    bat_docker_exe.call_docker(args, non_blocking = False)
     compressed_file.compress(tmp_tar, output_archive)
     file_util.remove(tmp_tar)
   
-check.register_class(docker_image, include_seq = False)
+check.register_class(bat_docker_image, include_seq = False)

@@ -4,7 +4,6 @@ from bes.cli.cli_command import cli_command
 
 from bes.archive.archive_cli_args import archive_cli_args
 from bes.bes_project.bes_project_cli_args import bes_project_cli_args
-from bes.docker.docker_cli_args import docker_cli_args
 from bes.egg.egg_cli_args import egg_cli_args
 from bes.fs.dir_combine_cli_args import dir_combine_cli_args
 from bes.fs.dir_partition_cli_args import dir_partition_cli_args
@@ -45,7 +44,6 @@ COMMON_COMMAND_GROUPS = [
   cli_command('dir_partition', 'dir_partition_add_args', 'Directory partition', dir_partition_cli_args),
   cli_command('dir_split', 'dir_split_add_args', 'Directory split', dir_split_cli_args),
   cli_command('dirs', 'dirs_add_args', 'Directory stuff', dirs_cli_args),
-  cli_command('docker', 'docker_add_args', 'Docker stuff', docker_cli_args),
   cli_command('egg', 'egg_add_args', 'Deal with eggs', egg_cli_args),
   cli_command('file_duplicates', 'file_duplicates_add_args', 'Directory partition', file_duplicates_cli_args),
   cli_command('file_split', 'file_split_add_args', 'Directory partition', file_split_cli_args),

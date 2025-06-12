@@ -5,9 +5,9 @@ from ..system.check import check
 from bes.credentials.credentials import credentials
 from bes.script.blurber import blurber
 
-from .docker_error import docker_error
+from .bat_docker_error import bat_docker_error
 
-class docker_cli_options(cli_options):
+class bat_docker_cli_options(cli_options):
 
   def __init__(self, **kargs):
     super().__init__(**kargs)
@@ -54,7 +54,7 @@ class docker_cli_options(cli_options):
   @classmethod
   #@abstractmethod
   def error_class(clazz):
-    return docker_error
+    return bat_docker_error
 
   #@abstractmethod
   def check_value_types(self):
@@ -63,4 +63,4 @@ class docker_cli_options(cli_options):
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
   
-check.register_class(docker_cli_options)
+check.register_class(bat_docker_cli_options)

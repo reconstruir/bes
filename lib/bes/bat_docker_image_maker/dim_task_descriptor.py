@@ -17,11 +17,11 @@ class dim_task_descriptor(namedtuple('dim_task_descriptor', 'function, step_name
     return clazz.__bases__[0].__new__(clazz, function, step_name, system, python_version, options)
   
   @cached_property
-  def docker_tag(self):
+  def bat_docker_tag(self):
     return 'ego_cicd_{}-py{}-{}'.format(self.step_name, self.python_version, self.system)
 
   def log_filename(self):
-    return '{}.log'.format(self.docker_tag)
+    return '{}.log'.format(self.bat_docker_tag)
 
   @cached_property
   def script_args(self):

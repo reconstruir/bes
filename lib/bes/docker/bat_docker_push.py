@@ -3,11 +3,11 @@
 from ..system.check import check
 from bes.system.log import logger
 
-from .docker_exe import docker_exe
-from .docker_error import docker_error
-from .docker_util import docker_util
+from .bat_docker_exe import bat_docker_exe
+from .bat_docker_error import bat_docker_error
+from .bat_docker_util import bat_docker_util
 
-class docker_push(object):
+class bat_docker_push(object):
   'Class to deal with docker push.'
   
   _logger = logger('docker')
@@ -17,12 +17,12 @@ class docker_push(object):
     check.check_string(image_name)
     check.check_string(image_tag, allow_none = True)
 
-    docker_image = docker_util.make_tagged_image_name(image_name, image_tag)
+    bat_docker_image = bat_docker_util.make_tagged_image_name(image_name, image_tag)
     push_args = [
       'push',
-      docker_image,
+      bat_docker_image,
     ]
-    rv = docker_exe.call_docker(push_args, non_blocking = non_blocking)
+    rv = bat_docker_exe.call_docker(push_args, non_blocking = non_blocking)
     if rv.exit_code != 0:
-      raise docker_error('failed to push: {}'.format(' '.join(push_args)))
+      raise bat_docker_error('failed to push: {}'.format(' '.join(push_args)))
     

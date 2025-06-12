@@ -11,9 +11,9 @@ from bes.cli.argparser_handler import argparser_handler
 import bes
 import redocker
 
-from .docker_cli_args import docker_cli_args
+from .bat_bat_docker_cli_args import bat_bat_docker_cli_args
 
-class docker_cli(docker_cli_args):
+class bat_docker_cli(bat_bat_docker_cli_args):
 
   def __init__(self):
     self.parser = argparse.ArgumentParser()
@@ -34,5 +34,5 @@ class docker_cli(docker_cli_args):
 
   @classmethod
   def run(clazz):
-    raise SystemExit(docker_cli().main())
+    raise SystemExit(bat_docker_cli().main())
   
