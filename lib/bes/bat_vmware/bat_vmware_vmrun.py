@@ -19,7 +19,7 @@ from .bat_vmware_app import bat_vmware_app
 from .vmware_error import vmware_error
 from .vmware_power import vmware_power
 from .vmware_run_program_options import vmware_run_program_options
-from .bat_bat_vmware_vmx_file import bat_bat_vmware_vmx_file
+from .bat_vmware_vmx_file import bat_vmware_vmx_file
 
 class bat_vmware_vmrun(object):
 
@@ -79,7 +79,7 @@ class bat_vmware_vmrun(object):
     check.check_bool(gui)
     check.check_bool(hard)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     vmware_power.check_state(state)
 
     self._log.log_method_d()
@@ -108,7 +108,7 @@ class bat_vmware_vmrun(object):
     check.check_string(remote_filename)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     self._log.log_method_d()
     args = [
       'copyFileFromHostToGuest',
@@ -126,7 +126,7 @@ class bat_vmware_vmrun(object):
     check.check_string(local_filename)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'copyFileFromGuestToHost',
       vmx_filename,
@@ -142,7 +142,7 @@ class bat_vmware_vmrun(object):
     check.check_string(remote_filename)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'fileExistsInGuest',
       vmx_filename,
@@ -158,7 +158,7 @@ class bat_vmware_vmrun(object):
     check.check_string(remote_directory)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'directoryExistsInGuest',
       vmx_filename,
@@ -174,7 +174,7 @@ class bat_vmware_vmrun(object):
     check.check_string(remote_directory)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'createDirectoryInGuest',
       vmx_filename,
@@ -190,7 +190,7 @@ class bat_vmware_vmrun(object):
     check.check_string(remote_directory)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'deleteDirectoryInGuest',
       vmx_filename,
@@ -206,7 +206,7 @@ class bat_vmware_vmrun(object):
     check.check_string(remote_directory)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'listDirectoryInGuest',
       vmx_filename,
@@ -226,7 +226,7 @@ class bat_vmware_vmrun(object):
     check.check_string(snapshot_name, allow_none = True)
     check.check_string(clone_name, allow_none = True)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(src_vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(src_vmx_filename)
     args = [
       'clone',
       src_vmx_filename,
@@ -242,7 +242,7 @@ class bat_vmware_vmrun(object):
   def vm_stop(self, vmx_filename):
     check.check_string(vmx_filename)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'stop', vmx_filename ]
     return self.run(args,
                     raise_error = True,
@@ -251,7 +251,7 @@ class bat_vmware_vmrun(object):
   def vm_delete(self, vmx_filename):
     check.check_string(vmx_filename)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'deleteVM', vmx_filename ]
     rv = self.run(args, raise_error = False)
     if rv.exit_code != 0:
@@ -266,7 +266,7 @@ class bat_vmware_vmrun(object):
     check.check_vmware_run_program_options(run_program_options)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'runProgramInGuest',
       vmx_filename,
@@ -283,7 +283,7 @@ class bat_vmware_vmrun(object):
     check.check_vmware_run_program_options(run_program_options)
     check.check_credentials(login_credentials)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'runScriptInGuest',
       vmx_filename,
@@ -307,7 +307,7 @@ class bat_vmware_vmrun(object):
                                         remove_empties = True)
   
   def vm_is_running(self, vmx_filename):
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
 
     self._log.log_method_d()
     
@@ -316,7 +316,7 @@ class bat_vmware_vmrun(object):
 
   def vm_get_ip_address(self, vmx_filename):
     self._log.log_method_d()
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
 
     args = [
       'getGuestIPAddress',
@@ -334,7 +334,7 @@ class bat_vmware_vmrun(object):
     check.check_string(vmx_filename)
     check.check_string(name)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     self._log.log_method_d()
     args = [
       'snapshot',
@@ -349,7 +349,7 @@ class bat_vmware_vmrun(object):
     check.check_string(vmx_filename)
     check.check_string(name)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     self._log.log_method_d()
     args = [
       'deleteSnapshot',
@@ -366,7 +366,7 @@ class bat_vmware_vmrun(object):
     check.check_string(vmx_filename)
     check.check_bool(tree)
 
-    bat_bat_vmware_vmx_file.check_vmx_file(vmx_filename)
+    bat_vmware_vmx_file.check_vmx_file(vmx_filename)
     self._log.log_method_d()
     args = [
       'listSnapshots',

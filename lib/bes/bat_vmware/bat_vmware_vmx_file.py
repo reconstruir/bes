@@ -14,7 +14,7 @@ from .vmware_error import vmware_error
 from .vmware_properties_file import vmware_properties_file
 from .bat_vmware_system_info import bat_vmware_system_info
 
-class bat_bat_vmware_vmx_file(vmware_properties_file):
+class bat_vmware_vmx_file(vmware_properties_file):
   'Class do deal with vmware vmx files'
 
   def __init__(self, filename = None, backup = False):

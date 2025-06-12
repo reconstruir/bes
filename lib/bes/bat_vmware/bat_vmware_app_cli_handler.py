@@ -6,11 +6,11 @@ from ..system.check import check
 from .bat_vmware_app import bat_vmware_app
 from .bat_vmware_app_cli_options import bat_vmware_app_cli_options
 
-class bat_bat_vmware_app_cli_handler(cli_command_handler):
+class bat_vmware_app_cli_handler(cli_command_handler):
   'vmware app cli handler.'
 
   def __init__(self, cli_args):
-    super(bat_bat_vmware_app_cli_handler, self).__init__(cli_args, options_class = bat_vmware_app_cli_options)
+    super(bat_vmware_app_cli_handler, self).__init__(cli_args, options_class = bat_vmware_app_cli_options)
     check.check_bat_vmware_app_cli_options(self.options)
 
   def is_installed(self):

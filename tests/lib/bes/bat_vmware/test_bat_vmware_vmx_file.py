@@ -5,43 +5,43 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 
-from bes.vmware.bat_bat_vmware_vmx_file import bat_bat_vmware_vmx_file
+from bes.vmware.bat_vmware_vmx_file import bat_vmware_vmx_file
 
-class test_bat_bat_vmware_vmx_file(unit_test):
+class test_bat_vmware_vmx_file(unit_test):
 
   def test_nickname(self):
     tmp = self._make_temp_vmx_file('vms/win10.vmwarevm/win10.vmx')
-    self.assertEqual( 'win10', bat_bat_vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'win10', bat_vmware_vmx_file(tmp).nickname )
 
   def test_guest_system_macos_10_14(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.14.vmx', content = self._TEST_VMX_MACOS_10_14)
-    self.assertEqual( 'macos-10.14', bat_bat_vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'macos-mojave', bat_bat_vmware_vmx_file(tmp).display_name )
-    self.assertEqual( ( 'macos', '10', '14', 'x86_64', '', None, None ), bat_bat_vmware_vmx_file(tmp).system_info )
+    self.assertEqual( 'macos-10.14', bat_vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'macos-mojave', bat_vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'macos', '10', '14', 'x86_64', '', None, None ), bat_vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_macos_10_15(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.15.vmx', content = self._TEST_VMX_MACOS_10_15)
-    self.assertEqual( 'macos-10.15', bat_bat_vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'macos-catalina', bat_bat_vmware_vmx_file(tmp).display_name )
-    self.assertEqual( ( 'macos', '10', '15', 'x86_64', '', None, None ), bat_bat_vmware_vmx_file(tmp).system_info )
+    self.assertEqual( 'macos-10.15', bat_vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'macos-catalina', bat_vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'macos', '10', '15', 'x86_64', '', None, None ), bat_vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_macos_10_16(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.16.vmx', content = self._TEST_VMX_MACOS_10_16)
-    self.assertEqual( 'macos-10.16', bat_bat_vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'macos-big-sur', bat_bat_vmware_vmx_file(tmp).display_name )
-    self.assertEqual( ( 'macos', '10', '16', 'x86_64', '', None, None ), bat_bat_vmware_vmx_file(tmp).system_info )
+    self.assertEqual( 'macos-10.16', bat_vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'macos-big-sur', bat_vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'macos', '10', '16', 'x86_64', '', None, None ), bat_vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_ubuntu_18_04(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/ubuntu-18.04.vmx', content = self._TEST_VMX_UBUNTU_18_04)
-    self.assertEqual( 'ubuntu-18.04', bat_bat_vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'ubuntu-bionic-beaver', bat_bat_vmware_vmx_file(tmp).display_name )
-    self.assertEqual( ( 'linux', '18', '04', 'x86_64', 'ubuntu', None, None ), bat_bat_vmware_vmx_file(tmp).system_info )
+    self.assertEqual( 'ubuntu-18.04', bat_vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'ubuntu-bionic-beaver', bat_vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'linux', '18', '04', 'x86_64', 'ubuntu', None, None ), bat_vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_ubuntu_18_04(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/windows-10.vmx', content = self._TEST_CONTENT_WINDOWS_10)
-    self.assertEqual( 'windows-10', bat_bat_vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'windoze-10', bat_bat_vmware_vmx_file(tmp).display_name )
-    self.assertEqual( ( 'windows', '10', '0', 'x86_64', '', None, None ), bat_bat_vmware_vmx_file(tmp).system_info )
+    self.assertEqual( 'windows-10', bat_vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'windoze-10', bat_vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'windows', '10', '0', 'x86_64', '', None, None ), bat_vmware_vmx_file(tmp).system_info )
     
   def _make_temp_vmx_file(self, fragment, content = None):
     tmp_dir = self.make_temp_dir()

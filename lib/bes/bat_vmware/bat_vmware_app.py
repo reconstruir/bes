@@ -1,22 +1,22 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from .bat_bat_vmware_app_base import bat_bat_vmware_app_base
+from .bat_vmware_app_base import bat_vmware_app_base
 
 def _find_impl_class():
   from bes.system.host import host
   if host.is_linux():
-    from .bat_bat_vmware_app_linux import bat_bat_vmware_app_linux
-    return bat_bat_vmware_app_linux
+    from .bat_vmware_app_linux import bat_vmware_app_linux
+    return bat_vmware_app_linux
   elif host.is_macos():
-    from .bat_bat_vmware_app_macos import bat_bat_vmware_app_macos
-    return bat_bat_vmware_app_macos
+    from .bat_vmware_app_macos import bat_vmware_app_macos
+    return bat_vmware_app_macos
   elif host.is_windows():
-    from .bat_bat_vmware_app_windows import bat_bat_vmware_app_windows
-    return bat_bat_vmware_app_windows
+    from .bat_vmware_app_windows import bat_vmware_app_windows
+    return bat_vmware_app_windows
   else:
     host.raise_unsupported_system()
 
-class bat_vmware_app(bat_bat_vmware_app_base):
+class bat_vmware_app(bat_vmware_app_base):
 
   _impl = _find_impl_class()
 

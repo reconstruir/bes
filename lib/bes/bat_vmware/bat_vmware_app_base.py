@@ -2,7 +2,7 @@
 
 from abc import abstractmethod, ABCMeta
 
-class bat_bat_vmware_app_base(object, metaclass = ABCMeta):
+class bat_vmware_app_base(object, metaclass = ABCMeta):
   'Abstract interface for interacting with the vmware workstation or fusion main application.'
 
   @classmethod

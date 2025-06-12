@@ -11,9 +11,9 @@ from bes.system.execute import execute
 from bes.system.process_lister import process_lister
 from bes.system.which import which
 
-from .bat_bat_vmware_app_base import bat_bat_vmware_app_base
+from .bat_vmware_app_base import bat_vmware_app_base
 
-class bat_bat_vmware_app_macos(bat_bat_vmware_app_base):
+class bat_vmware_app_macos(bat_vmware_app_base):
 
   _APP_PATH = '/Applications/VMware Fusion.app'
 

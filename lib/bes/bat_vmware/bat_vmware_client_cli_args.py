@@ -131,5 +131,5 @@ class bat_vmware_client_cli_args(object):
                    help = 'Password [ ]')
     
   def _command_bat_vmware_client(self, command, *args, **kargs):
-    from .bat_bat_vmware_client_cli_handler import bat_bat_vmware_client_cli_handler
-    return bat_bat_vmware_client_cli_handler(kargs).handle_command(command)
+    from .bat_vmware_client_cli_handler import bat_vmware_client_cli_handler
+    return bat_vmware_client_cli_handler(kargs).handle_command(command)

@@ -3,7 +3,7 @@
 from bes.cli.cli_command_handler import cli_command_handler
 from ..system.check import check
 
-from .bat_bat_vmware_client_commands import bat_bat_vmware_client_commands
+from .bat_vmware_client_commands import bat_vmware_client_commands
 from .vmware_error import vmware_error
 from .vmware_server import vmware_server
 from .vmware_session import vmware_session
@@ -27,7 +27,7 @@ class bat_vmware_session_cli_handler(cli_command_handler):
     session = vmware_session(port = options.vmrest_port,
                              credentials = options.vmrest_credentials)
     session.start()
-    commands = bat_bat_vmware_client_commands(session.client, options)
+    commands = bat_vmware_client_commands(session.client, options)
     func = getattr(commands, command_name)
     result = func(*args, **kwargs)
     session.stop()

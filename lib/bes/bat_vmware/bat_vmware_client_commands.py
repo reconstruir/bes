@@ -12,7 +12,7 @@ from .bat_vmware_client_options import bat_vmware_client_options
 from .vmware_error import vmware_error
 from .bat_vmware_session_options import bat_vmware_session_options
 
-class bat_bat_vmware_client_commands(object):
+class bat_vmware_client_commands(object):
   'vmware client commands.'
 
   def __init__(self, client, options):

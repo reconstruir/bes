@@ -6,17 +6,17 @@ from bes.cli.cli_command_handler import cli_command_handler
 from ..system.check import check
 
 from .bat_vmware_client import bat_vmware_client
-from .bat_bat_vmware_client_commands import bat_bat_vmware_client_commands
+from .bat_vmware_client_commands import bat_vmware_client_commands
 from .bat_vmware_client_options import bat_vmware_client_options
 
-class bat_bat_vmware_client_cli_handler(cli_command_handler):
+class bat_vmware_client_cli_handler(cli_command_handler):
   'vmware client cli handler.'
 
   def __init__(self, cli_args):
-    super(bat_bat_vmware_client_cli_handler, self).__init__(cli_args, options_class = bat_vmware_client_options)
+    super(bat_vmware_client_cli_handler, self).__init__(cli_args, options_class = bat_vmware_client_options)
     check.check_bat_vmware_client_options(self.options)
     client = bat_vmware_client(self.options.address, self.options.auth)
-    self._commands = bat_bat_vmware_client_commands(client, self.options)
+    self._commands = bat_vmware_client_commands(client, self.options)
 
   def vms(self):
     return self._commands.vms()

@@ -25,7 +25,7 @@ class vmware_clone_util(object):
     check.check_string(where)
     
     vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
-    src_vmx_nickname = bat_bat_vmware_vmx_file(src_vmx_filename).nickname
+    src_vmx_nickname = bat_vmware_vmx_file(src_vmx_filename).nickname
     tmp_nickname_part = clazz._tmp_nickname_part()
     if not clone_name:
       clone_name = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)

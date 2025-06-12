@@ -35,7 +35,7 @@ from .bat_vmware_restore_vm_running_state import bat_vmware_restore_vm_running_s
 from .vmware_session import vmware_session
 from .bat_vmware_vm import bat_vmware_vm
 from .bat_vmware_vmrun import bat_vmware_vmrun
-from .bat_bat_vmware_vmx_file import bat_bat_vmware_vmx_file
+from .bat_vmware_vmx_file import bat_vmware_vmx_file
 from .vmware_run_operation import vmware_run_operation
 
 class vmware(object):
@@ -58,7 +58,7 @@ class vmware(object):
     local_vms = {}
     vmx_files = file_find.find(self._vm_dir, relative = False, match_patterns = [ '*.vmx' ])
     for vmx_filename in vmx_files:
-      nickname = bat_bat_vmware_vmx_file(vmx_filename).nickname
+      nickname = bat_vmware_vmx_file(vmx_filename).nickname
       login_credentials = self._options.resolve_login_credentials(nickname)
       local_vm = vmware_local_vm(self._runner, vmx_filename, login_credentials)
       local_vms[vmx_filename] = local_vm
@@ -430,12 +430,12 @@ class vmware(object):
 
   def _resolve_vmx_to_local_vm(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename(vm_id, raise_error = raise_error)
-    nickname = bat_bat_vmware_vmx_file(vmx_filename).nickname
+    nickname = bat_vmware_vmx_file(vmx_filename).nickname
     login_credentials = self._options.resolve_login_credentials(nickname)
     return vmware_local_vm(self._runner, vmx_filename, login_credentials)
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
-    if bat_bat_vmware_vmx_file.is_vmx_file(vm_id):
+    if bat_vmware_vmx_file.is_vmx_file(vm_id):
       return vm_id
     for _, vm in self.local_vms.items():
       if vm_id in [ vm.nickname, vm.vmx_filename ]:

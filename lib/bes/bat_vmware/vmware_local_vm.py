@@ -16,7 +16,7 @@ from .vmware_command_interpreter_manager import vmware_command_interpreter_manag
 from .vmware_error import vmware_error
 from .bat_vmware_inventory import bat_vmware_inventory
 from .vmware_run_program_options import vmware_run_program_options
-from .bat_bat_vmware_vmx_file import bat_bat_vmware_vmx_file
+from .bat_vmware_vmx_file import bat_vmware_vmx_file
 
 class vmware_local_vm(object):
 
@@ -29,7 +29,7 @@ class vmware_local_vm(object):
 
     self._runner = runner
     self.vmx_filename = path.abspath(vmx_filename)
-    self.vmx = bat_bat_vmware_vmx_file(self.vmx_filename)
+    self.vmx = bat_vmware_vmx_file(self.vmx_filename)
     self.login_credentials = login_credentials
     
   def __str__(self):
