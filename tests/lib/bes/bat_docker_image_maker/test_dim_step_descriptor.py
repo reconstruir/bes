@@ -7,8 +7,8 @@ from bes.pyinstaller.pyinstaller import pyinstaller
 
 _AVAILABLE=False
 try:
-  from bes.docker_image_maker.dim_step_descriptor import dim_step_descriptor
-  from bes.docker_image_maker.dim_error import dim_error
+  from bes.bat_docker_image_maker.dim_step_descriptor import dim_step_descriptor
+  from bes.bat_docker_image_maker.dim_error import dim_error
   _AVAILABLE=True
 except ImportError as ex:
   pass

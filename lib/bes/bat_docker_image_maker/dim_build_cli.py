@@ -14,19 +14,19 @@ from bes.system.which import which
 from bes.system.log import logger
 from bes.git.git_repo import git_repo
 
-from bes.docker_image_maker.dim_ecr import dim_ecr
-from bes.docker_image_maker.dim_python import dim_python
-from bes.docker_image_maker.dim_step import dim_step
-from bes.docker_image_maker.dim_system import dim_system
-from bes.docker_image_maker.dim_task_descriptor import dim_task_descriptor
-from bes.docker_image_maker.dim_task_failed_entry import dim_task_failed_entry
-from bes.docker_image_maker.dim_task_options import dim_task_options
-from bes.docker_image_maker.dim_task_processor import dim_task_processor
-from bes.docker_image_maker.dim_task_result import dim_task_result
-from bes.docker_image_maker.dim_task_run_result import dim_task_run_result
+from bes.bat_docker_image_maker.dim_ecr import dim_ecr
+from bes.bat_docker_image_maker.dim_python import dim_python
+from bes.bat_docker_image_maker.dim_step import dim_step
+from bes.bat_docker_image_maker.dim_system import dim_system
+from bes.bat_docker_image_maker.dim_task_descriptor import dim_task_descriptor
+from bes.bat_docker_image_maker.dim_task_failed_entry import dim_task_failed_entry
+from bes.bat_docker_image_maker.dim_task_options import dim_task_options
+from bes.bat_docker_image_maker.dim_task_processor import dim_task_processor
+from bes.bat_docker_image_maker.dim_task_result import dim_task_result
+from bes.bat_docker_image_maker.dim_task_run_result import dim_task_run_result
 
-from bes.docker.bat_docker_images import bat_docker_images
-from bes.docker.bat_docker_error import bat_docker_error
+from bes.bat_docker.bat_docker_images import bat_docker_images
+from bes.bat_docker.bat_docker_error import bat_docker_error
 
 from bes.aws.aws_ecr import aws_ecr
 

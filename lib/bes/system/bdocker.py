@@ -29,7 +29,7 @@ class bdocker(object):
 
   @staticmethod
   def raise_skip_if_running_under_docker():
-    unit_test_class_skip.raise_skip_if(not docker.is_running_inside_docker(), 'running under docker')
+    unit_test_class_skip.raise_skip_if(not bdocker.is_running_inside_docker(), 'running under docker')
 
 class is_running_under_docker_override(object):
   'A class with context support for overriding whether running under docker.  Mostly for unit testing.'
@@ -39,11 +39,11 @@ class is_running_under_docker_override(object):
     self._running_under_docker = running_under_docker
     
   def __enter__(self):
-    docker._FORCE_IS_RUNNING_UNDER_DOCKER = self._running_under_docker
+    bdocker._FORCE_IS_RUNNING_UNDER_DOCKER = self._running_under_docker
     return self
   
   def __exit__(self, type, value, traceback):
-    docker._FORCE_IS_RUNNING_UNDER_DOCKER = None
+    bdocker._FORCE_IS_RUNNING_UNDER_DOCKER = None
 
 def is_running_under_docker_override_func(running_under_docker):
   'A decarator that calls is_running_under_docker_override.'
