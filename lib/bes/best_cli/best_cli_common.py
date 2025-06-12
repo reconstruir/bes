@@ -33,10 +33,10 @@ from bes.python_installer.python_installer_cli_args import python_installer_cli_
 from bes.refactor.refactor_cli_args import refactor_cli_args
 from bes.shell_framework.shell_framework_cli_args import shell_framework_cli_args
 from bes.vm_builder.vm_builder_cli_args import vm_builder_cli_args
-from bes.vmware.vmware_app_cli_args import vmware_app_cli_args
-from bes.vmware.vmware_cli_args import vmware_cli_args
-from bes.vmware.vmware_client_cli_args import vmware_client_cli_args
-from bes.vmware.vmware_preferences_cli_args import vmware_preferences_cli_args
+from bes.vmware.bat_bat_vmware_app_cli_args import bat_bat_vmware_app_cli_args
+from bes.vmware.bat_vmware_cli_args import bat_vmware_cli_args
+from bes.vmware.bat_vmware_client_cli_args import bat_vmware_client_cli_args
+from bes.vmware.bat_vmware_preferences_cli_args import bat_vmware_preferences_cli_args
 from bes.vmware.vmware_server_cli_args import vmware_server_cli_args
 from bes.vmware.vmware_session_cli_args import vmware_session_cli_args
 
@@ -76,10 +76,10 @@ COMMON_COMMAND_GROUPS = [
   cli_command('refactor', 'refactor_add_args', 'Refactor python code', refactor_cli_args),
   cli_command('shell_framework', 'shell_framework_add_args', 'Deal with the bes_shell framework', shell_framework_cli_args),
   cli_command('vm_builder', 'vm_builder_add_args', 'VM Builder stuff', vm_builder_cli_args),
-  cli_command('vmware', 'vmware_add_args', 'Deal with vmware', vmware_cli_args),    
-  cli_command('vmware_app', 'vmware_app_add_args', 'Deal with vmware app', vmware_app_cli_args),
-  cli_command('vmware_client', 'vmware_client_add_args', 'Deal with vmware client', vmware_client_cli_args),
-  cli_command('vmware_preferences', 'vmware_preferences_add_args', 'Deal with vmware preferences', vmware_preferences_cli_args),
+  cli_command('vmware', 'vmware_add_args', 'Deal with vmware', bat_vmware_cli_args),    
+  cli_command('bat_vmware_app', 'bat_vmware_app_add_args', 'Deal with vmware app', bat_bat_vmware_app_cli_args),
+  cli_command('bat_vmware_client', 'bat_vmware_client_add_args', 'Deal with vmware client', bat_vmware_client_cli_args),
+  cli_command('vmware_preferences', 'vmware_preferences_add_args', 'Deal with vmware preferences', bat_vmware_preferences_cli_args),
   cli_command('vmware_server', 'vmware_server_add_args', 'Deal with vmware server', vmware_server_cli_args),
   cli_command('vmware_session', 'vmware_session_add_args', 'Deal with vmware session', vmware_session_cli_args),
 

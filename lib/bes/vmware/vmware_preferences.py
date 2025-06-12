@@ -6,7 +6,7 @@ from bes.system.log import logger
 from ..system.check import check
 from bes.system.host import host
 
-from .vmware_app import vmware_app
+from .bat_vmware_app import bat_vmware_app
 from .vmware_properties_file import vmware_properties_file
 
 class vmware_preferences(vmware_properties_file):
@@ -16,4 +16,4 @@ class vmware_preferences(vmware_properties_file):
 
   @classmethod
   def default_preferences_filename(clazz):
-    return vmware_app.preferences_filename()
+    return bat_vmware_app.preferences_filename()

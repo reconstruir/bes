@@ -22,20 +22,20 @@ from bes.system.host import host
 from bes.system.log import logger
 from bes.text.text_table import text_table
 
-from .vmware_app import vmware_app
+from .bat_vmware_app import bat_vmware_app
 from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 from .vmware_error import vmware_error
 from .vmware_guest_scripts import vmware_guest_scripts
 from .vmware_local_vm import vmware_local_vm
-from .vmware_options import vmware_options
+from .bat_vmware_options import bat_vmware_options
 from .vmware_power import vmware_power
 from .vmware_preferences import vmware_preferences
 from .vmware_run_program_options import vmware_run_program_options
-from .vmware_restore_vm_running_state import vmware_restore_vm_running_state
+from .bat_vmware_restore_vm_running_state import bat_vmware_restore_vm_running_state
 from .vmware_session import vmware_session
-from .vmware_vm import vmware_vm
-from .vmware_vmrun import vmware_vmrun
-from .vmware_vmx_file import vmware_vmx_file
+from .bat_vmware_vm import bat_vmware_vm
+from .bat_vmware_vmrun import bat_vmware_vmrun
+from .bat_bat_vmware_vmx_file import bat_bat_vmware_vmx_file
 from .vmware_run_operation import vmware_run_operation
 
 class vmware(object):
@@ -43,14 +43,14 @@ class vmware(object):
   _log = logger('vmware')
   
   def __init__(self, options = None):
-    self._options = options or vmware_options()
+    self._options = options or bat_vmware_options()
     preferences_filename = vmware_preferences.default_preferences_filename()
     self._preferences = vmware_preferences(preferences_filename)
     self._vm_dir = self._options.vm_dir or self._default_vm_dir()
     if not self._vm_dir:
       raise vmware_error('no vm_dir given in options and no default configured in {}'.format(preferences_filename))
     self._session = None
-    self._runner = vmware_vmrun(self._options)
+    self._runner = bat_vmware_vmrun(self._options)
     self._command_interpreter_manager = vmware_command_interpreter_manager.instance()
 
   @property
@@ -58,7 +58,7 @@ class vmware(object):
     local_vms = {}
     vmx_files = file_find.find(self._vm_dir, relative = False, match_patterns = [ '*.vmx' ])
     for vmx_filename in vmx_files:
-      nickname = vmware_vmx_file(vmx_filename).nickname
+      nickname = bat_bat_vmware_vmx_file(vmx_filename).nickname
       login_credentials = self._options.resolve_login_credentials(nickname)
       local_vm = vmware_local_vm(self._runner, vmx_filename, login_credentials)
       local_vms[vmx_filename] = local_vm
@@ -88,10 +88,10 @@ class vmware(object):
 
     self._log.log_method_d()
     
-    vmware_app.ensure_running()
+    bat_vmware_app.ensure_running()
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
-    with vmware_restore_vm_running_state(self) as _:
+    with bat_vmware_restore_vm_running_state(self) as _:
       with vmware_run_operation(vm, run_program_options) as target_vm:
         return target_vm.run_program(program, program_args,
                                      run_program_options = run_program_options)
@@ -105,10 +105,10 @@ class vmware(object):
 
     self._log.log_method_d()
 
-    vmware_app.ensure_running()
+    bat_vmware_app.ensure_running()
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
-    with vmware_restore_vm_running_state(self) as _:
+    with bat_vmware_restore_vm_running_state(self) as _:
       with vmware_run_operation(vm, run_program_options) as target_vm:
         return target_vm.run_script(script_text,
                                     run_program_options = run_program_options,
@@ -235,7 +235,7 @@ class vmware(object):
       tmp_output_log.remote,      
     ] + parsed_entry_command_args
       
-    with vmware_restore_vm_running_state(self) as _:
+    with bat_vmware_restore_vm_running_state(self) as _:
       with vmware_run_operation(vm, run_program_options) as target_vm:
         target_vm.dir_create(tmp_remote_dir)
         target_vm.file_copy_to(tmp_package.local, tmp_package.remote)
@@ -305,7 +305,7 @@ class vmware(object):
     run_program_options = run_program_options or vmware_run_program_options()
     
     self._log.log_method_d()
-    vmware_app.ensure_running()
+    bat_vmware_app.ensure_running()
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     if not self._runner.vm_is_running(vmx_filename):
@@ -377,10 +377,10 @@ class vmware(object):
     if shutdown:
       running_vms = self._running_vms()
       assert vm not in running_vms
-      vmware_app.ensure_stopped()
+      bat_vmware_app.ensure_stopped()
     self._runner.vm_delete(vm.vmx_filename)
     if shutdown:
-      vmware_app.ensure_running()
+      bat_vmware_app.ensure_running()
       assert running_vms != None
       for next_vm in running_vms:
         next_vm.start()
@@ -430,12 +430,12 @@ class vmware(object):
 
   def _resolve_vmx_to_local_vm(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename(vm_id, raise_error = raise_error)
-    nickname = vmware_vmx_file(vmx_filename).nickname
+    nickname = bat_bat_vmware_vmx_file(vmx_filename).nickname
     login_credentials = self._options.resolve_login_credentials(nickname)
     return vmware_local_vm(self._runner, vmx_filename, login_credentials)
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
-    if vmware_vmx_file.is_vmx_file(vm_id):
+    if bat_bat_vmware_vmx_file.is_vmx_file(vm_id):
       return vm_id
     for _, vm in self.local_vms.items():
       if vm_id in [ vm.nickname, vm.vmx_filename ]:
@@ -457,7 +457,7 @@ class vmware(object):
     return None
   
   def _authentication_args(self, username = None, password = None):
-    args = [ '-T', vmware_app.host_type() ]
+    args = [ '-T', bat_vmware_app.host_type() ]
     if username:
       args.extend([ '-gu', username ])
     if password:
@@ -503,7 +503,7 @@ class vmware(object):
     
     vmware_power.check_state(state)
     
-    vmware_app.ensure_running()
+    bat_vmware_app.ensure_running()
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     
@@ -523,7 +523,7 @@ class vmware(object):
 
     self._log.log_method_d()
     
-    vmware_app.ensure_running()
+    bat_vmware_app.ensure_running()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
     vm.start(gui = gui)
@@ -535,7 +535,7 @@ class vmware(object):
 
     self._log.log_method_d()
     
-    vmware_app.ensure_running()
+    bat_vmware_app.ensure_running()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
     vm.stop()

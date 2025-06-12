@@ -3,7 +3,7 @@
 from ..system_command import system_command
 
 from .vmware_error import vmware_error
-from .vmware_app import vmware_app
+from .bat_vmware_app import bat_vmware_app
 
 class vmware_command_vmrun(system_command):
 
@@ -11,7 +11,7 @@ class vmware_command_vmrun(system_command):
   #@abstractmethod
   def exe_name(clazz):
     'The name of the executable.'
-    return vmware_app.vmrun_exe_path()
+    return bat_vmware_app.vmrun_exe_path()
 
   @classmethod
   #@abstractmethod

@@ -81,5 +81,5 @@ class vmware_session_cli_args(object):
                    help = 'Use config filename [ False ]')
     
   def _command_vmware_session(self, command, *args, **kargs):
-    from .vmware_session_cli_handler import vmware_session_cli_handler
-    return vmware_session_cli_handler(kargs).handle_command(command)
+    from .bat_vmware_session_cli_handler import bat_vmware_session_cli_handler
+    return bat_vmware_session_cli_handler(kargs).handle_command(command)

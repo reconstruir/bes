@@ -10,26 +10,26 @@ from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
 from bes.system.log import logger
 
-from .vmware_app import vmware_app
+from .bat_vmware_app import bat_vmware_app
 from .vmware_clone_util import vmware_clone_util
 from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 from .vmware_error import vmware_error
-from .vmware_inventory import vmware_inventory
+from .bat_vmware_inventory import bat_vmware_inventory
 from .vmware_run_program_options import vmware_run_program_options
-from .vmware_vmx_file import vmware_vmx_file
+from .bat_bat_vmware_vmx_file import bat_bat_vmware_vmx_file
 
 class vmware_local_vm(object):
 
   _log = logger('vmware_local_vm')
   
   def __init__(self, runner, vmx_filename, login_credentials):
-    check.check_vmware_vmrun(runner)
+    check.check_bat_vmware_vmrun(runner)
     check.check_string(vmx_filename)
     check.check_credentials(login_credentials)
 
     self._runner = runner
     self.vmx_filename = path.abspath(vmx_filename)
-    self.vmx = vmware_vmx_file(self.vmx_filename)
+    self.vmx = bat_bat_vmware_vmx_file(self.vmx_filename)
     self.login_credentials = login_credentials
     
   def __str__(self):
@@ -243,13 +243,13 @@ class vmware_local_vm(object):
       if self.is_running:
         raise vmware_error('cannot delete a running vm: "{}"'.format(self.vmx_filename))
     if shutdown:
-      vmware_app.ensure_stopped()
+      bat_vmware_app.ensure_stopped()
     self._runner.vm_delete(self.vmx_filename)
-    inventory_filename = vmware_inventory.default_inventory_filename()
-    inventory = vmware_inventory(inventory_filename)
+    inventory_filename = bat_vmware_inventory.default_inventory_filename()
+    inventory = bat_vmware_inventory(inventory_filename)
     inventory.remove_missing_vms()
     if shutdown:
-      vmware_app.ensure_running()
+      bat_vmware_app.ensure_running()
 
   def dir_create(self, remote_dir):
     check.check_string(remote_dir)

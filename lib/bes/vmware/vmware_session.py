@@ -4,7 +4,7 @@ from bes.system.log import logger
 from ..system.check import check
 from bes.credentials.credentials import credentials
 
-from .vmware_client import vmware_client
+from .bat_vmware_client import bat_vmware_client
 from .vmware_credentials import vmware_credentials
 from .vmware_error import vmware_error
 from .vmware_server_controller import vmware_server_controller
@@ -42,7 +42,7 @@ class vmware_session(object):
     self._log.log_d('starting server on port {}'.format(self._port))
     self.server.start(port = self._port)
     self._log.log_d('starting client with address {}'.format(self.server.address))
-    self.client = vmware_client(address = self.server.address,
+    self.client = bat_vmware_client(address = self.server.address,
                                 auth = self._credentials)
     self._log.log_d('client started')
     
