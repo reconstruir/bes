@@ -16,9 +16,9 @@ from bes.system.os_env import os_env
 from bes.text.text_line_parser import text_line_parser
 
 from .bat_vmware_app import bat_vmware_app
-from .vmware_error import vmware_error
-from .vmware_power import vmware_power
-from .vmware_run_program_options import vmware_run_program_options
+from .bat_vmware_error import bat_vmware_error
+from .bat_vmware_power import bat_vmware_power
+from .bat_vmware_run_program_options import bat_vmware_run_program_options
 from .bat_vmware_vmx_file import bat_vmware_vmx_file
 
 class bat_vmware_vmrun(object):
@@ -68,7 +68,7 @@ class bat_vmware_vmrun(object):
       if not error_message:
         args_flat = ' '.join(vmrun_args)
         error_message = 'vmrun command failed: {}\n{}'.format(args_flat, output)
-      raise vmware_error(error_message, status_code = exit_code)
+      raise bat_vmware_error(error_message, status_code = exit_code)
     result = self._run_result(output, exit_code, vmrun_args)
     self._log.log_d('run: result: {} - {}'.format(result.exit_code, result.output))
     return result
@@ -80,7 +80,7 @@ class bat_vmware_vmrun(object):
     check.check_bool(hard)
 
     bat_vmware_vmx_file.check_vmx_file(vmx_filename)
-    vmware_power.check_state(state)
+    bat_vmware_power.check_state(state)
 
     self._log.log_method_d()
     args = [ state, vmx_filename ]
@@ -256,14 +256,14 @@ class bat_vmware_vmrun(object):
     rv = self.run(args, raise_error = False)
     if rv.exit_code != 0:
       error_message = 'Failed to delete vm: {} - {}'.format(vmx_filename, rv.output)
-      raise vmware_error(error_message, status_code = rv.exit_code)
+      raise bat_vmware_error(error_message, status_code = rv.exit_code)
 
   def vm_run_program(self, vmx_filename, program, program_args,
                      run_program_options, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(program)
     check.check_string_seq(program_args)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
     check.check_credentials(login_credentials)
 
     bat_vmware_vmx_file.check_vmx_file(vmx_filename)
@@ -280,7 +280,7 @@ class bat_vmware_vmrun(object):
     check.check_string(vmx_filename)
     check.check_string(interpreter_path)
     check.check_string(script_text)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
     check.check_credentials(login_credentials)
 
     bat_vmware_vmx_file.check_vmx_file(vmx_filename)

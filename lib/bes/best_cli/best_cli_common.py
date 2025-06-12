@@ -36,9 +36,9 @@ from bes.vm_builder.vm_builder_cli_args import vm_builder_cli_args
 from bes.bat_vmware.bat_vmware_app_cli_args import bat_vmware_app_cli_args
 from bes.bat_vmware.bat_vmware_cli_args import bat_vmware_cli_args
 from bes.bat_vmware.bat_vmware_client_cli_args import bat_vmware_client_cli_args
-from bes.bat_vmware.bat_vmware_preferences_cli_args import bat_vmware_preferences_cli_args
-from bes.bat_vmware.vmware_server_cli_args import vmware_server_cli_args
-from bes.bat_vmware.vmware_session_cli_args import vmware_session_cli_args
+from bes.bat_vmware.bat_bat_vmware_preferences_cli_args import bat_bat_vmware_preferences_cli_args
+from bes.bat_vmware.bat_bat_vmware_server_cli_args import bat_bat_vmware_server_cli_args
+from bes.bat_vmware.bat_bat_vmware_session_cli_args import bat_bat_vmware_session_cli_args
 
 from ..btl.btl_cli_args import btl_cli_args
 
@@ -79,9 +79,9 @@ COMMON_COMMAND_GROUPS = [
   cli_command('vmware', 'vmware_add_args', 'Deal with vmware', bat_vmware_cli_args),    
   cli_command('bat_vmware_app', 'bat_vmware_app_add_args', 'Deal with vmware app', bat_vmware_app_cli_args),
   cli_command('bat_vmware_client', 'bat_vmware_client_add_args', 'Deal with vmware client', bat_vmware_client_cli_args),
-  cli_command('vmware_preferences', 'vmware_preferences_add_args', 'Deal with vmware preferences', bat_vmware_preferences_cli_args),
-  cli_command('vmware_server', 'vmware_server_add_args', 'Deal with vmware server', vmware_server_cli_args),
-  cli_command('vmware_session', 'vmware_session_add_args', 'Deal with vmware session', vmware_session_cli_args),
+  cli_command('bat_vmware_preferences', 'bat_vmware_preferences_add_args', 'Deal with vmware preferences', bat_bat_vmware_preferences_cli_args),
+  cli_command('bat_vmware_server', 'bat_vmware_server_add_args', 'Deal with vmware server', bat_bat_vmware_server_cli_args),
+  cli_command('bat_vmware_session', 'bat_vmware_session_add_args', 'Deal with vmware session', bat_bat_vmware_session_cli_args),
 
   cli_command('btl', 'btl_add_args', 'Deal with text lexers', btl_cli_args),
 ]

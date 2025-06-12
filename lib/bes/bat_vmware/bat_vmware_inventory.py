@@ -9,10 +9,10 @@ from bes.system.host import host
 from bes.system.log import log
 
 from .bat_vmware_app import bat_vmware_app
-from .vmware_error import vmware_error
-from .vmware_properties_file import vmware_properties_file
+from .bat_vmware_error import bat_vmware_error
+from .bat_vmware_properties_file import bat_vmware_properties_file
 
-class bat_vmware_inventory(vmware_properties_file):
+class bat_vmware_inventory(bat_vmware_properties_file):
   '''
   Class to deal with the vmware fusion/workstation vm inventory
   macos: ~/Library/Application Support/VMware Fusion/vmInventory
@@ -32,10 +32,10 @@ class bat_vmware_inventory(vmware_properties_file):
     
     section = self._section_for_vm(vmx_filename)
     if not section:
-      raise vmware_error('no vm found vmlists: "{}"'.format(vmx_filename))
+      raise bat_vmware_error('no vm found vmlists: "{}"'.format(vmx_filename))
     index = self._index_for_vm(vmx_filename)
     if index == None:
-      raise vmware_error('no vm found in indeces: "{}"'.format(vmx_filename))
+      raise bat_vmware_error('no vm found in indeces: "{}"'.format(vmx_filename))
     self._remove_section(section, index)
 
   def remove_missing_vms(self):

@@ -23,20 +23,20 @@ from bes.system.log import logger
 from bes.text.text_table import text_table
 
 from .bat_vmware_app import bat_vmware_app
-from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
-from .vmware_error import vmware_error
-from .vmware_guest_scripts import vmware_guest_scripts
-from .vmware_local_vm import vmware_local_vm
+from .bat_bat_vmware_command_interpreter_manager import bat_bat_vmware_command_interpreter_manager
+from .bat_vmware_error import bat_vmware_error
+from .bat_vmware_guest_scripts import bat_vmware_guest_scripts
+from .bat_vmware_local_vm import bat_vmware_local_vm
 from .bat_vmware_options import bat_vmware_options
-from .vmware_power import vmware_power
-from .vmware_preferences import vmware_preferences
-from .vmware_run_program_options import vmware_run_program_options
+from .bat_vmware_power import bat_vmware_power
+from .bat_vmware_preferences import bat_vmware_preferences
+from .bat_vmware_run_program_options import bat_vmware_run_program_options
 from .bat_vmware_restore_vm_running_state import bat_vmware_restore_vm_running_state
-from .vmware_session import vmware_session
+from .bat_vmware_session import bat_vmware_session
 from .bat_vmware_vm import bat_vmware_vm
 from .bat_vmware_vmrun import bat_vmware_vmrun
 from .bat_vmware_vmx_file import bat_vmware_vmx_file
-from .vmware_run_operation import vmware_run_operation
+from .bat_vmware_run_operation import bat_vmware_run_operation
 
 class vmware(object):
 
@@ -44,14 +44,14 @@ class vmware(object):
   
   def __init__(self, options = None):
     self._options = options or bat_vmware_options()
-    preferences_filename = vmware_preferences.default_preferences_filename()
-    self._preferences = vmware_preferences(preferences_filename)
+    preferences_filename = bat_vmware_preferences.default_preferences_filename()
+    self._preferences = bat_vmware_preferences(preferences_filename)
     self._vm_dir = self._options.vm_dir or self._default_vm_dir()
     if not self._vm_dir:
-      raise vmware_error('no vm_dir given in options and no default configured in {}'.format(preferences_filename))
+      raise bat_vmware_error('no vm_dir given in options and no default configured in {}'.format(preferences_filename))
     self._session = None
     self._runner = bat_vmware_vmrun(self._options)
-    self._command_interpreter_manager = vmware_command_interpreter_manager.instance()
+    self._command_interpreter_manager = bat_bat_vmware_command_interpreter_manager.instance()
 
   @property
   def local_vms(self):
@@ -60,7 +60,7 @@ class vmware(object):
     for vmx_filename in vmx_files:
       nickname = bat_vmware_vmx_file(vmx_filename).nickname
       login_credentials = self._options.resolve_login_credentials(nickname)
-      local_vm = vmware_local_vm(self._runner, vmx_filename, login_credentials)
+      local_vm = bat_vmware_local_vm(self._runner, vmx_filename, login_credentials)
       local_vms[vmx_filename] = local_vm
     return local_vms
     
@@ -73,7 +73,7 @@ class vmware(object):
   def session(self):
     if not self._session:
       self._log.log_d('session: creating session')
-      self._session = vmware_session(port = self._options.vmrest_port,
+      self._session = bat_vmware_session(port = self._options.vmrest_port,
                                      credentials = self._options.vmrest_credentials)
       self._log.log_d('session: starting session')
       self._session.start()
@@ -84,7 +84,7 @@ class vmware(object):
     check.check_string(vm_id)
     check.check_string(program)
     check.check_string_seq(program_args, allow_none = True)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     
@@ -92,7 +92,7 @@ class vmware(object):
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
     with bat_vmware_restore_vm_running_state(self) as _:
-      with vmware_run_operation(vm, run_program_options) as target_vm:
+      with bat_vmware_run_operation(vm, run_program_options) as target_vm:
         return target_vm.run_program(program, program_args,
                                      run_program_options = run_program_options)
       
@@ -100,7 +100,7 @@ class vmware(object):
                     interpreter_name = None, script_is_file = False):
     check.check_string(vm_id)
     check.check_string(script_text)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
     check.check_string(interpreter_name, allow_none = True)
 
     self._log.log_method_d()
@@ -109,7 +109,7 @@ class vmware(object):
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
     with bat_vmware_restore_vm_running_state(self) as _:
-      with vmware_run_operation(vm, run_program_options) as target_vm:
+      with bat_vmware_run_operation(vm, run_program_options) as target_vm:
         return target_vm.run_script(script_text,
                                     run_program_options = run_program_options,
                                     interpreter_name = interpreter_name)
@@ -118,15 +118,15 @@ class vmware(object):
                          interpreter_name = None):
     check.check_string(vm_id)
     check.check_string(script_filename)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
     check.check_string(interpreter_name, allow_none = True)
 
     self._log.log_method_d()
 
     if not path.exists(script_filename):
-      raise vmware_error('script file not found: "{}"'.format(script_filename))
+      raise bat_vmware_error('script file not found: "{}"'.format(script_filename))
     if not path.isfile(script_filename):
-      raise vmware_error('script is not a file: "{}"'.format(script_filename))
+      raise bat_vmware_error('script is not a file: "{}"'.format(script_filename))
     script_text = file_util.read(script_filename, codec = 'utf8')
     return self.vm_run_script(vm_id,
                               script_text,
@@ -162,7 +162,7 @@ class vmware(object):
   
   def vm_can_run_programs(self, vm_id, run_program_options):
     check.check_string(vm_id)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     vm = self._resolve_vmx_to_local_vm(vm_id)
@@ -170,7 +170,7 @@ class vmware(object):
 
   def vm_wait_for_can_run_programs(self, vm_id, run_program_options):
     check.check_string(vm_id)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     
@@ -186,21 +186,21 @@ class vmware(object):
       self._log.log_d('vm_wait_for_can_run_programs: sleeping for {} seconds'.format(sleep_time))
       time.sleep(sleep_time)
     self._log.log_d('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
-    raise vmware_error('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
+    raise bat_vmware_error('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
   
   def vm_run_package(self, vm_id, package_dir, entry_command, entry_command_args, run_program_options):
     check.check_string(vm_id)
     check.check_string(package_dir)
     check.check_string(entry_command)
     check.check_string_seq(entry_command_args)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
     if not path.isdir(package_dir):
-      raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
+      raise bat_vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
 
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir',
                                             delete = not self._options.debug)
@@ -216,7 +216,7 @@ class vmware(object):
 
     archiver.create(tmp_package.local, package_dir)
     file_util.save(tmp_caller_script.local,
-                   content = vmware_guest_scripts.RUN_PACKAGE_CALLER,
+                   content = bat_vmware_guest_scripts.RUN_PACKAGE_CALLER,
                    mode = 0o0755)
     self._log.log_d('vm_run_package: tmp_package={}'.format(tmp_package))
     self._log.log_d('vm_run_package: tmp_caller_script={}'.format(tmp_caller_script))
@@ -236,7 +236,7 @@ class vmware(object):
     ] + parsed_entry_command_args
       
     with bat_vmware_restore_vm_running_state(self) as _:
-      with vmware_run_operation(vm, run_program_options) as target_vm:
+      with bat_vmware_run_operation(vm, run_program_options) as target_vm:
         target_vm.dir_create(tmp_remote_dir)
         target_vm.file_copy_to(tmp_package.local, tmp_package.remote)
         target_vm.file_copy_to(tmp_caller_script.local, tmp_caller_script.remote)
@@ -300,9 +300,9 @@ class vmware(object):
     check.check_string(vm_id)
     check.check_bool(wait)
     check.check_bool(gui)
-    check.check_vmware_run_program_options(run_program_options)
+    check.check_bat_vmware_run_program_options(run_program_options)
 
-    run_program_options = run_program_options or vmware_run_program_options()
+    run_program_options = run_program_options or bat_vmware_run_program_options()
     
     self._log.log_method_d()
     bat_vmware_app.ensure_running()
@@ -363,7 +363,7 @@ class vmware(object):
     self._handle_vm_delete(vm, stop, shutdown)
 
   def _handle_vm_delete(self, vm, stop = False, shutdown = False):
-    check.check_vmware_local_vm(vm)
+    check.check_bat_vmware_local_vm(vm)
     check.check_bool(stop)
     check.check_bool(shutdown)
 
@@ -373,7 +373,7 @@ class vmware(object):
       vm.stop()
     else:
       if vm.is_running:
-        raise vmware_error('cannot delete a running vm: "{}"'.format(vm_id))
+        raise bat_vmware_error('cannot delete a running vm: "{}"'.format(vm_id))
     if shutdown:
       running_vms = self._running_vms()
       assert vm not in running_vms
@@ -424,7 +424,7 @@ class vmware(object):
   def _resolve_vmx_filename(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
     if not vmx_filename and raise_error:
-      raise vmware_error('failed to resolve vmx filename for id: "{}"'.format(vm_id))
+      raise bat_vmware_error('failed to resolve vmx filename for id: "{}"'.format(vm_id))
     self._log.log_d('_resolve_vmx_filename: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
     return vmx_filename
 
@@ -432,7 +432,7 @@ class vmware(object):
     vmx_filename = self._resolve_vmx_filename(vm_id, raise_error = raise_error)
     nickname = bat_vmware_vmx_file(vmx_filename).nickname
     login_credentials = self._options.resolve_login_credentials(nickname)
-    return vmware_local_vm(self._runner, vmx_filename, login_credentials)
+    return bat_vmware_local_vm(self._runner, vmx_filename, login_credentials)
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
     if bat_vmware_vmx_file.is_vmx_file(vm_id):
@@ -475,7 +475,7 @@ class vmware(object):
     
     local_filename = path.abspath(local_filename)
     if not path.isfile(local_filename):
-      raise vmware_error('local filename not found: "{}"'.format(local_filename))
+      raise bat_vmware_error('local filename not found: "{}"'.format(local_filename))
 
     return self._runner.vm_file_copy_to(src_vmx_filename, local_filename, remote_filename)
 
@@ -501,7 +501,7 @@ class vmware(object):
 
     self._log.log_method_d()
     
-    vmware_power.check_state(state)
+    bat_vmware_power.check_state(state)
     
     bat_vmware_app.ensure_running()
 
@@ -513,7 +513,7 @@ class vmware(object):
 
     result = self._runner.vm_set_power_state(vmx_filename, state, gui = gui)
     if wait and state in ( 'start', 'unpause' ):
-      self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
+      self.vm_wait_for_can_run_programs(vm_id, bat_vmware_run_program_options())
     return result
 
   def vm_start(self, vm_id, wait = False, gui = False):
@@ -528,7 +528,7 @@ class vmware(object):
     vm = self._resolve_vmx_to_local_vm(vm_id)
     vm.start(gui = gui)
     if wait:
-      self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
+      self.vm_wait_for_can_run_programs(vm_id, bat_vmware_run_program_options())
 
   def vm_stop(self, vm_id):
     check.check_string(vm_id)
@@ -565,7 +565,7 @@ class vmware(object):
     vmx_filename = self._resolve_vmx_filename(vm_id)
     snapshots = self._runner.vm_snapshots(vmx_filename)
     if name in snapshots:
-      raise vmware_error('snapshot "{}" already exists for {}'.format(name, vmx_filename))
+      raise bat_vmware_error('snapshot "{}" already exists for {}'.format(name, vmx_filename))
     self._runner.vm_snapshot_create(vmx_filename, name)
 
   def vm_snapshot_delete(self, vm_id, name, delete_children = False):

@@ -5,7 +5,7 @@ from bes.system.host_info import host_info
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
 
-from .vmware_error import vmware_error
+from .bat_vmware_error import bat_vmware_error
 
 class bat_vmware_system_info(object):
   '''
@@ -36,7 +36,7 @@ class bat_vmware_system_info(object):
     if details:
       family_name = details.get('familyName', None)
       if not family_name:
-        raise vmware_error('Family name not found for guest os: "{}" - "{}"'.format(guest_os, details))
+        raise bat_vmware_error('Family name not found for guest os: "{}" - "{}"'.format(guest_os, details))
       return clazz._system_info_with_details(family_name, details)
     else:
       return clazz._system_info_without_details(guest_os)
@@ -50,10 +50,10 @@ class bat_vmware_system_info(object):
     handler_name = '_system_info_{}'.format(family_name)
     handler = getattr(clazz, handler_name, None)
     if not handler:
-      raise vmware_error(f'Unknown guest os: "{family_name}" - "{details}"')
+      raise bat_vmware_error(f'Unknown guest os: "{family_name}" - "{details}"')
     result = handler(details)
     if not result:
-      raise vmware_error(f'Unknown guest os: "{family_name}" - "{details}"')
+      raise bat_vmware_error(f'Unknown guest os: "{family_name}" - "{details}"')
     return result
 
   @classmethod

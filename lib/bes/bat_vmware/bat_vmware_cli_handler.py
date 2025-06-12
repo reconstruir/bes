@@ -9,7 +9,7 @@ from bes.system.log import logger
 
 from .vmware import vmware
 from .bat_vmware_options import bat_vmware_options
-from .vmware_run_program_options import vmware_run_program_options
+from .bat_vmware_run_program_options import bat_vmware_run_program_options
 
 class bat_vmware_cli_handler(cli_command_handler):
   'vmware cli handler.'
@@ -38,7 +38,7 @@ class bat_vmware_cli_handler(cli_command_handler):
     check.check_dict(kwargs)
 
     if command_name in self._COMMANDS_WITH_RUN_PROGRAM_OPTIONS:
-      options, left_over_args = self.make_options(vmware_run_program_options, kwargs)
+      options, left_over_args = self.make_options(bat_vmware_run_program_options, kwargs)
       function_args = left_over_args
       function_args['run_program_options'] = options
     else:

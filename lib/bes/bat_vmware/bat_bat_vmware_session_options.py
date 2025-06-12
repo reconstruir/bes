@@ -6,7 +6,7 @@ from bes.cli.cli_options import cli_options
 
 from .bat_vmware_error import bat_vmware_error
 
-class bat_vmware_app_cli_options(cli_options):
+class bat_bat_vmware_session_options(cli_options):
   
   def __init__(self, **kargs):
     super().__init__(**kargs)
@@ -17,35 +17,38 @@ class bat_vmware_app_cli_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'verbose': False,
+      'vmrest_port': None,
+      'vmrest_username': None,
+      'vmrest_password': None,
     }
 
   @classmethod
   #@abstractmethod
   def sensitive_keys(clazz):
     'Return list of keys that are secrets and should be protected from __str__.'
-    return None
+    return [ 'vmrest_password' ]
   
   @classmethod
   #@abstractmethod
   def value_type_hints(clazz):
     return {
-      'verbose': bool,
+      'vmrest_port': int,
     }
 
   @classmethod
   #@abstractmethod
   def config_file_key(clazz):
-    return None
+    return 'config_filename'
 
   @classmethod
   #@abstractmethod
   def config_file_env_var_name(clazz):
-    return None
+    return 'BES_VMWARE_CONFIG_FILE'
   
   @classmethod
   #@abstractmethod
   def config_file_section(clazz):
-    return None
+    return 'vmware'
 
   @classmethod
   #@abstractmethod
@@ -56,5 +59,19 @@ class bat_vmware_app_cli_options(cli_options):
   def check_value_types(self):
     'Check the type of each option.'
     check.check_bool(self.verbose)
+    check.check_int(self.vmrest_port, allow_none = True)
+    check.check_string(self.vmrest_username, allow_none = True)
+    check.check_string(self.vmrest_password, allow_none = True)
   
-check.register_class(bat_vmware_app_cli_options)
+  @property
+  def vmrest_credentials(self):
+    if self.vmrest_username and not self.vmrest_password:
+      raise bat_vmware_error('both vmrest_username and vmrest_password need to be given.')
+    if self.vmrest_password and not self.vmrest_username:
+      raise bat_vmware_error('both vmrest_password and vmrest_username need to be given.')
+    if not self.vmrest_username:
+      assert not self.vmrest_password
+      return None
+    return credentials('<cli>', username = self.vmrest_username, password = self.vmrest_password)
+    
+check.register_class(bat_bat_vmware_session_options)

@@ -10,7 +10,7 @@ from bes.net_util.port_probe import port_probe
 from bes.system.log import logger
 from bes.common.json_util import json_util
 
-from .vmware_error import vmware_error
+from .bat_vmware_error import bat_vmware_error
 from .bat_vmware_shared_folder import bat_vmware_shared_folder
 from .bat_vmware_shared_folder import bat_vmware_shared_folder_list
 from .bat_vmware_vm import bat_vmware_vm
@@ -43,7 +43,7 @@ class bat_vmware_client(object):
 
   def _check_response_401(self, response):
     if response.status_code == 401:
-      raise vmware_error('401 authentication error for "{}"  Check vmrest_username and vmrest_password.'.format(response.url))
+      raise bat_vmware_error('401 authentication error for "{}"  Check vmrest_username and vmrest_password.'.format(response.url))
     return False
 
   def _check_response(self, response):
@@ -56,7 +56,7 @@ class bat_vmware_client(object):
     self._check_response(response)
 
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     result = []
@@ -72,7 +72,7 @@ class bat_vmware_client(object):
     url = self._make_url('vms/{}'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
@@ -85,18 +85,18 @@ class bat_vmware_client(object):
     url = self._make_url('vms/{}/params/{}'.format(vm_id, key))
     response = self._make_request('get', url)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     name = response_data.get('name', None)
     if not name:
-      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+      raise bat_vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     value = response_data.get('value', None)
     if not value:
-      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+      raise bat_vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     if name == key:
       return value
-    raise vmware_error('Config value "{}" not found'.format(key))
+    raise bat_vmware_error('Config value "{}" not found'.format(key))
 
   def vm_get_mac_address(self, vm_id):
     'Return the mac address for a vm'
@@ -104,11 +104,11 @@ class bat_vmware_client(object):
 
     try:
       return self.vm_config(vm_id, 'ethernet0.address')
-    except vmware_error as ex:
+    except bat_vmware_error as ex:
       pass
     try:
       return self.vm_config(vm_id, 'ethernet0.generatedAddress')
-    except vmware_error as ex:
+    except bat_vmware_error as ex:
       pass
     return None
   
@@ -119,12 +119,12 @@ class bat_vmware_client(object):
     url = self._make_url('vms/{}/power'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     power_state = response_data.get('power_state', None)
     if not power_state:
-      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+      raise bat_vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return power_state == 'poweredOn'
 
   POWER_STATES = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' )
@@ -135,7 +135,7 @@ class bat_vmware_client(object):
     check.check_string(wait, allow_none = True)
 
     if state not in self.POWER_STATES:
-      raise vmware_error('Invalid power stte "{}" - Should be one of: {}'.format(state,
+      raise bat_vmware_error('Invalid power stte "{}" - Should be one of: {}'.format(state,
                                                                                  ' '.join(self.POWER_STATES)))
     
     url = self._make_url('vms/{}/power'.format(vm_id))
@@ -143,12 +143,12 @@ class bat_vmware_client(object):
     data = state
     response = self._make_request('put', url, data = data)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_power: response_data={}'.format(pprint.pformat(response_data)))
     power_state = response_data.get('power_state', None)
     if not power_state:
-      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+      raise bat_vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     result = power_state == 'poweredOn'
 
     if result:
@@ -166,7 +166,7 @@ class bat_vmware_client(object):
       try:
         ip_address = self.vm_get_ip_address(vm_id)
         break
-      except vmware_error as ex:
+      except bat_vmware_error as ex:
         self._log.log_d('vm_power: caught exception waiting for ip address: {}'.format(ex))
         time.sleep(1.0)
     return ip_address
@@ -177,7 +177,7 @@ class bat_vmware_client(object):
       try:
         if port_probe.is_open(ssh_port):
           break
-      except vmware_error as ex:
+      except bat_vmware_error as ex:
         self._log.log_d('vm_power: caught exception waiting for ssh port: {}'.format(ex))
         time.sleep(1.0)
         
@@ -191,7 +191,7 @@ class bat_vmware_client(object):
     
     response = self._make_request('get', endpoint)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(endpoint, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(endpoint, response.status_code))
     response_data = response.json()
     self._log.log_d('request: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
@@ -203,12 +203,12 @@ class bat_vmware_client(object):
     url = self._make_url('vms/{}/ip'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     ip_address = response_data.get('ip', None)
     if not ip_address:
-      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+      raise bat_vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return ip_address
 
   def vm_name_to_id(self, name):
@@ -269,7 +269,7 @@ class bat_vmware_client(object):
     url = self._make_url('vms/{}/sharedfolders'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_get_shared_folders: response_data={}'.format(pprint.pformat(response_data)))
     result = bat_vmware_shared_folder_list()
@@ -292,7 +292,7 @@ class bat_vmware_client(object):
     }
     response = self._make_request('put', url, json = json) #data = data)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_set_shared_folders: response_data={}'.format(pprint.pformat(response_data)))
     result = []
@@ -312,9 +312,9 @@ class bat_vmware_client(object):
     json = folder.to_json()
     response = self._make_request('post', url, data = json)
     if response.status_code == 409:
-      raise vmware_error('shared folder already exists: "{}"'.format(folder_id))
+      raise bat_vmware_error('shared folder already exists: "{}"'.format(folder_id))
     elif response.status_code != 201:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_add_shared_folder: response_data={}'.format(pprint.pformat(response_data)))
     result = bat_vmware_shared_folder_list()
@@ -330,7 +330,7 @@ class bat_vmware_client(object):
     url = self._make_url('vms/{}/sharedfolders/{}'.format(vm_id, folder_id))
     response = self._make_request('delete', url)
     if response.status_code != 204:
-      raise vmware_error('Error deleting: "{}": {}\n{}'.format(url, response.status_code, response.content))
+      raise bat_vmware_error('Error deleting: "{}": {}\n{}'.format(url, response.status_code, response.content))
 
   def vm_copy(self, vm_id, new_vm_id):
     check.check_string(vm_id)
@@ -347,11 +347,11 @@ class bat_vmware_client(object):
 
     if response.status_code == 409:
       if response_data['Code'] == 107:
-        raise vmware_error('{} - {}'.format(response_data['Code'], response_data['Message']))
+        raise bat_vmware_error('{} - {}'.format(response_data['Code'], response_data['Message']))
       else:
-        raise vmware_error('vm already exists: "{}"'.format(new_vm_id))
+        raise bat_vmware_error('vm already exists: "{}"'.format(new_vm_id))
     elif response.status_code != 201:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_copy: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
@@ -370,6 +370,6 @@ class bat_vmware_client(object):
     response = self._make_request('delete', url)
 
     if response.status_code != 204:
-      raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
+      raise bat_vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
 
 check.register_class(bat_vmware_client, include_seq = False)

@@ -5,7 +5,7 @@ from ..system.check import check
 from bes.credentials.credentials import credentials
 from bes.script.blurber import blurber
 
-from .vmware_error import vmware_error
+from .bat_vmware_error import bat_vmware_error
 
 class bat_vmware_options(cli_options):
 
@@ -60,7 +60,7 @@ class bat_vmware_options(cli_options):
   @classmethod
   #@abstractmethod
   def error_class(clazz):
-    return vmware_error
+    return bat_vmware_error
 
   #@abstractmethod
   def check_value_types(self):
@@ -79,9 +79,9 @@ class bat_vmware_options(cli_options):
   @property
   def vmrest_credentials(self):
     if self.vmrest_username and not self.vmrest_password:
-      raise vmware_error('both vmrest_username and vmrest_password need to be given.')
+      raise bat_vmware_error('both vmrest_username and vmrest_password need to be given.')
     if self.vmrest_password and not self.vmrest_username:
-      raise vmware_error('both vmrest_password and vmrest_username need to be given.')
+      raise bat_vmware_error('both vmrest_password and vmrest_username need to be given.')
     if not self.vmrest_username:
       assert not self.vmrest_password
       return None
@@ -90,9 +90,9 @@ class bat_vmware_options(cli_options):
   @property
   def login_credentials(self):
     if self.login_username and not self.login_password:
-      raise vmware_error('both login_username and login_password need to be given.')
+      raise bat_vmware_error('both login_username and login_password need to be given.')
     if self.login_password and not self.login_username:
-      raise vmware_error('both login_password and login_username need to be given.')
+      raise bat_vmware_error('both login_password and login_username need to be given.')
     if not self.login_username:
       assert not self.login_password
       return None
@@ -121,9 +121,9 @@ class bat_vmware_options(cli_options):
     login_username = self.resolve_login_username(vm_name)
     login_password = self.resolve_login_password(vm_name)
     if login_username and not login_password:
-      raise vmware_error('both login_username and login_password need to be given.')
+      raise bat_vmware_error('both login_username and login_password need to be given.')
     if login_password and not login_username:
-      raise vmware_error('both login_password and login_username need to be given.')
+      raise bat_vmware_error('both login_password and login_username need to be given.')
     if not login_username:
       assert not login_password
       return None

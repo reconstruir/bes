@@ -10,11 +10,11 @@ from bes.fs.file_util import file_util
 from bes.property.cached_property import cached_property
 from bes.system.host_info import host_info
 
-from .vmware_error import vmware_error
-from .vmware_properties_file import vmware_properties_file
+from .bat_vmware_error import bat_vmware_error
+from .bat_vmware_properties_file import bat_vmware_properties_file
 from .bat_vmware_system_info import bat_vmware_system_info
 
-class bat_vmware_vmx_file(vmware_properties_file):
+class bat_vmware_vmx_file(bat_vmware_properties_file):
   'Class do deal with vmware vmx files'
 
   def __init__(self, filename = None, backup = False):
@@ -50,7 +50,7 @@ class bat_vmware_vmx_file(vmware_properties_file):
     for key in ( 'displayName', 'displayname' ):
       if self.has_value(key):
         return self.get_value(key)
-    raise vmware_error('No displayname found: {self.filename}')
+    raise bat_vmware_error('No displayname found: {self.filename}')
 
   @cached_property
   def uuid(self):
@@ -68,7 +68,7 @@ class bat_vmware_vmx_file(vmware_properties_file):
       #return r'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
       return r'C:\Windows\System32\cmd.exe'
     else:
-      raise vmware_error('Unknown vmware system: "{}"'.format(system))
+      raise bat_vmware_error('Unknown vmware system: "{}"'.format(system))
 
   @cached_property
   def can_run_programs_arguments(self):
@@ -78,7 +78,7 @@ class bat_vmware_vmx_file(vmware_properties_file):
     elif self.interpreter.endswith('cmd.exe'):
       return r'exit 0'
     else:
-      raise vmware_error('Unknown vmware system: "{}"'.format(system))
+      raise bat_vmware_error('Unknown vmware system: "{}"'.format(system))
     
   @classmethod
   def is_vmx_file(clazz, filename):
@@ -86,7 +86,7 @@ class bat_vmware_vmx_file(vmware_properties_file):
     if not path.exists(filename):
       return False
     if not path.isfile(filename):
-      raise vmware_error('Directory found instead of file: "{}"'.format(filename))
+      raise bat_vmware_error('Directory found instead of file: "{}"'.format(filename))
     if not file_mime.is_text(filename):
       return False
     content = file_util.read(filename, codec = 'utf-8')
@@ -102,5 +102,5 @@ class bat_vmware_vmx_file(vmware_properties_file):
     check.check_string(filename)
 
     if not clazz.is_vmx_file(filename):
-      raise vmware_error('Not a vmware vmx file: "{}"'.format(filename))
+      raise bat_vmware_error('Not a vmware vmx file: "{}"'.format(filename))
     return filename
