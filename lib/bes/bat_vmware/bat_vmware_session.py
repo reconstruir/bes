@@ -7,7 +7,7 @@ from bes.credentials.credentials import credentials
 from .bat_vmware_client import bat_vmware_client
 from .bat_vmware_credentials import bat_vmware_credentials
 from .bat_vmware_error import bat_vmware_error
-from .bat_bat_vmware_server_controller import bat_bat_vmware_server_controller
+from .bat_vmware_server_controller import bat_vmware_server_controller
 from .bat_vmware_util import bat_vmware_util
 
 class bat_vmware_session(object):
@@ -38,7 +38,7 @@ class bat_vmware_session(object):
       self._log.log_d('server already exists')
       return
     self._log.log_d('creating server')
-    self.server = bat_bat_vmware_server_controller()
+    self.server = bat_vmware_server_controller()
     self._log.log_d('starting server on port {}'.format(self._port))
     self.server.start(port = self._port)
     self._log.log_d('starting client with address {}'.format(self.server.address))

@@ -9,11 +9,11 @@ from bes.text.text_table import text_table
 
 from .bat_vmware_preferences import bat_vmware_preferences
 
-class bat_bat_vmware_preferences_cli_handler(cli_command_handler):
+class bat_vmware_preferences_cli_handler(cli_command_handler):
   'vmware preferences cli handler.'
 
   def __init__(self, cli_args):
-    super(bat_bat_vmware_preferences_cli_handler, self).__init__(cli_args)
+    super(bat_vmware_preferences_cli_handler, self).__init__(cli_args)
 
   def set_value(self, filename, key, value, backup):
     check.check_string(filename, allow_none = True)

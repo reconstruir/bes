@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class bat_bat_vmware_preferences_cli_args(object):
+class bat_vmware_preferences_cli_args(object):
 
   def __init__(self):
     pass
@@ -33,5 +33,5 @@ class bat_bat_vmware_preferences_cli_args(object):
                    help = 'Verbose output [ ]')
     
   def _command_bat_vmware_preferences(self, command, *args, **kargs):
-    from .bat_bat_vmware_preferences_cli_handler import bat_bat_vmware_preferences_cli_handler
-    return bat_bat_vmware_preferences_cli_handler(kargs).handle_command(command)
+    from .bat_vmware_preferences_cli_handler import bat_vmware_preferences_cli_handler
+    return bat_vmware_preferences_cli_handler(kargs).handle_command(command)

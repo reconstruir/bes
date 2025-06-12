@@ -7,14 +7,14 @@ from bes.common.string_util import string_util
 from bes.compat.input import input
 from bes.system.log import log
 
-from .bat_bat_vmware_server_controller import bat_bat_vmware_server_controller
+from .bat_vmware_server_controller import bat_vmware_server_controller
 
-class bat_bat_vmware_server_shell(object):
+class bat_vmware_server_shell(object):
 
-  _log = logger('bat_bat_vmware_server_shell')
+  _log = logger('bat_vmware_server_shell')
   
   def __init__(self):
-    self._controller = bat_bat_vmware_server_controller()
+    self._controller = bat_vmware_server_controller()
   
   def main(self, args = None, shell_args = None):
     ap = argparse.ArgumentParser()

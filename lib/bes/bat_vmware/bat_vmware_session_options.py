@@ -6,7 +6,7 @@ from bes.cli.cli_options import cli_options
 
 from .bat_vmware_error import bat_vmware_error
 
-class bat_bat_vmware_session_options(cli_options):
+class bat_vmware_session_options(cli_options):
   
   def __init__(self, **kargs):
     super().__init__(**kargs)
@@ -74,4 +74,4 @@ class bat_bat_vmware_session_options(cli_options):
       return None
     return credentials('<cli>', username = self.vmrest_username, password = self.vmrest_password)
     
-check.register_class(bat_bat_vmware_session_options)
+check.register_class(bat_vmware_session_options)

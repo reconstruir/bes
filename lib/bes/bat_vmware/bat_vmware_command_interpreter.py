@@ -8,17 +8,17 @@ from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 from bes.system.compat import compat
 
-from .bat_bat_vmware_command_interpreter_registry import bat_bat_vmware_command_interpreter_registry
+from .bat_vmware_command_interpreter_registry import bat_vmware_command_interpreter_registry
 
 class _command_interpreter_register_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
     if name not in [ 'bat_vmware_command_interpreter', 'ci_unix_shell' ]:
-      bat_bat_vmware_command_interpreter_registry.register(clazz)
+      bat_vmware_command_interpreter_registry.register(clazz)
     return clazz
   
-class bat_vmware_command_interpreter(object, metaclass = command_interpreter_register_meta):
+class bat_vmware_command_interpreter(object, metaclass = _command_interpreter_register_meta):
 
   @abstractmethod
   def name(self):

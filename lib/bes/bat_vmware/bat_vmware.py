@@ -23,7 +23,7 @@ from bes.system.log import logger
 from bes.text.text_table import text_table
 
 from .bat_vmware_app import bat_vmware_app
-from .bat_bat_vmware_command_interpreter_manager import bat_bat_vmware_command_interpreter_manager
+from .bat_vmware_command_interpreter_manager import bat_vmware_command_interpreter_manager
 from .bat_vmware_error import bat_vmware_error
 from .bat_vmware_guest_scripts import bat_vmware_guest_scripts
 from .bat_vmware_local_vm import bat_vmware_local_vm
@@ -38,7 +38,7 @@ from .bat_vmware_vmrun import bat_vmware_vmrun
 from .bat_vmware_vmx_file import bat_vmware_vmx_file
 from .bat_vmware_run_operation import bat_vmware_run_operation
 
-class vmware(object):
+class bat_vmware(object):
 
   _log = logger('vmware')
   
@@ -51,7 +51,7 @@ class vmware(object):
       raise bat_vmware_error('no vm_dir given in options and no default configured in {}'.format(preferences_filename))
     self._session = None
     self._runner = bat_vmware_vmrun(self._options)
-    self._command_interpreter_manager = bat_bat_vmware_command_interpreter_manager.instance()
+    self._command_interpreter_manager = bat_vmware_command_interpreter_manager.instance()
 
   @property
   def local_vms(self):

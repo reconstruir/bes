@@ -6,15 +6,15 @@ from ..system.check import check
 from bes.script.blurber import blurber
 
 from .bat_vmware_credentials import bat_vmware_credentials
-from .bat_bat_vmware_server_shell import bat_bat_vmware_server_shell
-from .bat_bat_vmware_server_options import bat_bat_vmware_server_options
+from .bat_vmware_server_shell import bat_vmware_server_shell
+from .bat_vmware_server_options import bat_vmware_server_options
 
-class bat_bat_vmware_server_cli_handler(cli_command_handler):
+class bat_vmware_server_cli_handler(cli_command_handler):
   'vmware server cli handler.'
 
   def __init__(self, cli_args):
-    super().__init__(cli_args, options_class = bat_bat_vmware_server_options)
-    check.check_bat_bat_vmware_server_options(self.options)
+    super().__init__(cli_args, options_class = bat_vmware_server_options)
+    check.check_bat_vmware_server_options(self.options)
 
   def shell(self, shell_args):
     check.check_string_seq(shell_args)
@@ -22,7 +22,7 @@ class bat_bat_vmware_server_cli_handler(cli_command_handler):
     args = []
     if self.options.port:
       args.extend([ '--port', self.options.port ])
-    raise SystemExit(bat_bat_vmware_server_shell().main(args = args, shell_args = shell_args))
+    raise SystemExit(bat_vmware_server_shell().main(args = args, shell_args = shell_args))
     return 0
 
   def set_credentials(self, username, password, num_tries):

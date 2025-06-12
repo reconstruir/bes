@@ -4,20 +4,20 @@ from ..system.check import check
 from bes.system.host import host
 from bes.common.singleton import singleton
 
-from .bat_bat_vmware_command_interpreter_registry import bat_bat_vmware_command_interpreter_registry
+from .bat_vmware_command_interpreter_registry import bat_vmware_command_interpreter_registry
 from .bat_vmware_error import bat_vmware_error
 
-from .bat_bat_vmware_command_interpreters import *
+from .bat_vmware_command_interpreters import *
 
 @singleton
-class bat_bat_vmware_command_interpreter_manager(object):
+class bat_vmware_command_interpreter_manager(object):
 
   def __init__(self):
     self._map = {}
     self._add_registry_interpreters()
 
   def _add_registry_interpreters(self):
-    for _, ci_class in bat_bat_vmware_command_interpreter_registry.items():
+    for _, ci_class in bat_vmware_command_interpreter_registry.items():
       interpreter = ci_class()
       for system in interpreter.supported_systems():
         self.add_command_interpreter(system, interpreter)

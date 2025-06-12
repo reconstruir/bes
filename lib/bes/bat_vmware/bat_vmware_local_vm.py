@@ -12,7 +12,7 @@ from bes.system.log import logger
 
 from .bat_vmware_app import bat_vmware_app
 from .bat_vmware_clone_util import bat_vmware_clone_util
-from .bat_bat_vmware_command_interpreter_manager import bat_bat_vmware_command_interpreter_manager
+from .bat_vmware_command_interpreter_manager import bat_vmware_command_interpreter_manager
 from .bat_vmware_error import bat_vmware_error
 from .bat_vmware_inventory import bat_vmware_inventory
 from .bat_vmware_run_program_options import bat_vmware_run_program_options
@@ -146,7 +146,7 @@ class bat_vmware_local_vm(object):
     if not self.ip_address:
       raise bat_vmware_error('vm not running: {}'.format(self.nickname))
   
-    cim = bat_bat_vmware_command_interpreter_manager.instance()
+    cim = bat_vmware_command_interpreter_manager.instance()
     interpreter = cim.resolve_interpreter(self.system, interpreter_name)
     self._log.log_d('run_script: interpreter={}'.format(interpreter))
     command = interpreter.build_command(script)

@@ -4,7 +4,7 @@ from bes.common.string_util import string_util
 
 from bes.properties_file_v2.properties_file_formatter_base import properties_file_formatter_base
 
-class bat_bat_vmware_properties_file_formatter(properties_file_formatter_base):
+class bat_vmware_properties_file_formatter(properties_file_formatter_base):
 
   #@abstractmethod
   def delimiter(self):

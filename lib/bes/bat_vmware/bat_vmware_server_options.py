@@ -4,7 +4,7 @@ from ..system.check import check
 from bes.common.dict_util import dict_util
 from bes.script.blurber import blurber
 
-class bat_bat_vmware_server_options(object):
+class bat_vmware_server_options(object):
   
   def __init__(self, *args, **kargs):
     self.verbose = False
@@ -18,4 +18,4 @@ class bat_bat_vmware_server_options(object):
     check.check_int(self.port, allow_none = True)
     check.check_string(self.hostname, allow_none = True)
 
-check.register_class(bat_bat_vmware_server_options)
+check.register_class(bat_vmware_server_options)

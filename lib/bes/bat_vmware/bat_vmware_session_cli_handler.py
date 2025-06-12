@@ -7,20 +7,20 @@ from .bat_vmware_client_commands import bat_vmware_client_commands
 from .bat_vmware_error import bat_vmware_error
 from .bat_vmware_server import bat_vmware_server
 from .bat_vmware_session import bat_vmware_session
-from .bat_bat_vmware_session_options import bat_bat_vmware_session_options
+from .bat_vmware_session_options import bat_vmware_session_options
 
-class bat_bat_vmware_session_cli_handler(cli_command_handler):
+class bat_vmware_session_cli_handler(cli_command_handler):
   'vmware session cli handler.'
 
   def __init__(self, cli_args):
-    super(bat_bat_vmware_session_cli_handler, self).__init__(cli_args,
-                                                     options_class = bat_bat_vmware_session_options,
+    super(bat_vmware_session_cli_handler, self).__init__(cli_args,
+                                                     options_class = bat_vmware_session_options,
                                                      delegate = self._comand_handler_delegate)
-    check.check_bat_bat_vmware_session_options(self.options)
+    check.check_bat_vmware_session_options(self.options)
 
   def _comand_handler_delegate(self, command_name, options, *args, **kwargs):
     check.check_string(command_name)
-    check.check_bat_bat_vmware_session_options(options)
+    check.check_bat_vmware_session_options(options)
     check.check_tuple(args)
     check.check_dict(kwargs)
     

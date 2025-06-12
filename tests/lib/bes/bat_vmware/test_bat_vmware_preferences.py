@@ -7,7 +7,7 @@ from bes.fs.temp_file import temp_file
 
 from bes.bat_vmware.bat_vmware_preferences import bat_vmware_preferences as GP
 
-class bat_test_bat_vmware_preferences(unit_test):
+class test_bat_vmware_preferences(unit_test):
 
   def test_values(self):
     content = '''\

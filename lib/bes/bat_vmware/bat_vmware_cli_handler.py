@@ -7,7 +7,7 @@ from bes.cli.cli_command_handler import cli_command_handler
 from ..system.check import check
 from bes.system.log import logger
 
-from .vmware import vmware
+from .bat_vmware import bat_vmware
 from .bat_vmware_options import bat_vmware_options
 from .bat_vmware_run_program_options import bat_vmware_run_program_options
 
@@ -21,7 +21,7 @@ class bat_vmware_cli_handler(cli_command_handler):
                      options_class = bat_vmware_options,
                      delegate = self._comand_handler_delegate)
     check.check_bat_vmware_options(self.options)
-    self._vmware = vmware(self.options)
+    self._vmware = bat_vmware(self.options)
 
   _COMMANDS_WITH_RUN_PROGRAM_OPTIONS = (
     'vm_can_run_programs',

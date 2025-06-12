@@ -2,6 +2,6 @@
 
 from bes.factory.singleton_class_registry import singleton_class_registry
 
-class bat_bat_vmware_command_interpreter_registry(singleton_class_registry):
+class bat_vmware_command_interpreter_registry(singleton_class_registry):
   __registry_class_name_prefix__ = 'bat_vmware_command_interpreter_'
   __registry_raise_on_existing__ = True

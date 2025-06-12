@@ -4,9 +4,9 @@ from bes.system.log import logger
 
 from .bat_vmware_server import bat_vmware_server
 
-class bat_bat_vmware_server_controller(object):
+class bat_vmware_server_controller(object):
 
-  _log = logger('bat_bat_vmware_server_controller')
+  _log = logger('bat_vmware_server_controller')
   
   def __init__(self):
     self._server = None

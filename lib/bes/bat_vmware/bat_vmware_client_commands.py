@@ -10,14 +10,14 @@ from bes.text.text_replace import text_replace
 from .bat_vmware_client import bat_vmware_client
 from .bat_vmware_client_options import bat_vmware_client_options
 from .bat_vmware_error import bat_vmware_error
-from .bat_bat_vmware_session_options import bat_bat_vmware_session_options
+from .bat_vmware_session_options import bat_vmware_session_options
 
 class bat_vmware_client_commands(object):
   'vmware client commands.'
 
   def __init__(self, client, options):
     check.check_bat_vmware_client(client)
-    check.check(options, ( bat_vmware_client_options, bat_bat_vmware_session_options ))
+    check.check(options, ( bat_vmware_client_options, bat_vmware_session_options ))
 
     self._client = client
     self._options = options
