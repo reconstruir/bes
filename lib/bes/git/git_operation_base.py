@@ -8,7 +8,7 @@ class git_operation_base(object, metaclass = ABCMeta):
   
   @abstractmethod
   def run(self, repo):
-    'Return True if vmware is installed.'
-    raise NotImplemented('run')
+    'Run the operation.'
+    raise NotImplementedError('run')
 
 check.register_class(git_operation_base, name = 'git_operation', include_seq = True)
