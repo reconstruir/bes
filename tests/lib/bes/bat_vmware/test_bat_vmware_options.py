@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 
-from bes.vmware.bat_vmware_options import bat_vmware_options
+from bes.bat_vmware.bat_vmware_options import bat_vmware_options
 
 class test_bat_vmware_options(unit_test):
 

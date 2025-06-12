@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.fs.file_util import file_util
 
-from bes.vmware.bat_vmware_inventory import bat_vmware_inventory
+from bes.bat_vmware.bat_vmware_inventory import bat_vmware_inventory
 
 class test_bat_vmware_inventory(unit_test):
 

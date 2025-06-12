@@ -3,7 +3,7 @@
 from bes.system.check import check
 from bes.system.host import host
 
-from bes.vmware.vmware_command_interpreter import vmware_command_interpreter
+from bes.bat_vmware.vmware_command_interpreter import vmware_command_interpreter
 
 class ci_windows_cmd(vmware_command_interpreter):
 

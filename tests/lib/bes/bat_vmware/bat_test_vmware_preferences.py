@@ -5,7 +5,7 @@ from os import path
 from bes.testing.unit_test import unit_test
 from bes.fs.temp_file import temp_file
 
-from bes.vmware.vmware_preferences import vmware_preferences as GP
+from bes.bat_vmware.vmware_preferences import vmware_preferences as GP
 
 class bat_test_vmware_preferences(unit_test):
 

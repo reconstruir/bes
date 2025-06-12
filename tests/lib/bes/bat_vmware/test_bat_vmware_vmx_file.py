@@ -5,7 +5,7 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 
-from bes.vmware.bat_vmware_vmx_file import bat_vmware_vmx_file
+from bes.bat_vmware.bat_vmware_vmx_file import bat_vmware_vmx_file
 
 class test_bat_vmware_vmx_file(unit_test):
 
