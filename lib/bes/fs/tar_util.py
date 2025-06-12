@@ -8,7 +8,7 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.os_env import os_env
 from bes.system.env_var import os_env_var
-from bes.docker.docker import docker
+from bes.system.bdocker import bdocker
 
 from .file_find import file_find
 from .file_path import file_path
@@ -56,7 +56,7 @@ class tar_util(object):
     # second one fails.  And we only do this workaround for alpine linux *and* running under docker.
     #
     num_tries = 1
-    if host.SYSTEM == host.LINUX and docker.is_running_inside_docker():
+    if host.SYSTEM == host.LINUX and bdocker.is_running_inside_docker():
       num_tries = 2
 
     # tar is 10x faster than archiver.  need to fix archiver
