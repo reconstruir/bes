@@ -1,9 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import math
 import threading
-import time
-import multiprocessing
-import queue
 
 from bes.system.log import logger
 from bes.system.check import check
@@ -19,18 +17,17 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
 
   _log = logger('btask')
 
-  def __init__(self, queue, progress_sleep_time = 0):#.025):
+  def __init__(self, queue):
     self._queue = queue
     self._thread = None
-    self._progress_sleep_time = progress_sleep_time
 
   @abstractmethod
   def handle_result(self, result):
-    raise NotImplemented('handle_result')
+    raise NotImplementedError('handle_result')
 
   @abstractmethod
   def handle_status(self, task_id, status):
-    raise NotImplemented('handle_status')
+    raise NotImplementedError('handle_status')
   
   def _result_collector_thread_main(self):
     i = 0
@@ -60,11 +57,25 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
     if isinstance(item, btask_result):
       self.handle_result(item)
     elif isinstance(item, _btask_status_queue_item):
-      self.handle_status(item.task_id, item.status)
+      drop = False
       if isinstance(item.status, btask_status_progress):
-        time.sleep(self._progress_sleep_time)
+        drop = self._should_drop_progress(item.status.progress)
+      if not drop:
+        self.handle_status(item.task_id, item.status)
+      else:
+        self._log.log_d(f'_handle_item: dropping progress={item.status.progress}')
     else:
       raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
+
+  def _should_drop_progress(self, progress):
+    if progress.minimum == None or progress.maximum == None:
+      return False
+    if progress.value in ( progress.minimum, progress.maximum ):
+      return False
+    assert progress.maximum >= progress.minimum
+    delta = progress.maximum - progress.minimum
+    one_percent = math.ceil(delta / 100)
+    return (progress.value % one_percent) != 0
     
   def start(self):
     if self._thread:
@@ -80,5 +91,5 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
     self._queue.put(None)
     self._thread.join()
     self._thread = None
-    
+      
 check.register_class(btask_result_collector_i, name = 'btask_result_collector', include_seq = False)
