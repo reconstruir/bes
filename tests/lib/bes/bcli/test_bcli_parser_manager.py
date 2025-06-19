@@ -27,6 +27,16 @@ class test_bcli_parser_manager(unit_test):
 
     p = m.find_parser([ 'fruit', 'kiwi' ])
     print(p)
-    
+
+  def test__split_path_and_args(self):
+    f = bcli_parser_manager._split_path_and_args
+
+    self.assertEqual( ( [ 'fruit', 'kiwi' ], '--verbose --dry-run' ),
+                      f('fruit kiwi --verbose --dry-run') )
+    self.assertEqual( ( [ ], '--verbose --dry-run' ),
+                      f('--verbose --dry-run') )
+    self.assertEqual( ( [ 'fruit', 'kiwi' ], '' ),
+                      f('fruit kiwi') )
+
 if __name__ == '__main__':
   unit_test.main()
