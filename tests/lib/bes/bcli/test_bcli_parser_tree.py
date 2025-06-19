@@ -10,8 +10,8 @@ class test_bcli_parser_tree(unit_test):
 
   def test_foo(self):
     t = bcli_parser_tree()
-    t.set('fruit/kiwi', 'foo')
-    n = t.get('fruit/kiwi')
+    t.set([ 'fruit', 'kiwi' ], 'foo')
+    n = t.get([ 'fruit', 'kiwi' ])
     print(f'n={n}')
     
 if __name__ == '__main__':

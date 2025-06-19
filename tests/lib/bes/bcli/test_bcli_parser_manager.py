@@ -23,9 +23,9 @@ class test_bcli_parser_manager(unit_test):
     
   def test_register_parser(self):
     m = bcli_parser_manager()
-    m.register_parser('fruit/kiwi', self._kiwi_parser_maker)
+    m.register_parser([ 'fruit', 'kiwi' ], self._kiwi_parser_maker)
 
-    p = m.find_parser('fruit/kiwi')
+    p = m.find_parser([ 'fruit', 'kiwi' ])
     print(p)
     
 if __name__ == '__main__':
