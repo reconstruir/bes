@@ -13,7 +13,7 @@ from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
 from bes.url.url_util import url_util
 from bes.fs.testing.temp_content import temp_content
-from bes.docker.docker import docker
+from bes.system.bdocker import bdocker
 
 from bes.web.file_web_server_tester import file_web_server_tester
 
@@ -21,7 +21,7 @@ class test_file_web_server(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    docker.raise_skip_if_running_under_docker()
+    bdocker.raise_skip_if_running_under_docker()
   
   def test_download(self):
     tester = file_web_server_tester(debug = self.DEBUG)

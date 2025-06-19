@@ -17,13 +17,13 @@ from bes.fs.temp_file import temp_file
 from bes.url.url_util import url_util
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.system.host import host
-from bes.docker.docker import docker
+from bes.system.bdocker import bdocker
 
 class test_web_server(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    docker.raise_skip_if_running_under_docker()
+    bdocker.raise_skip_if_running_under_docker()
   
   class _json_web_server(web_server):
 

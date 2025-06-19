@@ -4,7 +4,7 @@
 import os
 import time
 
-from bes.docker.docker import docker
+from bes.system.bdocker import bdocker
 from bes.files.bf_date import bf_date
 from bes.files.metadata.bf_metadata_file import bf_metadata_file
 from bes.files.metadata.bf_metadata_factory_registry import bf_metadata_factory_registry
@@ -17,7 +17,7 @@ class test_bf_metadata_file(unit_test):
   
   @classmethod
   def setUpClass(clazz):
-    docker.raise_skip_if_running_under_docker()
+    bdocker.raise_skip_if_running_under_docker()
 
   def test_get_metadata(self):
     tmp = bf_metadata_file(self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data'))

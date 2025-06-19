@@ -6,7 +6,7 @@ from bes.system.env_override import env_override
 
 from bes.testing.unit_test import unit_test
 from bes.testing.framework.config_env import config_env
-from bes.docker.docker import docker
+from bes.system.bdocker import bdocker
 
 from example_data import example_data
 
@@ -14,7 +14,7 @@ class test_config_env(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    docker.raise_skip_if_running_under_docker()
+    bdocker.raise_skip_if_running_under_docker()
   
   def xtest_dependency_map(self):
     tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)

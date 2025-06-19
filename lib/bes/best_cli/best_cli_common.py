@@ -4,7 +4,6 @@ from bes.cli.cli_command import cli_command
 
 from bes.archive.archive_cli_args import archive_cli_args
 from bes.bes_project.bes_project_cli_args import bes_project_cli_args
-from bes.docker.docker_cli_args import docker_cli_args
 from bes.egg.egg_cli_args import egg_cli_args
 from bes.fs.dir_combine_cli_args import dir_combine_cli_args
 from bes.fs.dir_partition_cli_args import dir_partition_cli_args
@@ -33,12 +32,6 @@ from bes.python_installer.python_installer_cli_args import python_installer_cli_
 from bes.refactor.refactor_cli_args import refactor_cli_args
 from bes.shell_framework.shell_framework_cli_args import shell_framework_cli_args
 from bes.vm_builder.vm_builder_cli_args import vm_builder_cli_args
-from bes.vmware.vmware_app_cli_args import vmware_app_cli_args
-from bes.vmware.vmware_cli_args import vmware_cli_args
-from bes.vmware.vmware_client_cli_args import vmware_client_cli_args
-from bes.vmware.vmware_preferences_cli_args import vmware_preferences_cli_args
-from bes.vmware.vmware_server_cli_args import vmware_server_cli_args
-from bes.vmware.vmware_session_cli_args import vmware_session_cli_args
 
 from ..btl.btl_cli_args import btl_cli_args
 
@@ -51,7 +44,6 @@ COMMON_COMMAND_GROUPS = [
   cli_command('dir_partition', 'dir_partition_add_args', 'Directory partition', dir_partition_cli_args),
   cli_command('dir_split', 'dir_split_add_args', 'Directory split', dir_split_cli_args),
   cli_command('dirs', 'dirs_add_args', 'Directory stuff', dirs_cli_args),
-  cli_command('docker', 'docker_add_args', 'Docker stuff', docker_cli_args),
   cli_command('egg', 'egg_add_args', 'Deal with eggs', egg_cli_args),
   cli_command('file_duplicates', 'file_duplicates_add_args', 'Directory partition', file_duplicates_cli_args),
   cli_command('file_split', 'file_split_add_args', 'Directory partition', file_split_cli_args),
@@ -76,12 +68,6 @@ COMMON_COMMAND_GROUPS = [
   cli_command('refactor', 'refactor_add_args', 'Refactor python code', refactor_cli_args),
   cli_command('shell_framework', 'shell_framework_add_args', 'Deal with the bes_shell framework', shell_framework_cli_args),
   cli_command('vm_builder', 'vm_builder_add_args', 'VM Builder stuff', vm_builder_cli_args),
-  cli_command('vmware', 'vmware_add_args', 'Deal with vmware', vmware_cli_args),    
-  cli_command('vmware_app', 'vmware_app_add_args', 'Deal with vmware app', vmware_app_cli_args),
-  cli_command('vmware_client', 'vmware_client_add_args', 'Deal with vmware client', vmware_client_cli_args),
-  cli_command('vmware_preferences', 'vmware_preferences_add_args', 'Deal with vmware preferences', vmware_preferences_cli_args),
-  cli_command('vmware_server', 'vmware_server_add_args', 'Deal with vmware server', vmware_server_cli_args),
-  cli_command('vmware_session', 'vmware_session_add_args', 'Deal with vmware session', vmware_session_cli_args),
 
   cli_command('btl', 'btl_add_args', 'Deal with text lexers', btl_cli_args),
 ]

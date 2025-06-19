@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.fs.file_attributes import HAS_XATTR
-from bes.docker.docker import docker
+from bes.system.bdocker import bdocker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host
 
@@ -17,7 +17,7 @@ if HAS_XATTR:
     def setUpClass(clazz):
       unit_test_class_skip.raise_skip_if_not_unix()
       unit_test_class_skip.raise_skip_if(HAS_XATTR, 'xattr not found')
-      docker.raise_skip_if_running_under_docker()
+      bdocker.raise_skip_if_running_under_docker()
     
 if __name__ == '__main__':
   unit_test.main()

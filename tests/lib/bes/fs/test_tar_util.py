@@ -6,7 +6,7 @@ import os, os.path as path, tarfile
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.tar_util import tar_util
-from bes.docker.docker import is_running_under_docker_override_func
+from bes.system.bdocker import is_running_under_docker_override_func
 from bes.system.host_override import host_override_func
 from bes.system.host_info import host_info
 from bes.system.env_override import env_override
