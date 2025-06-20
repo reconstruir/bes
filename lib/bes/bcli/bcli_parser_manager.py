@@ -46,7 +46,9 @@ class bcli_parser_manager(object):
       raise bcli_parser_error(f'No parser class found: {" ".join(path)}')
 
     parser = argparse.ArgumentParser()
-    parser_class.value.add_arguments(parser)
+    subparsers = parser.add_subparsers() #dest='area', required=True)
+    
+    parser_class.value.add_sub_parsers(subparsers)
 
     list_args = shlex.split(args)
     print(f'parser={parser}', flush = True)
@@ -69,6 +71,11 @@ class bcli_parser_manager(object):
         break
     if parts:
       args = parts
+    print(f'1 path={path}')
+    last_path_path = path.pop(-1)
+    args.insert(0, last_path_path)
+    print(f'2 path={path}')
+    print(f'args={args}')
     return path, ' '.join(args)
     
 check.register_class(bcli_parser_manager, include_seq = False)

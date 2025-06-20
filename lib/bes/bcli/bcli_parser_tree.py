@@ -51,6 +51,36 @@ class bcli_parser_tree:
     node = self.get(path)
     return node.value if node else None
 
+  def get_safe(self, path):
+    '''Return (actual_path, node) for the given path. Raise if any part is missing.'''
+    check.check_string_seq(path)
+
+    node = self.root
+    actual_path = []
+
+    for part in path:
+      if part not in node.children:
+        raise KeyError(f"Path not found: {'/'.join(actual_path + [part])}")
+      node = node.children[part]
+      actual_path.append(part)
+
+    return (actual_path, node)
+
+  def get_existing_prefix(self, path):
+    '''Return (matched_path, node) for the deepest existing part of the path.'''
+    check.check_string_seq(path)
+
+    node = self.root
+    actual_path = []
+
+    for part in path:
+      if part not in node.children:
+        break
+      node = node.children[part]
+      actual_path.append(part)
+
+    return (actual_path, node if actual_path else None)
+  
   def __repr__(self):
     def repr_node(node, indent=0):
       lines = []
