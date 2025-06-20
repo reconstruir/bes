@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from ..system.check import check
+from ..property.cached_property import cached_property
 
 from collections import defaultdict
 
 class _bcli_parser_tree_node:
+  
   def __init__(self):
     self.children = defaultdict(_bcli_parser_tree_node)
     self.value = None

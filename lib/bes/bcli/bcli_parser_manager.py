@@ -1,11 +1,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import argparse
+import shlex
+
 from ..system.check import check
 from ..system.log import logger
 from ..common.string_util import string_util
 
 from .bcli_parser_tree import bcli_parser_tree
 from .bcli_parser_maker_i import bcli_parser_maker_i
+from .bcli_parser_error import bcli_parser_error
 
 class bcli_parser_manager(object):
 
@@ -32,6 +36,23 @@ class bcli_parser_manager(object):
 
     return self._parser_classes.get(path)
 
+  def parse(self, s):
+    check.check_string(s)
+
+    path, args = self._split_path_and_args(s)
+
+    parser_class = self.find_parser(path)
+    if not parser_class:
+      raise bcli_parser_error(f'No parser class found: {" ".join(path)}')
+
+    parser = argparse.ArgumentParser()
+    parser_class.value.add_arguments(parser)
+
+    list_args = shlex.split(args)
+    print(f'parser={parser}', flush = True)
+    print(f'list_args={list_args}', flush = True)
+    return parser.parse_args(list_args)
+    
   @classmethod
   def _split_path_and_args(clazz, s):
     check.check_string(s)

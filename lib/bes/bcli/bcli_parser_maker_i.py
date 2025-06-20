@@ -12,7 +12,7 @@ class bcli_parser_maker_i(ABC):
   
   @classmethod
   @abstractmethod
-  def make_parser(clazz):
-    raise NotImplementedError(f'make_parser')
+  def add_arguments(clazz, parser):
+    raise NotImplementedError(f'add_arguments')
 
 check.register_class(bcli_parser_maker_i, name = 'bcli_parser_maker', include_seq = False)
