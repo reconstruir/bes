@@ -27,9 +27,10 @@ class test_bcli_parser_tree(unit_test):
     tree = bcli_parser_tree()
     tree.set(['kitchen', 'cook'], 'value1')
 
-    actual_path, node = tree.get_existing_prefix(['kitchen', 'cook', 'fuck'])
+    actual_path, node, rest = tree.get_existing_prefix(['kitchen', 'cook', 'fuck', 'fpp'])
     print(f'actual_path={actual_path}')
     print(f'node={node}')
+    print(f'rest={rest}')
 #    self.assertEqual(actual_path, ['kitchen', 'cook'])
 #    self.assertIsNotNone(node)
 #    self.assertEqual(node.value, 'value1')

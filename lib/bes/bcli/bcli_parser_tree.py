@@ -66,7 +66,7 @@ class bcli_parser_tree:
 
     return (actual_path, node)
 
-  def get_existing_prefix(self, path):
+  def get_existing_prefixxxx(self, path):
     '''Return (matched_path, node) for the deepest existing part of the path.'''
     check.check_string_seq(path)
 
@@ -80,7 +80,23 @@ class bcli_parser_tree:
       actual_path.append(part)
 
     return (actual_path, node if actual_path else None)
+
+  def get_existing_prefix(self, path):
+    '''Return (matched_path, node, leftover_path) for the deepest existing part of the path.'''
+    check.check_string_seq(path)
   
+    node = self.root
+    actual_path = []
+  
+    for i, part in enumerate(path):
+      if part not in node.children:
+        return actual_path, node if actual_path else None, path[i:]
+      node = node.children[part]
+      actual_path.append(part)
+  
+    return actual_path, node, []
+  
+
   def __repr__(self):
     def repr_node(node, indent=0):
       lines = []

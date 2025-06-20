@@ -16,66 +16,51 @@ class bcli_parser_manager(object):
   _log = logger('bcli')
 
   def __init__(self):
-    self._parser_classes = bcli_parser_tree()
+    self._parser_factory_classes = bcli_parser_tree()
     
-  def register_parser(self, path, parser_class):
+  def register_parser(self, path, parser_factory_class):
     check.check_string_seq(path)
 
-    if not issubclass(parser_class, bcli_parser_maker_i):
-      raise TypeError(f'parser_class should be of type bcli_parser_maker_i instead of "{parser_class}"')
+    if not issubclass(parser_factory_class, bcli_parser_maker_i):
+      raise TypeError(f'parser_factory_class should be of type bcli_parser_maker_i instead of "{parser_factory_class}"')
 
-    self._parser_classes.set(path, parser_class)
+    self._parser_factory_classes.set(path, parser_factory_class)
 
   def has_parser(self, path):
     check.check_string_seq(path)
 
-    return self._parser_classes.get(path)
+    return self._parser_factory_classes.get(path)
     
   def find_parser(self, path):
     check.check_string_seq(path)
 
-    return self._parser_classes.get(path)
+    return self._parser_factory_classes.get(path)
 
   def parse(self, s):
     check.check_string(s)
 
+    self._log.log_d(f's="{s}"')
     path, args = self._split_path_and_args(s)
+    self._log.log_d(f'path={path} args={args}')
 
-    parser_class = self.find_parser(path)
-    if not parser_class:
+    parser_factory_class = self.find_parser(path)
+    self._log.log_d(f'parser_factory_class={parser_factory_class}')
+    if not parser_factory_class:
       raise bcli_parser_error(f'No parser class found: {" ".join(path)}')
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers() #dest='area', required=True)
     
-    parser_class.value.add_sub_parsers(subparsers)
+    parser_factory_class.value.add_sub_parsers(subparsers)
 
-    list_args = shlex.split(args)
-    print(f'parser={parser}', flush = True)
-    print(f'list_args={list_args}', flush = True)
-    return parser.parse_args(list_args)
+    return parser.parse_args(args)
     
-  @classmethod
-  def _split_path_and_args(clazz, s):
+  def _split_path_and_args(self, s):
     check.check_string(s)
 
-    parts = string_util.split_by_white_space(s)
-    path = []
-    args = []
-    while True:
-      if not parts:
-        break
-      if not parts[0].startswith('-'):
-        path.append(parts.pop(0))
-      else:
-        break
-    if parts:
-      args = parts
-    print(f'1 path={path}')
-    last_path_path = path.pop(-1)
-    args.insert(0, last_path_path)
-    print(f'2 path={path}')
-    print(f'args={args}')
-    return path, ' '.join(args)
+    parts = shlex.split(s)
+
+    path, _, args = self._parser_factory_classes.get_existing_prefix(parts)
+    return path, args
     
 check.register_class(bcli_parser_manager, include_seq = False)
