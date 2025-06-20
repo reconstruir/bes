@@ -36,9 +36,19 @@ class bcli_parser_manager(object):
 
     return self._parser_factory_classes.get(path)
 
-  def parse(self, s):
+  def parse_args(self, s):
     check.check_string(s)
 
+    parser, args = self._make_parser(s)
+    return parser.parse_args(args)
+
+  def format_help(self, s):
+    check.check_string(s)
+
+    parser, _ = self._make_parser(s)
+    return parser.format_help()
+  
+  def _make_parser(self, s):
     self._log.log_d(f's="{s}"')
     path, args = self._split_path_and_args(s)
     self._log.log_d(f'path={path} args={args}')
@@ -53,8 +63,8 @@ class bcli_parser_manager(object):
     
     parser_factory_class.value.add_sub_parsers(subparsers)
 
-    return parser.parse_args(args)
-    
+    return parser, args
+  
   def _split_path_and_args(self, s):
     check.check_string(s)
 

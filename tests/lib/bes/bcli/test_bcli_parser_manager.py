@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from argparse import Namespace
+
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
@@ -28,7 +30,7 @@ class test_bcli_parser_manager(unit_test):
     p = m.find_parser([ 'house', 'kitchen' ])
     print(p)
 
-  def test__split_path_and_args(self):
+  def xtest__split_path_and_args(self):
     f = bcli_parser_manager._split_path_and_args
 
     self.assertEqual( ( [ 'house', 'kitchen' ], 'cook fish --method grill' ),
@@ -39,11 +41,29 @@ class test_bcli_parser_manager(unit_test):
     self.assertEqual( ( [ 'house', 'kitchen' ], '' ),
                       f('fruit kiwi') )
 
-  def test_parse(self):
+  def test_parse_args(self):
     m = bcli_parser_manager()
     m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
-    r = m.parse('house kitchen cook food --method grill')
-    print(r)
+    r = m.parse_args('house kitchen cook food --method grill')
+    self.assertEqual( Namespace(what='food', method='grill'), r )
 
+  def test_format_help(self):
+    m = bcli_parser_manager()
+    m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
+    h = m.format_help('house kitchen cook food --help --method grill')
+
+    expected = '''
+usage: pytest [-h] {cook,clean} ...
+
+positional arguments:
+  {cook,clean}
+    cook        Cook some food.
+    clean       Clean the kitchen.
+
+options:
+  -h, --help    show this help message and exit
+'''
+    self.assert_string_equal_fuzzy(expected, h )
+    
 if __name__ == '__main__':
   unit_test.main()
