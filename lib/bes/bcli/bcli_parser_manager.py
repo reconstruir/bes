@@ -5,6 +5,7 @@ from ..system.log import logger
 from ..common.string_util import string_util
 
 from .bcli_parser_tree import bcli_parser_tree
+from .bcli_parser_maker_i import bcli_parser_maker_i
 
 class bcli_parser_manager(object):
 
@@ -15,7 +16,9 @@ class bcli_parser_manager(object):
     
   def register_parser(self, path, parser_class):
     check.check_string_seq(path)
-    check.check_class(parser_class)
+
+    if not issubclass(parser_class, bcli_parser_maker_i):
+      raise TypeError(f'parser_class should be of type bcli_parser_maker_i instead of "{parser_class}"')
 
     self._parser_classes.set(path, parser_class)
 
