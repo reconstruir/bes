@@ -6,7 +6,7 @@ from abc import ABC
 from ..system.check import check
 from ..system.log import logger
 
-class bcli_parser_maker_i(ABC):
+class bcli_parser_factory_i(ABC):
 
   _log = logger('bcli')
 
@@ -22,4 +22,4 @@ class bcli_parser_maker_i(ABC):
   def add_arguments(self, parser):
     raise NotImplementedError(f'add_arguments')
   
-check.register_class(bcli_parser_maker_i, name = 'bcli_parser_maker', include_seq = False)
+check.register_class(bcli_parser_factory_i, name = 'bcli_parser_maker', include_seq = False)

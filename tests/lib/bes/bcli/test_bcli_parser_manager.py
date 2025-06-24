@@ -7,11 +7,11 @@ from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
 from bes.bcli.bcli_parser_manager import bcli_parser_manager
-from bes.bcli.bcli_parser_maker_i import bcli_parser_maker_i
+from bes.bcli.bcli_parser_factory_i import bcli_parser_factory_i
 
 class test_bcli_parser_manager(unit_test):
 
-  class _house_kitchen_parser_maker(bcli_parser_maker_i):
+  class _house_kitchen_parser_maker(bcli_parser_factory_i):
     
     #@abstractmethod
     def has_sub_parsers(self):
@@ -34,12 +34,12 @@ class test_bcli_parser_manager(unit_test):
                           choices = ( 'json', 'text' ),
                           help = 'Output style [ json ]')
       
-  def test_register_parser(self):
+  def test_register_factory(self):
     m = bcli_parser_manager()
-    m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
-    p = m.find_parser_factory([ 'house', 'kitchen' ])
+    m.register_factory([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
+    p = m.find_factory([ 'house', 'kitchen' ])
     self.assertEqual( self._house_kitchen_parser_maker,
-                      m.find_parser_factory([ 'house', 'kitchen' ]) )
+                      m.find_factory([ 'house', 'kitchen' ]) )
 
   def xtest__split_path_and_args(self):
     f = bcli_parser_manager._split_path_and_args
@@ -54,13 +54,13 @@ class test_bcli_parser_manager(unit_test):
 
   def test_parse_args(self):
     m = bcli_parser_manager()
-    m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
+    m.register_factory([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
     r = m.parse_args('house kitchen cook food --method grill')
     self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
 
   def test_format_help(self):
     m = bcli_parser_manager()
-    m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
+    m.register_factory([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
     h = m.format_help('house kitchen cook food --help --method grill')
 
     expected = '''

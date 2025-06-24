@@ -8,7 +8,7 @@ from ..system.log import logger
 from ..common.string_util import string_util
 
 from .bcli_parser_tree import bcli_parser_tree
-from .bcli_parser_maker_i import bcli_parser_maker_i
+from .bcli_parser_factory_i import bcli_parser_factory_i
 from .bcli_parser_error import bcli_parser_error
 
 class bcli_parser_manager(object):
@@ -18,20 +18,20 @@ class bcli_parser_manager(object):
   def __init__(self):
     self._parser_factories = bcli_parser_tree()
     
-  def register_parser(self, path, parser_factory_class):
+  def register_factory(self, path, parser_factory_class):
     check.check_string_seq(path)
 
-    if not issubclass(parser_factory_class, bcli_parser_maker_i):
-      raise TypeError(f'parser_factory_class should be of type bcli_parser_maker_i instead of "{parser_factory_class}"')
+    if not issubclass(parser_factory_class, bcli_parser_factory_i):
+      raise TypeError(f'parser_factory_class should be of type bcli_parser_factory_i instead of "{parser_factory_class}"')
 
     self._parser_factories.set(path, parser_factory_class)
 
-  def has_parser(self, path):
+  def has_factory(self, path):
     check.check_string_seq(path)
 
     return self._parser_factories.get(path)
     
-  def find_parser_factory(self, path):
+  def find_factory(self, path):
     check.check_string_seq(path)
 
     n = self._parser_factories.get(path)
@@ -56,7 +56,7 @@ class bcli_parser_manager(object):
     path, args = self._split_path_and_args(s)
     self._log.log_d(f'_make_parser: path={path} args={args}')
 
-    parser_factory_class = self.find_parser_factory(path)
+    parser_factory_class = self.find_factory(path)
     self._log.log_d(f'parser_factory_class={parser_factory_class}')
     if not parser_factory_class:
       raise bcli_parser_error(f'No parser class found: {" ".join(path)}')
