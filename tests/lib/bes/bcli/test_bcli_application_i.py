@@ -6,12 +6,12 @@ from argparse import Namespace
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
-from bes.bcli.bcli_application import bcli_application
+from bes.bcli.bcli_application_i import bcli_application_i
 
 from _house_garage_parser_factory import _house_garage_parser_factory
 from _house_kitchen_parser_factory import _house_kitchen_parser_factory
 
-class _test_application(bcli_application):
+class _test_application(bcli_application_i):
 
   #@abstractmethod
   def name(self):

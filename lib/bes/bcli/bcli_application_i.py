@@ -11,7 +11,7 @@ from ..system.log import log
 
 from .bcli_parser_manager import bcli_parser_manager
 
-class bcli_application(ABC):
+class bcli_application_i(ABC):
 
   def __init__(self):
     name = self.name()
