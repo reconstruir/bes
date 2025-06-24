@@ -27,12 +27,11 @@ class bcli_parser_manager(object):
     else:
       raise TypeError(f'path should be a str or str sequence: "{path}" - {type(path)}')
     
-  def register_factory(self, path, parser_factory_class):
-    path = self.parse_path(path)
-
+  def register_factory(self, parser_factory_class):
     if not issubclass(parser_factory_class, bcli_parser_factory_i):
       raise TypeError(f'parser_factory_class should be of type bcli_parser_factory_i instead of "{parser_factory_class}"')
 
+    path = self.parse_path(parser_factory_class.path())
     self._parser_factories.set(path, parser_factory_class)
 
   def has_factory(self, path):

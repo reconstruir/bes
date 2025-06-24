@@ -10,6 +10,11 @@ class bcli_parser_factory_i(ABC):
 
   _log = logger('bcli')
 
+  @classmethod
+  @abstractmethod
+  def path(clazz):
+    raise NotImplementedError(f'path')
+  
   @abstractmethod
   def has_sub_parsers(self):
     raise NotImplementedError(f'has_sub_parsers')

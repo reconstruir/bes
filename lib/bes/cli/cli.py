@@ -25,7 +25,7 @@ class cli(object, metaclass = ABCMeta):
     cli_help_cli_args.parser = self.parser
     
     self.commands_subparser = self.parser.add_subparsers(help = 'commands', dest = '__bes_command_group__')
-
+    
     command_groups = cli_command_list(self.command_group_list())
     command_groups.sort(key = lambda item: item.name)
 
