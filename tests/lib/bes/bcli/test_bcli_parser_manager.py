@@ -36,31 +36,31 @@ class test_bcli_parser_manager(unit_test):
       
   def test_register_factory(self):
     m = bcli_parser_manager()
-    m.register_factory([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
-    p = m.find_factory([ 'house', 'kitchen' ])
+    m.register_factory('house/kitchen', self._house_kitchen_parser_maker)
+    p = m.find_factory('house/kitchen')
     self.assertEqual( self._house_kitchen_parser_maker,
-                      m.find_factory([ 'house', 'kitchen' ]) )
+                      m.find_factory('house/kitchen') )
 
   def xtest__split_path_and_args(self):
     f = bcli_parser_manager._split_path_and_args
 
-    self.assertEqual( ( [ 'house', 'kitchen' ], 'cook fish --method grill' ),
+    self.assertEqual( ( 'house/kitchen', 'cook fish --method grill' ),
                       f('house kitchen cook fish --method grill') )
     return
     self.assertEqual( ( [ ], '--verbose --dry-run' ),
                       f('--verbose --dry-run') )
-    self.assertEqual( ( [ 'house', 'kitchen' ], '' ),
+    self.assertEqual( ( 'house/kitchen', '' ),
                       f('fruit kiwi') )
 
   def test_parse_args(self):
     m = bcli_parser_manager()
-    m.register_factory([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
+    m.register_factory('house/kitchen', self._house_kitchen_parser_maker)
     r = m.parse_args('house kitchen cook food --method grill')
     self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
 
   def test_format_help(self):
     m = bcli_parser_manager()
-    m.register_factory([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
+    m.register_factory('house/kitchen', self._house_kitchen_parser_maker)
     h = m.format_help('house kitchen cook food --help --method grill')
 
     expected = '''

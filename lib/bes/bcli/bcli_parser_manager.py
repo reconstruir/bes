@@ -17,9 +17,18 @@ class bcli_parser_manager(object):
 
   def __init__(self):
     self._parser_factories = bcli_parser_tree()
+
+  @classmethod
+  def parse_path(self, path):
+    if check.is_string_seq(path):
+      return tuple(path)
+    elif check.is_string(path):
+      return tuple(path.split('/'))
+    else:
+      raise TypeError(f'path should be a str or str sequence: "{path}" - {type(path)}')
     
   def register_factory(self, path, parser_factory_class):
-    check.check_string_seq(path)
+    path = self.parse_path(path)
 
     if not issubclass(parser_factory_class, bcli_parser_factory_i):
       raise TypeError(f'parser_factory_class should be of type bcli_parser_factory_i instead of "{parser_factory_class}"')
@@ -27,12 +36,12 @@ class bcli_parser_manager(object):
     self._parser_factories.set(path, parser_factory_class)
 
   def has_factory(self, path):
-    check.check_string_seq(path)
+    path = self.parse_path(path)
 
     return self._parser_factories.get(path)
     
   def find_factory(self, path):
-    check.check_string_seq(path)
+    path = self.parse_path(path)
 
     n = self._parser_factories.get(path)
     if n:
