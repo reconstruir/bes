@@ -30,7 +30,9 @@ class test_bcli_parser_manager(unit_test):
 
     #@abstractmethod
     def add_arguments(self, parser):
-      pass
+      parser.add_argument('--output', action = 'store', type = str, default = 'json',
+                          choices = ( 'json', 'text' ),
+                          help = 'Output style [ json ]')
       
   def test_register_parser(self):
     m = bcli_parser_manager()
@@ -54,7 +56,7 @@ class test_bcli_parser_manager(unit_test):
     m = bcli_parser_manager()
     m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
     r = m.parse_args('house kitchen cook food --method grill')
-    self.assertEqual( Namespace(what = 'food', method = 'grill'), r )
+    self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
 
   def test_format_help(self):
     m = bcli_parser_manager()
@@ -62,7 +64,7 @@ class test_bcli_parser_manager(unit_test):
     h = m.format_help('house kitchen cook food --help --method grill')
 
     expected = '''
-usage: pytest [-h] {cook,clean} ...
+usage: pytest [-h] [--output {json,text}] {cook,clean} ...
 
 positional arguments:
   {cook,clean}
@@ -71,6 +73,7 @@ positional arguments:
 
 options:
   -h, --help    show this help message and exit
+  --output {json,text} Output style [ json ]
 '''
     self.assert_string_equal_fuzzy(expected, h )
     
