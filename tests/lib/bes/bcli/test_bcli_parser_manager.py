@@ -85,19 +85,20 @@ class test_bcli_parser_manager(unit_test):
   def test_parse_args_one_factory(self):
     m = bcli_parser_manager()
     m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
-    r = m.parse_args('house kitchen cook food --method grill')
-    self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
+
+    self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json', __bcli_command__ = 'cook'),
+                      m.parse_args('house kitchen cook food --method grill') )
 
   def test_parse_args_two_factories(self):
     m = bcli_parser_manager()
     m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
     m.register_factory('house/garage', self._house_garage_parser_factory)
 
-    r = m.parse_args('house kitchen cook food --method grill')
-    self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
+    self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json', __bcli_command__ = 'cook'),
+                      m.parse_args('house kitchen cook food --method grill') )
 
-    r = m.parse_args('house garage clean --method sweep')
-    self.assertEqual( Namespace(method = 'sweep', output = 'json'), r )
+    self.assertEqual( Namespace(method = 'sweep', output = 'json', __bcli_command__ = 'clean'),
+                      m.parse_args('house garage clean --method sweep') )
     
   def test_format_help(self):
     m = bcli_parser_manager()
@@ -108,7 +109,7 @@ class test_bcli_parser_manager(unit_test):
 usage: pytest [-h] [--output {json,text}] {cook,clean} ...
 
 positional arguments:
-  {cook,clean}
+  {cook,clean}  commands
     cook        Cook some food.
     clean       Clean the kitchen.
 
