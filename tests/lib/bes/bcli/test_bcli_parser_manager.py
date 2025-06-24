@@ -11,7 +11,7 @@ from bes.bcli.bcli_parser_factory_i import bcli_parser_factory_i
 
 class test_bcli_parser_manager(unit_test):
 
-  class _house_kitchen_parser_maker(bcli_parser_factory_i):
+  class _house_kitchen_parser_factory(bcli_parser_factory_i):
     
     #@abstractmethod
     def has_sub_parsers(self):
@@ -33,14 +33,44 @@ class test_bcli_parser_manager(unit_test):
       parser.add_argument('--output', action = 'store', type = str, default = 'json',
                           choices = ( 'json', 'text' ),
                           help = 'Output style [ json ]')
+
+  class _house_garage_parser_factory(bcli_parser_factory_i):
+    
+    #@abstractmethod
+    def has_sub_parsers(self):
+      return True
+  
+    #@abstractmethod
+    def add_sub_parsers(self, subparsers):
+      p = subparsers.add_parser('clean', help = 'Clean the garage.')
+      p.add_argument('--method', action = 'store', type = str, default = 'vacuum',
+                     choices = ( 'vacuum', 'sweep' ),
+                     help = 'Cleaning method [ vacuum ]')
+
+      p = subparsers.add_parser('close', help = 'Close the garage.')
+
+    #@abstractmethod
+    def add_arguments(self, parser):
+      parser.add_argument('--output', action = 'store', type = str, default = 'json',
+                          choices = ( 'json', 'text' ),
+                          help = 'Output style [ json ]')
       
-  def test_register_factory(self):
+  def test_register_one_factory(self):
     m = bcli_parser_manager()
-    m.register_factory('house/kitchen', self._house_kitchen_parser_maker)
+    m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
     p = m.find_factory('house/kitchen')
-    self.assertEqual( self._house_kitchen_parser_maker,
+    self.assertEqual( self._house_kitchen_parser_factory,
                       m.find_factory('house/kitchen') )
 
+  def test_register_two_factories(self):
+    m = bcli_parser_manager()
+    m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
+    m.register_factory('house/garage', self._house_garage_parser_factory)
+    self.assertEqual( self._house_kitchen_parser_factory,
+                      m.find_factory('house/kitchen') )
+    self.assertEqual( self._house_garage_parser_factory,
+                      m.find_factory('house/garage') )
+    
   def xtest__split_path_and_args(self):
     f = bcli_parser_manager._split_path_and_args
 
@@ -52,15 +82,26 @@ class test_bcli_parser_manager(unit_test):
     self.assertEqual( ( 'house/kitchen', '' ),
                       f('fruit kiwi') )
 
-  def test_parse_args(self):
+  def test_parse_args_one_factory(self):
     m = bcli_parser_manager()
-    m.register_factory('house/kitchen', self._house_kitchen_parser_maker)
+    m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
     r = m.parse_args('house kitchen cook food --method grill')
     self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
 
+  def test_parse_args_two_factories(self):
+    m = bcli_parser_manager()
+    m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
+    m.register_factory('house/garage', self._house_garage_parser_factory)
+
+    r = m.parse_args('house kitchen cook food --method grill')
+    self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json'), r )
+
+    r = m.parse_args('house garage clean --method sweep')
+    self.assertEqual( Namespace(method = 'sweep', output = 'json'), r )
+    
   def test_format_help(self):
     m = bcli_parser_manager()
-    m.register_factory('house/kitchen', self._house_kitchen_parser_maker)
+    m.register_factory('house/kitchen', self._house_kitchen_parser_factory)
     h = m.format_help('house kitchen cook food --help --method grill')
 
     expected = '''
