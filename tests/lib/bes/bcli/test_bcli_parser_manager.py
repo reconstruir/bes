@@ -12,9 +12,13 @@ from bes.bcli.bcli_parser_maker_i import bcli_parser_maker_i
 class test_bcli_parser_manager(unit_test):
 
   class _house_kitchen_parser_maker(bcli_parser_maker_i):
-    @classmethod
+    
     #@abstractmethod
-    def add_sub_parsers(clazz, subparsers):
+    def has_sub_parsers(self):
+      return True
+  
+    #@abstractmethod
+    def add_sub_parsers(self, subparsers):
       p = subparsers.add_parser('cook', help = 'Cook some food.')
       p.add_argument('what', action = 'store', type = str,
                      help = 'What to cook')
@@ -23,12 +27,17 @@ class test_bcli_parser_manager(unit_test):
                      help = 'Cooking method [ sear ]')
 
       p = subparsers.add_parser('clean', help = 'Clean the kitchen.')
+
+    #@abstractmethod
+    def add_arguments(self, parser):
+      pass
       
   def test_register_parser(self):
     m = bcli_parser_manager()
     m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
-    p = m.find_parser([ 'house', 'kitchen' ])
-    print(p)
+    p = m.find_parser_factory([ 'house', 'kitchen' ])
+    self.assertEqual( self._house_kitchen_parser_maker,
+                      m.find_parser_factory([ 'house', 'kitchen' ]) )
 
   def xtest__split_path_and_args(self):
     f = bcli_parser_manager._split_path_and_args
@@ -45,7 +54,7 @@ class test_bcli_parser_manager(unit_test):
     m = bcli_parser_manager()
     m.register_parser([ 'house', 'kitchen' ], self._house_kitchen_parser_maker)
     r = m.parse_args('house kitchen cook food --method grill')
-    self.assertEqual( Namespace(what='food', method='grill'), r )
+    self.assertEqual( Namespace(what = 'food', method = 'grill'), r )
 
   def test_format_help(self):
     m = bcli_parser_manager()

@@ -12,6 +12,7 @@ class _bcli_parser_tree_node:
     self.value = None
 
 class bcli_parser_tree:
+  
   def __init__(self):
     self.root = _bcli_parser_tree_node()
 
