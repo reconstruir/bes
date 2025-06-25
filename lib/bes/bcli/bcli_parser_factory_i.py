@@ -14,6 +14,14 @@ class bcli_parser_factory_i(ABC):
   @abstractmethod
   def path(clazz):
     raise NotImplementedError(f'path')
+
+  @abstractmethod
+  def error_class(self):
+    raise NotImplementedError(f'error_class')
+
+  @abstractmethod
+  def options_class(self):
+    raise NotImplementedError(f'options_class')
   
   @abstractmethod
   def has_sub_parsers(self):
@@ -26,5 +34,5 @@ class bcli_parser_factory_i(ABC):
   @abstractmethod
   def add_arguments(self, parser):
     raise NotImplementedError(f'add_arguments')
-  
-check.register_class(bcli_parser_factory_i, name = 'bcli_parser_maker', include_seq = False)
+
+check.register_class(bcli_parser_factory_i, name = 'bcli_parser_factory', include_seq = False)

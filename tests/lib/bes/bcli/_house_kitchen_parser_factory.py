@@ -9,6 +9,14 @@ class _house_kitchen_parser_factory(bcli_parser_factory_i):
   #@abstractmethod
   def path(clazz):
     return 'house/kitchen'
+
+  #@abstractmethod
+  def error_class(self):
+    raise RuntimeError
+
+  #@abstractmethod
+  def options_class(self):
+    return None
   
   #@abstractmethod
   def has_sub_parsers(self):

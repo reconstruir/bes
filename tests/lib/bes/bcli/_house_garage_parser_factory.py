@@ -10,7 +10,15 @@ class _house_garage_parser_factory(bcli_parser_factory_i):
   #@abstractmethod
   def path(clazz):
     return 'house/garage'
-    
+
+  #@abstractmethod
+  def error_class(self):
+    raise RuntimeError
+
+  #@abstractmethod
+  def options_class(self):
+    return None
+  
   #@abstractmethod
   def has_sub_parsers(self):
     return True
