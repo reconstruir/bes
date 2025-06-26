@@ -37,9 +37,9 @@ class bcli_application_i(ABC):
     
   def run(self, args):
     self.log_d(f'args="{args}"')
-    ns = self._parser_manager.parse_args(args)
-    self.log_d(f'ns={ns}')
-    ns_dict = copy.deepcopy(ns.__dict__)
+    parse_rv = self._parser_manager.parse_args(args)
+    self.log_d(f'parse_rv={parse_rv}')
+    ns_dict = copy.deepcopy(parse_rv.ns.__dict__)
     command_name = ns_dict['__bcli_command_name__']
     del ns_dict['__bcli_command_name__']
     self.log_d(f'ns_dict={pprint.pformat(ns_dict)}')

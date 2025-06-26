@@ -2,6 +2,9 @@
 
 import argparse
 import shlex
+import dataclasses
+import typing
+import argparse
 
 from ..system.check import check
 from ..system.log import logger
@@ -47,22 +50,34 @@ class bcli_parser_manager(object):
       return n.value
     return None
 
+  @dataclasses.dataclass
+  class _parse_args_result(object):
+    ns: argparse.Namespace
+    path: str
+  
   def parse_args(self, s):
     check.check_string(s)
 
-    parser, args = self._make_parser(s)
-    return parser.parse_args(args)
+    context = self._make_parser_context(s)
+    ns = context.parser.parse_args(context.args)
+    return self._parse_args_result(ns, context.path)
 
   def format_help(self, s):
     check.check_string(s)
 
-    parser, _ = self._make_parser(s)
-    return parser.format_help()
-  
-  def _make_parser(self, s):
-    self._log.log_d(f'_make_parser: s="{s}"')
+    context = self._make_parser_context(s)
+    return context.parser.format_help()
+
+  @dataclasses.dataclass
+  class _parser_context(object):
+    path: str
+    parser: argparse.ArgumentParser
+    args: dict
+    
+  def _make_parser_context(self, s):
+    self._log.log_d(f'_make_parser_context: s="{s}"')
     path, args = self._split_path_and_args(s)
-    self._log.log_d(f'_make_parser: path={path} args={args}')
+    self._log.log_d(f'_make_parser_context: path={path} args={args}')
 
     parser_factory_class = self.find_factory(path)
     self._log.log_d(f'parser_factory_class={parser_factory_class}')
@@ -79,7 +94,7 @@ class bcli_parser_manager(object):
       subparsers = parser.add_subparsers(help = 'commands', dest = '__bcli_command_name__')
       parser_factory.add_sub_parsers(subparsers)
 
-    return parser, args
+    return self._parser_context(path, parser, args)
   
   def _split_path_and_args(self, s):
     check.check_string(s)
