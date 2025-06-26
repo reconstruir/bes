@@ -41,10 +41,6 @@ class _test_app_1_level(bcli_application_i):
       _store_parser_factory,
     ]
 
-  def _command_store_buy(self, what, verbose, options):
-    print(f'_command_store_buy: what={what} verbose={verbose}')
-    return 0
-  
 class test_bcli_appliction(unit_test):
 
   def test_run_2_levels(self):

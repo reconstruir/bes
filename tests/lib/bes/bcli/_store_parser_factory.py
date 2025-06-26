@@ -35,3 +35,9 @@ class _store_parser_factory(bcli_parser_factory_i):
   def add_arguments(self, parser):
     parser.add_argument('-v', '--verbose', action = 'store_true', default = False,
                         help = 'Verbose [ False ]')
+
+  #@abstractmethod
+  def handler_class(self):
+    from _store_command_handler import _store_command_handler
+    return _store_command_handler
+    

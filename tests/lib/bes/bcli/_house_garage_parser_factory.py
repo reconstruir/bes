@@ -37,3 +37,9 @@ class _house_garage_parser_factory(bcli_parser_factory_i):
     parser.add_argument('--output', action = 'store', type = str, default = 'json',
                         choices = ( 'json', 'text' ),
                         help = 'Output style [ json ]')
+
+  #@abstractmethod
+  def handler_class(self):
+    from _house_garage_command_handler import _house_garage_command_handler
+    return _house_garage_command_handler
+    

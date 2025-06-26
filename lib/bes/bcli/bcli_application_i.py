@@ -50,7 +50,10 @@ class bcli_application_i(ABC):
     command_path = '_'.join(parse_rv.path)
     command_handler_name = f'_command_{command_path}_{command_name}'
     self._log.log_d(f'run: command_handler_name={command_handler_name}')
-    command_handler = getattr(self, command_handler_name, None)
+
+    handler_class = parse_rv.factory.handler_class()
+    handler_instance = handler_class()
+    command_handler = getattr(handler_instance, command_handler_name, None)
     self._log.log_d(f'run: command_handler={command_handler}')
     if not command_handler:
       raise bcli_parser_error(f'command handler: "{command_handler_name}" not found in {self}')
