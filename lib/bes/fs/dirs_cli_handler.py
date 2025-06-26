@@ -13,9 +13,11 @@ class dirs_cli_handler(cli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(dirs_cli_handler, self).__init__(cli_args, options_class = dirs_cli_options)
+    print(f'cli_args={cli_args}')
+    super().__init__(cli_args, options_class = dirs_cli_options)
     check.check_dirs_cli_options(self.options)
     self._resolver_options = file_resolver_options(recursive = self.options.recursive)
+    print(f'options={self.options}')
   
   def remove_empty(self, where):
     where = file_check.check_dir(where)

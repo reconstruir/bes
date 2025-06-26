@@ -27,8 +27,10 @@ class files_cli_handler(bcli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
+    print(f'cli_args={cli_args}')
     super().__init__(cli_args, options_class = files_cli_options)
     check.check_files_cli_options(self.options)
+    print(f'options={self.options}')
   
   def checksums(self, files, algorithm):
     check.check_string_seq(files)

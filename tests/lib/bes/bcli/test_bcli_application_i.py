@@ -23,12 +23,17 @@ class _test_application(bcli_application_i):
       _house_garage_parser_factory,
       _house_kitchen_parser_factory,
     ]
+
+  def _command_cook(self, method, output, what):
+    print(f'_command_cook: method={method} output={output} what={what}')
+    return 0
   
 class test_bcli_appliction(unit_test):
 
   def test_run(self):
     app = _test_application()
-    app.run('house kitchen cook food --method grill')
+    rv = app.run('house kitchen cook food --method grill')
+    self.assertEqual( rv, 0 )
     
 if __name__ == '__main__':
   unit_test.main()

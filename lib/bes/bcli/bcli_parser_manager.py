@@ -76,7 +76,7 @@ class bcli_parser_manager(object):
     parser_factory.add_arguments(parser)
     
     if parser_factory.has_sub_parsers():
-      subparsers = parser.add_subparsers(help = 'commands', dest = '__bcli_command__')
+      subparsers = parser.add_subparsers(help = 'commands', dest = '__bcli_command_name__')
       parser_factory.add_sub_parsers(subparsers)
 
     return parser, args
