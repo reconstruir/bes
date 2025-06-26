@@ -7,7 +7,7 @@ from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
 from bes.bcli.bcli_parser_manager import bcli_parser_manager
-from bes.bcli.bcli_parser_factory_i import bcli_parser_factory_i
+from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
 from _house_garage_parser_factory import _house_garage_parser_factory
 from _house_kitchen_parser_factory import _house_kitchen_parser_factory

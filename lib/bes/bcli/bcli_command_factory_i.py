@@ -6,7 +6,7 @@ from abc import ABC
 from ..system.check import check
 from ..system.log import logger
 
-class bcli_parser_factory_i(ABC):
+class bcli_command_factory_i(ABC):
 
   _log = logger('bcli')
 
@@ -39,4 +39,4 @@ class bcli_parser_factory_i(ABC):
   def handler_class(self):
     raise NotImplementedError(f'handler_class')
   
-check.register_class(bcli_parser_factory_i, name = 'bcli_parser_factory', include_seq = False)
+check.register_class(bcli_command_factory_i, name = 'bcli_parser_factory', include_seq = False)

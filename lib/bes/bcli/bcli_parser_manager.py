@@ -11,7 +11,7 @@ from ..system.log import logger
 from ..common.string_util import string_util
 
 from .bcli_parser_tree import bcli_parser_tree
-from .bcli_parser_factory_i import bcli_parser_factory_i
+from .bcli_command_factory_i import bcli_command_factory_i
 from .bcli_parser_error import bcli_parser_error
 
 class bcli_parser_manager(object):
@@ -33,8 +33,8 @@ class bcli_parser_manager(object):
   def register_factory(self, parser_factory_class):
     self._log.log_d(f'register_factory: path={parser_factory_class.path()} parser_factory_class={parser_factory_class}')
 
-    if not issubclass(parser_factory_class, bcli_parser_factory_i):
-      raise TypeError(f'parser_factory_class should be of type bcli_parser_factory_i instead of "{parser_factory_class}"')
+    if not issubclass(parser_factory_class, bcli_command_factory_i):
+      raise TypeError(f'parser_factory_class should be of type bcli_command_factory_i instead of "{parser_factory_class}"')
 
     path = self.parse_path(parser_factory_class.path())
     self._parser_factories.set(path, parser_factory_class)
@@ -56,7 +56,7 @@ class bcli_parser_manager(object):
   class _parse_args_result(object):
     ns: argparse.Namespace
     path: str
-    factory: bcli_parser_factory_i
+    factory: bcli_command_factory_i
   
   def parse_args(self, s):
     context = self._make_parser_context(s)
@@ -73,7 +73,7 @@ class bcli_parser_manager(object):
     path: str
     parser: argparse.ArgumentParser
     args: dict
-    factory: bcli_parser_factory_i
+    factory: bcli_command_factory_i
     
   def _make_parser_context(self, s):
     self._log.log_d(f'_make_parser_context: s="{s}"')

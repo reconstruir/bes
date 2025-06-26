@@ -2,9 +2,9 @@
 
 from bes.system.check import check
 
-from bes.bcli.bcli_parser_factory_i import bcli_parser_factory_i
+from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
-class _house_garage_parser_factory(bcli_parser_factory_i):
+class _house_garage_parser_factory(bcli_command_factory_i):
 
   @classmethod
   #@abstractmethod
