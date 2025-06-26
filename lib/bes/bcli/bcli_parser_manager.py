@@ -56,6 +56,7 @@ class bcli_parser_manager(object):
   class _parse_args_result(object):
     ns: argparse.Namespace
     path: str
+    factory: bcli_parser_factory_i
   
   def parse_args(self, s):
     check.check_string(s)
@@ -63,7 +64,7 @@ class bcli_parser_manager(object):
     context = self._make_parser_context(s)
     ns = context.parser.parse_args(context.args)
     self._log.log_d(f'parse_args: ns={ns}')
-    return self._parse_args_result(ns, context.path)
+    return self._parse_args_result(ns, context.path, context.factory)
 
   def format_help(self, s):
     check.check_string(s)
@@ -76,6 +77,7 @@ class bcli_parser_manager(object):
     path: str
     parser: argparse.ArgumentParser
     args: dict
+    factory: bcli_parser_factory_i
     
   def _make_parser_context(self, s):
     self._log.log_d(f'_make_parser_context: s="{s}"')
@@ -98,7 +100,7 @@ class bcli_parser_manager(object):
       subparsers = parser.add_subparsers(help = 'commands', dest = '__bcli_command_name__', required = True)
       parser_factory.add_sub_parsers(subparsers)
 
-    return self._parser_context(path, parser, args)
+    return self._parser_context(path, parser, args, parser_factory)
   
   def _split_path_and_args(self, s):
     check.check_string(s)

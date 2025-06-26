@@ -35,4 +35,8 @@ class bcli_parser_factory_i(ABC):
   def add_arguments(self, parser):
     raise NotImplementedError(f'add_arguments')
 
+#  @abstractmethod
+#  def make_handler(self, parser):
+#    raise NotImplementedError(f'make_handler')
+  
 check.register_class(bcli_parser_factory_i, name = 'bcli_parser_factory', include_seq = False)

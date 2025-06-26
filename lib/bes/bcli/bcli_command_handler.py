@@ -29,6 +29,8 @@ class bcli_command_handler(object):
 
   @classmethod
   def make_options(clazz, options_class, cli_args):
+    check.check_dict(cli_args)
+    
     if not options_class:
       return None, copy.deepcopy(cli_args)
     else:

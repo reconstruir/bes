@@ -13,6 +13,7 @@ from ..system.log import logger
 
 from .bcli_parser_manager import bcli_parser_manager
 from .bcli_parser_error import bcli_parser_error
+from .bcli_options import bcli_options
 
 class bcli_application_i(ABC):
 
@@ -53,5 +54,29 @@ class bcli_application_i(ABC):
     self._log.log_d(f'run: command_handler={command_handler}')
     if not command_handler:
       raise bcli_parser_error(f'command handler: "{command_handler_name}" not found in {self}')
-    rv = command_handler(**ns_dict)
+
+    new_ns_dict = self._extract_options(parse_rv.factory.options_class(), ns_dict)
+    
+    rv = command_handler(**new_ns_dict)
     return rv
+
+  @classmethod
+  def _extract_options(clazz, options_class, ns_dict):
+    check.check_class(options_class, allow_none = True)
+    check.check_dict(ns_dict)
+    
+    if not options_class:
+      new_ns_dict = copy.deepcopy(ns_dict)
+      new_ns_dict['options'] = None
+      return new_ns_dict
+    
+    options = options_class()
+    check.check_bcli_options(options)
+    new_ns_dict = {}
+    for name, value in ns_dict.items():
+      if options.has_option(name):
+        setattr(options, name, value)
+      else:
+        new_ns_dict[name] = value
+    new_ns_dict['options'] = options
+    return new_ns_dict

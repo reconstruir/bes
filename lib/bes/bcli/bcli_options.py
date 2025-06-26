@@ -124,5 +124,5 @@ class bcli_options(object):
       check_func = getattr(check, check_class_name)
       options = check_func(options)
     return options.clone()
-  
+
 check.register_class(bcli_options, include_seq = False)

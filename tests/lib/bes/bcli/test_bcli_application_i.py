@@ -25,7 +25,7 @@ class _test_app_2_levels(bcli_application_i):
       _house_kitchen_parser_factory,
     ]
 
-  def _command_house_kitchen_cook(self, method, output, what):
+  def _command_house_kitchen_cook(self, method, output, what, options):
     print(f'_command_cook: method={method} output={output} what={what}')
     return 0
 
@@ -41,7 +41,7 @@ class _test_app_1_level(bcli_application_i):
       _store_parser_factory,
     ]
 
-  def _command_store_buy(self, what, verbose):
+  def _command_store_buy(self, what, verbose, options):
     print(f'_command_store_buy: what={what} verbose={verbose}')
     return 0
   
