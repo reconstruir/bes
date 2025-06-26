@@ -18,11 +18,11 @@ class _store_parser_factory(bcli_parser_factory_i):
     return None
   
   #@abstractmethod
-  def has_sub_parsers(self):
+  def has_commands(self):
     return True
 
   #@abstractmethod
-  def add_sub_parsers(self, subparsers):
+  def add_commands(self, subparsers):
     p = subparsers.add_parser('buy', help = 'Buy something.')
     p.add_argument('what', action = 'store', type = str,
                    help = 'What to buy')

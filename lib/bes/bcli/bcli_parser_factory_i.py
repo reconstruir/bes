@@ -24,12 +24,12 @@ class bcli_parser_factory_i(ABC):
     raise NotImplementedError(f'options_class')
   
   @abstractmethod
-  def has_sub_parsers(self):
-    raise NotImplementedError(f'has_sub_parsers')
+  def has_commands(self):
+    raise NotImplementedError(f'has_commands')
   
   @abstractmethod
-  def add_sub_parsers(self, subparsers):
-    raise NotImplementedError(f'add_sub_parsers')
+  def add_commands(self, subparsers):
+    raise NotImplementedError(f'add_commands')
 
   @abstractmethod
   def add_arguments(self, parser):

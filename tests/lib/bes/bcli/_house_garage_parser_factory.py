@@ -20,11 +20,11 @@ class _house_garage_parser_factory(bcli_parser_factory_i):
     return None
   
   #@abstractmethod
-  def has_sub_parsers(self):
+  def has_commands(self):
     return True
   
   #@abstractmethod
-  def add_sub_parsers(self, subparsers):
+  def add_commands(self, subparsers):
     p = subparsers.add_parser('clean', help = 'Clean the garage.')
     p.add_argument('--method', action = 'store', type = str, default = 'vacuum',
                    choices = ( 'vacuum', 'sweep' ),
