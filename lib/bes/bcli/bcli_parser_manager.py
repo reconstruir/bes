@@ -59,16 +59,12 @@ class bcli_parser_manager(object):
     factory: bcli_parser_factory_i
   
   def parse_args(self, s):
-    check.check_string(s)
-
     context = self._make_parser_context(s)
     ns = context.parser.parse_args(context.args)
     self._log.log_d(f'parse_args: ns={ns}')
     return self._parse_args_result(ns, context.path, context.factory)
 
   def format_help(self, s):
-    check.check_string(s)
-
     context = self._make_parser_context(s)
     return context.parser.format_help()
 
@@ -103,10 +99,11 @@ class bcli_parser_manager(object):
     return self._parser_context(path, parser, args, parser_factory)
   
   def _split_path_and_args(self, s):
-    check.check_string(s)
-
-    parts = shlex.split(s)
-
+    if check.is_string(s):
+      parts = shlex.split(s)
+    elif check.is_string_seq(s):
+      parts = list(s)[:]
+    
     path, _, args = self._parser_factories.get_existing_prefix(parts)
     return path, args
 

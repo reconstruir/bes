@@ -83,3 +83,10 @@ class bcli_application_i(ABC):
         new_ns_dict[name] = value
     new_ns_dict['options'] = options
     return new_ns_dict
+
+  @classmethod
+  def main(clazz):
+    app = clazz()
+    args = sys.argv[1:]
+    rv = app.run(args)
+    return rv

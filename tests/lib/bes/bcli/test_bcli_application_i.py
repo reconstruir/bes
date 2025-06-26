@@ -14,6 +14,10 @@ from _store_parser_factory import _store_parser_factory
 
 class _test_app_2_levels(bcli_application_i):
 
+  def __init__(self, unit_test):
+    super().__init__()
+    self._init_test = unit_test
+    
   #@abstractmethod
   def name(self):
     return 'test'
@@ -25,12 +29,12 @@ class _test_app_2_levels(bcli_application_i):
       _house_kitchen_parser_factory,
     ]
 
-  def _command_house_kitchen_cook(self, method, output, what, options):
-    print(f'_command_cook: method={method} output={output} what={what}')
-    return 0
-
 class _test_app_1_level(bcli_application_i):
 
+  def __init__(self, unit_test):
+    super().__init__()
+    self._init_test = unit_test
+  
   #@abstractmethod
   def name(self):
     return 'test'
@@ -44,13 +48,18 @@ class _test_app_1_level(bcli_application_i):
 class test_bcli_appliction(unit_test):
 
   def test_run_2_levels(self):
-    app = _test_app_2_levels()
+    app = _test_app_2_levels(self)
     rv = app.run('house kitchen cook food --method grill')
     self.assertEqual( rv, 0 )
 
   def test_run_1_level(self):
-    app = _test_app_1_level()
+    app = _test_app_1_level(self)
     rv = app.run('store buy bread')
+    self.assertEqual( rv, 0 )
+
+  def test_run_list_args(self):
+    app = _test_app_1_level(self)
+    rv = app.run([ 'store', 'buy', 'bread' ])
     self.assertEqual( rv, 0 )
     
 if __name__ == '__main__':
