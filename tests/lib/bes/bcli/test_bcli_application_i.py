@@ -6,13 +6,13 @@ from argparse import Namespace
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
-from bes.bcli.bcli_application_i import bcli_application_i
+from bes.bcli.bcli_application import bcli_application
 
 from _house_garage_parser_factory import _house_garage_parser_factory
 from _house_kitchen_parser_factory import _house_kitchen_parser_factory
 from _store_parser_factory import _store_parser_factory
 
-class _test_app_2_levels(bcli_application_i):
+class _test_app_2_levels(bcli_application):
 
   def __init__(self, unit_test):
     super().__init__()
@@ -29,7 +29,7 @@ class _test_app_2_levels(bcli_application_i):
       _house_kitchen_parser_factory,
     ]
 
-class _test_app_1_level(bcli_application_i):
+class _test_app_1_level(bcli_application):
 
   def __init__(self, unit_test):
     super().__init__()
