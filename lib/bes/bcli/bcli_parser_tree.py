@@ -97,7 +97,6 @@ class bcli_parser_tree:
   
     return actual_path, node, []
   
-
   def __repr__(self):
     def repr_node(node, indent=0):
       lines = []

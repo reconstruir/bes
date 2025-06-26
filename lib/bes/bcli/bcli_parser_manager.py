@@ -62,6 +62,7 @@ class bcli_parser_manager(object):
 
     context = self._make_parser_context(s)
     ns = context.parser.parse_args(context.args)
+    self._log.log_d(f'parse_args: ns={ns}')
     return self._parse_args_result(ns, context.path)
 
   def format_help(self, s):
@@ -94,7 +95,7 @@ class bcli_parser_manager(object):
     parser_factory.add_arguments(parser)
     
     if parser_factory.has_sub_parsers():
-      subparsers = parser.add_subparsers(help = 'commands', dest = '__bcli_command_name__')
+      subparsers = parser.add_subparsers(help = 'commands', dest = '__bcli_command_name__', required = True)
       parser_factory.add_sub_parsers(subparsers)
 
     return self._parser_context(path, parser, args)
@@ -106,5 +107,8 @@ class bcli_parser_manager(object):
 
     path, _, args = self._parser_factories.get_existing_prefix(parts)
     return path, args
-    
+
+  def __repr__(self):
+    return repr(self._parser_factories)
+  
 check.register_class(bcli_parser_manager, include_seq = False)
