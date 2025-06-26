@@ -7,8 +7,9 @@ import sys
 from abc import abstractmethod
 from abc import ABC
 
-from ..system.check import check
 from ..script.blurb import blurb
+from ..system.check import check
+from ..system.log import log
 from ..system.log import logger
 
 from .bcli_parser_manager import bcli_parser_manager
@@ -24,6 +25,7 @@ class bcli_application_i(ABC):
     check.check_string(name)
 
     blurb.add_blurb(self, name)
+    log.add_logging(self, name)
 
     self._parser_manager = bcli_parser_manager()
     for next_parser_factory in self.parser_factories():
