@@ -43,7 +43,8 @@ class bcli_application_i(ABC):
     command_name = ns_dict['__bcli_command_name__']
     del ns_dict['__bcli_command_name__']
     self.log_d(f'ns_dict={pprint.pformat(ns_dict)}')
-    command_handler_name = f'_command_{command_name}'
+    command_path = '_'.join(parse_rv.path)
+    command_handler_name = f'_command_{command_path}_{command_name}'
     self.log_d(f'command_handler_name={command_handler_name}')
     command_handler = getattr(self, command_handler_name, None)
     self.log_d(f'command_handler={command_handler}')

@@ -24,7 +24,7 @@ class _test_application(bcli_application_i):
       _house_kitchen_parser_factory,
     ]
 
-  def _command_cook(self, method, output, what):
+  def _command_house_kitchen_cook(self, method, output, what):
     print(f'_command_cook: method={method} output={output} what={what}')
     return 0
   
