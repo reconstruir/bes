@@ -10,8 +10,9 @@ from bes.bcli.bcli_application_i import bcli_application_i
 
 from _house_garage_parser_factory import _house_garage_parser_factory
 from _house_kitchen_parser_factory import _house_kitchen_parser_factory
+from _store_parser_factory import _store_parser_factory
 
-class _test_application(bcli_application_i):
+class _test_app_2_levels(bcli_application_i):
 
   #@abstractmethod
   def name(self):
@@ -27,12 +28,33 @@ class _test_application(bcli_application_i):
   def _command_house_kitchen_cook(self, method, output, what):
     print(f'_command_cook: method={method} output={output} what={what}')
     return 0
+
+class _test_app_1_level(bcli_application_i):
+
+  #@abstractmethod
+  def name(self):
+    return 'test'
+  
+  #@abstractmethod
+  def parser_factories(self):
+    return [
+      _store_parser_factory,
+    ]
+
+  def _command_store_buy(self, what, verbose):
+    print(f'_command_store_buy: what={what} verbose={verbose}')
+    return 0
   
 class test_bcli_appliction(unit_test):
 
-  def test_run(self):
-    app = _test_application()
+  def test_run_2_levels(self):
+    app = _test_app_2_levels()
     rv = app.run('house kitchen cook food --method grill')
+    self.assertEqual( rv, 0 )
+
+  def test_run_1_level(self):
+    app = _test_app_1_level()
+    rv = app.run('store buy bread')
     self.assertEqual( rv, 0 )
     
 if __name__ == '__main__':
