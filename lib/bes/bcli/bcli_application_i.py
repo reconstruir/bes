@@ -47,8 +47,7 @@ class bcli_application_i(ABC):
     self._log.log_d(f'run: command_name={command_name}')
     del ns_dict['__bcli_command_name__']
     self._log.log_d(f'run: ns_dict={pprint.pformat(ns_dict)}')
-    command_path = '_'.join(parse_rv.path)
-    command_handler_name = f'_command_{command_path}_{command_name}'
+    command_handler_name = f'_command_{command_name}'
     self._log.log_d(f'run: command_handler_name={command_handler_name}')
 
     handler_class = parse_rv.factory.handler_class()

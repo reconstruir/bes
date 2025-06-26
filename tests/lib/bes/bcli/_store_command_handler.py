@@ -6,6 +6,6 @@ from bes.bcli.bcli_caca_handler_i import bcli_caca_handler_i
 
 class _store_command_handler(bcli_caca_handler_i):
 
-  def _command_store_buy(self, what, verbose, options):
+  def _command_buy(self, what, verbose, options):
     print(f'_command_store_buy: what={what} verbose={verbose}')
     return 0
