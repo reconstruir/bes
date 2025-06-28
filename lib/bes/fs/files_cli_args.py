@@ -105,8 +105,5 @@ class files_cli_args(object):
                    help = 'Count to begin at for resolving duplicate files [ 1 ]')
     
   def _command_files(self, command, *args, **kargs):
-    print(f'command={command}')
-    print(f'args={args}')
-    print(f'kargs={kargs}')
     from .files_cli_handler import files_cli_handler
     return files_cli_handler(kargs).handle_command(command)
