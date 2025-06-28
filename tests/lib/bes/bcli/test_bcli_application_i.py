@@ -8,9 +8,9 @@ from bes.testing.unit_test import unit_test
 
 from bes.bcli.bcli_application import bcli_application
 
-from _house_garage_parser_factory import _house_garage_parser_factory
-from _house_kitchen_parser_factory import _house_kitchen_parser_factory
-from _store_parser_factory import _store_parser_factory
+from _house_garage_command_factory import _house_garage_command_factory
+from _house_kitchen_command_factory import _house_kitchen_command_factory
+from _store_command_factory import _store_command_factory
 
 class _test_app_2_levels(bcli_application):
 
@@ -25,8 +25,8 @@ class _test_app_2_levels(bcli_application):
   #@abstractmethod
   def parser_factories(self):
     return [
-      _house_garage_parser_factory,
-      _house_kitchen_parser_factory,
+      _house_garage_command_factory,
+      _house_kitchen_command_factory,
     ]
 
 class _test_app_1_level(bcli_application):
@@ -42,7 +42,7 @@ class _test_app_1_level(bcli_application):
   #@abstractmethod
   def parser_factories(self):
     return [
-      _store_parser_factory,
+      _store_command_factory,
     ]
 
 class test_bcli_appliction(unit_test):

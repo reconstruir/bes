@@ -1,18 +1,20 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.system.check import check
+
 from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
-class _house_kitchen_parser_factory(bcli_command_factory_i):
+class _house_garage_command_factory(bcli_command_factory_i):
 
   @classmethod
   #@abstractmethod
   def path(clazz):
-    return 'house/kitchen'
+    return 'house/garage'
 
   @classmethod
   #@abstractmethod
   def description(clazz):
-    return 'deal with the kitchen'
+    return 'deal with the garage'
   
   #@abstractmethod
   def error_class(self):
@@ -25,18 +27,16 @@ class _house_kitchen_parser_factory(bcli_command_factory_i):
   #@abstractmethod
   def has_commands(self):
     return True
-
+  
   #@abstractmethod
   def add_commands(self, subparsers):
-    p = subparsers.add_parser('cook', help = 'Cook some food.')
-    p.add_argument('what', action = 'store', type = str,
-                   help = 'What to cook')
-    p.add_argument('--method', action = 'store', type = str, default = 'sear',
-                   choices = ( 'sear', 'steam', 'grill' ),
-                   help = 'Cooking method [ sear ]')
-    
-    p = subparsers.add_parser('clean', help = 'Clean the kitchen.')
-   
+    p = subparsers.add_parser('clean', help = 'Clean the garage.')
+    p.add_argument('--method', action = 'store', type = str, default = 'vacuum',
+                   choices = ( 'vacuum', 'sweep' ),
+                   help = 'Cleaning method [ vacuum ]')
+
+    p = subparsers.add_parser('close', help = 'Close the garage.')
+
   #@abstractmethod
   def add_arguments(self, parser):
     parser.add_argument('--output', action = 'store', type = str, default = 'json',
@@ -45,5 +45,6 @@ class _house_kitchen_parser_factory(bcli_command_factory_i):
 
   #@abstractmethod
   def handler_class(self):
-    from _house_kitchen_command_handler import _house_kitchen_command_handler
-    return _house_kitchen_command_handler
+    from _house_garage_command_handler import _house_garage_command_handler
+    return _house_garage_command_handler
+    

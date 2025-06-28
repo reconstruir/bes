@@ -9,25 +9,25 @@ from bes.testing.unit_test import unit_test
 from bes.bcli.bcli_parser_manager import bcli_parser_manager
 from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
-from _house_garage_parser_factory import _house_garage_parser_factory
-from _house_kitchen_parser_factory import _house_kitchen_parser_factory
-from _store_parser_factory import _store_parser_factory
+from _house_garage_command_factory import _house_garage_command_factory
+from _house_kitchen_command_factory import _house_kitchen_command_factory
+from _store_command_factory import _store_command_factory
 
 class test_bcli_parser_manager(unit_test):
 
   def test_register_one_factory(self):
     m = bcli_parser_manager()
-    m.register_factory(_house_kitchen_parser_factory)
-    self.assertEqual( _house_kitchen_parser_factory,
+    m.register_factory(_house_kitchen_command_factory)
+    self.assertEqual( _house_kitchen_command_factory,
                       m.find_factory('house/kitchen') )
 
   def test_register_two_factories(self):
     m = bcli_parser_manager()
-    m.register_factory(_house_kitchen_parser_factory)
-    m.register_factory(_house_garage_parser_factory)
-    self.assertEqual( _house_kitchen_parser_factory,
+    m.register_factory(_house_kitchen_command_factory)
+    m.register_factory(_house_garage_command_factory)
+    self.assertEqual( _house_kitchen_command_factory,
                       m.find_factory('house/kitchen') )
-    self.assertEqual( _house_garage_parser_factory,
+    self.assertEqual( _house_garage_command_factory,
                       m.find_factory('house/garage') )
     
   def xtest__split_path_and_args(self):
@@ -43,15 +43,15 @@ class test_bcli_parser_manager(unit_test):
 
   def test_parse_args_one_factory(self):
     m = bcli_parser_manager()
-    m.register_factory(_house_kitchen_parser_factory)
+    m.register_factory(_house_kitchen_command_factory)
 
     self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json', __bcli_command_name__ = 'cook'),
                       m.parse_args('house kitchen cook food --method grill').ns )
 
   def test_parse_args_two_factories(self):
     m = bcli_parser_manager()
-    m.register_factory(_house_kitchen_parser_factory)
-    m.register_factory(_house_garage_parser_factory)
+    m.register_factory(_house_kitchen_command_factory)
+    m.register_factory(_house_garage_command_factory)
 
     self.assertEqual( Namespace(what = 'food', method = 'grill', output = 'json', __bcli_command_name__ = 'cook'),
                       m.parse_args('house kitchen cook food --method grill').ns )
@@ -61,7 +61,7 @@ class test_bcli_parser_manager(unit_test):
     
   def test_format_help(self):
     m = bcli_parser_manager()
-    m.register_factory(_house_kitchen_parser_factory)
+    m.register_factory(_house_kitchen_command_factory)
     h = m.format_help('house kitchen cook food --help --method grill')
 
     expected = '''
@@ -80,8 +80,8 @@ options:
 
   def test_one_level_path(self):
     m = bcli_parser_manager()
-    m.register_factory(_store_parser_factory)
-    self.assertEqual( _store_parser_factory,
+    m.register_factory(_store_command_factory)
+    self.assertEqual( _store_command_factory,
                       m.find_factory('store') )
     
 if __name__ == '__main__':

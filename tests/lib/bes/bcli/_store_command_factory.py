@@ -2,7 +2,7 @@
 
 from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
-class _store_parser_factory(bcli_command_factory_i):
+class _store_command_factory(bcli_command_factory_i):
 
   @classmethod
   #@abstractmethod
