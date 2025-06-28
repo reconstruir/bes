@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..bcli.bcli_command_handler import bcli_command_handler
+from ..bcli.bcli_deprecated_command_handler import bcli_deprecated_command_handler
 from ..system.check import check
 from bes.common.algorithm import algorithm
 
@@ -10,7 +10,7 @@ from .file_duplicates_options import file_duplicates_options
 from .file_find import file_find
 from .file_util import file_util
 
-class file_duplicates_cli_handler(bcli_command_handler):
+class file_duplicates_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):

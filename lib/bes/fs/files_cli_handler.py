@@ -3,7 +3,7 @@
 import binascii
 from os import path
 
-from ..bcli.bcli_command_handler import bcli_command_handler
+from ..bcli.bcli_deprecated_command_handler import bcli_deprecated_command_handler
 from bes.common.algorithm import algorithm
 from ..system.check import check
 from bes.common.time_util import time_util
@@ -23,7 +23,7 @@ from .file_util import file_util
 from .filename_list import filename_list
 from .files_cli_options import files_cli_options
 
-class files_cli_handler(bcli_command_handler):
+class files_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):

@@ -11,7 +11,7 @@ from bes.script.blurber import blurber
 from .bcli_missing_command_error import bcli_missing_command_error
 from .bcli_options import bcli_options
 
-class bcli_command_handler(object):
+class bcli_deprecated_command_handler(object):
 
   def __init__(self, cli_args, options_class = None, delegate = None, label = None):
     check.check_dict(cli_args)
