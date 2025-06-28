@@ -15,6 +15,11 @@ class bcli_command_factory_i(ABC):
   def path(clazz):
     raise NotImplementedError(f'path')
 
+  @classmethod
+  @abstractmethod
+  def description(clazz):
+    raise NotImplementedError(f'description')
+  
   @abstractmethod
   def error_class(self):
     raise NotImplementedError(f'error_class')
@@ -38,5 +43,5 @@ class bcli_command_factory_i(ABC):
   @abstractmethod
   def handler_class(self):
     raise NotImplementedError(f'handler_class')
-  
+
 check.register_class(bcli_command_factory_i, name = 'bcli_parser_factory', include_seq = False)

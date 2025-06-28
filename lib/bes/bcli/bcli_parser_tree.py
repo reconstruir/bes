@@ -106,3 +106,14 @@ class bcli_parser_tree:
         lines.extend(repr_node(child, indent + 1))
       return lines
     return "\n".join(repr_node(self.root))
+
+  def format_help(self):
+    def _help_node(node, indent=0):
+      lines = []
+      for key, child in node.children.items():
+        value_part = f" - {child.value.description()}" if child.value is not None else ""
+        lines.append("  " * indent + f"{key}{value_part}")
+        lines.extend(_help_node(child, indent + 1))
+      return lines
+    return "\n".join(_help_node(self.root))
+  

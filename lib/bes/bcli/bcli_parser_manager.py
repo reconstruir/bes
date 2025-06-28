@@ -74,7 +74,10 @@ class bcli_parser_manager(object):
     parser: argparse.ArgumentParser
     args: dict
     factory: bcli_command_factory_i
-    
+
+  def format_main_help(self):
+    return self._parser_factories.format_help()
+
   def _make_parser_context(self, s):
     self._log.log_d(f'_make_parser_context: s="{s}"')
     path, args = self._split_path_and_args(s)

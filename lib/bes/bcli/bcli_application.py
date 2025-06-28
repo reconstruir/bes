@@ -32,6 +32,12 @@ class bcli_application(bcli_application_i):
   def run(self, args):
     self._log.log_d(f'run: tree=\n-----\n{repr(self._parser_manager)}\n------')
     self._log.log_d(f'run: args="{args}"')
+    if not args:
+      print(f'No commands given.  Choices are:\n')
+      print(self._parser_manager.format_main_help())
+      print(f'\n')
+      return 1
+
     parse_rv = self._parser_manager.parse_args(args)
     self._log.log_d(f'run: parse_rv={parse_rv}')
     ns_dict = copy.deepcopy(parse_rv.ns.__dict__)

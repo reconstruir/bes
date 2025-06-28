@@ -9,6 +9,11 @@ class _house_kitchen_parser_factory(bcli_command_factory_i):
   def path(clazz):
     return 'house/kitchen'
 
+  @classmethod
+  #@abstractmethod
+  def description(clazz):
+    return 'deal with the kitchen'
+  
   #@abstractmethod
   def error_class(self):
     raise RuntimeError

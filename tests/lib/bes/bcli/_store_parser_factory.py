@@ -9,6 +9,11 @@ class _store_parser_factory(bcli_command_factory_i):
   def path(clazz):
     return 'store'
 
+  @classmethod
+  #@abstractmethod
+  def description(clazz):
+    return 'deal with the store'
+
   #@abstractmethod
   def error_class(self):
     raise RuntimeError
