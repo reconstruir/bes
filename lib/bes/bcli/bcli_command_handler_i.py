@@ -11,7 +11,7 @@ from ..system.check import check
 #from .bcli_missing_command_error import bcli_missing_command_error
 #from .bcli_options import bcli_options
 
-class bcli_caca_handler_i(object):
+class bcli_command_handler_i(object):
 
   def __init__(self): #, cli_args, options_class = None, delegate = None, label = None):
     pass
