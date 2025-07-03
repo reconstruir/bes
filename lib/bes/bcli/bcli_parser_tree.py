@@ -99,18 +99,29 @@ class bcli_parser_tree:
 
   def resolve_token(self, token, candidates):
     '''Resolve a token against candidates using matching heuristics.'''
-    exact_matches = [c for c in candidates if c == token]
-    if exact_matches:
-      return exact_matches[0]
-    
+    # 1. Exact
+    if token in candidates:
+      return token
+  
+    # 2. Prefix
     prefix_matches = [c for c in candidates if c.startswith(token)]
     if len(prefix_matches) == 1:
       return prefix_matches[0]
-    
+    if len(prefix_matches) > 1:
+      raise ValueError(
+        f"Ambiguous token '{token}' matches multiple options by prefix: {sorted(prefix_matches)}"
+      )
+  
+    # 3. First-last letters
     first_last_matches = [c for c in candidates if len(c) >= 2 and (c[0] + c[-1]) == token]
     if len(first_last_matches) == 1:
       return first_last_matches[0]
-    
+    if len(first_last_matches) > 1:
+      raise ValueError(
+        f"Ambiguous token '{token}' matches multiple options by first-last letters: {sorted(first_last_matches)}"
+      )
+  
+    # 4. Dash-initials
     dash_initials_matches = []
     for c in candidates:
       parts = c.split('-')
@@ -119,14 +130,12 @@ class bcli_parser_tree:
         dash_initials_matches.append(c)
     if len(dash_initials_matches) == 1:
       return dash_initials_matches[0]
-    
-    # Ambiguity
-    matches = prefix_matches + first_last_matches + dash_initials_matches
-    if matches:
+    if len(dash_initials_matches) > 1:
       raise ValueError(
-        f"Ambiguous token '{token}' matches multiple options: {sorted(set(matches))}"
+        f"Ambiguous token '{token}' matches multiple options by dash initials: {sorted(dash_initials_matches)}"
       )
-    
+  
+    # Nothing matched
     raise KeyError(f"Unrecognized token '{token}' among options: {sorted(candidates)}")
   
   def get_safe_with_shortcuts(self, path):

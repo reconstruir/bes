@@ -78,14 +78,14 @@ class test_bcli_parser_tree(unit_test):
   def test_unique_prefix(self):
     tree = bcli_parser_tree()
     tree.set(['vmware', 'vm', 'start'], DummyHandler('start'))
-    actual_path, node = tree.get_safe_with_shortcuts(['vm', 'st'])
+    actual_path, node = tree.get_safe_with_shortcuts(['vmw', 'vm', 'st'])
     self.assertEqual(actual_path, ['vmware', 'vm', 'start'])
     self.assertEqual(node.value._name, 'start')
 
   def test_first_last_letters(self):
     tree = bcli_parser_tree()
     tree.set(['opnsense', 'dhcp', 'leases', 'show'], DummyHandler('show'))
-    actual_path, node = tree.get_safe_with_shortcuts(['oe', 'leases', 'show'])
+    actual_path, node = tree.get_safe_with_shortcuts(['oe', 'dhcp', 'leases', 'show'])
     self.assertEqual(actual_path, ['opnsense', 'dhcp', 'leases', 'show'])
     self.assertEqual(node.value._name, 'show')
 
@@ -101,20 +101,20 @@ class test_bcli_parser_tree(unit_test):
     tree.set(['vmware', 'vm', 'start'], DummyHandler('start'))
     tree.set(['vmware', 'vm', 'status'], DummyHandler('status'))
     with self.assertRaises(ValueError) as ctx:
-      tree.get_safe_with_shortcuts(['vm', 'st'])
+      tree.get_safe_with_shortcuts(['vmware', 'vm', 'st'])
     self.assertIn("Ambiguous token 'st'", str(ctx.exception))
 
   def test_unrecognized_token(self):
     tree = bcli_parser_tree()
     with self.assertRaises(KeyError) as ctx:
       tree.get_safe_with_shortcuts(['doesnotexist'])
-    self.assertIn("Unrecognized token", str(ctx.exception))
+    self.assertIn("No subcommands under", str(ctx.exception))
 
   def test_partial_path(self):
     tree = bcli_parser_tree()
     tree.set(['vmware', 'vm', 'start'], DummyHandler('start'))
     with self.assertRaises(KeyError) as ctx:
-      tree.get_safe_with_shortcuts(['vm', 'bad'])
+      tree.get_safe_with_shortcuts(['vmware', 'bad'])
     self.assertIn("Unrecognized token 'bad'", str(ctx.exception))
     
 if __name__ == '__main__':
