@@ -14,13 +14,13 @@ class _bcli_parser_tree_node:
 class bcli_parser_tree:
   
   def __init__(self):
-    self.root = _bcli_parser_tree_node()
+    self._root = _bcli_parser_tree_node()
 
   def ensure_path(self, path):
     '''Ensure that the given path exists, and return the final node.'''
     check.check_string_seq(path)
     
-    node = self.root
+    node = self._root
     for part in path:
       node = node.children[part]
     return node
@@ -38,7 +38,7 @@ class bcli_parser_tree:
     '''Return the node at the given path, or None if it doesn't exist.'''
     check.check_string_seq(path)
 
-    node = self.root
+    node = self._root
     for part in path:
       if part not in node.children:
         return None
@@ -56,7 +56,7 @@ class bcli_parser_tree:
     '''Return (actual_path, node) for the given path. Raise if any part is missing.'''
     check.check_string_seq(path)
 
-    node = self.root
+    node = self._root
     actual_path = []
 
     for part in path:
@@ -71,7 +71,7 @@ class bcli_parser_tree:
     '''Return (matched_path, node) for the deepest existing part of the path.'''
     check.check_string_seq(path)
 
-    node = self.root
+    node = self._root
     actual_path = []
 
     for part in path:
@@ -86,7 +86,7 @@ class bcli_parser_tree:
     '''Return (matched_path, node, leftover_path) for the deepest existing part of the path.'''
     check.check_string_seq(path)
   
-    node = self.root
+    node = self._root
     actual_path = []
   
     for i, part in enumerate(path):
@@ -96,6 +96,60 @@ class bcli_parser_tree:
       actual_path.append(part)
   
     return actual_path, node, []
+
+  def resolve_token(self, token, candidates):
+    '''Resolve a token against candidates using matching heuristics.'''
+    exact_matches = [c for c in candidates if c == token]
+    if exact_matches:
+      return exact_matches[0]
+    
+    prefix_matches = [c for c in candidates if c.startswith(token)]
+    if len(prefix_matches) == 1:
+      return prefix_matches[0]
+    
+    first_last_matches = [c for c in candidates if len(c) >= 2 and (c[0] + c[-1]) == token]
+    if len(first_last_matches) == 1:
+      return first_last_matches[0]
+    
+    dash_initials_matches = []
+    for c in candidates:
+      parts = c.split('-')
+      initials = ''.join(p[0] for p in parts if p)
+      if initials == token:
+        dash_initials_matches.append(c)
+    if len(dash_initials_matches) == 1:
+      return dash_initials_matches[0]
+    
+    # Ambiguity
+    matches = prefix_matches + first_last_matches + dash_initials_matches
+    if matches:
+      raise ValueError(
+        f"Ambiguous token '{token}' matches multiple options: {sorted(set(matches))}"
+      )
+    
+    raise KeyError(f"Unrecognized token '{token}' among options: {sorted(candidates)}")
+  
+  def get_safe_with_shortcuts(self, path):
+    '''
+    Resolve path with shortcuts.
+    Return (actual_path, node).
+    Raises if any part cannot be resolved.
+    '''
+    check.check_string_seq(path)
+    
+    node = self._root
+    actual_path = []
+    
+    for part in path:
+      candidates = node.children.keys()
+      if not candidates:
+        raise KeyError(f"No subcommands under: {'/'.join(actual_path)}")
+      
+      resolved = self.resolve_token(part, candidates)
+      node = node.children[resolved]
+      actual_path.append(resolved)
+    
+    return (actual_path, node)
   
   def __repr__(self):
     def repr_node(node, indent=0):
@@ -105,7 +159,7 @@ class bcli_parser_tree:
         lines.append("  " * indent + f"{key}{value_part}")
         lines.extend(repr_node(child, indent + 1))
       return lines
-    return "\n".join(repr_node(self.root))
+    return "\n".join(repr_node(self._root))
 
   def format_help(self):
     def _help_node(node, indent=0):
@@ -115,5 +169,5 @@ class bcli_parser_tree:
         lines.append("  " * indent + f"{key}{value_part}")
         lines.extend(_help_node(child, indent + 1))
       return lines
-    return "\n".join(_help_node(self.root))
+    return "\n".join(_help_node(self._root))
   
