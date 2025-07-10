@@ -47,3 +47,8 @@ class _house_kitchen_command_factory(bcli_command_factory_i):
   def handler_class(self):
     from _house_kitchen_command_handler import _house_kitchen_command_handler
     return _house_kitchen_command_handler
+
+  #@abstractmethod
+  def supported_platforms(self):
+    return 'all'
+  

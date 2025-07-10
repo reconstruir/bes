@@ -48,3 +48,6 @@ class _house_garage_command_factory(bcli_command_factory_i):
     from _house_garage_command_handler import _house_garage_command_handler
     return _house_garage_command_handler
     
+  #@abstractmethod
+  def supported_platforms(self):
+    return 'all'

@@ -46,3 +46,8 @@ class _store_command_factory(bcli_command_factory_i):
     from _store_command_handler import _store_command_handler
     return _store_command_handler
     
+
+  #@abstractmethod
+  def supported_platforms(self):
+    return 'all'
+  
