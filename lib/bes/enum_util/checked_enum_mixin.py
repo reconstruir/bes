@@ -115,20 +115,6 @@ class checked_enum_mixin:
     return name in clazz.names
 
   @classmethod
-  def parse(clazz, what, ignore_case = True, allow_none = False):
-    'Parse a string, int or enum return an enum item or raise an error if name is invalid.'
-
-    if what == None and allow_none:
-      return None
-    if isinstance(what, clazz):
-      return what
-    if check.is_string(what):
-      return clazz.parse_string(what, ignore_case = ignore_case)
-    else:
-      return clazz.parse_non_string(what)
-    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
-
-  @classmethod
   def parse_list(clazz, s):
     'Parse a space separated list of strings into a list of enumerations.'
     check.check_string(s)
@@ -170,7 +156,6 @@ class checked_enum_mixin:
                          include_seq = False,
                          cast_func = clazz.parse)
   
-
   def __gt__(self, other):
     if isinstance(other, enum.Enum):
       return self.value > other.value

@@ -22,6 +22,49 @@ class checked_int_enum(checked_enum_mixin, enum.IntEnum):
 
   @classmethod
   def parse_non_string(clazz, what):
+#    print(f'parse_non_string: what={what} - {type(what)}')
     if check.is_int(what):
       return clazz(what)
+    elif isinstance(what, clazz):
+      return what
+
     raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
+
+  @classmethod
+  def xparse(clazz, what, ignore_case = True):
+    if check.is_int(what):
+      return clazz(what)
+    elif check.is_string(what):
+      return clazz.parse_string(what, ignore_case = ignore_case)
+    else:
+      raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
+  
+
+  @classmethod
+  def parse(clazz, value, ignore_case = True, allow_none = False):
+    'Parse anything that can be converted to a checked_enum'
+
+    # If it's already an enum member
+    if isinstance(value, clazz):
+      return value
+    # If it's an int
+    if isinstance(value, int):
+      try:
+        return clazz(value)
+      except ValueError:
+        raise ValueError(f'Invalid integer value for clazz: "{value}"')
+    # If it's a string
+    if isinstance(value, str):
+      value = value.strip()
+      # Try name lookup
+      try:
+        return clazz[value.upper()]
+      except KeyError:
+        pass
+      # Try numeric conversion
+      try:
+        num = int(value)
+        return clazz(num)
+      except (ValueError, KeyError):
+        pass
+    raise ValueError(f'Cannot parse "{value}" as "{clazz}"')

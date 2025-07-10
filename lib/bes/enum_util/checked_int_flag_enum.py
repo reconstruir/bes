@@ -29,6 +29,23 @@ class checked_int_flag_enum(checked_enum_mixin, enum.IntFlag):
     if check.is_int(what):
       return clazz(what)
     raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
+
+  @classmethod
+  def parse(clazz, what, ignore_case = True, allow_none = False):
+    'Parse anything that can be converted to a checked_enum'
+
+    if what == None and allow_none:
+      return None
+    if isinstance(what, clazz):
+      return what
+    if check.is_string(what):
+      value = clazz.parse_string(what, ignore_case = ignore_case)
+      if value == None:
+        raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
+      return value
+    else:
+      return clazz.parse_non_string(what)
+    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
   
   @classmethod
   def _split_parts(clazz, s):
