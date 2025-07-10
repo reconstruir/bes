@@ -67,21 +67,6 @@ class bcli_parser_tree:
 
     return (actual_path, node)
 
-  def get_existing_prefixxxx(self, path):
-    '''Return (matched_path, node) for the deepest existing part of the path.'''
-    check.check_string_seq(path)
-
-    node = self._root
-    actual_path = []
-
-    for part in path:
-      if part not in node.children:
-        break
-      node = node.children[part]
-      actual_path.append(part)
-
-    return (actual_path, node if actual_path else None)
-
   def get_existing_prefix(self, path):
     '''Return (matched_path, node, leftover_path) for the deepest existing part of the path.'''
     check.check_string_seq(path)
@@ -134,7 +119,21 @@ class bcli_parser_tree:
       raise ValueError(
         f"Ambiguous token '{token}' matches multiple options by dash initials: {sorted(dash_initials_matches)}"
       )
-  
+
+    # 5. underscore
+    dash_initials_matches = []
+    for c in candidates:
+      parts = c.split('_')
+      initials = ''.join(p[0] for p in parts if p)
+      if initials == token:
+        dash_initials_matches.append(c)
+    if len(dash_initials_matches) == 1:
+      return dash_initials_matches[0]
+    if len(dash_initials_matches) > 1:
+      raise ValueError(
+        f"Ambiguous token '{token}' matches multiple options by dash initials: {sorted(dash_initials_matches)}"
+      )
+    
     # Nothing matched
     raise KeyError(f"Unrecognized token '{token}' among options: {sorted(candidates)}")
   

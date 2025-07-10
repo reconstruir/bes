@@ -108,6 +108,8 @@ class bcli_parser_manager(object):
       parts = list(s)[:]
     
     path, _, args = self._parser_factories.get_existing_prefix(parts)
+#    path, _, args = self._parser_factories.get_safe_with_shortcuts(parts)
+    
     return path, args
 
   def __repr__(self):
