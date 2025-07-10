@@ -44,4 +44,8 @@ class bcli_command_factory_i(ABC):
   def handler_class(self):
     raise NotImplementedError(f'handler_class')
 
+  @abstractmethod
+  def supported_platforms(self):
+    raise NotImplementedError(f'supported_platforms')
+  
 check.register_class(bcli_command_factory_i, name = 'bcli_parser_factory', include_seq = False)
