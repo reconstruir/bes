@@ -52,8 +52,8 @@ class _bf_file_finder_options_desc(bcli_options_desc):
        walk_dir_match_type bf_file_matcher_type default=ANY
                      limit int
              stop_function callable
-         progress_function callable
- progress_interval_percent float                default=5.0
+#         progress_function callable
+# progress_interval_percent float                default=5.0
                 stop_after int
             found_callback callable
                entry_class type                 default=${_bf_file_finder_entry_default_type}
@@ -120,14 +120,14 @@ class bf_file_finder_options(bcli_options):
       raise bf_file_finder_error(f'result from stop_function should be bool: "{result}" - {type(result)}')
     return result
 
-  def call_progress_function(self, state, index, total):
-    state = check.check_bf_file_finder_progress_state(state)
-    check.check_int(index, allow_none = True)
-    check.check_int(total, allow_none = True)
+#  def call_progress_function(self, state, index, total):
+#    state = check.check_bf_file_finder_progress_state(state)
+#    check.check_int(index, allow_none = True)
+#    check.check_int(total, allow_none = True)
     
-    if not self.progress_function:
-      return
-    progress = bf_file_finder_progress(state, index, total)
-    self.progress_function(progress)
+#    if not self.progress_function:
+#      return
+#    progress = bf_file_finder_progress(state, index, total)
+#    self.progress_function(progress)
     
 bf_file_finder_options.register_check_class()
