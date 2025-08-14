@@ -218,11 +218,11 @@ class unit_test(unittest.TestCase):
     self.assertMultiLineEqual(self._json_normalize(expected),
                               self._json_normalize(actual))
                                
-  def assert_json_object_equal(self, o1, o2):
+  def assert_json_object_equal(self, o1, o2, ignore_white_space = True):
     json1 = self._json_normalize(json.dumps(o1, indent = 2))
     json2 = self._json_normalize(json.dumps(o2, indent = 2))
     self.assert_string_equal(json1, json2, strip = True, multi_line = True,
-                             ignore_white_space = True, native_line_breaks = True)
+                             ignore_white_space = ignore_white_space, native_line_breaks = True)
                                
   @classmethod
   def decode_hex(clazz, s):
