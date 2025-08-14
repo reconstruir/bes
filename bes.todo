@@ -195,6 +195,9 @@ add file_attributes_metadata tests to cover write permissions and ownership
 2022-06-16
 - consider using file entries for file_find
 
+2025-07-14
+- s/system_error/system_command_error/
+- s/system_command/cli_command/
 
 proj env:
   - progress during first setup
