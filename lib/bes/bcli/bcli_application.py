@@ -58,6 +58,9 @@ class bcli_application(bcli_application_i):
     new_ns_dict = self._extract_options(parse_rv.factory.options_class(), ns_dict)
     
     rv = command_handler(**new_ns_dict)
+    if not isinstance(rv, int):
+      raise bcli_parser_error(f'command handler: {handler_class.__name__}:{command_handler_name}() should return int instead of "{rv}"')
+      
     return rv
 
   @classmethod
