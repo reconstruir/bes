@@ -18,19 +18,9 @@ class bcli_command_handler(bcli_command_handler_i):
     blurb.add_blurb(self, name)
     log.add_logging(self, name)
     
-#
-#  def handle_boolean_result(self, result, verbose):
-#    if verbose:
-#      print(str(result))
-#    return 0 if result else 1
-#  
-#  @property
-#  def blurber(self):
-#    return self._blurber
-#  
-#  def blurb(self, *args, **kargs):
-#    self._blurber.blurb(*args, **kargs)
-#
-#  def blurb_verbose(self, *args, **kargs):
-#    self._blurber.blurb_verbose(*args, **kargs)
-##
+  def handle_boolean_result(self, result, verbose):
+    check.check_bool(result)
+    
+    if verbose:
+      print(str(result))
+    return 0 if result else 1
