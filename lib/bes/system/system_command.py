@@ -26,31 +26,31 @@ class system_command(object, metaclass = ABCMeta):
   @abstractmethod
   def exe_name(clazz):
     'The name of the executable.'
-    raise NotImplemented('exe_name')
+    raise NotImplementedError('exe_name')
 
   @classmethod
   @abstractmethod
   def extra_path(clazz):
     'List of extra paths where to find the command.'
-    raise NotImplemented('extra_path')
+    raise NotImplementedError('extra_path')
 
   @classmethod
   @abstractmethod
   def error_class(clazz):
     'The error exception class to raise when errors happen.'
-    raise NotImplemented('error_class')
+    raise NotImplementedError('error_class')
 
   @classmethod
   @abstractmethod
   def static_args(clazz):
     'List of static arg for all calls of the command.'
-    raise NotImplemented('static_args')
+    raise NotImplementedError('static_args')
 
   @classmethod
   @abstractmethod
   def supported_systems(clazz):
     'Return a list of supported systems.'
-    raise NotImplemented('supported_systems')
+    raise NotImplementedError('supported_systems')
   
   @classmethod
   def _find_exe(clazz):
@@ -152,7 +152,7 @@ class system_command(object, metaclass = ABCMeta):
       return
     name = clazz.exe_name()
     systems = ' '.join(clazz.supported_systems())
-    raise clazz.error_class(f'{name} is not supported on {host.SYSTEM} - only {systems}')
+    raise clazz.error_class()(f'{name} is not supported on {host.SYSTEM} - only {systems}')
   
   @classmethod
   def has_command(clazz):
