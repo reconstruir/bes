@@ -1,0 +1,12 @@
+diff --git a/lib/bes/pyinstaller/pyinstaller_build.py b/lib/bes/pyinstaller/pyinstaller_build.py
+index 5df84766..462aa766 100644
+--- a/lib/bes/pyinstaller/pyinstaller_build.py
++++ b/lib/bes/pyinstaller/pyinstaller_build.py
+@@ -49,6 +49,7 @@ class pyinstaller_build(object):
+     hidden_imports = options.hidden_imports or []
+ 
+     basic_args = [ '--onefile' ]
++    basic_args = [ '--onedir' ]
+     if options.osx_bundle_identifier:
+       basic_args.extend([ '--osx-bundle-identifier', options.osx_bundle_identifier ])
+     if options.windowed:

@@ -20,16 +20,19 @@ from ..bf_entry import bf_entry
 from .bf_file_finder_error import bf_file_finder_error
 from .bf_file_finder_progress import bf_file_finder_progress
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
+from .bf_file_finder_mode import bf_file_finder_mode
+from .bf_file_finder_mode import bf_file_finder_mode_bcli
 
 class _bf_file_finder_options_desc(bcli_options_desc):
 
   #@abstractmethod
   def _types(self):
     return [
+      bf_cli_file_matcher_type,
       bf_cli_file_type,
       bf_cli_match,
-      bf_cli_file_matcher_type,
       bf_cli_path_type,
+      bf_file_finder_mode_bcli,
     ]
 
   #@abstractmethod
@@ -58,6 +61,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
             found_callback callable
                entry_class type                 default=${_bf_file_finder_entry_default_type}
           ignore_filenames list[str]
+                      mode bf_file_finder_mode  default=PROGRESSIVE
 '''
   
   #@abstractmethod
