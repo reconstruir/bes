@@ -61,7 +61,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
             found_callback callable
                entry_class type                 default=${_bf_file_finder_entry_default_type}
           ignore_filenames list[str]
-                      mode bf_file_finder_mode  default=PROGRESSIVE
+                      mode bf_file_finder_mode  default=WITH_PROGRESS
 '''
   
   #@abstractmethod

@@ -7,11 +7,11 @@ from bes.system.check import check
 from bes.property.cached_property import cached_property
 
 from ..find.bf_file_finder_options import _bf_file_finder_options_desc
+from ..find.bf_file_finder_mode import bf_file_finder_mode_bcli
 
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria_bcli
 
 from .bf_file_resolver_entry import bf_file_resolver_entry
-from .bf_file_resolver_mode import bf_file_resolver_mode_bcli
 
 class _bf_file_resolver_options_desc(bcli_options_desc):
 
@@ -19,7 +19,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   def _types(self):
     return [
       bf_entry_sort_criteria_bcli,
-      bf_file_resolver_mode_bcli,
+      bf_file_finder_mode_bcli,
     ]
 
   #@abstractmethod
@@ -31,7 +31,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-mode                   bf_file_resolver_mode  default=INCREMENTAL
+mode                   bf_file_finder_mode    default=IMMEDIATE
 sort_order             bf_entry_sort_criteria default=FILENAME
 entry_class            type                   default=${_bf_file_resolver_entry_default_type}
 match_function         callable
