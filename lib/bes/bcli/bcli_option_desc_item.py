@@ -93,7 +93,7 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
     parts = string_util.split_by_white_space(text, strip = True)
     num_parts = len(parts)
     if num_parts < 2:
-      raise ValueError(f'Number of parts should be at least 2 instead of {num_parts}: "{text}"')
+      raise bcli_type_manager_error(f'Number of parts should be at least 2 instead of {num_parts}: "{text}"')
     name = parts.pop(0)
     type_str = parts.pop(0)
     rest_text = text.replace(name, '', 1).replace(type_str, '', 1)
