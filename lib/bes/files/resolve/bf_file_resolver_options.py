@@ -31,7 +31,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-mode                   bf_file_resolver_mode  default=
+mode                   bf_file_resolver_mode  default=INCREMENTAL
 sort_order             bf_entry_sort_criteria default=FILENAME
 entry_class            type                   default=${_bf_file_resolver_entry_default_type}
 match_function         callable

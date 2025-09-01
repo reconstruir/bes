@@ -25,6 +25,8 @@ from .types.bcli_type_str import bcli_type_str
 from .types.bcli_type_timedelta import bcli_type_timedelta
 from .types.bcli_type_tuple import bcli_type_tuple
 
+from .bcli_type_manager_error import bcli_type_manager_error
+
 class bcli_type_manager(object):
 
   _log = logger('bcli')
@@ -75,9 +77,13 @@ class bcli_type_manager(object):
       self.add_variable(name, function)
 
   def substitute_variables(self, s):
+    check.check_string(s)
+
     return variable.substitute(s, self._variables)
 
   def substitute_single_variable(self, s):
+    check.check_string(s)
+
     name = variable.single_variable_name(s)
     if not name:
       return None

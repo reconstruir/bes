@@ -17,6 +17,7 @@ from bes.common.tuple_util import tuple_util
 from bes.common.string_util import string_util
 
 from .bcli_type_manager import bcli_type_manager
+from .bcli_type_manager_error import bcli_type_manager_error
 
 class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name, option_type, default, secret')):
 
@@ -55,15 +56,13 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
 
     clazz._log.log_d(f'text="{text}" parts={parts} parsed_type={parsed_type}')
 
-    #print(f'text="{text}" parts={parts} parsed_type={parsed_type}', flush = True)
-    
     type_item = manager._types[parsed_type.base]
-
-    #print(f'POTO: type_item={type_item}', flush = True)
 
     if 'default' in parts.values:
       default_str = parts.values['default']
-      clazz._log.log_d(f'default_str={default_str}')
+      clazz._log.log_d(f'default_str={default_str} - {type(default_str)}')
+      if default_str == None:
+        raise bcli_type_manager_error(f'Missing default value for option "{parts.name}" of type "{parts.type_str}"')
       variable_result = manager.substitute_single_variable(default_str)
       clazz._log.log_d(f'variable_result={variable_result} - {type(variable_result)}')
       if variable_result and not check.is_string(variable_result):

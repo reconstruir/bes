@@ -19,6 +19,9 @@ class variable(object):
   
   @classmethod
   def find_variables(clazz, s, patterns = None):
+    check.check_string(s)
+    check.check_int(patterns, allow_none = True)
+    
     patterns = patterns or clazz.ALL
     expressions = clazz._mask_to_patterns(patterns)
     exp = ' | '.join(expressions)
@@ -97,6 +100,9 @@ class variable(object):
 
   @classmethod
   def is_single_variable(clazz, s, patterns = None):
+    check.check_string(s)
+    check.check_int(patterns, allow_none = True)
+
     patterns = patterns or clazz.ALL
     expressions = clazz._mask_to_patterns(patterns)
     exp = ' | '.join(expressions)
@@ -104,6 +110,9 @@ class variable(object):
 
   @classmethod
   def single_variable_name(clazz, s, patterns = None):
+    check.check_string(s)
+    check.check_int(patterns, allow_none = True)
+
     v = clazz.find_variables(s, patterns = patterns)
     if v and len(v) == 1:
       return v[0]
