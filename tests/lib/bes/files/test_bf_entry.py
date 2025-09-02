@@ -345,6 +345,22 @@ class test_bf_entry(unit_test, unit_test_media_files):
       '/store/fruits',
       '/store/fruits/Kiwi.fruit',
     ], e.decomposed_path )
+
+  def test_mode(self):
+    e = self._make_test_entry()
+    os.chmod(e.filename, 0o755)
+    self.assertEqual( 0o755, e.mode )
+
+    os.chmod(e.filename, 0o644)
+    self.assertEqual( 0o644, e.mode )
+
+  def test_chmod(self):
+    e = self._make_test_entry()
+    e.chmod(0o755)
+    self.assertEqual( 0o755, os.stat(e.filename).st_mode & 0o777 )
+
+    e.chmod(0o644)
+    self.assertEqual( 0o644, os.stat(e.filename).st_mode & 0o777 )
     
 if __name__ == '__main__':
   unit_test.main()

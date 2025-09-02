@@ -279,6 +279,12 @@ class bf_entry(object):
   def mode(self):
     'Return only the lower bits of a inode mode (permissions)'
     return self.stat.st_mode & 0o777
+
+  def chmod(self, permissions):
+    'Set permissions for file'
+    check.check_int(permissions)
+
+    os.chmod(self.filename, permissions)
   
   @property
   def modification_date(self):
@@ -477,5 +483,5 @@ class bf_entry(object):
   @cached_property
   def decomposed_path(self):
     return bf_path.decompose(self.absolute_filename)
-    
+  
 check.register_class(bf_entry, include_seq = False, cast_func = bf_entry._cast_func)
