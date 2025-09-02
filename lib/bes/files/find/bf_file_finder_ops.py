@@ -5,6 +5,8 @@ import os.path as path
 from bes.system.check import check
 from bes.common.object_util import object_util
 
+from bes.fs.file_path import file_path
+
 from ..bf_check import bf_check
 from ..bf_dir import bf_dir
 from ..bf_entry import bf_entry
@@ -19,9 +21,10 @@ from .bf_file_finder_options import bf_file_finder_options
 class bf_file_finder_ops(object):
 
   @classmethod
-  def find(clazz, where, file_type, min_depth = None, max_depth = None, follow_links = False):
+  def find(clazz, where, file_type = None, min_depth = None, max_depth = None, follow_links = False):
     where = bf_check.check_dir_seq(object_util.listify(where))
-    file_type = check.check_bf_file_type(file_type)
+    file_type = check.check_bf_file_type(file_type, allow_none = True)
+    file_type = file_type or bf_file_type.FILE_OR_DIR_OR_LINK
 
     options = bf_file_finder_options(file_type = file_type,
                                      min_depth = min_depth,
@@ -65,8 +68,8 @@ class bf_file_finder_ops(object):
   @classmethod
   def find_unreadable(clazz, where):
     'Return files and dirs that are unreadable.'
-    entries = clazz.find(where, file_type = file_find.FILE_OR_DIR_OR_LINK)
-    return bf_file_entry_list([ entry for entry in entries if entry.is_readable ])
+    entries = clazz.find(where, file_type = bf_file_type.FILE_OR_DIR_OR_LINK)
+    return bf_entry_list([ entry for entry in entries if not entry.is_readable ])
 
   @classmethod
   def find_empty_dirs(clazz, where, min_depth = None, max_depth = None, follow_links = False):
@@ -74,22 +77,24 @@ class bf_file_finder_ops(object):
                               min_depth = min_depth,
                               max_depth = max_depth,
                               follow_links = follow_links)
-    return bf_file_entry_list([ entry for entry in entries if bf_dir.is_empty(entry.absolute_filename) ])
+    return bf_entry_list([ entry for entry in entries if bf_dir.is_empty(entry.absolute_filename) ])
 
   @classmethod
-  def remove_empty_dirs(clazz, root_dir, min_depth = None, max_depth = None):
-    result = []
+  def remove_empty_dirs(clazz, where, min_depth = None, max_depth = None, follow_links = False):
+    where = bf_check.check_dir_seq(object_util.listify(where))
+    result = bf_entry_list()
     while True:
-      empties = clazz.find_empty_dirs(root_dir,
-                                      relative = False,
+      empties = clazz.find_empty_dirs(where,
                                       min_depth = min_depth,
-                                      max_depth = max_depth)
+                                    max_depth = max_depth,
+                                      follow_links = follow_links)
       if not empties:
         break
       for next_empty in empties:
-        dir_util.remove(next_empty)
+        bf_dir.remove(next_empty.filename)
         result.append(next_empty)
-    if dir_util.is_empty(root_dir):
-      dir_util.remove(root_dir)
-      result.append(root_dir)
-    return sorted(result)
+    for next_where in where:
+      if bf_dir.is_empty(next_where):
+        bf_dir.remove(next_where.filename)
+        result.append(next_where)
+    return result
