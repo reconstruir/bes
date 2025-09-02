@@ -9,7 +9,7 @@ from abc import abstractmethod, ABCMeta
 
 from ..system.check import check
 from bes.fs.file_mime import file_mime
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 from bes.system.log import log
 

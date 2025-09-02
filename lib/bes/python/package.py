@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, pkgutil, sys
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 

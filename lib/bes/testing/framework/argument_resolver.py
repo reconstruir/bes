@@ -11,7 +11,7 @@ from bes.common.object_util import object_util
 from bes.fs.file_check import file_check
 from bes.fs.file_find import file_find
 from bes.fs.file_multi_ignore import file_multi_ignore
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 from bes.git.git import git
 from bes.python.dependencies import dependencies

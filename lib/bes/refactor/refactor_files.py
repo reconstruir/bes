@@ -7,7 +7,7 @@ from os import path
 from bes.common.algorithm import algorithm
 from bes.fs.dir_util import dir_util
 from bes.fs.file_mime import file_mime
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_replace import file_replace
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_options import file_resolver_options
@@ -184,26 +184,26 @@ class refactor_files(object):
     if operation == refactor_operation_type.RENAME_DIRS:
       basename = path.basename(filename)
       dirname = path.dirname(filename)
-      replaced_dirname = file_path.replace_all(dirname,
-                                               src_pattern,
-                                               dst_pattern,
-                                               word_boundary = word_boundary,
-                                               word_boundary_chars = word_boundary_chars)
+      replaced_dirname = bf_path.replace_all(dirname,
+                                             src_pattern,
+                                             dst_pattern,
+                                             word_boundary = word_boundary,
+                                             word_boundary_chars = word_boundary_chars)
       return path.join(replaced_dirname, basename)
     elif operation == refactor_operation_type.RENAME_FILES or copy_dirs:
-      return file_path.replace_all(filename,
-                                   src_pattern,
-                                   dst_pattern,
-                                   word_boundary = word_boundary,
-                                   word_boundary_chars = word_boundary_chars)
+      return bf_path.replace_all(filename,
+                                 src_pattern,
+                                 dst_pattern,
+                                 word_boundary = word_boundary,
+                                 word_boundary_chars = word_boundary_chars)
     elif operation == refactor_operation_type.COPY_FILES:
       basename = path.basename(filename)
       dirname = path.dirname(filename)
-      replaced_basename = file_path.replace_all(basename,
-                                                src_pattern,
-                                                dst_pattern,
-                                                word_boundary = word_boundary,
-                                                word_boundary_chars = word_boundary_chars)
+      replaced_basename = bf_path.replace_all(basename,
+                                              src_pattern,
+                                              dst_pattern,
+                                              word_boundary = word_boundary,
+                                              word_boundary_chars = word_boundary_chars)
       return path.join(dirname, replaced_basename)
         
   @classmethod
@@ -235,11 +235,11 @@ class refactor_files(object):
     affected_dirs = sorted(algorithm.unique(affected_dirs))
     decomposed_affected_items = []
     for f in affected_dirs:
-      next_paths = file_path.decompose(path.sep + f.dirname)
+      next_paths = bf_path.decompose(path.sep + f.dirname)
       for next_path in next_paths:
         item = clazz._affected_dir(f.root_dir, file_util.lstrip_sep(next_path))
         decomposed_affected_items.append(item)
-    decomposed_affected_items = sorted(decomposed_affected_items, key = lambda item: file_path.depth(item.dirname), reverse = True)
+    decomposed_affected_items = sorted(decomposed_affected_items, key = lambda item: bf_path.depth(item.dirname), reverse = True)
     decomposed_affected_dirs = [ path.join(item.root_dir, item.dirname) for item in decomposed_affected_items ]
     return operation_items, decomposed_affected_dirs
 

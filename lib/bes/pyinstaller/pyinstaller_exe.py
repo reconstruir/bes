@@ -6,7 +6,7 @@ import pprint
 
 from ..system.check import check
 from bes.fs.file_util import file_util
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.system.os_env import os_env
 from bes.system.which import which
 from bes.system.command_line import command_line

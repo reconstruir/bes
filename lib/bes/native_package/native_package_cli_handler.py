@@ -5,7 +5,7 @@ import copy, os, pprint
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.algorithm import algorithm
 from ..system.check import check
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.system.log import logger
 
 from .native_package_error import native_package_error

@@ -5,7 +5,7 @@ import fnmatch, inspect, os, os.path as path, zipfile
 
 from .unit_test import unit_test
 
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 
 # FIXME: figure out hot to unpack and egg such that permissions and links are correct

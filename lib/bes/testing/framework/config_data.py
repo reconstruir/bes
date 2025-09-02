@@ -7,7 +7,7 @@ import copy, os, os.path as path, string
 from bes.system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.text.text_line_parser import text_line_parser
 
 class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, requires, variables')):

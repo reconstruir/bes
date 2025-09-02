@@ -11,7 +11,6 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
@@ -967,7 +966,7 @@ class git(git_lfs):
     # submodule urls that are local paths need to use unix like
     # separators even on windows.
     if path.exists(address):
-      address = address.replace('\\', '/') #file_path.xp_path(address, sep = '/')
+      address = address.replace('\\', '/')
     args = [ 'submodule', 'add', address, local_path ]
     git_exe.call_git(root, args)
 

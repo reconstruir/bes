@@ -11,7 +11,7 @@ from collections import namedtuple
 from bes.common.string_util import string_util
 from bes.egg.egg import egg
 from bes.fs.file_find import file_find
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.git.git import git

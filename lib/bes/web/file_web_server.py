@@ -4,7 +4,7 @@ import os, os.path as path
 from .web_server import web_server
 
 from bes.fs.file_util import file_util
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.testing.temp_content import temp_content
 from bes.archive.temp_archive import temp_archive
 

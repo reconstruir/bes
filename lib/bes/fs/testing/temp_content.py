@@ -8,7 +8,7 @@ from bes.text.string_list_parser import string_list_parser
 from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.fs.temp_file import temp_file
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 
 class multiplied_temp_content(namedtuple('multiplied_temp_content', 'name, num, size')):
     

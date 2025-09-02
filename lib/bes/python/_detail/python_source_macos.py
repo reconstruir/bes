@@ -2,7 +2,7 @@
 
 from bes.system.check import check
 from bes.compat import url_compat
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 from bes.python.python_script import python_script

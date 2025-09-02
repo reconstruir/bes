@@ -10,7 +10,7 @@ from bes.common.string_util import string_util
 from bes.compat.plistlib import plistlib_loads
 from bes.fs.dir_util import dir_util
 from bes.fs.file_mime import file_mime
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.macos.pkgutil.pkgutil import pkgutil
 from bes.macos.pkgutil.pkgutil_error import pkgutil_error
 from bes.system.execute import execute

@@ -8,7 +8,7 @@ from datetime import datetime
 from datetime import timedelta
 from bes.fs.file_duplicates import file_duplicates
 from bes.fs.file_duplicates_options import file_duplicates_options
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test

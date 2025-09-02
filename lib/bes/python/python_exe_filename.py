@@ -9,7 +9,7 @@ from ..system.check import check
 from bes.property.cached_property import cached_property
 from bes.system.host import host
 from bes.system.log import logger
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.filename_util import filename_util
 
 from .python_error import python_error

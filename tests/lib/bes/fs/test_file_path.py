@@ -5,7 +5,7 @@ import os, os.path as path, unittest
 
 from bes.testing.unit_test import unit_test
 
-from bes.fs.file_path import file_path
+from bes.files.bf_path import bf_path
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.system.env_override import env_override
@@ -138,17 +138,17 @@ class test_file_path(unit_test):
     self.assert_filename_equal( '/baz/foo/bar/x.png', file_path.insert('/foo/bar/x.png', 1, 'baz') )
 
   def test_replace_all(self):
-    self.assert_filename_equal( '/foo/apple', file_path.replace_all('/foo/bar', 'bar', 'apple') )
-    self.assert_filename_equal( '/apple/foo/apple', file_path.replace_all('/bar/foo/bar', 'bar', 'apple') )
-    self.assert_filename_equal( '/applefruit/apple_fruit/foo', file_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple') )
+    self.assert_filename_equal( '/foo/apple', bf_path.replace_all('/foo/bar', 'bar', 'apple') )
+    self.assert_filename_equal( '/apple/foo/apple', bf_path.replace_all('/bar/foo/bar', 'bar', 'apple') )
+    self.assert_filename_equal( '/applefruit/apple_fruit/foo', bf_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple') )
 
   def test_replace_all_with_word_boundary(self):
     self.assert_filename_equal( '/kiwifruit/kiwi_fruit/foo',
-                                file_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple', word_boundary = True) )
+                                bf_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple', word_boundary = True) )
     
   def test_replace_all_with_word_boundary_and_underscore(self):
     self.assert_filename_equal( '/kiwifruit/apple_fruit/foo',
-                                file_path.replace_all('/kiwifruit/kiwi_fruit/foo',
+                                bf_path.replace_all('/kiwifruit/kiwi_fruit/foo',
                                                       'kiwi',
                                                       'apple',
                                                       word_boundary = True,
