@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, re
-from bes.fs.file_path import file_path
+from bes.system.which import which
 from bes.system.execute import execute
 from bes.text.text_line_parser import text_line_parser
 
@@ -12,13 +12,13 @@ class dependencies(object):
   @classmethod
   def is_supported(clazz):
     'Return True if this environment supports figuring out python file dependencies.'
-    return file_path.which('sfood') is not None
+    return which.which('sfood') is not None
   
   @classmethod
   def dependencies(clazz, filename):
     'Return list of files filename depends on or None if snakefood is not found.'
     try:
-      sfood_exe = file_path.which('sfood')
+      sfood_exe = which.which('sfood')
     except RuntimeError as ex:
       return None
     rv = execute.execute('%s %s' % (sfood_exe, filename))

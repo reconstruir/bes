@@ -25,11 +25,6 @@ class file_path(object):
     return path.exists(p) and os.access(p, os.X_OK)
 
   @classmethod
-  def which(clazz, program, raise_error = False):
-    'Same as unix which.'
-    return which.which(program)
-
-  @classmethod
   def split(clazz, p):
     'Split a path.'
     if not p:

@@ -9,6 +9,7 @@ from bes.system.host import host
 from bes.system.os_env import os_env
 from bes.system.env_var import os_env_var
 from bes.system.bdocker import bdocker
+from bes.system.which import which
 
 from .file_find import file_find
 from .file_path import file_path
@@ -167,7 +168,7 @@ class tar_util(object):
 # because of the way copy_tree() used unix pipes to copy a dir tree it will take a lot of work
 # to make it work on windows
 #    elif host.is_windows():
-#      tar_exe = file_path.which('tar.exe')
+#      tar_exe = which.which('tar.exe')
 #      if not tar_exe:
 #        raise RuntimeError('tar.exe not found.  install it from http://gnuwin32.sourceforge.net/packages/gtar.htm.')
 #      return tar_exe

@@ -5,7 +5,7 @@ import time
 
 from ..system.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_path import file_path
+from bes.system.which import which
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.host import host
@@ -119,7 +119,7 @@ class git_exe(object):
   def find_git_exe(clazz):
     'Return the full path to the git executable.'
     exe_name = clazz._git_exe_name()
-    exe = file_path.which(exe_name)
+    exe = which.which(exe_name)
     return exe
 
   @classmethod

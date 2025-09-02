@@ -132,17 +132,6 @@ class test_file_path(unit_test):
     self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('/foo/bar') )
     self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('/foo\\bar') )
     self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('\\foo\\bar') )
-    
-  def test_which(self):
-    'Test which()  Looks like a windows only test but works on unix as well.'
-    tmp_dir = self.make_temp_dir()
-    bin_dir = path.join(tmp_dir, 'bin')
-    content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
-    temp_bat = file_util.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
-    self.assertEqual( None, file_path.which('kiwi_tool.bat') )
-    with env_override.path_append([ bin_dir ]) as env:
-      expected_path = path.join(bin_dir, 'kiwi_tool.bat')
-      self.assertEqual( expected_path, file_path.which('kiwi_tool.bat') )
 
   def test_insert(self):
     self.assert_filename_equal( '/foo/bar/baz/x.png', file_path.insert('/foo/bar/x.png', -1, 'baz') )

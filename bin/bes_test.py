@@ -23,6 +23,7 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env
+from bes.system.which import which
 from bes.python.python_discovery import python_discovery
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
@@ -701,8 +702,8 @@ def _make_count_blurb(index, total):
   return '[%s of %s]' % (index_blurb, count_blurb)
 
 def _check_program(program_name):
-  exe = file_path.which(program_name)
-  if not file_path.which(program_name):
+  exe = which.which(program_name)
+  if not which.which(program_name):
     printer.writeln_name('ERROR: %s not found.' % (program_name))
     return None
   return exe
