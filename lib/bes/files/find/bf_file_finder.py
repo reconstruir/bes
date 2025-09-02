@@ -118,7 +118,6 @@ class bf_file_finder(object):
           if self._options.stop_after == count:
             done = True
       self._log.log_d(f'matched_dirs={matched_dirs.basenames()}')
-      #dirs[:] = matched_dirs
 
   def _entry_matches(self, entry, where, stats_dict):
     where_sep_count = where.count(os.sep)

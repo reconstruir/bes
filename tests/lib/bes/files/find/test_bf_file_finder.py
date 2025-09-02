@@ -608,6 +608,23 @@ class test_bf_file_finder(unit_test):
       'fruit/strawberry.fruit',
     ], self._find(content, ignore_broken_links = False).sorted_relative_filenames )
 
+  def test_find_with_broken_symlink_with_ignore_broken_links(self):
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'link cheese/cheddar.cheese "/foo/notthere"',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, ignore_broken_links = True).sorted_relative_filenames )
+    
   def test_find_with_stop_after(self):
     content = [
       'file a/kiwi.txt',
