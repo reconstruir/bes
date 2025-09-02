@@ -5,9 +5,10 @@ import copy, glob, os, os.path as path
 from bes.common.algorithm import algorithm
 from bes.dependency.dependency_resolver import dependency_resolver
 from bes.fs.file_find import file_find
-from bes.fs.file_path import file_path
 from bes.system.env_var import os_env_var
 from bes.system.host import host
+
+from bes.files.bf_glob import bf_glob
 
 from .config_file import config_file
 
@@ -72,7 +73,7 @@ class config_env(object):
 
   @classmethod
   def _find_config_files_in_env(clazz):
-    return file_path.glob(os_env_var('BESTEST_CONFIG_PATH').path, '*.bescfg')
+    return bf_glob.glob(os_env_var('BESTEST_CONFIG_PATH').path, '*.bescfg')
 
   def resolve_deps(self, names):
     return dependency_resolver.resolve_deps(self.dependency_map, names)

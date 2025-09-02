@@ -21,6 +21,8 @@ from bes.system.which import which
 from bes.version.semantic_version import semantic_version
 from bes.debug.debug_timer import timed_function
 
+from ..files.bf_glob import bf_glob
+
 from .python_debug import python_debug
 from .python_error import python_error
 from .python_exe_info import python_exe_info
@@ -279,7 +281,7 @@ class python_exe(object):
         sanitized_env_path = clazz._sanitize_env_path(env_path)
       else:
         sanitized_env_path = env_path
-      result = file_path.glob(sanitized_env_path, exe_patterns)
+      result = bf_glob.glob(sanitized_env_path, exe_patterns)
       result = [ f for f in result if not file_symlink.is_broken(f) ]
 
       seen = set()

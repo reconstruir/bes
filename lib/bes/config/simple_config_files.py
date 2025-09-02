@@ -9,10 +9,11 @@ from bes.common.variable import variable
 from bes.dependency.dependency_resolver import cyclic_dependency_error
 from bes.dependency.dependency_resolver import dependency_resolver
 from bes.dependency.dependency_resolver import missing_dependency_error
-from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.system.host import host
 from bes.system.log import logger
+
+from ..files.bf_glob import bf_glob
 
 from collections import namedtuple
 
@@ -71,7 +72,7 @@ class simple_config_files(object):
   def _load_configs(clazz, search_path, glob_expression):
     result = []
     for next_path in search_path:
-      for next_file in file_path.glob(next_path, glob_expression):
+      for next_file in bf_glob.glob(next_path, glob_expression):
         filename = file_util.remove_head(next_file, next_path)
         config = simple_config.from_file(next_file, ignore_extends = True)
         result.append(clazz._found_config(next_path, filename, next_file, config))

@@ -11,11 +11,12 @@ from collections import namedtuple
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
-from bes.fs.file_path import file_path
 from bes.fs.filename_util import filename_util
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
+
+from ..files.bf_glob import bf_glob
 
 from .python_error import python_error
 from .python_exe import python_exe as bes_python_exe
@@ -76,7 +77,7 @@ class pip_exe(object):
     
     root_dir = path.dirname(pip_exe)
     lib_dir = path.normpath(path.join(path.join(root_dir, path.pardir), 'lib'))
-    possible_python_libdirs = file_path.glob(lib_dir, 'python*')
+    possible_python_libdirs = bf_glob.glob(lib_dir, 'python*')
     num_possible_python_libdirs = len(possible_python_libdirs)
     if num_possible_python_libdirs == 1:
       python_libdir = possible_python_libdirs[0]

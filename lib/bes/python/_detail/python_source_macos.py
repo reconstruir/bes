@@ -8,6 +8,8 @@ from bes.fs.file_util import file_util
 from bes.python.python_script import python_script
 from bes.version.semantic_version import semantic_version
 
+from bes.files.bf_glob import bf_glob
+
 from .python_source_unix import python_source_unix
 
 class python_source_macos(python_source_unix):
@@ -30,10 +32,10 @@ class python_source_macos(python_source_unix):
   def possible_python_bin_dirs(self):
     'Return a list of possible dirs where the python executable might be.'
     result = []
-    brew_pythons = file_path.glob('/usr/local/opt/', 'python@?.*/bin')
+    brew_pythons = bf_glob.glob('/usr/local/opt/', 'python@?.*/bin')
     sorted_brew_pythons = semantic_version.sort_string_list(brew_pythons, reverse = True)
     result.extend(sorted_brew_pythons)
-    brew_pythons = file_path.glob('/usr/local/opt/', 'python@?/bin')
+    brew_pythons = bf_glob.glob('/usr/local/opt/', 'python@?/bin')
     sorted_brew_pythons = semantic_version.sort_string_list(brew_pythons, reverse = True)
     result.extend(sorted_brew_pythons)
     result.extend([

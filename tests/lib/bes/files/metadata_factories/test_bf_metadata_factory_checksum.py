@@ -6,6 +6,7 @@ import os.path as path
 
 from bes.files.checksum.bf_checksum import bf_checksum
 from bes.files.bf_date import bf_date
+from bes.files.bf_file_ops import bf_file_ops
 from bes.files.metadata.bf_metadata import bf_metadata
 from bes.files.metadata.bf_metadata_error import bf_metadata_error
 from bes.files.metadata.bf_metadata_factory_registry import bf_metadata_factory_registry
@@ -21,8 +22,6 @@ class test_bf_metadata_factory_checksum(unit_test):
 
   def test_get_metadata(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True)
-    #tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')
-    #tmp_lemon = self.make_temp_file(dir = __file__, content = 'this is lemon')
 
     with open(tmp, 'w') as fout:
       fout.write('kiwi')
@@ -49,7 +48,11 @@ class test_bf_metadata_factory_checksum(unit_test):
       self.assertEqual( hash_util.hash_string_sha256('lemon'),
                         bf_metadata.get_metadata(tmp, 'bes__checksum__sha256__0.0') )
       
-    return
+      bf_file_ops.remove(tmp)
+      
+      return
+
+     # FIXME: wtf
 #    hash_util.hash_string_md5()
       
     kiwi_checksums = {
