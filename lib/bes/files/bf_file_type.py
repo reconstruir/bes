@@ -11,7 +11,8 @@ class bf_file_type(checked_int_flag_enum):
   DEVICE = 0x10
   ANY = FILE | DIR | LINK | DEVICE
   FILE_OR_LINK = FILE | LINK
-  ANY_FILE = FILE | LINK | DEVICE
+  FILE_OR_DIR = FILE | DIR
+  FILE_OR_DIR_OR_LINK = FILE | DIR | LINK
 
   def mask_matches(self, mask):
     return (self & mask) != 0
