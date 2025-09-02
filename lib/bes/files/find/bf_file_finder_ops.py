@@ -5,8 +5,6 @@ import os.path as path
 from bes.system.check import check
 from bes.common.object_util import object_util
 
-from bes.fs.file_path import file_path
-
 from ..bf_check import bf_check
 from ..bf_dir import bf_dir
 from ..bf_entry import bf_entry
@@ -14,6 +12,7 @@ from ..bf_entry_list import bf_entry_list
 from ..bf_file_type import bf_file_type
 from ..bf_filename import bf_filename
 from ..bf_path_type import bf_path_type
+from ..bf_path import bf_path
 
 from .bf_file_finder import bf_file_finder
 from .bf_file_finder_options import bf_file_finder_options
@@ -61,7 +60,7 @@ class bf_file_finder_ops(object):
       what = path.join(start_dir, filename)
       if path.exists(what):
         return what
-      start_dir = file_path.parent_dir(start_dir)
+      start_dir = bf_path.parent_dir(start_dir)
       if path.ismount(start_dir):
         return None
 

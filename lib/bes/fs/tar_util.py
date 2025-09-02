@@ -11,8 +11,9 @@ from bes.system.env_var import os_env_var
 from bes.system.bdocker import bdocker
 from bes.system.which import which
 
+from ..files.bf_entry import bf_entry
+
 from .file_find import file_find
-from .file_path import file_path
 from .file_util import file_util
 from .temp_file import temp_file
 
@@ -104,7 +105,7 @@ class tar_util(object):
     for p in shell_path:
       for possible_tar in clazz._POSSIBLE_TARS:
         exe_file = path.join(p, possible_tar)
-        if file_path.is_executable(exe_file):
+        if bf_entry(exe_file).is_executable:
           info = clazz.tar_exe_info(exe_file)
           if info and info.flavor == flavor:
             return exe_file
@@ -163,7 +164,7 @@ class tar_util(object):
   def _find_tar_exe_tar(clazz):
     'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
     for possible_tar in [ '/bin/tar', '/usr/bin/tar' ]: 
-      if file_path.is_executable(possible_tar):
+      if bf_entry(possible_tar).is_executable:
         return possible_tar
 # because of the way copy_tree() used unix pipes to copy a dir tree it will take a lot of work
 # to make it work on windows

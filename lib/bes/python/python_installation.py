@@ -6,10 +6,10 @@ import re
 
 from bes.common.algorithm import algorithm
 from ..system.check import check
+from ..files.bf_entry import bf_entry
 from bes.property.cached_property import cached_property
 from bes.system.host import host
 from bes.system.log import logger
-from bes.fs.file_path import file_path
 from bes.fs.filename_util import filename_util
 
 from .python_error import python_error
@@ -35,7 +35,7 @@ class python_installation(object):
       raise python_error('exe should be an absolute path: "{}"'.format(exe))
     if not path.exists(exe):
       raise python_error('exe does not exist: "{}"'.format(exe))
-    if not file_path.is_executable(exe):
+    if not bf_entry(exe).is_executable:
       raise python_error('exe is not executable: "{}"'.format(exe))
     
     stuff = self._determine_stuff(exe, system = self.system)

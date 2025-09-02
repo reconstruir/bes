@@ -243,9 +243,9 @@ class bf_path(object):
       
     basename = path.basename(p)
     short_basename = bf_filename.shorten(basename,
-                                            max_length = max_filename_length,
-                                            include_hash = include_hash,
-                                            hash_length = hash_length)
+                                         max_length = max_filename_length,
+                                         include_hash = include_hash,
+                                         hash_length = hash_length)
     ext = bf_filename.extension(short_basename)
     basename_no_ext = bf_filename.without_extension(short_basename)
     len_basename_no_ext = len(basename_no_ext)

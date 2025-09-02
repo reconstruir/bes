@@ -8,8 +8,9 @@ from bes.system.check import check
 from ..bf_check import bf_check
 from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
-from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
+from ..bf_filename import bf_filename
+from ..bf_path import bf_path
 
 from .bf_file_resolver_options import bf_file_resolver_options
 from .bf_file_resolver import bf_file_resolver
@@ -18,15 +19,15 @@ class bf_file_resolver_ops(object):
   
   @classmethod
   def resolve_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None,
-                follow_links = False, path_type = 'basename'):
+                   follow_links = False, path_type = 'basename'):
     root_dir = bf_check.check_dir(root_dir)
     
     options = bf_file_resolver_options(file_type = bf_file_type.DIR,
-                                     relative = relative,
-                                     min_depth = min_depth,
-                                     max_depth = max_depth,
-                                     follow_links = follow_links,
-                                     path_type = path_type)
+                                       relative = relative,
+                                       min_depth = min_depth,
+                                       max_depth = max_depth,
+                                       follow_links = follow_links,
+                                       path_type = path_type)
     resolver = bf_file_resolver(options)
     return resolver.resolve(where)
   
@@ -42,7 +43,7 @@ class bf_file_resolver_ops(object):
       what = path.join(start_dir, filename)
       if path.exists(what):
         return what
-      start_dir = file_path.parent_dir(start_dir)
+      start_dir = bf_path.parent_dir(start_dir)
       if path.ismount(start_dir):
         return None
 

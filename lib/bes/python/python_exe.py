@@ -9,9 +9,9 @@ from collections import namedtuple
 from collections import OrderedDict
 
 from ..system.check import check
+from ..files.bf_entry import bf_entry
 from bes.common.string_util import string_util
 from bes.debug.debug_timer import debug_timer
-from bes.fs.file_path import file_path
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
@@ -130,7 +130,7 @@ class python_exe(object):
     if check_abs and not path.isabs(python_exe):
       raise python_error('not an absolute path: "{}"'.format(python_exe))
   
-    if not file_path.is_executable(python_exe):
+    if not bf_entry(python_exe).is_executable:
       raise python_error('not a valid executable: "{}"'.format(python_exe))
 
     return clazz.full_version(python_exe)

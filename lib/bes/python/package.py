@@ -5,6 +5,8 @@ from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 
+from ..files.bf_entry import bf_entry
+
 class package(object):
   'Class to deal with python packages.'
 
@@ -13,7 +15,7 @@ class package(object):
     try:
       inside_egg, exe_data = clazz._resolve_data(program_path, filename, module_name)
       if not inside_egg:
-        if not file_path.is_executable(exe_data):
+        if not bf_entry(exe_data).is_executable:
           return None
         return exe_data
       exe_tmp = temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path) + '-')
