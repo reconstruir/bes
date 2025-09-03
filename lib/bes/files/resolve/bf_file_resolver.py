@@ -16,6 +16,7 @@ from ..bf_file_type import bf_file_type
 
 from ..find.bf_file_finder_options import bf_file_finder_options
 from ..find.bf_file_finder import bf_file_finder
+from ..find.bf_file_finder_mode import bf_file_finder_mode
 
 from .bf_file_resolver_entry import bf_file_resolver_entry
 from .bf_file_resolver_options import bf_file_resolver_options
@@ -40,7 +41,11 @@ class bf_file_resolver(object):
         return self._options.match_function(entry)
       return True
     
-    finder_options = bf_file_finder_options(file_type = bf_file_type.FILE_OR_LINK,
+    finder_options = bf_file_finder_options(max_depth = self._options.max_depth,
+                                            min_depth = self._options.min_depth,
+                                            stop_after = self._options.stop_after,
+                                            mode = bf_file_finder_mode.WITH_PROGRESS,
+                                            file_type = bf_file_type.FILE_OR_LINK,
                                             entry_class = self._options.entry_class)
     finder = bf_file_finder(options = finder_options)
     for next_where in where:

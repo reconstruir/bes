@@ -93,11 +93,11 @@ class bf_file_resolver_cli(object):
         print(entry.filename, flush = True)
       
     options = bf_file_resolver_options(min_depth = args.min_depth,
-                                     max_depth = args.max_depth,
-                                     file_type = args.file_type,
-                                     file_matcher = matcher,
-                                     path_type = 'basename',
-                                     stop_after = stop_after,
-                                     found_callback = _cb)
+                                       max_depth = args.max_depth,
+                                       file_type = args.file_type,
+                                       file_matcher = matcher,
+                                       path_type = 'basename',
+                                       stop_after = stop_after,
+                                       found_callback = _cb)
     resolver = bf_file_resolver(options = options)
     return resolver
