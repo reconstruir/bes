@@ -2,7 +2,7 @@
 
 from ..system.check import check
 from bes.fs.file_multi_ignore import file_multi_ignore
-from bes.fs.file_check import file_check
+from ..bf_check import bf_check
 from bes.property.cached_property import cached_property
 
 class bf_file_ignore_options_mixin(object):
@@ -14,7 +14,7 @@ class bf_file_ignore_options_mixin(object):
     return file_multi_ignore(self.ignore_files)
     
   def should_ignore_file(self, ford):
-    ford = file_check.check_file_or_dir(ford)
+    ford = bf_check.check_file_or_dir(ford)
     
 #    r = self.bf_file_ignorer.should_ignore(ford)
 #    from bes.system.log import log
