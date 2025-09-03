@@ -13,10 +13,11 @@ from ..bf_path_type import bf_path_type
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..match.bf_file_matcher import bf_file_matcher
 
+from .bf_file_finder_mode import bf_file_finder_mode
 from .bf_file_finder_options import bf_file_finder_options
+from .bf_file_finder_progress_state import bf_file_finder_progress_state
 from .bf_file_finder_result import bf_file_finder_result
 from .bf_file_finder_stats import bf_file_finder_stats
-
 from .bf_file_scanner import bf_file_scanner
 
 class bf_file_finder(object):
@@ -30,7 +31,10 @@ class bf_file_finder(object):
     check.check_bf_file_finder_options(self._options)
 
   def find_gen(self, where):
-    return self._find_gen_with_stats(where, None)
+    if self._options.mode == bf_file_finder_mode.IMMEDIATE:
+      return self._find_gen_with_stats(where, None)
+    elif self._options.mode == bf_file_finder_mode.WITH_PROGRESS:
+      return self._find_gen_with_stats_mode_progress(where, None)
 
   def _find_gen_with_stats(self, where, stats_dict):
     scanner = bf_file_scanner(options = self._options)
@@ -41,7 +45,30 @@ class bf_file_finder(object):
       if not self._options.file_matcher_matches(next_entry):
         continue
       yield next_entry
+
+  def _find_gen_with_stats_mode_progress(self, where, stats_dict):
+    scanner = bf_file_scanner(options = self._options)
+
+    self.options.call_progress_function(bf_file_finder_progress_state.STARTING, None, None)
+
+    self.options.call_progress_function(bf_file_finder_progress_state.SCANNING, None, None)
+    entries = []
+    for next_entry in scanner._scan_gen_with_stats(where, stats_dict):
+      if self._options.found_callback:
+        self._options.found_callback(next_entry)
+      entries.append(next_entry)
         
+    self.options.call_progress_function(bf_file_finder_progress_state.FINDING, None, None)
+    for index, next_entry in enumerate(entries, start = 1):
+      self.options.call_progress_function(bf_file_finder_progress_state.PROGRESS,
+                                          index,
+                                          len(entries))
+      if not self._options.file_matcher_matches(next_entry):
+        continue
+      yield next_entry
+
+    self.options.call_progress_function(bf_file_finder_progress_state.FINISHED, None, None)
+      
   def find_with_stats(self, where):
     stats_dict = {
       'num_checked': 0,

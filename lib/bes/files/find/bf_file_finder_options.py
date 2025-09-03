@@ -30,10 +30,10 @@ class _bf_file_finder_options_desc(_bf_file_scanner_options_desc):
     return self.combine_options_desc(super()._options_desc(), f'''
                 match_type bf_file_matcher_mode default=ANY
               file_matcher bf_file_matcher 
-#         progress_function callable
-# progress_interval_percent float                default=5.0
+         progress_callback callable
+ progress_interval_percent float                default=5.0
             found_callback callable
-                      mode bf_file_finder_mode  default=WITH_PROGRESS
+                      mode bf_file_finder_mode  default=IMMEDIATE
 ''')
 
   
@@ -44,13 +44,6 @@ class bf_file_finder_options(bf_file_scanner_options):
   def __init__(self, **kwargs):
     super().__init__(**kwargs)
 
-#  def pass_through_keys(self):
-#    return super().pass_through_keys() + ( 'file_ignore_list', )
-#
-#  @property
-#  def file_scanner_options(self):
-#    return bf_file_scanner_options()
-  
   def file_matcher_matches(self, entry):
     check.check_bf_entry(entry)
     
@@ -58,14 +51,14 @@ class bf_file_finder_options(bf_file_scanner_options):
       return True
     return self.file_matcher.match(entry, self.match_type)
     
-#  def call_progress_function(self, state, index, total):
-#    state = check.check_bf_file_finder_progress_state(state)
-#    check.check_int(index, allow_none = True)
-#    check.check_int(total, allow_none = True)
+  def call_progress_function(self, state, index, total):
+    state = check.check_bf_file_finder_progress_state(state)
+    check.check_int(index, allow_none = True)
+    check.check_int(total, allow_none = True)
     
-#    if not self.progress_function:
-#      return
-#    progress = bf_file_finder_progress(state, index, total)
-#    self.progress_function(progress)
+    if not self.progress_function:
+      return
+    progress = bf_file_finder_progress(state, index, total)
+    self.progress_function(progress)
     
 bf_file_finder_options.register_check_class()
