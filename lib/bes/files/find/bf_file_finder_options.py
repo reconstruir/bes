@@ -21,7 +21,7 @@ from .bf_file_finder_error import bf_file_finder_error
 from .bf_file_finder_progress import bf_file_finder_progress
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
 from .bf_file_finder_mode import bf_file_finder_mode
-from .bf_file_finder_mode import bf_file_finder_mode_bcli
+from .bf_file_finder_mode import bf_cli_file_finder_mode
 
 class _bf_file_finder_options_desc(bcli_options_desc):
 
@@ -32,7 +32,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
       bf_cli_file_type,
       bf_cli_match,
       bf_cli_path_type,
-      bf_file_finder_mode_bcli,
+      bf_cli_file_finder_mode,
     ]
 
   #@abstractmethod

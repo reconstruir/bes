@@ -7,7 +7,7 @@ from bes.system.check import check
 from bes.property.cached_property import cached_property
 
 from ..find.bf_file_finder_options import _bf_file_finder_options_desc
-from ..find.bf_file_finder_mode import bf_file_finder_mode_bcli
+from ..find.bf_file_finder_mode import bf_cli_file_finder_mode
 
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria_bcli
 
@@ -19,7 +19,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   def _types(self):
     return [
       bf_entry_sort_criteria_bcli,
-      bf_file_finder_mode_bcli,
+      bf_cli_file_finder_mode,
     ]
 
   #@abstractmethod

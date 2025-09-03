@@ -9,5 +9,5 @@ class bf_file_finder_mode(checked_enum):
   
 bf_file_finder_mode.register_check_class()
 
-class bf_file_finder_mode_bcli(bcli_type_checked_enum):
+class bf_cli_file_finder_mode(bcli_type_checked_enum):
   __enum_class__ = bf_file_finder_mode
