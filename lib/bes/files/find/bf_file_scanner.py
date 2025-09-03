@@ -18,6 +18,7 @@ from ..bf_path_type import bf_path_type
 from ..bf_symlink import bf_symlink
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..match.bf_file_matcher import bf_file_matcher
+from ..mime.bf_mime import bf_mime
 
 from .bf_file_scanner_result import bf_file_scanner_result
 from .bf_file_scanner_stats import bf_file_scanner_stats
@@ -136,6 +137,8 @@ class bf_file_scanner(object):
       return False
     if self._options.should_ignore_entry(entry):
       return False
+    if not self._options.include_resource_forks and bf_mime.is_apple_resource_fork(entry.filename):
+      return False
     return True
     
   def scan(self, where):
@@ -162,5 +165,5 @@ class bf_file_scanner(object):
   @classmethod
   def scan_with_options(clazz, where, **kwargs):
     options = bf_file_scanner_options(**kwargs)
-    finder = bf_file_finder(options = options)
-    return finder.find(where).sorted_by_criteria('FILENAME')
+    finder = bf_file_scanner(options = options)
+    return finder.scan(where)

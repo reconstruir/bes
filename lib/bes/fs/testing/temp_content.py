@@ -21,6 +21,7 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
   FILE = 'file'
   DIR = 'dir'
   LINK = 'link'
+  RESOURCE_FORK = 'resource_fork'
 
   def __new__(clazz, item_type, filename, content = None, mode = None):
     item_type = clazz.validate_item_type(item_type)
@@ -40,6 +41,8 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
         return clazz.DIR
       elif s in [ 'link', 'l' ]:
         return clazz.LINK
+      elif s in [ 'resource_fork', 'rf' ]:
+        return clazz.RESOURCE_FORK
     return None
     
   @classmethod
@@ -126,6 +129,24 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
     if self.mode:
       os.chmod(p, self.mode)
 
+  def _write_resource_fork(self, root_dir):
+    p = path.join(root_dir, self.filename)
+
+    apple_resource_fork_with_entry = (
+      b"\x00\x05\x16\x07"          # Magic
+      b"\x00\x02\x00\x00"          # Version
+      b"Mac OS X\x00\x00\x00\x00\x00\x00\x00\x00"  # Filler (16 bytes)
+      b"\x00\x01"                  # Number of entries = 1
+      b"\x00\x02"                  # Entry ID = Resource fork
+      b"\x00\x00\x00\x1C"          # Offset (28 bytes from start)
+      b"\x00\x00\x00\x00"          # Length = 0
+    )
+
+    with open(p, 'wb') as fout:
+      fout.write(apple_resource_fork_with_entry)    
+    if self.mode:
+      os.chmod(p, self.mode)
+      
   def _write_link(self, root_dir):
     content = self._determine_content()
     p = path.join(root_dir, self.filename)
@@ -150,6 +171,8 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
       self._write_dir(root_dir)
     elif self.item_type == self.FILE:
       self._write_file(root_dir)
+    elif self.item_type == self.RESOURCE_FORK:
+      self._write_resource_fork(root_dir)
     elif self.item_type == self.LINK:
       self._write_link(root_dir)
     else:

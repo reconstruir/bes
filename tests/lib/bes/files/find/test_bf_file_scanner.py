@@ -484,5 +484,32 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content, ignore_filenames = ignore_filenames).sorted_relative_filenames )
     
+  def test_scan_with_resource_forks(self):
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'resource_fork fruit/._lemon.fruit',
+    ]
+    tmp_dir = self._make_temp_content(content)
+    f = bf_file_scanner()
+    self.assert_filename_list_equal( [
+      'fruit/._lemon.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+    ], self._scan(content, include_resource_forks = True).sorted_relative_filenames )
+    
+  def test_scan_without_resource_forks(self):
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'resource_fork fruit/._lemon.fruit',
+    ]
+    tmp_dir = self._make_temp_content(content)
+    f = bf_file_scanner()
+    self.assert_filename_list_equal( [
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+    ], self._scan(content, include_resource_forks = False).sorted_relative_filenames )
+    
 if __name__ == '__main__':
   unit_test.main()

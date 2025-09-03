@@ -44,6 +44,7 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
                 stop_after int
                entry_class type                 default=${_bf_file_scanner_entry_default_type}
           ignore_filenames list[str]
+    include_resource_forks bool                 default=False
 '''
   
   #@abstractmethod
