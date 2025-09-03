@@ -12,14 +12,13 @@ from bes.common.object_util import object_util
 
 from ..bf_check import bf_check
 from ..bf_entry_list import bf_entry_list
+from ..bf_file_type import bf_file_type
 
 from ..find.bf_file_finder_options import bf_file_finder_options
 from ..find.bf_file_finder import bf_file_finder
 
 from .bf_file_resolver_entry import bf_file_resolver_entry
 from .bf_file_resolver_options import bf_file_resolver_options
-
-from ..mime.bf_mime import bf_mime
 
 class bf_file_resolver(object):
 
@@ -37,14 +36,12 @@ class bf_file_resolver(object):
     entry_class = self._options.entry_class or bf_file_resolver_entry
 
     def _matcher(entry):
-      if bf_mime.is_apple_resource_fork(entry.filename):
-        return self._options.include_resource_forks
       if self._options.match_function:
         return self._options.match_function(entry)
       return True
     
-    finder_options = bf_file_finder_options()
-    finder_options.entry_class = entry_class
+    finder_options = bf_file_finder_options(file_type = bf_file_type.FILE_OR_LINK,
+                                            entry_class = self._options.entry_class)
     finder = bf_file_finder(options = finder_options)
     for next_where in where:
       if path.isfile(next_where):

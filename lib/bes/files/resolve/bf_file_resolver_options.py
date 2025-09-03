@@ -35,7 +35,6 @@ mode                   bf_file_finder_mode    default=IMMEDIATE
 sort_order             bf_entry_sort_criteria default=FILENAME
 entry_class            type                   default=${_bf_file_resolver_entry_default_type}
 match_function         callable
-include_resource_forks bool                   default=False
 '''
   
   #@abstractmethod
