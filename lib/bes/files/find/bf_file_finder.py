@@ -30,14 +30,7 @@ class bf_file_finder(object):
     check.check_bf_file_finder_options(self._options)
 
   def find_gen(self, where):
-    scanner = bf_file_scanner(options = self._options)
-
-    for next_entry in scanner.scan_gen(where):
-      if self._options.found_callback:
-        self._options.found_callback(next_entry)
-      if not self._options.file_matcher_matches(next_entry):
-        continue
-      yield next_entry
+    return self._find_gen_with_stats(where, None)
 
   def _find_gen_with_stats(self, where, stats_dict):
     scanner = bf_file_scanner(options = self._options)
