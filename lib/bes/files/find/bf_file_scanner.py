@@ -35,7 +35,7 @@ class bf_file_scanner(object):
     self._options = bf_file_scanner_options.clone_or_create(options)
     check.check_bf_file_scanner_options(self._options)
 
-  def find_gen(self, where):
+  def scan_gen(self, where):
     where = bf_check.check_dir_seq(object_util.listify(where))
     for next_where in where:
       for entry in self._find_gen_one_dir(next_where, None):
@@ -133,7 +133,7 @@ class bf_file_scanner(object):
       return False
     return True
     
-  def find_with_stats(self, where):
+  def scan_with_stats(self, where):
     stats_dict = {
       'num_checked': 0,
       'num_files_checked': 0,
@@ -154,14 +154,14 @@ class bf_file_scanner(object):
                                  stats_dict['depth'])
     return bf_file_finder_result(entries, stats)
 
-  def find(self, where):
+  def scan(self, where):
     result = bf_entry_list()
-    for entry in self.find_gen(where):
+    for entry in self.scan_gen(where):
       result.append(entry)
     return result
   
   @classmethod
-  def find_with_options(clazz, where, **kwargs):
+  def scan_with_options(clazz, where, **kwargs):
     options = bf_file_scanner_options(**kwargs)
     finder = bf_file_finder(options = options)
     return finder.find(where).sorted_by_criteria('FILENAME')

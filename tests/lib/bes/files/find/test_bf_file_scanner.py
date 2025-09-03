@@ -22,19 +22,19 @@ class test_bf_file_scanner(unit_test):
   def _make_temp_content(clazz, items):
     return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
 
-  _find_result = namedtuple('_find_result', 'tmp_dir, entries, relative_filenames, absolute_filenames, sorted_relative_filenames, sorted_absolute_filenames, stats')
-  def _find(self, items, **options):
+  _scan_result = namedtuple('_scan_result', 'tmp_dir, entries, relative_filenames, absolute_filenames, sorted_relative_filenames, sorted_absolute_filenames, stats')
+  def _scan(self, items, **options):
     finder_options = bf_file_scanner_options(**options)
     tmp_dir = self._make_temp_content(items)
     f = bf_file_scanner(options = finder_options)
-    entries = f.find(tmp_dir)
+    entries = f.scan(tmp_dir)
 
     relative_filenames = entries.relative_filenames(False)
     absolute_filenames = entries.absolute_filenames(False)
 
     sorted_relative_filenames = entries.relative_filenames(True)
     sorted_absolute_filenames = entries.absolute_filenames(True)
-    return self._find_result(tmp_dir,
+    return self._scan_result(tmp_dir,
                              entries,
                              relative_filenames,
                              absolute_filenames,
@@ -42,11 +42,11 @@ class test_bf_file_scanner(unit_test):
                              sorted_absolute_filenames,
                              None)
 
-  def _find_with_stats(self, items, **options):
+  def _scan_with_stats(self, items, **options):
     finder_options = bf_file_scanner_options(**options)
     tmp_dir = self._make_temp_content(items)
     f = bf_file_scanner(options = finder_options)
-    result = f.find_with_stats(tmp_dir)
+    result = f.scan_with_stats(tmp_dir)
 
     relative_filenames = result.entries.relative_filenames(False)
     absolute_filenames = result.entries.absolute_filenames(False)
@@ -54,7 +54,7 @@ class test_bf_file_scanner(unit_test):
     sorted_relative_filenames = result.entries.relative_filenames(True)
     sorted_absolute_filenames = result.entries.absolute_filenames(True)
     
-    return self._find_result(tmp_dir,
+    return self._scan_result(tmp_dir,
                              result.entries,
                              relative_filenames,
                              absolute_filenames,
@@ -75,7 +75,7 @@ class test_bf_file_scanner(unit_test):
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
-    ], self._find(content).sorted_relative_filenames )
+    ], self._scan(content).sorted_relative_filenames )
 
   def test_find_absolute(self):
     content = [
@@ -85,7 +85,7 @@ class test_bf_file_scanner(unit_test):
       'file emptyfile.txt',
       'dir emptydir',
     ]
-    rv = self._find(content)
+    rv = self._scan(content)
     expected_relative = [
       'emptyfile.txt',
       'foo.txt',
@@ -108,7 +108,7 @@ class test_bf_file_scanner(unit_test):
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
-    ], self._find(content, file_type = 'file').sorted_relative_filenames )
+    ], self._scan(content, file_type = 'file').sorted_relative_filenames )
 
   def test_find_with_dirs_only(self):
     content = [
@@ -122,7 +122,7 @@ class test_bf_file_scanner(unit_test):
       'emptydir',
       'subdir',
       'subdir/subberdir',
-    ], self._find(content, file_type = 'dir').sorted_relative_filenames )
+    ], self._scan(content, file_type = 'dir').sorted_relative_filenames )
 
   def test_find_with_max_depth(self):
     self.maxDiff = None
@@ -142,13 +142,13 @@ class test_bf_file_scanner(unit_test):
     self.assert_filename_list_equal( sorted([
       '1a.f',
       '1b.f',
-    ]), self._find(content, max_depth = 1).sorted_relative_filenames )
+    ]), self._scan(content, max_depth = 1).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1a.f',
       '1b.f',
       '1.d/2a.f',
       '1.d/2b.f',
-    ]), self._find(content, max_depth = 2).sorted_relative_filenames )
+    ]), self._scan(content, max_depth = 2).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1a.f',
       '1b.f',
@@ -156,7 +156,7 @@ class test_bf_file_scanner(unit_test):
       '1.d/2b.f',
       '1.d/2.d/3a.f',
       '1.d/2.d/3b.f',
-    ]), self._find(content, max_depth = 3).sorted_relative_filenames )
+    ]), self._scan(content, max_depth = 3).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1a.f',
       '1b.f',
@@ -166,7 +166,7 @@ class test_bf_file_scanner(unit_test):
       '1.d/2.d/3b.f',
       '1.d/2.d/3.d/4a.f',
       '1.d/2.d/3.d/4b.f',
-    ]), self._find(content, max_depth = 4).sorted_relative_filenames )
+    ]), self._scan(content, max_depth = 4).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1a.f',
       '1b.f',
@@ -178,7 +178,7 @@ class test_bf_file_scanner(unit_test):
       '1.d/2.d/3.d/4b.f',
       '1.d/2.d/3.d/4.d/5a.f',
       '1.d/2.d/3.d/4.d/5b.f',
-    ]), self._find(content, max_depth = 5).sorted_relative_filenames )
+    ]), self._scan(content, max_depth = 5).sorted_relative_filenames )
 
   def test_find_with_min_depth(self):
     self.maxDiff = None
@@ -206,7 +206,7 @@ class test_bf_file_scanner(unit_test):
       '1.d/2.d/3.d/4b.f',
       '1.d/2.d/3.d/4.d/5a.f',
       '1.d/2.d/3.d/4.d/5b.f',
-    ]), self._find(content, min_depth = 1).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 1).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1.d/2a.f',
       '1.d/2b.f',
@@ -216,7 +216,7 @@ class test_bf_file_scanner(unit_test):
       '1.d/2.d/3.d/4b.f',
       '1.d/2.d/3.d/4.d/5a.f',
       '1.d/2.d/3.d/4.d/5b.f',
-    ]), self._find(content, min_depth = 2).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 2).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1.d/2.d/3a.f',
       '1.d/2.d/3b.f',
@@ -224,18 +224,18 @@ class test_bf_file_scanner(unit_test):
       '1.d/2.d/3.d/4b.f',
       '1.d/2.d/3.d/4.d/5a.f',
       '1.d/2.d/3.d/4.d/5b.f',
-    ]), self._find(content, min_depth = 3).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 3).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1.d/2.d/3.d/4a.f',
       '1.d/2.d/3.d/4b.f',
       '1.d/2.d/3.d/4.d/5a.f',
       '1.d/2.d/3.d/4.d/5b.f',
-    ]), self._find(content, min_depth = 4).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 4).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1.d/2.d/3.d/4.d/5a.f',
       '1.d/2.d/3.d/4.d/5b.f',
-    ]), self._find(content, min_depth = 5).sorted_relative_filenames )
-    self.assert_filename_list_equal( sorted([]), self._find(content, min_depth = 6).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 5).sorted_relative_filenames )
+    self.assert_filename_list_equal( sorted([]), self._scan(content, min_depth = 6).sorted_relative_filenames )
 
   def test_find_with_min_and_max_depth(self):
     self.maxDiff = None
@@ -257,21 +257,21 @@ class test_bf_file_scanner(unit_test):
       '1b.f',
       '1.d/2a.f',
       '1.d/2b.f',
-    ]), self._find(content, min_depth = 1, max_depth = 2).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 1, max_depth = 2).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1.d/2a.f',
       '1.d/2b.f',
       '1.d/2.d/3a.f',
       '1.d/2.d/3b.f',
-    ]), self._find(content, min_depth = 2, max_depth = 3).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 2, max_depth = 3).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1.d/2a.f',
       '1.d/2b.f',
-    ]), self._find(content, min_depth = 2, max_depth = 2).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 2, max_depth = 2).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([
       '1a.f',
       '1b.f',
-    ]), self._find(content, min_depth = 1, max_depth = 1).sorted_relative_filenames )
+    ]), self._scan(content, min_depth = 1, max_depth = 1).sorted_relative_filenames )
 
   def test_find_with_broken_symlink(self):
     content = [
@@ -288,7 +288,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], self._find(content).sorted_relative_filenames )
+    ], self._scan(content).sorted_relative_filenames )
 
   def test_find_with_broken_symlink_without_ignore_broken_links(self):
     content = [
@@ -306,7 +306,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], self._find(content, ignore_broken_links = False).sorted_relative_filenames )
+    ], self._scan(content, ignore_broken_links = False).sorted_relative_filenames )
 
   def test_find_with_broken_symlink_with_ignore_broken_links(self):
     content = [
@@ -323,7 +323,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], self._find(content, ignore_broken_links = True).sorted_relative_filenames )
+    ], self._scan(content, ignore_broken_links = True).sorted_relative_filenames )
     
   def test_find_with_stop_after(self):
     content = [
@@ -333,7 +333,7 @@ class test_bf_file_scanner(unit_test):
     ]
     self.assert_filename_list_equal( [
       'a/kiwi.txt',
-    ], self._find(content, stop_after = 1).sorted_relative_filenames )
+    ], self._scan(content, stop_after = 1).sorted_relative_filenames )
 
   def test_find_with_multiple_dirs(self):
     content = [
@@ -358,7 +358,7 @@ class test_bf_file_scanner(unit_test):
     ]
     tmp_dir = self._make_temp_content(content)
     f = bf_file_scanner()
-    entries = f.find([
+    entries = f.scan([
       path.join(tmp_dir, '1'),
       path.join(tmp_dir, '2'),
       path.join(tmp_dir, '3'),
@@ -396,7 +396,7 @@ class test_bf_file_scanner(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    result = self._find_with_stats(content,
+    result = self._scan_with_stats(content,
                                    file_type = 'FILE')
     self.assert_filename_list_equal( [
       '.git/HEAD',
@@ -429,7 +429,7 @@ class test_bf_file_scanner(unit_test):
                                       file_type = 'dir',
                                       path_type = 'basename',
                                       negate = True)
-    result = self._find_with_stats(content,
+    result = self._scan_with_stats(content,
                                    file_type = 'FILE',
                                    walk_dir_matcher = walk_dir_matcher,
                                    walk_dir_match_type = 'all')
@@ -454,7 +454,7 @@ class test_bf_file_scanner(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    result = self._find_with_stats(content,
+    result = self._scan_with_stats(content,
                                    file_type = 'DIR',
                                    match_type = 'all')
     self.assert_filename_list_equal( [
@@ -478,7 +478,7 @@ class test_bf_file_scanner(unit_test):
     content = [
       'file foo.txt "foo.txt\n"',
     ]
-    result = self._find(content, file_type = 'file', entry_class = _test_bf_entry)
+    result = self._scan(content, file_type = 'file', entry_class = _test_bf_entry)
     self.assert_filename_list_equal( [
       'foo.txt',
     ], result.sorted_relative_filenames )
@@ -502,7 +502,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], self._find(content, ignore_filenames = ignore_filenames).sorted_relative_filenames )
+    ], self._scan(content, ignore_filenames = ignore_filenames).sorted_relative_filenames )
     
 if __name__ == '__main__':
   unit_test.main()
