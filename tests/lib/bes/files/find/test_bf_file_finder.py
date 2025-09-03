@@ -846,6 +846,33 @@ class test_bf_file_finder(unit_test):
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
     ], self._find(content, ignore_filenames = ignore_filenames).sorted_relative_filenames )
+
+  def test_find_with_progress(self):
+    content = [
+      'file 1/a/fruit/kiwi.fruit',
+      'file 1/a/fruit/lemon.fruit',
+      'file 2/b/fruit/kiwi.fruit',
+      'file 2/b/fruit/lemon.fruit',
+      'file 2/b/fruit/strawberry.fruit',
+      'file 3/c/fruit/kiwi.fruit',
+      'file 3/c/fruit/lemon.fruit',
+    ]
+    tmp_dir = self._make_temp_content(content)
+
+    progress_items = []
+    def _progress_callback(progress):
+      progress_items.append(progress)
+      
+    options = bf_file_finder_options(progress_callback = _progress_callback,
+                                     mode = 'with_progress')
+    f = bf_file_finder(options = options)
+    result = f.find([
+      path.join(tmp_dir, '1'),
+      path.join(tmp_dir, '2'),
+      path.join(tmp_dir, '3'),
+    ])
+
+    self.assertEqual( 10, len(progress_items) )
     
 if __name__ == '__main__':
   unit_test.main()

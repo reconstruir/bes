@@ -31,12 +31,15 @@ class bf_file_finder(object):
     check.check_bf_file_finder_options(self._options)
 
   def find_gen(self, where):
-    if self._options.mode == bf_file_finder_mode.IMMEDIATE:
-      return self._find_gen_with_stats(where, None)
-    elif self._options.mode == bf_file_finder_mode.WITH_PROGRESS:
-      return self._find_gen_with_stats_mode_progress(where, None)
+    return self._find_gen(where, None)
 
-  def _find_gen_with_stats(self, where, stats_dict):
+  def _find_gen(self, where, stats_dict):
+    if self._options.mode == bf_file_finder_mode.IMMEDIATE:
+      return self._find_gen_mode_immediate(where, stats_dict)
+    elif self._options.mode == bf_file_finder_mode.WITH_PROGRESS:
+      return self._find_gen_mode_with_progress(where, stats_dict)
+    
+  def _find_gen_mode_immediate(self, where, stats_dict):
     scanner = bf_file_scanner(options = self._options)
 
     for next_entry in scanner._scan_gen_with_stats(where, stats_dict):
@@ -46,28 +49,27 @@ class bf_file_finder(object):
         continue
       yield next_entry
 
-  def _find_gen_with_stats_mode_progress(self, where, stats_dict):
+  def _find_gen_mode_with_progress(self, where, stats_dict):
     scanner = bf_file_scanner(options = self._options)
 
-    self.options.call_progress_function(bf_file_finder_progress_state.STARTING, None, None)
+    self._options.call_progress_callback(bf_file_finder_progress_state.STARTING, None, None)
 
-    self.options.call_progress_function(bf_file_finder_progress_state.SCANNING, None, None)
+    self._options.call_progress_callback(bf_file_finder_progress_state.SCANNING, None, None)
     entries = []
     for next_entry in scanner._scan_gen_with_stats(where, stats_dict):
       if self._options.found_callback:
         self._options.found_callback(next_entry)
       entries.append(next_entry)
         
-    self.options.call_progress_function(bf_file_finder_progress_state.FINDING, None, None)
     for index, next_entry in enumerate(entries, start = 1):
-      self.options.call_progress_function(bf_file_finder_progress_state.PROGRESS,
+      self._options.call_progress_callback(bf_file_finder_progress_state.FINDING,
                                           index,
                                           len(entries))
       if not self._options.file_matcher_matches(next_entry):
         continue
       yield next_entry
 
-    self.options.call_progress_function(bf_file_finder_progress_state.FINISHED, None, None)
+    self._options.call_progress_callback(bf_file_finder_progress_state.FINISHED, None, None)
       
   def find(self, where):
     stats_dict = {
@@ -79,7 +81,7 @@ class bf_file_finder(object):
       'depth': 0,
     }
     entries = bf_entry_list()
-    for entry in self._find_gen_with_stats(where, stats_dict):
+    for entry in self._find_gen(where, stats_dict):
       entries.append(entry)
     stats_dict['end_time'] = datetime.now()
     stats = bf_file_scanner_stats(stats_dict['num_checked'],
