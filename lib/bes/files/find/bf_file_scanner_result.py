@@ -5,7 +5,7 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.common.json_util import json_util
 
-class bf_file_finder_result(namedtuple('bf_file_finder_result', 'entries, stats')):
+class bf_file_scanner_result(namedtuple('bf_file_scanner_result', 'entries, stats')):
 
   def __new__(clazz, entries, stats):
     check.check_bf_entry_list(entries)
@@ -19,4 +19,4 @@ class bf_file_finder_result(namedtuple('bf_file_finder_result', 'entries, stats'
   def to_json(self):
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
   
-check.register_class(bf_file_finder_result, include_seq = False)
+check.register_class(bf_file_scanner_result, include_seq = False)

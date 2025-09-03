@@ -16,7 +16,7 @@ from ..match.bf_file_matcher import bf_file_matcher
 from .bf_file_finder_mode import bf_file_finder_mode
 from .bf_file_finder_options import bf_file_finder_options
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
-from .bf_file_finder_result import bf_file_finder_result
+from .bf_file_scanner_result import bf_file_scanner_result
 from .bf_file_scanner_stats import bf_file_scanner_stats
 from .bf_file_scanner import bf_file_scanner
 
@@ -88,7 +88,7 @@ class bf_file_finder(object):
                                  stats_dict['start_time'],
                                  stats_dict['end_time'],
                                  stats_dict['depth'])
-    return bf_file_finder_result(entries, stats)
+    return bf_file_scanner_result(entries, stats)
 
   def find(self, where):
     result = bf_entry_list()

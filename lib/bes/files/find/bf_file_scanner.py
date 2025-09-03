@@ -19,7 +19,7 @@ from ..bf_symlink import bf_symlink
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..match.bf_file_matcher import bf_file_matcher
 
-from .bf_file_finder_result import bf_file_finder_result
+from .bf_file_scanner_result import bf_file_scanner_result
 from .bf_file_scanner_stats import bf_file_scanner_stats
 from .bf_file_scanner_options import bf_file_scanner_options
 from .bf_walk import bf_walk
@@ -151,7 +151,7 @@ class bf_file_scanner(object):
                                  stats_dict['start_time'],
                                  stats_dict['end_time'],
                                  stats_dict['depth'])
-    return bf_file_finder_result(entries, stats)
+    return bf_file_scanner_result(entries, stats)
 
   def scan(self, where):
     result = bf_entry_list()
