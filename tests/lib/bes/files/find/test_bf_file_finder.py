@@ -4,6 +4,7 @@
 import os.path as path
 from collections import namedtuple
 
+from bes.common.json_util import json_util
 from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.files.find.bf_file_finder import bf_file_finder
 from bes.files.find.bf_file_finder_options import bf_file_finder_options
@@ -873,16 +874,58 @@ class test_bf_file_finder(unit_test):
       path.join(tmp_dir, '3'),
     ])
 
-    self.assertEqual( 9, len(progress_items) )
-    self.assertEqual( bf_file_finder_progress('scanning', None, None), progress_items[0] )
-    self.assertEqual( bf_file_finder_progress('finding', 1, 7), progress_items[1] )
-    self.assertEqual( bf_file_finder_progress('finding', 2, 7), progress_items[2] )
-    self.assertEqual( bf_file_finder_progress('finding', 3, 7), progress_items[3] )
-    self.assertEqual( bf_file_finder_progress('finding', 4, 7), progress_items[4] )
-    self.assertEqual( bf_file_finder_progress('finding', 5, 7), progress_items[5] )
-    self.assertEqual( bf_file_finder_progress('finding', 6, 7), progress_items[6] )
-    self.assertEqual( bf_file_finder_progress('finding', 7, 7), progress_items[7] )
-    self.assertEqual( bf_file_finder_progress('finished', None, None), progress_items[8] )
+    dicts = [ item.to_dict() for item in progress_items ]
+    json = json_util.to_json(dicts)
+
+    self.assert_json_equal( '''
+[
+  {
+    "state": "scanning",
+    "index": null,
+    "total": null
+  },
+  {
+    "state": "finding",
+    "index": 1,
+    "total": 7
+  },
+  {
+    "state": "finding",
+    "index": 2,
+    "total": 7
+  },
+  {
+    "state": "finding",
+    "index": 3,
+    "total": 7
+  },
+  {
+    "state": "finding",
+    "index": 4,
+    "total": 7
+  },
+  {
+    "state": "finding",
+    "index": 5,
+    "total": 7
+  },
+  {
+    "state": "finding",
+    "index": 6,
+    "total": 7
+  },
+  {
+    "state": "finding",
+    "index": 7,
+    "total": 7
+  },
+  {
+    "state": "finished",
+    "index": null,
+    "total": null
+  }
+]
+''', json )
     
 if __name__ == '__main__':
   unit_test.main()

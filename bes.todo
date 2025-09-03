@@ -199,6 +199,9 @@ add file_attributes_metadata tests to cover write permissions and ownership
 - s/system_error/system_command_error/
 - s/system_command/cli_command/
 
+2025-09-03
+- bdata_class_base.to_dict() need to clarify vs something like to_json_dict
+
 proj env:
   - progress during first setup
   - progress during long operations
@@ -216,3 +219,4 @@ unit test for mime type stuff for an empty file
 
 _munge_attr_keys
 _TMP_DIR
+
