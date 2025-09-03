@@ -6,6 +6,5 @@ class bf_file_finder_progress_state(checked_enum):
   FINDING = 'finding'
   FINISHED = 'finished'
   SCANNING = 'scanning'
-  STARTING = 'starting'
   
 bf_file_finder_progress_state.register_check_class()

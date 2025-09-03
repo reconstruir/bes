@@ -7,6 +7,7 @@ from collections import namedtuple
 from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.files.find.bf_file_finder import bf_file_finder
 from bes.files.find.bf_file_finder_options import bf_file_finder_options
+from bes.files.find.bf_file_finder_progress import bf_file_finder_progress
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.fs.testing.temp_content import temp_content
@@ -872,7 +873,16 @@ class test_bf_file_finder(unit_test):
       path.join(tmp_dir, '3'),
     ])
 
-    self.assertEqual( 10, len(progress_items) )
+    self.assertEqual( 9, len(progress_items) )
+    self.assertEqual( bf_file_finder_progress('scanning', None, None), progress_items[0] )
+    self.assertEqual( bf_file_finder_progress('finding', 1, 7), progress_items[1] )
+    self.assertEqual( bf_file_finder_progress('finding', 2, 7), progress_items[2] )
+    self.assertEqual( bf_file_finder_progress('finding', 3, 7), progress_items[3] )
+    self.assertEqual( bf_file_finder_progress('finding', 4, 7), progress_items[4] )
+    self.assertEqual( bf_file_finder_progress('finding', 5, 7), progress_items[5] )
+    self.assertEqual( bf_file_finder_progress('finding', 6, 7), progress_items[6] )
+    self.assertEqual( bf_file_finder_progress('finding', 7, 7), progress_items[7] )
+    self.assertEqual( bf_file_finder_progress('finished', None, None), progress_items[8] )
     
 if __name__ == '__main__':
   unit_test.main()
