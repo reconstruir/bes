@@ -13,7 +13,7 @@ from ..system.check import check
 from ..text.string_list import string_list
 
 from .file_resolver_item import file_resolver_item
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 
 class file_resolver_item_list(type_checked_list):
 

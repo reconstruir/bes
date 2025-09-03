@@ -4,7 +4,7 @@ import errno, os.path as path, os, stat
 
 from .dir_util import dir_util
 from .file_match import file_match
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 from .file_util import file_util
 from ..common.object_util import object_util
 

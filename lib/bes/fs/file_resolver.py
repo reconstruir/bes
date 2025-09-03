@@ -14,7 +14,7 @@ from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_find import file_find
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 from .file_resolver_options import file_resolver_options
 from .file_sort_order import file_sort_order
 from .file_util import file_util

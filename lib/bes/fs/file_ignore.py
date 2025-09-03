@@ -4,7 +4,7 @@ from os import path
 
 from ..system.check import check
 
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 from .file_ignore_item import file_ignore_item
   
 class file_ignore(object):

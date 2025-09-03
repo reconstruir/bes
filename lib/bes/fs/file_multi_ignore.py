@@ -5,7 +5,7 @@ from os import path
 from ..system.check import check
 from bes.common.object_util import object_util
 
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 from .file_ignore import file_ignore
   
 class file_multi_ignore(object):

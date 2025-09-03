@@ -18,7 +18,7 @@ from .dir_combine_type import dir_combine_type
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_find import file_find
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 from .file_util import file_util
 from .dir_util import dir_util
 from .filename_list import filename_list

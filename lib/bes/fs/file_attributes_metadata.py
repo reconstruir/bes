@@ -14,7 +14,7 @@ from bes.system.log import logger
 from .file_attributes import file_attributes
 from .file_attributes_error import file_attributes_permission_error
 from .file_mime import file_mime
-from .file_path import file_path
+from bes.files.bf_path import bf_path
 from .file_util import file_util
 
 from .file_metadata_getter_base import file_metadata_getter_base
