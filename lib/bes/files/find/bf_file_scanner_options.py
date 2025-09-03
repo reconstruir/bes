@@ -51,8 +51,11 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
     return bf_file_finder_error
   
 class bf_file_scanner_options(bcli_options):
+
+  __desc_class__ = _bf_file_scanner_options_desc
+  
   def __init__(self, **kwargs):
-    super().__init__(_bf_file_scanner_options_desc(), **kwargs)
+    super().__init__(self.__desc_class__(), **kwargs)
 
   def init_hook(self):
     self._check_depth_limits()
