@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from ..system.check import check
-from bes.fs.file_multi_ignore import file_multi_ignore
+from .bf_file_ignore_list import bf_file_ignore_list
 from ..bf_check import bf_check
 from bes.property.cached_property import cached_property
 
@@ -11,7 +11,7 @@ class bf_file_ignore_options_mixin(object):
     pass
 
   def bf_file_ignorer(self):
-    return file_multi_ignore(self.ignore_files)
+    return bf_file_ignore_list(self.ignore_files)
     
   def should_ignore_file(self, ford):
     ford = bf_check.check_file_or_dir(ford)
