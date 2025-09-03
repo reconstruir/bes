@@ -29,20 +29,21 @@ class file_find(object):
            max_depth = None, file_type = FILE, follow_links = False,
            match_patterns = None, match_type = None, match_basename = True,
            match_function = None, match_re = None):
-    entries = clazz.find_entries(root_dir,
-                                 min_depth = min_depth,
-                                 max_depth = max_depth,
-                                 file_type = file_type,
-                                 follow_links = follow_links,
-                                 match_patterns = match_patterns,
-                                 match_type = match_type,
-                                 match_basename = match_basename,
-                                 match_function = match_function,
-                                 match_re = match_re)
+    result = clazz.find_entries(root_dir,
+                                min_depth = min_depth,
+                                max_depth = max_depth,
+                                file_type = file_type,
+                                follow_links = follow_links,
+                                match_patterns = match_patterns,
+                                match_type = match_type,
+                                match_basename = match_basename,
+                                match_function = match_function,
+                                match_re = match_re)
     if relative:
-      return entries.relative_filenames(False)
+      filenames = result.entries.relative_filenames(False)
     else:
-      return entries.absolute_filenames(False)
+      filenames = result.entries.absolute_filenames(False)
+    return sorted(filenames)
 
   @classmethod
   def find_entries(clazz, root_dir, min_depth = None,
@@ -141,7 +142,8 @@ class file_find(object):
   @classmethod
   def find_unreadable(clazz, d, relative = True):
     'Return files and dirs that are unreadable.'
-    entries = clazz.find_entries(d, file_type = file_find.ANY)
+    result = clazz.find_entries(d, file_type = file_find.ANY)
+    entries = result.entries
     unreadable = entries.unreadable_files()
     if relative:
       return entries.relative_filenames(False)
