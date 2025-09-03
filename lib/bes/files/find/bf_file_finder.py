@@ -133,6 +133,8 @@ class bf_file_finder(object):
       return False
     if self._options.ignore_broken_links and entry.is_broken_link:
       return False
+    if self._options.should_ignore_entry(entry):
+      return False
     if not self._options.file_matcher_matches(entry):
       return False
     return True

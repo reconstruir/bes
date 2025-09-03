@@ -80,9 +80,9 @@ class bf_file_finder_options(bcli_options):
       self._check_depth_limits()
 
   def pass_through_keys(self):
-    return ( 'file_resolver_options', )
+    return ( 'file_ignore_list', )
 
-  @cached_property
+  @property
   def file_ignore_list(self):
     if self.ignore_filenames:
       from ..ignore.bf_file_ignore_list import bf_file_ignore_list
