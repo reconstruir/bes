@@ -1,22 +1,19 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
+import dataclasses
+import typing
 
+from datetime import datetime
+
+from bes.data_classes.bdata_class_base import bdata_class_base
 from bes.system.check import check
-from bes.common.json_util import json_util
 
-class bf_file_scanner_result(namedtuple('bf_file_scanner_result', 'entries, stats')):
+from ..bf_entry_list import bf_entry_list
+from .bf_file_scanner_stats import bf_file_scanner_stats
 
-  def __new__(clazz, entries, stats):
-    check.check_bf_entry_list(entries)
-    check.check_bf_file_scanner_stats(stats)
+@dataclasses.dataclass
+class bf_file_scanner_result(bdata_class_base):
+  entries: bf_entry_list
+  stats: bf_file_scanner_stats
 
-    return clazz.__bases__[0].__new__(clazz, entries, stats)
-
-  def to_dict(self):
-    return dict(self._asdict())
-  
-  def to_json(self):
-    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
-  
 check.register_class(bf_file_scanner_result, include_seq = False)
