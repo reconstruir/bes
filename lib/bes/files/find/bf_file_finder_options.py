@@ -7,7 +7,7 @@ from bes.system.check import check
 from bes.property.cached_property import cached_property
 
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
-from ..match.bf_file_matcher_mode import bf_cli_file_matcher_type
+from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
 from ..match.bf_file_matcher import bf_cli_match
 from ..match.bf_file_matcher import bf_file_matcher
 
@@ -28,7 +28,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def _types(self):
     return [
-      bf_cli_file_matcher_type,
+      bf_cli_file_matcher_mode,
       bf_cli_file_type,
       bf_cli_match,
       bf_cli_path_type,

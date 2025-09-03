@@ -10,5 +10,5 @@ class bf_file_matcher_mode(checked_enum):
   
 bf_file_matcher_mode.register_check_class()
 
-class bf_cli_file_matcher_type(bcli_type_checked_enum):
+class bf_cli_file_matcher_mode(bcli_type_checked_enum):
   __enum_class__ = bf_file_matcher_mode
