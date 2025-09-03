@@ -44,6 +44,13 @@ class bf_file_finder_options(bf_file_scanner_options):
   def __init__(self, **kwargs):
     super().__init__(**kwargs)
 
+#  def pass_through_keys(self):
+#    return super().pass_through_keys() + ( 'file_ignore_list', )
+#
+#  @property
+#  def file_scanner_options(self):
+#    return bf_file_scanner_options()
+  
   def file_matcher_matches(self, entry):
     check.check_bf_entry(entry)
     

@@ -4,7 +4,6 @@ import os.path as path
 import os
 
 from datetime import datetime
-from collections import namedtuple
 
 from bes.system.check import check
 from bes.system.log import logger
@@ -38,16 +37,16 @@ class bf_file_scanner(object):
   def scan_gen(self, where):
     where = bf_check.check_dir_seq(object_util.listify(where))
     for next_where in where:
-      for entry in self._find_gen_one_dir(next_where, None):
+      for entry in self._scan_gen_one_dir(next_where, None):
         yield entry
 
-  def _find_gen_with_stats(self, where, stats_dict):
+  def _scan_gen_with_stats(self, where, stats_dict):
     where = bf_check.check_dir_seq(object_util.listify(where))
     for next_where in where:
-      for entry in self._find_gen_one_dir(next_where, stats_dict):
+      for entry in self._scan_gen_one_dir(next_where, stats_dict):
         yield entry
         
-  def _find_gen_one_dir(self, where, stats_dict):
+  def _scan_gen_one_dir(self, where, stats_dict):
     where = bf_check.check_dir(where)
     where = path.normpath(where)
     result = bf_entry_list()
@@ -143,7 +142,7 @@ class bf_file_scanner(object):
       'depth': 0,
     }
     entries = bf_entry_list()
-    for entry in self._find_gen_with_stats(where, stats_dict):
+    for entry in self._scan_gen_with_stats(where, stats_dict):
       entries.append(entry)
     stats_dict['end_time'] = datetime.now()
     stats = bf_file_finder_stats(stats_dict['num_checked'],
