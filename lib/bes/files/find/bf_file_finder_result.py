@@ -9,7 +9,7 @@ class bf_file_finder_result(namedtuple('bf_file_finder_result', 'entries, stats'
 
   def __new__(clazz, entries, stats):
     check.check_bf_entry_list(entries)
-    check.check_bf_file_finder_stats(stats)
+    check.check_bf_file_scanner_stats(stats)
 
     return clazz.__bases__[0].__new__(clazz, entries, stats)
 

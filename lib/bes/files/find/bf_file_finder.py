@@ -17,7 +17,7 @@ from .bf_file_finder_mode import bf_file_finder_mode
 from .bf_file_finder_options import bf_file_finder_options
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
 from .bf_file_finder_result import bf_file_finder_result
-from .bf_file_finder_stats import bf_file_finder_stats
+from .bf_file_scanner_stats import bf_file_scanner_stats
 from .bf_file_scanner import bf_file_scanner
 
 class bf_file_finder(object):
@@ -82,7 +82,7 @@ class bf_file_finder(object):
     for entry in self._find_gen_with_stats(where, stats_dict):
       entries.append(entry)
     stats_dict['end_time'] = datetime.now()
-    stats = bf_file_finder_stats(stats_dict['num_checked'],
+    stats = bf_file_scanner_stats(stats_dict['num_checked'],
                                  stats_dict['num_files_checked'],
                                  stats_dict['num_dirs_checked'],
                                  stats_dict['start_time'],

@@ -5,7 +5,7 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.common.json_util import json_util
 
-class bf_file_finder_stats(namedtuple('bf_file_finder_stats', 'num_checked, num_files_checked, num_dirs_checked, start_time, end_time, depth')):
+class bf_file_scanner_stats(namedtuple('bf_file_scanner_stats', 'num_checked, num_files_checked, num_dirs_checked, start_time, end_time, depth')):
 
   def __new__(clazz, num_checked, num_files_checked, num_dirs_checked, start_time, end_time, depth):
     check.check_int(num_checked)
@@ -26,4 +26,4 @@ class bf_file_finder_stats(namedtuple('bf_file_finder_stats', 'num_checked, num_
   def duration(self):
     return self.end_time - self.start_time
 
-check.register_class(bf_file_finder_stats, include_seq = False)
+check.register_class(bf_file_scanner_stats, include_seq = False)

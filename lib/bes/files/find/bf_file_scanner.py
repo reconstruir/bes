@@ -20,7 +20,7 @@ from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..match.bf_file_matcher import bf_file_matcher
 
 from .bf_file_finder_result import bf_file_finder_result
-from .bf_file_finder_stats import bf_file_finder_stats
+from .bf_file_scanner_stats import bf_file_scanner_stats
 from .bf_file_scanner_options import bf_file_scanner_options
 from .bf_walk import bf_walk
 
@@ -145,7 +145,7 @@ class bf_file_scanner(object):
     for entry in self._scan_gen_with_stats(where, stats_dict):
       entries.append(entry)
     stats_dict['end_time'] = datetime.now()
-    stats = bf_file_finder_stats(stats_dict['num_checked'],
+    stats = bf_file_scanner_stats(stats_dict['num_checked'],
                                  stats_dict['num_files_checked'],
                                  stats_dict['num_dirs_checked'],
                                  stats_dict['start_time'],
