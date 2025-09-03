@@ -6,22 +6,22 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.system.check import check
 from bes.property.cached_property import cached_property
 
-from ..match.bf_file_matcher_mode import bf_file_matcher_mode
-from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
 from ..match.bf_file_matcher import bf_cli_match
 from ..match.bf_file_matcher import bf_file_matcher
+from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
+from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 
-from ..bf_path_type import bf_path_type
-from ..bf_path_type import bf_cli_path_type
-from ..bf_file_type import bf_file_type
-from ..bf_file_type import bf_cli_file_type
 from ..bf_entry import bf_entry
+from ..bf_file_type import bf_cli_file_type
+from ..bf_file_type import bf_file_type
+from ..bf_path_type import bf_cli_path_type
+from ..bf_path_type import bf_path_type
 
 from .bf_file_finder_error import bf_file_finder_error
+from .bf_file_finder_mode import bf_cli_file_finder_mode
+from .bf_file_finder_mode import bf_file_finder_mode
 from .bf_file_finder_progress import bf_file_finder_progress
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
-from .bf_file_finder_mode import bf_file_finder_mode
-from .bf_file_finder_mode import bf_cli_file_finder_mode
 
 class _bf_file_finder_options_desc(bcli_options_desc):
 
