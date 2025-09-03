@@ -138,12 +138,12 @@ class git_repo(object):
                              file_type = 'any',
                              path_type = 'basename',
                              negate = True)
-    entries = bf_file_finder.find_with_options(self.root,
-                                               file_matcher = matcher,
-                                               file_type = file_type,
-                                               match_type = 'all',
-                                               walk_dir_matcher = walk_dir_matcher)
-    return entries.relative_filenames()
+    result = bf_file_finder.find_with_options(self.root,
+                                              file_matcher = matcher,
+                                              file_type = file_type,
+                                              match_type = 'all',
+                                              walk_dir_matcher = walk_dir_matcher)
+    return result.entries.relative_filenames()
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):
     return os.linesep.join(self.find_all_files(file_type = file_type))
