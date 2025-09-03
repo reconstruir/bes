@@ -172,7 +172,7 @@ class web_server(object, metaclass = ABCMeta):
   _path_info = namedtuple('_path_info', 'path_info, filename, fragment, rooted_filename')
   def path_info(self, environ, relative = True):
     path_info = environ['PATH_INFO']
-    filename = file_path.normalize_sep(path_info)
+    filename = bf_path.normalize_sep(path_info)
     fragment = file_util.lstrip_sep(filename)
     rooted_filename = path.join(self._root_dir, fragment)
     return self._path_info(path_info, filename, fragment, rooted_filename)

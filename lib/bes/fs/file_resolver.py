@@ -89,7 +89,7 @@ class file_resolver(object):
       clazz._log.log_d(f'_find_files: files: {i}: {f}')
     for next_file in files:
       clazz._log.log_d(f'_find_files: next_file={next_file}')
-      filename_abs = file_path.normalize(next_file)
+      filename_abs = bf_path.normalize(next_file)
       if not path.exists(filename_abs):
         raise IOError('File or directory not found: "{}"'.format(filename_abs))
       if path.isfile(filename_abs):
@@ -114,7 +114,7 @@ class file_resolver(object):
       elif order == file_sort_order.DATE:
         criteria.append(file_util.get_modification_date(resolved_file.filename_abs))
       elif order == file_sort_order.DEPTH:
-        criteria.append(file_path.depth(resolved_file.filename_abs))
+        criteria.append(bf_path.depth(resolved_file.filename_abs))
       else:
         assert False
       return tuple(criteria)

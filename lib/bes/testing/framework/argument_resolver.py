@@ -131,7 +131,7 @@ class argument_resolver(object):
     files = []
     filter_descriptions = []
     for arg in arguments:
-      normalized_path = file_path.normalize(path.join(working_dir, arg))
+      normalized_path = bf_path.normalize(path.join(working_dir, arg))
       if not path.exists(normalized_path):
         filter_descriptions.append(arg)
       else:
@@ -143,7 +143,7 @@ class argument_resolver(object):
   def _resolve_files_and_dirs(clazz, working_dir, files_and_dirs):
     result = []
     for f in files_and_dirs:
-      f = file_path.normalize(path.join(working_dir, f))
+      f = bf_path.normalize(path.join(working_dir, f))
       if path.isfile(f):
         result += [ f ]
       elif path.isdir(f):
@@ -157,7 +157,7 @@ class argument_resolver(object):
     files = []
     dirs = []
     for f in files_and_dirs:
-      f = file_path.normalize(path.join(working_dir, f))
+      f = bf_path.normalize(path.join(working_dir, f))
       if path.isfile(f):
         files += [ f ]
       elif path.isdir(f):
@@ -214,12 +214,12 @@ class argument_resolver(object):
       return None
     any_git_root = git.root(files[0])
     if any_git_root:
-      return file_path.parent_dir(any_git_root)
+      return bf_path.parent_dir(any_git_root)
     return False
 
   @classmethod
   def _find_root_dir_with_file_marker(clazz, files):
-    common_ancestor = file_path.common_ancestor(files)
+    common_ancestor = bf_path.common_ancestor(files)
     if not common_ancestor:
       return None
     marker = file_find.find_in_ancestors(common_ancestor, '.bes_test_root')

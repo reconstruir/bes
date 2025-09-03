@@ -134,7 +134,7 @@ class file_find(object):
       what = path.join(start_dir, filename)
       if path.exists(what):
         return what
-      start_dir = file_path.parent_dir(start_dir)
+      start_dir = bf_path.parent_dir(start_dir)
       if path.ismount(start_dir):
         return None
 

@@ -62,8 +62,8 @@ class python_source_macos(python_source_unix):
 
     # Next check the exe prefix standard to brew to check if that is in the brew "cellar"
     if actual_exe.startswith('/usr/local/opt/python@'):
-      parts = file_path.split(actual_exe)
-      prefix = file_path.join(parts[0:5])
+      parts = bf_path.split(actual_exe)
+      prefix = bf_path.join(parts[0:5])
       actual_prefix = file_symlink.resolve(prefix)
       if 'cellar' in actual_prefix.lower():
         return True

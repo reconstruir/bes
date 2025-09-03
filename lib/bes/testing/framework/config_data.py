@@ -24,8 +24,8 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
     check.check_string_seq(pythonpath)
     requires = requires or set()
     check.check_set(requires)
-    unixpath = [ file_path.normalize_sep(p) for p in unixpath ]
-    pythonpath = [ file_path.normalize_sep(p) for p in pythonpath ]
+    unixpath = [ bf_path.normalize_sep(p) for p in unixpath ]
+    pythonpath = [ bf_path.normalize_sep(p) for p in pythonpath ]
     return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires, variables)
     
   def to_string(self):

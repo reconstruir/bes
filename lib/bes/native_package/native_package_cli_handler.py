@@ -62,7 +62,7 @@ class native_package_cli_handler(cli_command_handler):
       dirs = [ self._level_path(p, levels) for p in dirs ]
       dirs = algorithm.unique(dirs)
     if root_dir:
-      ancestor = file_path.common_ancestor(dirs)
+      ancestor = bf_path.common_ancestor(dirs)
       if ancestor:
         print(ancestor)
     else:

@@ -78,7 +78,7 @@ class dir_split(object):
         if d != src_dir:
           d_relative = file_util.remove_head(d, src_dir + path.sep)
           if not d_relative.startswith(options.prefix):
-            d_root = path.join(src_dir, file_path.part(d_relative, 0))
+            d_root = path.join(src_dir, bf_path.part(d_relative, 0))
             possible_empty_dirs_roots.append(d_root)
       possible_empty_dirs_roots = algorithm.unique(possible_empty_dirs_roots)
     else:
@@ -142,7 +142,7 @@ class dir_split(object):
       elif order == file_sort_order.DATE:
         criteria.append(file_util.get_modification_date(finfo.filename))
       elif order == file_sort_order.DEPTH:
-        criteria.append(file_path.depth(finfo.filename))
+        criteria.append(bf_path.depth(finfo.filename))
       else:
         assert False
       return tuple(criteria)

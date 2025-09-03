@@ -90,7 +90,7 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
     filename = t[1]
     if not filename:
       raise ValueError('no filename given: {}'.format(str(t)))
-    filename = file_path.normalize_sep(filename)
+    filename = bf_path.normalize_sep(filename)
     if len(t) > 2:
       content = t[2] or None
     else:

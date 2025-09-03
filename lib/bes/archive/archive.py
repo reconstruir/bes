@@ -81,7 +81,7 @@ class archive(archive_base):
   def _common_base_for_members(clazz, members):
     'Return a common base dir for the given members or None if no common base exists.'
     members = [ m for m in members if m not in clazz.COMMON_BASE_MEMBERS_EXCLUDE ]
-    return file_path.common_ancestor(members)
+    return bf_path.common_ancestor(members)
 
   @classmethod
   def _find(clazz, root_dir, base_dir, extra_items, include, exclude):

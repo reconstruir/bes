@@ -142,7 +142,7 @@ class archive_util(object):
     tmp_dir = temp_file.make_temp_dir()
     for archive in archives:
       archiver.extract_all(archive, tmp_dir)
-    archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = file_path.xp_path_list(exclude))
+    archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = bf_path.xp_path_list(exclude))
 
   @classmethod
   def match_members(clazz, archive, patterns):

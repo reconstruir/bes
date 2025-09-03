@@ -23,9 +23,9 @@ class egg_unit_test(unit_test):
   @classmethod
   def module_file_to_egg(clazz, filename):
     'Return the egg for a file inside an egg.  /fruits/kiwi.egg/mod/__init__.pyc => /fruits/kiwi.egg'
-    p = file_path.split(filename)
+    p = bf_path.split(filename)
     while True:
-      possible_egg = file_path.join(p)
+      possible_egg = bf_path.join(p)
       if possible_egg.endswith('.egg'):
         return possible_egg
       if not p:

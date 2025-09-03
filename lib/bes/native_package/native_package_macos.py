@@ -117,7 +117,7 @@ class native_package_macos(native_package_base):
           sudo.call_sudo(args)
     
     if force_package_root:
-      root_dir = file_path.common_ancestor(dirs)
+      root_dir = bf_path.common_ancestor(dirs)
       if root_dir and path.isdir(root_dir):
         if root_dir in [ '/', '/Applications', '/Library', '/bin', '/usr/bin', '/usr/local', '/opt' ]:
           raise native_package_error('Trying to delete a system directory: "{}"'.format(root_dir))

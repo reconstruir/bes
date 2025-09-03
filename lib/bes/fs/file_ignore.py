@@ -20,7 +20,7 @@ class file_ignore(object):
       return True #raise IOError('not a file or directory: %s' % (ford))
     if not self._ignore_filename:
       return False
-    ancestors = file_path.decompose(ford)
+    ancestors = bf_path.decompose(ford)
     for ancestor in ancestors:
       ancestor_dirname = path.dirname(ancestor)
       ancestor_basename = path.basename(ancestor)

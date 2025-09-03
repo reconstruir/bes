@@ -98,7 +98,7 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/z/kiwi.jpg', 'this is kiwi', 0o0644),
     ]
-    sort_key = lambda filename: 0 if 'z' in file_path.split(filename) else 1
+    sort_key = lambda filename: 0 if 'z' in bf_path.split(filename) else 1
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    sort_key = sort_key)

@@ -77,7 +77,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
     
     files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
-      access = file_path.access(f.filename_abs)
+      access = bf_path.access(f.filename_abs)
       print('{}: {}'.format(f.filename_abs, access))
     return 0
   

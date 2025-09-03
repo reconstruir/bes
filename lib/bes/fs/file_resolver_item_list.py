@@ -29,7 +29,7 @@ class file_resolver_item_list(type_checked_list):
     return result
 
   def absolute_common_ancestor(self):
-    return file_path.common_ancestor(self.absolute_files())
+    return bf_path.common_ancestor(self.absolute_files())
   
   def relative_files(self, sort = False):
     result = string_list([ item.filename for item in self ])
