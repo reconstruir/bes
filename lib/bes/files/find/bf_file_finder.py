@@ -94,7 +94,7 @@ class bf_file_finder(object):
   def find_with_options(clazz, where, **kwargs):
     options = bf_file_finder_options(**kwargs)
     finder = bf_file_finder(options = options)
-    return finder.find(where).sorted_by_criteria('FILENAME')
+    return finder.find(where)
   
   @classmethod
   def find_with_fnmatch(clazz, where,
