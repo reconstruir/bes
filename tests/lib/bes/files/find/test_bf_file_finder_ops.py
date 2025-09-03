@@ -32,7 +32,7 @@ class test_bf_file_finder_ops(unit_test):
       'emptydir',
       'subdir',
       'subdir/subberdir',
-    ], bf_file_finder_ops.find_dirs(tmp_dir).relative_filenames(sort = True) )
+    ], bf_file_finder_ops.find_dirs(tmp_dir).entries.relative_filenames(sort = True) )
 
   def test_find_files(self):
     content = [
@@ -48,7 +48,7 @@ class test_bf_file_finder_ops(unit_test):
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt',
-    ], bf_file_finder_ops.find_files(tmp_dir).relative_filenames(sort = True) )
+    ], bf_file_finder_ops.find_files(tmp_dir).entries.relative_filenames(sort = True) )
 
   def test_find_all(self):
     content = [
@@ -57,7 +57,7 @@ class test_bf_file_finder_ops(unit_test):
       'dir emptydir',
     ]
     tmp_dir = self._make_temp_content(content)
-    entries = bf_file_finder_ops.find(tmp_dir, file_type = None)
+    entries = bf_file_finder_ops.find(tmp_dir, file_type = None).entries
     rels = entries.relative_filenames(sort = True)
     # should contain all files and dirs
     self.assertTrue('a.txt' in rels)
@@ -95,8 +95,8 @@ class test_bf_file_finder_ops(unit_test):
     tmp_dir = self._make_temp_content(content)
     e = bf_entry(path.join(tmp_dir, 'b.txt'))
     e.chmod(0o000)
-    entries = bf_file_finder_ops.find_unreadable(tmp_dir)
-    self.assertEqual([ 'b.txt' ], entries.relative_filenames(sort = True))
+    result = bf_file_finder_ops.find_unreadable(tmp_dir)
+    self.assertEqual([ 'b.txt' ], result.relative_filenames(sort = True))
 
   def test_find_empty_dirs(self):
     content = [

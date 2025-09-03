@@ -69,7 +69,7 @@ class bf_file_finder(object):
 
     self.options.call_progress_function(bf_file_finder_progress_state.FINISHED, None, None)
       
-  def find_with_stats(self, where):
+  def find(self, where):
     stats_dict = {
       'num_checked': 0,
       'num_files_checked': 0,
@@ -83,19 +83,13 @@ class bf_file_finder(object):
       entries.append(entry)
     stats_dict['end_time'] = datetime.now()
     stats = bf_file_scanner_stats(stats_dict['num_checked'],
-                                 stats_dict['num_files_checked'],
-                                 stats_dict['num_dirs_checked'],
-                                 stats_dict['start_time'],
-                                 stats_dict['end_time'],
-                                 stats_dict['depth'])
+                                  stats_dict['num_files_checked'],
+                                  stats_dict['num_dirs_checked'],
+                                  stats_dict['start_time'],
+                                  stats_dict['end_time'],
+                                  stats_dict['depth'])
     return bf_file_scanner_result(entries, stats)
 
-  def find(self, where):
-    result = bf_entry_list()
-    for entry in self.find_gen(where):
-      result.append(entry)
-    return result
-  
   @classmethod
   def find_with_options(clazz, where, **kwargs):
     options = bf_file_finder_options(**kwargs)

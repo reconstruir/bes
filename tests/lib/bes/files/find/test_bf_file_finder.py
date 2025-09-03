@@ -27,7 +27,8 @@ class test_bf_file_finder(unit_test):
     finder_options = bf_file_finder_options(**options)
     tmp_dir = self._make_temp_content(items)
     f = bf_file_finder(options = finder_options)
-    entries = f.find(tmp_dir)
+    result = f.find(tmp_dir)
+    entries = result.entries
 
     relative_filenames = entries.relative_filenames(False)
     absolute_filenames = entries.absolute_filenames(False)
@@ -40,28 +41,8 @@ class test_bf_file_finder(unit_test):
                              absolute_filenames,
                              sorted_relative_filenames,
                              sorted_absolute_filenames,
-                             None)
-
-  def _find_with_stats(self, items, **options):
-    finder_options = bf_file_finder_options(**options)
-    tmp_dir = self._make_temp_content(items)
-    f = bf_file_finder(options = finder_options)
-    result = f.find_with_stats(tmp_dir)
-
-    relative_filenames = result.entries.relative_filenames(False)
-    absolute_filenames = result.entries.absolute_filenames(False)
-
-    sorted_relative_filenames = result.entries.relative_filenames(True)
-    sorted_absolute_filenames = result.entries.absolute_filenames(True)
-    
-    return self._find_result(tmp_dir,
-                             result.entries,
-                             relative_filenames,
-                             absolute_filenames,
-                             sorted_relative_filenames,
-                             sorted_absolute_filenames,
                              result.stats)
-  
+
   def test_find_with_no_options(self):
     content = [
       'file foo.txt "foo.txt\n"',
@@ -676,12 +657,12 @@ class test_bf_file_finder(unit_test):
     ]
     tmp_dir = self._make_temp_content(content)
     f = bf_file_finder()
-    entries = f.find([
+    result = f.find([
       path.join(tmp_dir, '1'),
       path.join(tmp_dir, '2'),
       path.join(tmp_dir, '3'),
     ])
-    actual = entries.relative_filenames(True)
+    actual = result.entries.relative_filenames(True)
     self.assert_filename_list_equal( [
       'a/cheese/brie.cheese',
       'a/cheese/cheddar.cheese',
@@ -738,9 +719,7 @@ class test_bf_file_finder(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    result = self._find_with_stats(content,
-                                   file_type = 'FILE',
-                                   match_type = 'all')
+    result = self._find(content, file_type = 'FILE', match_type = 'all')
     self.assert_filename_list_equal( [
       '.git/HEAD',
       '.git/config',
@@ -772,11 +751,11 @@ class test_bf_file_finder(unit_test):
                                       file_type = 'dir',
                                       path_type = 'basename',
                                       negate = True)
-    result = self._find_with_stats(content,
-                                   file_type = 'FILE',
-                                   match_type = 'all',
-                                   walk_dir_matcher = walk_dir_matcher,
-                                   walk_dir_match_type = 'all')
+    result = self._find(content,
+                        file_type = 'FILE',
+                        match_type = 'all',
+                        walk_dir_matcher = walk_dir_matcher,
+                        walk_dir_match_type = 'all')
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',
@@ -798,9 +777,9 @@ class test_bf_file_finder(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    result = self._find_with_stats(content,
-                                   file_type = 'DIR',
-                                   match_type = 'all')
+    result = self._find(content,
+                        file_type = 'DIR',
+                        match_type = 'all')
     self.assert_filename_list_equal( [
       '.git',
       '.git/hooks',

@@ -67,15 +67,17 @@ class bf_file_finder_ops(object):
   @classmethod
   def find_unreadable(clazz, where):
     'Return files and dirs that are unreadable.'
-    entries = clazz.find(where, file_type = bf_file_type.FILE_OR_DIR_OR_LINK)
+    result = clazz.find(where, file_type = bf_file_type.FILE_OR_DIR_OR_LINK)
+    entries = result.entries
     return bf_entry_list([ entry for entry in entries if not entry.is_readable ])
 
   @classmethod
   def find_empty_dirs(clazz, where, min_depth = None, max_depth = None, follow_links = False):
-    entries = clazz.find_dirs(where,
-                              min_depth = min_depth,
-                              max_depth = max_depth,
-                              follow_links = follow_links)
+    result = clazz.find_dirs(where,
+                             min_depth = min_depth,
+                             max_depth = max_depth,
+                             follow_links = follow_links)
+    entries = result.entries
     return bf_entry_list([ entry for entry in entries if bf_dir.is_empty(entry.absolute_filename) ])
 
   @classmethod
