@@ -190,7 +190,7 @@ class bf_file_matcher(object):
       
 check.register_class(bf_file_matcher, include_seq = False)
 
-class bf_cli_match(bcli_type_i):
+class bf_cli_file_matcher(bcli_type_i):
 
   @classmethod
   #@abstractmethod
