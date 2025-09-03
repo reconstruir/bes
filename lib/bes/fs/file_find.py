@@ -11,7 +11,7 @@ from ..common.object_util import object_util
 from ..files.find.bf_file_finder import bf_file_finder
 from ..files.find.bf_file_finder_options import bf_file_finder_options
 from ..files.match.bf_file_matcher import bf_file_matcher
-from ..files.match.bf_file_matcher_type import bf_file_matcher_type
+from ..files.match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..files.bf_path_type import bf_path_type
 
 class file_find(object):
@@ -71,14 +71,14 @@ class file_find(object):
     assert isinstance(match_basename, bool)
 
     match_type_map = {
-      file_match.ALL: bf_file_matcher_type.ALL,
-      file_match.NONE: bf_file_matcher_type.NONE,
-      file_match.ANY: bf_file_matcher_type.ANY,
+      file_match.ALL: bf_file_matcher_mode.ALL,
+      file_match.NONE: bf_file_matcher_mode.NONE,
+      file_match.ANY: bf_file_matcher_mode.ANY,
     }
     if match_type:
       match_type = match_type_map[match_type]
     else:
-      match_type = bf_file_matcher_type.ANY
+      match_type = bf_file_matcher_mode.ANY
     return bf_file_finder.find_with_options(root_dir,
                                             min_depth = min_depth,
                                             max_depth = max_depth,

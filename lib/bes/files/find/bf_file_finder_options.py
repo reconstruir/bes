@@ -6,8 +6,8 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.system.check import check
 from bes.property.cached_property import cached_property
 
-from ..match.bf_file_matcher_type import bf_file_matcher_type
-from ..match.bf_file_matcher_type import bf_cli_file_matcher_type
+from ..match.bf_file_matcher_mode import bf_file_matcher_mode
+from ..match.bf_file_matcher_mode import bf_cli_file_matcher_type
 from ..match.bf_file_matcher import bf_cli_match
 from ..match.bf_file_matcher import bf_file_matcher
 
@@ -44,7 +44,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-                match_type bf_file_matcher_type default=ANY
+                match_type bf_file_matcher_mode default=ANY
                  file_type bf_file_type         default=FILE_OR_LINK
               follow_links bool                 default=False
        ignore_broken_links bool                 default=True
@@ -52,7 +52,7 @@ class _bf_file_finder_options_desc(bcli_options_desc):
                  min_depth int
               file_matcher bf_file_matcher 
           walk_dir_matcher bf_file_matcher 
-       walk_dir_match_type bf_file_matcher_type default=ANY
+       walk_dir_match_type bf_file_matcher_mode default=ANY
                      limit int
              stop_function callable
 #         progress_function callable

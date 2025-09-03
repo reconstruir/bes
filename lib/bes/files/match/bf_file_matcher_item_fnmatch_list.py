@@ -7,7 +7,7 @@ from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .bf_file_matcher_item_base import bf_file_matcher_item_base
-from .bf_file_matcher_type import bf_file_matcher_type
+from .bf_file_matcher_mode import bf_file_matcher_mode
 
 class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
 
@@ -16,7 +16,7 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
   def __init__(self, patterns, list_match_type, file_type = None, path_type = None, ignore_case = False):
     super().__init__(file_type, path_type)
     self._patterns = check.check_string_seq(patterns)[:]
-    self._list_match_type = check.check_bf_file_matcher_type(list_match_type)
+    self._list_match_type = check.check_bf_file_matcher_mode(list_match_type)
     self._ignore_case = ignore_case
 
   def __str__(self):
@@ -38,9 +38,9 @@ class bf_file_matcher_item_fnmatch_list(bf_file_matcher_item_base):
       filename = entry.filename_for_matcher(self.path_type, self._ignore_case)
       fnmatcher = fnmatch.fnmatch if self._ignore_case else fnmatch.fnmatchcase
       func_map = {
-        bf_file_matcher_type.ALL: self._match_all,
-        bf_file_matcher_type.ANY: self._match_any,
-        bf_file_matcher_type.NONE: self._match_none,
+        bf_file_matcher_mode.ALL: self._match_all,
+        bf_file_matcher_mode.ANY: self._match_any,
+        bf_file_matcher_mode.NONE: self._match_none,
       }
       func = func_map[self._list_match_type]
       matched = func(filename, self._patterns, fnmatcher)

@@ -10,7 +10,7 @@ from bes.property.cached_property import cached_property
 from ..bf_file_ops import bf_file_ops
 from ..bf_entry import bf_entry
 from ..match.bf_file_matcher import bf_file_matcher
-from ..match.bf_file_matcher_type import bf_file_matcher_type
+from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 
 class bf_file_ignore_item(namedtuple('bf_file_ignore_item', 'directory, patterns')):
 

@@ -21,7 +21,7 @@ from .bf_file_matcher_item_fnmatch_list import bf_file_matcher_item_fnmatch_list
 from .bf_file_matcher_item_i import bf_file_matcher_item_i
 from .bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
 from .bf_file_matcher_item_re import bf_file_matcher_item_re
-from .bf_file_matcher_type import bf_file_matcher_type
+from .bf_file_matcher_mode import bf_file_matcher_mode
 
 class bf_file_matcher(object):
 
@@ -78,7 +78,7 @@ class bf_file_matcher(object):
 
   def add_item_fnmatch_list(self,
                             patterns,
-                            list_match_type = bf_file_matcher_type.ANY,
+                            list_match_type = bf_file_matcher_mode.ANY,
                             file_type = None,
                             path_type = None,
                             ignore_case = False,
@@ -122,8 +122,8 @@ class bf_file_matcher(object):
     
   def match(self, entry, match_type = None):
     check.check_bf_entry(entry)
-    match_type = check.check_bf_file_matcher_type(match_type, allow_none = True)
-    match_type = match_type or bf_file_matcher_type.ANY
+    match_type = check.check_bf_file_matcher_mode(match_type, allow_none = True)
+    match_type = match_type or bf_file_matcher_mode.ANY
     
     self._log.log_d(f'match: entry={entry.relative_filename} match_type={match_type.name}')
     
@@ -132,9 +132,9 @@ class bf_file_matcher(object):
       return True
     
     func_map = {
-      bf_file_matcher_type.ALL: self._match_all,
-      bf_file_matcher_type.ANY: self._match_any,
-      bf_file_matcher_type.NONE: self._match_none,
+      bf_file_matcher_mode.ALL: self._match_all,
+      bf_file_matcher_mode.ANY: self._match_any,
+      bf_file_matcher_mode.NONE: self._match_none,
     }
     func = func_map[match_type]
     return func(entry, self._matchers)

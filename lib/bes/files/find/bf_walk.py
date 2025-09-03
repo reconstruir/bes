@@ -13,7 +13,7 @@ from ..bf_entry_list import bf_entry_list
 from ..bf_error import bf_error
 from ..bf_filename import bf_filename
 from ..match.bf_file_matcher import bf_file_matcher
-from ..match.bf_file_matcher_type import bf_file_matcher_type
+from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 
 class bf_walk(object):
 
@@ -30,7 +30,7 @@ class bf_walk(object):
     check.check_int(max_depth, allow_none = True)
     check.check_bool(follow_links)
     check.check_bf_file_matcher(walk_dir_matcher, allow_none = True)
-    walk_dir_match_type = check.check_bf_file_matcher_type(walk_dir_match_type, allow_none = True)
+    walk_dir_match_type = check.check_bf_file_matcher_mode(walk_dir_match_type, allow_none = True)
     entry_class = check.check_class(entry_class, allow_none = True) or bf_entry
 
     if not issubclass(entry_class, bf_entry):

@@ -17,7 +17,7 @@ from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
 from ..bf_path_type import bf_path_type
 from ..bf_symlink import bf_symlink
-from ..match.bf_file_matcher_type import bf_file_matcher_type
+from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..match.bf_file_matcher import bf_file_matcher
 
 from .bf_file_finder_options import bf_file_finder_options
@@ -174,7 +174,7 @@ class bf_file_finder(object):
   def find_with_fnmatch(clazz, where,
                         file_type = bf_file_type.FILE_OR_LINK,
                         path_type = bf_path_type.BASENAME,
-                        match_type = bf_file_matcher_type.ALL,
+                        match_type = bf_file_matcher_mode.ALL,
                         min_depth = None,
                         max_depth = None,
                         follow_links = False,

@@ -28,7 +28,7 @@ class bf_dir(object):
     matcher = check.check_bf_file_matcher(matcher,
                                           allow_none = True,
                                           default_value_class = bf_file_matcher)
-    match_type = check.check_bf_file_matcher_type(match_type, allow_none = True)
+    match_type = check.check_bf_file_matcher_mode(match_type, allow_none = True)
     
     entries = bf_entry_list.listdir(where)
     matched_entries = matcher.match_entries(entries, match_type = match_type)
