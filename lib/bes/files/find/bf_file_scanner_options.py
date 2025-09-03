@@ -6,30 +6,22 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.system.check import check
 
 from ..match.bf_file_matcher import bf_cli_file_matcher
-from ..match.bf_file_matcher import bf_file_matcher
 from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
-from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 
 from ..bf_entry import bf_entry
 from ..bf_file_type import bf_cli_file_type
-from ..bf_file_type import bf_file_type
-from ..bf_path_type import bf_cli_path_type
-from ..bf_path_type import bf_path_type
 
 from .bf_file_finder_error import bf_file_finder_error
 from .bf_file_finder_mode import bf_cli_file_finder_mode
-from .bf_file_finder_mode import bf_file_finder_mode
 
 class _bf_file_scanner_options_desc(bcli_options_desc):
 
   #@abstractmethod
   def _types(self):
     return [
-      bf_cli_file_finder_mode,
       bf_cli_file_matcher,
       bf_cli_file_matcher_mode,
       bf_cli_file_type,
-      bf_cli_path_type,
     ]
 
   #@abstractmethod
