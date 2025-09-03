@@ -4,7 +4,6 @@ from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
 from bes.system.check import check
-from bes.property.cached_property import cached_property
 
 from ..match.bf_file_matcher import bf_cli_file_matcher
 from ..match.bf_file_matcher import bf_file_matcher
@@ -28,11 +27,11 @@ class _bf_file_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def _types(self):
     return [
+      bf_cli_file_finder_mode,
+      bf_cli_file_matcher,
       bf_cli_file_matcher_mode,
       bf_cli_file_type,
-      bf_cli_file_matcher,
       bf_cli_path_type,
-      bf_cli_file_finder_mode,
     ]
 
   #@abstractmethod
@@ -53,7 +52,6 @@ class _bf_file_finder_options_desc(bcli_options_desc):
               file_matcher bf_file_matcher 
           walk_dir_matcher bf_file_matcher 
        walk_dir_match_type bf_file_matcher_mode default=ANY
-                     limit int
              stop_function callable
 #         progress_function callable
 # progress_interval_percent float                default=5.0

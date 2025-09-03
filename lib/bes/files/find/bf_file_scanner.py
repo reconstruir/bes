@@ -20,9 +20,9 @@ from ..bf_symlink import bf_symlink
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
 from ..match.bf_file_matcher import bf_file_matcher
 
-from .bf_file_scanner_options import bf_file_scanner_options
 from .bf_file_finder_result import bf_file_finder_result
 from .bf_file_finder_stats import bf_file_finder_stats
+from .bf_file_scanner_options import bf_file_scanner_options
 from .bf_walk import bf_walk
 
 class bf_file_scanner(object):
@@ -97,8 +97,6 @@ class bf_file_scanner(object):
         if self._entry_matches(next_file_entry, where, stats_dict):
           self._log.log_d(f'matched file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           count += 1
-          if self._options.found_callback:
-            self._options.found_callback(next_file_entry)
           yield next_file_entry
           if self._options.stop_after == count:
             done = True
@@ -112,8 +110,6 @@ class bf_file_scanner(object):
           self._log.log_d(f'matched dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
           matched_dirs.append(next_dir_entry)
           count += 1
-          if self._options.found_callback:
-            self._options.found_callback(next_dir_entry)
           yield next_dir_entry
           if self._options.stop_after == count:
             done = True
@@ -134,8 +130,6 @@ class bf_file_scanner(object):
     if self._options.ignore_broken_links and entry.is_broken_link:
       return False
     if self._options.should_ignore_entry(entry):
-      return False
-    if not self._options.file_matcher_matches(entry):
       return False
     return True
     
@@ -171,32 +165,3 @@ class bf_file_scanner(object):
     options = bf_file_scanner_options(**kwargs)
     finder = bf_file_finder(options = options)
     return finder.find(where).sorted_by_criteria('FILENAME')
-  
-  @classmethod
-  def find_with_fnmatch(clazz, where,
-                        file_type = bf_file_type.FILE_OR_LINK,
-                        path_type = bf_path_type.BASENAME,
-                        match_type = bf_file_matcher_mode.ALL,
-                        min_depth = None,
-                        max_depth = None,
-                        follow_links = False,
-                        include_patterns = None,
-                        exclude_patterns = None,
-                        walk_dir_matcher = None,
-                        walk_dir_match_type = None):
-    matcher = None
-    if include_patterns or exclude_patterns:
-      matcher = bf_file_matcher()
-      for pattern in (include_patterns or []):
-        matcher.add_item_fnmatch(pattern, path_type = path_type)
-      for pattern in (exclude_patterns or []):
-        matcher.add_item_fnmatch(pattern, path_type = path_type, negate = True)
-    return clazz.find_with_options(where,
-                                   file_type = file_type,
-                                   match_type = match_type,
-                                   min_depth = min_depth,
-                                   max_depth = max_depth,
-                                   follow_links = follow_links,
-                                   file_matcher = matcher,
-                                   walk_dir_matcher = walk_dir_matcher,
-                                   walk_dir_match_type = walk_dir_match_type)
