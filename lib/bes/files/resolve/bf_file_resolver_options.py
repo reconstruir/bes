@@ -12,6 +12,7 @@ from ..match.bf_file_matcher import bf_cli_file_matcher
 from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
 
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria_bcli
+from ..bf_file_type import bf_cli_file_type
 
 from .bf_file_resolver_entry import bf_file_resolver_entry
 
@@ -23,6 +24,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
       bf_cli_file_finder_mode,
       bf_cli_file_matcher,
       bf_cli_file_matcher_mode,
+      bf_cli_file_type,
       bf_entry_sort_criteria_bcli,
     ]
 
@@ -35,6 +37,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
+                 file_type bf_file_type         default=FILE_OR_LINK
                  max_depth int
                  min_depth int
                 stop_after int

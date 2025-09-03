@@ -45,7 +45,7 @@ class bf_file_resolver(object):
                                             min_depth = self._options.min_depth,
                                             stop_after = self._options.stop_after,
                                             mode = bf_file_finder_mode.WITH_PROGRESS,
-                                            file_type = bf_file_type.FILE_OR_LINK,
+                                            file_type = self._options.file_type,
                                             entry_class = self._options.entry_class)
     finder = bf_file_finder(options = finder_options)
     for next_where in where:
