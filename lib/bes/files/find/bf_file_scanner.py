@@ -120,10 +120,16 @@ class bf_file_scanner(object):
     depth = entry.absolute_filename.count(os.sep) - where_sep_count
     if stats_dict:
       stats_dict['num_checked'] += 1
-      if entry.is_dir:
-        stats_dict['num_dirs_checked'] += 1
-      if entry.is_file:
-        stats_dict['num_files_checked'] += 1
+      try:
+        if entry.is_dir:
+          stats_dict['num_dirs_checked'] += 1
+      except FileNotFoundError as ex:
+        pass
+      try:
+        if entry.is_file:
+          stats_dict['num_files_checked'] += 1
+      except FileNotFoundError as ex:
+        pass
     if not self._options.depth_in_range(depth):
       return False
     if self._options.ignore_broken_links and entry.is_broken_link:
@@ -132,7 +138,7 @@ class bf_file_scanner(object):
       return False
     return True
     
-  def scan_with_stats(self, where):
+  def scan(self, where):
     stats_dict = {
       'num_checked': 0,
       'num_files_checked': 0,
@@ -153,12 +159,6 @@ class bf_file_scanner(object):
                                  stats_dict['depth'])
     return bf_file_scanner_result(entries, stats)
 
-  def scan(self, where):
-    result = bf_entry_list()
-    for entry in self.scan_gen(where):
-      result.append(entry)
-    return result
-  
   @classmethod
   def scan_with_options(clazz, where, **kwargs):
     options = bf_file_scanner_options(**kwargs)

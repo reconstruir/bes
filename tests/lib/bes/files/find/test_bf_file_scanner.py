@@ -27,7 +27,8 @@ class test_bf_file_scanner(unit_test):
     finder_options = bf_file_scanner_options(**options)
     tmp_dir = self._make_temp_content(items)
     f = bf_file_scanner(options = finder_options)
-    entries = f.scan(tmp_dir)
+    result = f.scan(tmp_dir)
+    entries = result.entries
 
     relative_filenames = entries.relative_filenames(False)
     absolute_filenames = entries.absolute_filenames(False)
@@ -40,29 +41,9 @@ class test_bf_file_scanner(unit_test):
                              absolute_filenames,
                              sorted_relative_filenames,
                              sorted_absolute_filenames,
-                             None)
-
-  def _scan_with_stats(self, items, **options):
-    finder_options = bf_file_scanner_options(**options)
-    tmp_dir = self._make_temp_content(items)
-    f = bf_file_scanner(options = finder_options)
-    result = f.scan_with_stats(tmp_dir)
-
-    relative_filenames = result.entries.relative_filenames(False)
-    absolute_filenames = result.entries.absolute_filenames(False)
-
-    sorted_relative_filenames = result.entries.relative_filenames(True)
-    sorted_absolute_filenames = result.entries.absolute_filenames(True)
-    
-    return self._scan_result(tmp_dir,
-                             result.entries,
-                             relative_filenames,
-                             absolute_filenames,
-                             sorted_relative_filenames,
-                             sorted_absolute_filenames,
                              result.stats)
-  
-  def test_find_with_no_options(self):
+
+  def test_scan_with_no_options(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -77,7 +58,7 @@ class test_bf_file_scanner(unit_test):
       'subdir/subberdir/baz.txt'
     ], self._scan(content).sorted_relative_filenames )
 
-  def test_find_absolute(self):
+  def test_scan_absolute(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -95,7 +76,7 @@ class test_bf_file_scanner(unit_test):
     expected = [ path.join(rv.tmp_dir, f) for f in expected_relative ]
     self.assert_filename_list_equal( expected, rv.sorted_absolute_filenames )
 
-  def test_find_with_files_only(self):
+  def test_scan_with_files_only(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -110,7 +91,7 @@ class test_bf_file_scanner(unit_test):
       'subdir/subberdir/baz.txt'
     ], self._scan(content, file_type = 'file').sorted_relative_filenames )
 
-  def test_find_with_dirs_only(self):
+  def test_scan_with_dirs_only(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -124,7 +105,7 @@ class test_bf_file_scanner(unit_test):
       'subdir/subberdir',
     ], self._scan(content, file_type = 'dir').sorted_relative_filenames )
 
-  def test_find_with_max_depth(self):
+  def test_scan_with_max_depth(self):
     self.maxDiff = None
     content = [
       'file 1a.f',
@@ -180,7 +161,7 @@ class test_bf_file_scanner(unit_test):
       '1.d/2.d/3.d/4.d/5b.f',
     ]), self._scan(content, max_depth = 5).sorted_relative_filenames )
 
-  def test_find_with_min_depth(self):
+  def test_scan_with_min_depth(self):
     self.maxDiff = None
     content = [
       'file 1a.f',
@@ -237,7 +218,7 @@ class test_bf_file_scanner(unit_test):
     ]), self._scan(content, min_depth = 5).sorted_relative_filenames )
     self.assert_filename_list_equal( sorted([]), self._scan(content, min_depth = 6).sorted_relative_filenames )
 
-  def test_find_with_min_and_max_depth(self):
+  def test_scan_with_min_and_max_depth(self):
     self.maxDiff = None
     content = [
       'file 1a.f',
@@ -273,7 +254,7 @@ class test_bf_file_scanner(unit_test):
       '1b.f',
     ]), self._scan(content, min_depth = 1, max_depth = 1).sorted_relative_filenames )
 
-  def test_find_with_broken_symlink(self):
+  def test_scan_with_broken_symlink(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
@@ -290,7 +271,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content).sorted_relative_filenames )
 
-  def test_find_with_broken_symlink_without_ignore_broken_links(self):
+  def test_scan_with_broken_symlink_without_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
@@ -308,7 +289,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content, ignore_broken_links = False).sorted_relative_filenames )
 
-  def test_find_with_broken_symlink_with_ignore_broken_links(self):
+  def test_scan_with_broken_symlink_with_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
@@ -325,7 +306,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content, ignore_broken_links = True).sorted_relative_filenames )
     
-  def test_find_with_stop_after(self):
+  def test_scan_with_stop_after(self):
     content = [
       'file a/kiwi.txt',
       'file b/kiwi.txt',
@@ -335,7 +316,7 @@ class test_bf_file_scanner(unit_test):
       'a/kiwi.txt',
     ], self._scan(content, stop_after = 1).sorted_relative_filenames )
 
-  def test_find_with_multiple_dirs(self):
+  def test_scan_with_multiple_dirs(self):
     content = [
       'file 1/a/fruit/kiwi.fruit',
       'file 1/a/fruit/lemon.fruit',
@@ -358,12 +339,12 @@ class test_bf_file_scanner(unit_test):
     ]
     tmp_dir = self._make_temp_content(content)
     f = bf_file_scanner()
-    entries = f.scan([
+    result = f.scan([
       path.join(tmp_dir, '1'),
       path.join(tmp_dir, '2'),
       path.join(tmp_dir, '3'),
     ])
-    actual = entries.relative_filenames(True)
+    actual = result.entries.relative_filenames(True)
     self.assert_filename_list_equal( [
       'a/cheese/brie.cheese',
       'a/cheese/cheddar.cheese',
@@ -385,7 +366,7 @@ class test_bf_file_scanner(unit_test):
       'c/fruit/strawberry.fruit',
     ], actual )
     
-  def test_find_with_stats_file_only(self):
+  def test_scan_with_stats_file_only(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -396,8 +377,7 @@ class test_bf_file_scanner(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    result = self._scan_with_stats(content,
-                                   file_type = 'FILE')
+    result = self._scan(content, file_type = 'FILE')
     self.assert_filename_list_equal( [
       '.git/HEAD',
       '.git/config',
@@ -413,7 +393,7 @@ class test_bf_file_scanner(unit_test):
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
 
-  def test_find_with_stats_file_only_with_dir_walk_matcher(self):
+  def test_scan_with_stats_file_only_with_dir_walk_matcher(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -429,10 +409,10 @@ class test_bf_file_scanner(unit_test):
                                       file_type = 'dir',
                                       path_type = 'basename',
                                       negate = True)
-    result = self._scan_with_stats(content,
-                                   file_type = 'FILE',
-                                   walk_dir_matcher = walk_dir_matcher,
-                                   walk_dir_match_type = 'all')
+    result = self._scan(content,
+                        file_type = 'FILE',
+                        walk_dir_matcher = walk_dir_matcher,
+                        walk_dir_match_type = 'all')
     self.assert_filename_list_equal( [
       'a/b/c/foo.txt',
       'd/e/bar.txt',
@@ -443,7 +423,7 @@ class test_bf_file_scanner(unit_test):
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
     
-  def xtest_find_with_stats_dir_only(self):
+  def xtest_scan_with_stats_dir_only(self):
     content = [
       'file .git/HEAD "x"',
       'file .git/config "x"',
@@ -454,9 +434,9 @@ class test_bf_file_scanner(unit_test):
       'file a/b/c/foo.txt "x"',
       'file d/e/bar.txt "x"',
     ]
-    result = self._scan_with_stats(content,
-                                   file_type = 'DIR',
-                                   match_type = 'all')
+    result = self._scan(content,
+                        file_type = 'DIR',
+                        match_type = 'all')
     self.assert_filename_list_equal( [
       '.git',
       '.git/hooks',
@@ -472,7 +452,7 @@ class test_bf_file_scanner(unit_test):
     self.assertEqual( 0, result.stats.num_dirs_checked )
     self.assertEqual( 3, result.stats.depth )
 
-  def test_find_with_custom_entry_type(self):
+  def test_scan_with_custom_entry_type(self):
     class _test_bf_entry(bf_entry):
       pass
     content = [
@@ -484,7 +464,7 @@ class test_bf_file_scanner(unit_test):
     ], result.sorted_relative_filenames )
     self.assertEqual( type(result.entries[0]), _test_bf_entry )
 
-  def test_find_with_ignore_filenames(self):
+  def test_scan_with_ignore_filenames(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
