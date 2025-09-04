@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from os import path
+
+from bes.testing.program_unit_test import program_unit_test
+
+class test_bf_file_resolver_cli(program_unit_test):
+
+  _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'bat2.py')
+
+  def test_set_get(self):
+    tmp = self.make_temp_file(suffix = '.secret')
+    args = [
+      'bf_file_resolver',
+      '--password', 'idunno',
+      'set',
+      tmp,
+      'global',
+      'username', 'fred',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    args = [
+      'bf_file_resolver',
+      '--password', 'idunno',
+      'get',
+      tmp,
+      'global',
+      'username',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual('fred', rv.output.strip())
+    
+if __name__ == '__main__':
+  program_unit_test.main()
