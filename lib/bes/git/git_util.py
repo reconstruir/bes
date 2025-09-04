@@ -37,7 +37,7 @@ class git_util(object):
     matcher.add_item_fnmatch('.git', path_type = 'basename')
     options = bf_file_finder_options(file_type = 'dir', file_matcher = matcher)
     finder = bf_file_finder(options = options)
-    result = finder.find(dirs).absolute_filenames()
+    result = finder.find(dirs).entries.absolute_filenames()
     result = [ file_util.remove_tail(d, '.git') for d in result ]
     return sorted(result)
   
