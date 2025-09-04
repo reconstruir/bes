@@ -9,6 +9,7 @@ class bf_file_type(checked_int_flag_enum):
   DIR = 0x04
   LINK = 0x08
   DEVICE = 0x10
+  SOCKET = 0x20
   ANY = FILE | DIR | LINK | DEVICE
   FILE_OR_LINK = FILE | LINK
   FILE_OR_DIR = FILE | DIR

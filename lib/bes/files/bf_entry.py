@@ -239,6 +239,10 @@ class bf_entry(object):
     return self.is_block_device or self.is_char_device
 
   @property
+  def is_socket(self):
+    return stat.S_ISSOCK(self.stat.st_mode)
+  
+  @property
   def file_type(self):
     if self.is_link:
       return bf_file_type.LINK
@@ -248,6 +252,10 @@ class bf_entry(object):
       return bf_file_type.DIR
     elif self.is_device:
       return bf_file_type.DEVICE
+    elif self.is_device:
+      return bf_file_type.DEVICE
+    elif self.is_socket:
+      return bf_file_type.SOCKET
     raise bf_error(f'unexpected file type: "{self.filename}"')
 
   def file_type_matches(self, mask):
