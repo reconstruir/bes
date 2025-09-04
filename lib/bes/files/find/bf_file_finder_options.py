@@ -51,14 +51,15 @@ class bf_file_finder_options(bf_file_scanner_options):
       return True
     return self.file_matcher.match(entry, self.match_type)
     
-  def call_progress_callback(self, state, index, total):
+  def call_progress_callback(self, state, entry = None, index = None, total = None):
     state = check.check_bf_file_finder_progress_state(state)
+    check.check_bf_entry(entry, allow_none = True)
     check.check_int(index, allow_none = True)
     check.check_int(total, allow_none = True)
     
     if not self.progress_callback:
       return
-    progress = bf_file_finder_progress(state, index, total)
+    progress = bf_file_finder_progress(state, entry, index, total)
     self.progress_callback(progress)
     
 bf_file_finder_options.register_check_class()

@@ -6,12 +6,15 @@ import typing
 from bes.data_classes.bdata_class_base import bdata_class_base
 from bes.system.check import check
 
+from ..bf_entry import bf_entry
+
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
 from .bf_file_finder_error import bf_file_finder_error
 
 @dataclasses.dataclass
 class bf_file_finder_progress(bdata_class_base):
   state: typing.Union[bf_file_finder_progress_state, str]
+  entry: typing.Optional[bf_entry] = None
   index: typing.Optional[int] = None
   total: typing.Optional[int] = None
 
@@ -19,6 +22,7 @@ class bf_file_finder_progress(bdata_class_base):
     self.state = check.check_bf_file_finder_progress_state(self.state)
 
   def to_json_dict_hook(self, d):
+    d['entry'] = self.entry.filename if self.entry else None
     d['state'] = self.field_to_enum_value(self.state)
     return d
     

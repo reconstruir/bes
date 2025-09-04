@@ -52,7 +52,7 @@ class bf_file_finder(object):
   def _find_gen_mode_with_progress(self, where, stats_dict):
     scanner = bf_file_scanner(options = self._options)
 
-    self._options.call_progress_callback(bf_file_finder_progress_state.SCANNING, None, None)
+    self._options.call_progress_callback(bf_file_finder_progress_state.SCANNING)
     entries = []
     for next_entry in scanner._scan_gen_with_stats(where, stats_dict):
       if self._options.found_callback:
@@ -61,13 +61,14 @@ class bf_file_finder(object):
         
     for index, next_entry in enumerate(entries, start = 1):
       self._options.call_progress_callback(bf_file_finder_progress_state.FINDING,
-                                          index,
-                                          len(entries))
+                                           next_entry,
+                                           index,
+                                           len(entries))
       if not self._options.file_matcher_matches(next_entry):
         continue
       yield next_entry
 
-    self._options.call_progress_callback(bf_file_finder_progress_state.FINISHED, None, None)
+    self._options.call_progress_callback(bf_file_finder_progress_state.FINISHED)
       
   def find(self, where):
     stats_dict = {

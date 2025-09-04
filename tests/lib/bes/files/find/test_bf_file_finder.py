@@ -877,53 +877,64 @@ class test_bf_file_finder(unit_test):
     dicts = [ item.to_dict() for item in progress_items ]
     json = json_util.to_json(dicts)
 
+    json = json.replace(tmp_dir, '${tmp_dir}')
+    
     self.assert_json_equal( '''
 [
-  {
-    "state": "scanning",
-    "index": null,
-    "total": null
-  },
-  {
-    "state": "finding",
-    "index": 1,
-    "total": 7
-  },
-  {
-    "state": "finding",
-    "index": 2,
-    "total": 7
-  },
-  {
-    "state": "finding",
-    "index": 3,
-    "total": 7
-  },
-  {
-    "state": "finding",
-    "index": 4,
-    "total": 7
-  },
-  {
-    "state": "finding",
-    "index": 5,
-    "total": 7
-  },
-  {
-    "state": "finding",
-    "index": 6,
-    "total": 7
-  },
-  {
-    "state": "finding",
-    "index": 7,
-    "total": 7
-  },
-  {
-    "state": "finished",
-    "index": null,
-    "total": null
-  }
+    {
+      "state": "scanning",
+      "entry": null,
+      "index": null,
+      "total": null
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/1/a/fruit/kiwi.fruit",
+      "index": 1,
+      "total": 7
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/1/a/fruit/lemon.fruit",
+      "index": 2,
+      "total": 7
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/2/b/fruit/kiwi.fruit",
+      "index": 3,
+      "total": 7
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/2/b/fruit/lemon.fruit",
+      "index": 4,
+      "total": 7
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/2/b/fruit/strawberry.fruit",
+      "index": 5,
+      "total": 7
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/3/c/fruit/kiwi.fruit",
+      "index": 6,
+      "total": 7
+    },
+    {
+      "state": "finding",
+      "entry": "${tmp_dir}/3/c/fruit/lemon.fruit",
+      "index": 7,
+      "total": 7
+    },
+    {
+      "state": "finished",
+      "entry": null,
+      "index": null,
+      "total": null
+    }
 ]
 ''', json )
     
