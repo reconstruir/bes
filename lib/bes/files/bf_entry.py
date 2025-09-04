@@ -170,7 +170,7 @@ class bf_entry(object):
 
   @property
   def is_executable(self):
-    return os.access(self.filename, os.F_OK)
+    return os.access(self.filename, os.X_OK)
   
   _access_result = namedtuple('_access_result', 'exists, can_read, can_write, can_execute')
   @property
