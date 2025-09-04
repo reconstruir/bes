@@ -31,8 +31,6 @@ class bf_file_resolver_command_factory(bcli_command_factory_i):
   #@abstractmethod
   def add_commands(self, subparsers):
     p = subparsers.add_parser('files', help = 'Resolve files.')
-    p.add_argument('where', action = 'store', default = None,
-                   help = 'A mix of files and dirs where to resolve files.')
     p.add_argument('-name',
                    action = 'store',
                    default = None,
@@ -68,6 +66,8 @@ class bf_file_resolver_command_factory(bcli_command_factory_i):
 #                   action = 'store_true',
 #                   default = True,
 #                   help = 'Print the files found. [ True ]')
+    p.add_argument('where', action = 'store', default = [], nargs = '+',
+                   help = 'A mix of files and dirs where to resolve files.')
     
   #@abstractmethod
   def add_arguments(self, parser):

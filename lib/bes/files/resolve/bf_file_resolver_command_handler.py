@@ -15,30 +15,17 @@ class bf_file_resolver_command_handler(bcli_command_handler):
   def name(self):
     return 'bf_file_resolver'
   
-  def _command_set(self, filename, domain, key, value, options):
-    check.check_string(filename)
-    check.check_string(domain)
-    check.check_string(key)
-    check.check_string(value)
+  def _command_files(self, where, options):
+    check.check_string_seq(where)
     check.check_bf_file_resolver_cli_options(options)
 
-    password = options.resolve_password()
+    def _progress_cb(progress):
+      print(progress)
 
-    print(f'filename={filename}')
-    sv = bf_file_resolver(filename)
-    sv.set_string(domain, key, value, password = options.password)
+    resolver_options = options.file_resolver_options.clone()
+    resolver_options.progress_callback = _progress_cb
+      
+    resolver = bf_file_resolver(options = resolver_options)
+    result = resolver.resolve(where)
+    print(result)
     return 0
-
-  def _command_get(self, filename, domain, key, options):
-    check.check_string(filename)
-    check.check_string(domain)
-    check.check_string(key)
-    check.check_bf_file_resolver_cli_options(options)
-
-    password = options.resolve_password()
-    
-    sv = bf_file_resolver(filename)
-    value = sv.get_string(domain, key, password = options.password)
-    print(value)
-    return 0
-  
