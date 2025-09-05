@@ -20,12 +20,14 @@ class bf_file_resolver_command_handler(bcli_command_handler):
     check.check_bf_file_resolver_cli_options(options)
 
     def _progress_cb(progress):
-      print(progress)
+      if progress.state == 'finding':
+        self.blurb(f'{progress.index} of {progress.total}: {progress.entry.filename}')
 
     resolver_options = options.file_resolver_options.clone()
     resolver_options.progress_callback = _progress_cb
       
     resolver = bf_file_resolver(options = resolver_options)
-    result = resolver.resolve(where)
-    print(result)
+    entries = resolver.resolve(where)
+    for entry in entries:
+      print(entry.filename)
     return 0
