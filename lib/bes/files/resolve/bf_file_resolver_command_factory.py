@@ -31,41 +31,18 @@ class bf_file_resolver_command_factory(bcli_command_factory_i):
   #@abstractmethod
   def add_commands(self, subparsers):
     p = subparsers.add_parser('files', help = 'Resolve files.')
-    p.add_argument('-name',
-                   action = 'store',
-                   default = None,
+    p.add_argument('--name', action = 'store', default = None,
                    help = 'Name to resolve [ None ]')
-    p.add_argument('-type',
-                   '-t',
-                   dest = 'file_type',
-                   action = 'store',
-                   default = 'FILE_OR_LINK',
+    p.add_argument('--type', '-t', dest = 'file_type', action = 'store', default = 'FILE_OR_LINK',
                    help = 'Type if file to resolve [ None ]')
-    p.add_argument('-mindepth',
-                   action = 'store',
-                   dest = 'min_depth',
-                   default = None,
-                   type = int,
+    p.add_argument('--mindepth', action = 'store', dest = 'min_depth', default = None, type = int,
                    help = 'Min depth [ None ]')
-    p.add_argument('-maxdepth',
-                   action = 'store',
-                   dest = 'max_depth',
-                   default = None,
-                   type = int,
+    p.add_argument('--maxdepth', action = 'store', dest = 'max_depth', default = None, type = int,
                    help = 'Max depth [ None ]')
-    p.add_argument('-quiet',
-                   '-q',
-                   action = 'store_true',
-                   default = False,
+    p.add_argument('--quiet', '-q', action = 'store_true', default = False,
                    help = 'Run quietly.  Do not print out filenames [ False ]')
-    p.add_argument('-quit',
-                   action = 'store_true',
-                   default = False,
-                   help = 'Quit after resolveing a criteria match. [ False ]')
-#    p.add_argument('-print',
-#                   action = 'store_true',
-#                   default = True,
-#                   help = 'Print the files found. [ True ]')
+    p.add_argument('--stop-at', action = 'store', default = None, type = int,
+                   help = 'Stop after resolving the given number of matches. [ None ]')
     p.add_argument('where', action = 'store', default = [], nargs = '+',
                    help = 'A mix of files and dirs where to resolve files.')
     
