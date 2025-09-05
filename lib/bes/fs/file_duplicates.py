@@ -6,7 +6,6 @@ import os.path as path
 from bes.fs.file_check import file_check
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item import file_resolver_item
-from bes.fs.file_resolver_item_list import file_resolver_item_list
 from bes.fs.file_resolver_options import file_resolver_options
 from bes.system.check import check
 from bes.system.log import logger
