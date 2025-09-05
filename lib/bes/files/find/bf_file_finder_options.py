@@ -32,7 +32,6 @@ class _bf_file_finder_options_desc(_bf_file_scanner_options_desc):
               file_matcher bf_file_matcher 
          progress_callback callable
  progress_interval_percent float                default=5.0
-            found_callback callable
                       mode bf_file_finder_mode  default=IMMEDIATE
 ''')
 

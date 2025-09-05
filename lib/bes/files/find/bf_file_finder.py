@@ -43,8 +43,6 @@ class bf_file_finder(object):
     scanner = bf_file_scanner(options = self._options)
 
     for next_entry in scanner._scan_gen_with_stats(where, stats_dict):
-      if self._options.found_callback:
-        self._options.found_callback(next_entry)
       if not self._options.file_matcher_matches(next_entry):
         continue
       yield next_entry
@@ -55,8 +53,6 @@ class bf_file_finder(object):
     self._options.call_progress_callback(bf_file_finder_progress_state.SCANNING)
     entries = []
     for next_entry in scanner._scan_gen_with_stats(where, stats_dict):
-      if self._options.found_callback:
-        self._options.found_callback(next_entry)
       entries.append(next_entry)
         
     for index, next_entry in enumerate(entries, start = 1):
