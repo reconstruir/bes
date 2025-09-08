@@ -1,0 +1,33 @@
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+import getpass
+
+from bes.system.check import check
+
+from bes.bcli.bcli_command_handler import bcli_command_handler
+
+from .bf_file_duplicates import bf_file_duplicates
+from .bf_file_duplicates_cli_options import bf_file_duplicates_cli_options
+
+class bf_file_duplicates_command_handler(bcli_command_handler):
+
+  #@abc.abstractmethod
+  def name(self):
+    return 'bf_file_duplicates'
+  
+  def _command_files(self, where, options):
+    check.check_string_seq(where)
+    check.check_bf_file_duplicates_cli_options(options)
+
+    def _progress_cb(progress):
+      if progress.state == 'finding':
+        self.blurb(f'{progress.index} of {progress.total}: {progress.entry.filename}')
+
+    resolver_options = options.file_duplicates_options.clone()
+    resolver_options.progress_callback = _progress_cb
+      
+    resolver = bf_file_duplicates(options = resolver_options)
+    entries = resolver.resolve(where)
+    for entry in entries:
+      print(entry.filename)
+    return 0
