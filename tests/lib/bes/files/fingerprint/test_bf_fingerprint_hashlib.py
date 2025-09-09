@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.testing.unit_test import unit_test
+from bes.files.fingerprint.bf_fingerprint_hashlib import bf_fingerprint_hashlib
+from bes.common.hash_util import hash_util
+
+class test_bf_fingerprint_hashlib(unit_test):
+
+  def test_checksum_sha256(self):
+    f = bf_fingerprint_hashlib()
+    content = 'this is kiwi'
+    tmp = self.make_temp_file(content = content)
+    actual = f.checksum_sha256(tmp)
+    self.assertEqual( hash_util.hash_string_sha256(content), actual )
+
+  def xtest_checksum_sha256_with_one_chunk(self):
+    content = 'this is kiwi'
+    tmp = self.make_temp_file(content = content)
+    actual = bf_checksum.checksum(tmp, 'sha256', chunk_size = 4, num_chunks = 1)
+    self.assertEqual( hash_util.hash_string_sha256('this'), actual )
+
+  def xtest_checksum_sha256_with_two_chunks(self):
+    content = 'this is kiwi'
+    tmp = self.make_temp_file(content = content)
+    actual = bf_checksum.checksum(tmp, 'sha256', chunk_size = 4, num_chunks = 2)
+    self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
+    
+if __name__ == '__main__':
+  unit_test.main()
