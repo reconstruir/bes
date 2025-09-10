@@ -14,16 +14,31 @@ class test_bf_fingerprint_hashlib(unit_test):
     actual = f.checksum_sha256(tmp)
     self.assertEqual( hash_util.hash_string_sha256(content), actual )
 
-  def xtest_checksum_sha256_with_one_chunk(self):
+  def test_checksum_md5(self):
+    f = bf_fingerprint_hashlib()
     content = 'this is kiwi'
     tmp = self.make_temp_file(content = content)
-    actual = bf_checksum.checksum(tmp, 'sha256', chunk_size = 4, num_chunks = 1)
+    actual = f.checksum_md5(tmp)
+    self.assertEqual( hash_util.hash_string_md5(content), actual )
+
+  def test_checksum_sha512(self):
+    f = bf_fingerprint_hashlib()
+    content = 'this is kiwi'
+    tmp = self.make_temp_file(content = content)
+    actual = f.checksum_sha512(tmp)
+
+  def test_checksum_sha256_with_one_chunk(self):
+    f = bf_fingerprint_hashlib()
+    content = 'this is kiwi'
+    tmp = self.make_temp_file(content = content)
+    actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 1)
     self.assertEqual( hash_util.hash_string_sha256('this'), actual )
 
-  def xtest_checksum_sha256_with_two_chunks(self):
+  def test_checksum_sha256_with_two_chunks(self):
+    f = bf_fingerprint_hashlib()
     content = 'this is kiwi'
     tmp = self.make_temp_file(content = content)
-    actual = bf_checksum.checksum(tmp, 'sha256', chunk_size = 4, num_chunks = 2)
+    actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 2)
     self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
     
 if __name__ == '__main__':

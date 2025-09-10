@@ -15,12 +15,14 @@ class bf_fingerprint_hashlib(bf_fingerprint_base):
 
   #@abc.abstractmethod
   def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):
+    """Return checksum for filename using sha algorithm."""
     filename = bf_check.check_file(filename)
     check.check_string(algorithm)
     check.check_int(chunk_size, allow_none = True)
     check.check_int(num_chunks, allow_none = True)
     
     self._log.log_method_d()
+    
     chunk_size = chunk_size or (1024 * 1024)
     hasher = hashlib.new(algorithm)
     with open(filename, 'rb') as fin: 

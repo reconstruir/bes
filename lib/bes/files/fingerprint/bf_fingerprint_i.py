@@ -6,15 +6,5 @@ class bf_fingerprint_i(abc.ABC):
 
   @abc.abstractmethod
   def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):
-    """Return the sha256 checksum for filename using algorithm."""
+    """Return checksum for filename using sha algorithm."""
     raise NotImplementedError('checksum_sha')
-  
-  @abc.abstractmethod
-  def checksum_sha256(self, filename, chunk_size, num_chunks):
-    """Return the sha256 checksum for filename."""
-    raise NotImplementedError('checksum_sha256')
-
-  @abc.abstractmethod
-  def checksum_sha512(self, filename):
-    """Return the sha512 checksum for filename."""
-    raise NotImplementedError('checksum_sha512')
