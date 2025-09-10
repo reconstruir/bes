@@ -40,6 +40,34 @@ class test_bf_fingerprint_hashlib(unit_test):
     tmp = self.make_temp_file(content = content)
     actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 2)
     self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
+
+  def test_checksum_sha256_with_two_chunks(self):
+    f = bf_fingerprint_hashlib()
+    content = 'this is kiwi'
+    tmp = self.make_temp_file(content = content)
+    actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 2)
+    self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
+
+  def test_checksum_short_sha_matches_first_chunk(self):
+    f = bf_fingerprint_hashlib()
+    content = 'abcdefghij' * 200000  # make file > 2MB
+    tmp = self.make_temp_file(content = content)
+
+    # checksum_short_sha should equal checksum of first SHORT_CHECKSUM_SIZE bytes
+    first_part = content[:f.SHORT_CHECKSUM_SIZE]
+    expected = hash_util.hash_string_sha256(first_part)
+    actual = f.checksum_short_sha(tmp, 'sha256')
+    self.assertEqual( expected, actual )
+
+  def test_checksum_short_sha_small_file(self):
+    f = bf_fingerprint_hashlib()
+    content = 'tiny file'
+    tmp = self.make_temp_file(content = content)
+
+    # for small files, short checksum == full checksum
+    expected = hash_util.hash_string_sha256(content)
+    actual = f.checksum_short_sha(tmp, 'sha256')
+    self.assertEqual( expected, actual )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -31,3 +31,8 @@ class bf_fingerprint_hashlib(bf_fingerprint_base):
         if num_chunks == chunk_index:
           break
     return hasher.hexdigest()
+
+  #@abc.abstractmethod
+  def checksum_short_sha(self, filename, algorithm):
+    """Return a short checksum for filename using sha algorithm."""
+    return self.checksum_sha(filename, algorithm, self.SHORT_CHECKSUM_SIZE, 1)
