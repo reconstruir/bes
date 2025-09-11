@@ -2,15 +2,15 @@
 
 from collections import namedtuple
 
-from ..bcli.bcli_type_i import bcli_type_i
-from ..system.check import check
-from ..common.tuple_util import tuple_util
-from ..common.json_util import json_util
-from ..property.cached_property import cached_property
+from bes.bcli.bcli_type_i import bcli_type_i
+from bes.system.check import check
+from bes.common.tuple_util import tuple_util
+from bes.common.json_util import json_util
+from bes.property.cached_property import cached_property
 
-from .file_attributes_metadata import file_attributes_metadata
-from .file_duplicates_item_list import file_duplicates_item_list
-from .file_util import file_util
+#from .file_attributes_metadata import file_attributes_metadata
+#from .file_duplicates_item_list import file_duplicates_item_list
+#from .file_util import file_util
 
 class bf_file_duplicates_setup(namedtuple('bf_file_duplicates_setup', 'files, resolved_files, options')):
 

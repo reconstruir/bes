@@ -6,11 +6,11 @@ from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
 from bes.cli.cli_options import cli_options
-from ..system.check import check
+from bes.system.check import check
 from bes.common.time_util import time_util
 from bes.script.blurber import blurber
 
-from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
+from ..ignore.bf_file_ignore_options_mixin import bf_file_ignore_options_mixin
 
 from .bf_file_duplicates_setup import bf_file_duplicates_setup
 from .bf_file_duplicates_setup import cli_bf_file_duplicates_setup
@@ -19,7 +19,7 @@ from .files_cli_options import files_cli_options
 from .files_cli_options import _files_cli_options_desc
 from .bf_file_duplicates_defaults import bf_file_duplicates_defaults
 
-class _file_duplicates_options_desc(_files_cli_options_desc):
+class _bf_file_duplicates_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
@@ -43,12 +43,12 @@ include_empty_files bool                   default={bf_file_duplicates_defaults.
   #@abstractmethod
   def _variables(self):
     return self.combine_variables(super()._variables(), {
-      '_default_sort_key': lambda: file_duplicates_options.mtime_sort_key,
+      '_default_sort_key': lambda: bf_file_duplicates_options.mtime_sort_key,
     })
   
-class file_duplicates_options(bcli_options, file_ignore_options_mixin):
+class bf_file_duplicates_options(bcli_options, bf_file_ignore_options_mixin):
   def __init__(self, **kwargs):
-    super().__init__(_file_duplicates_options_desc(), **kwargs)
+    super().__init__(_bf_file_duplicates_options_desc(), **kwargs)
 
   @staticmethod
   def sort_key_modification_date(filename):
@@ -60,8 +60,8 @@ class file_duplicates_options(bcli_options, file_ignore_options_mixin):
 
   @staticmethod
   def mtime_sort_key(filename):
-    mtime = file_duplicates_options.sort_key_modification_date(filename)
-    length = file_duplicates_options.sort_key_basename_length(filename)
+    mtime = bf_file_duplicates_options.sort_key_modification_date(filename)
+    length = bf_file_duplicates_options.sort_key_basename_length(filename)
     return ( mtime, length )
 
-file_duplicates_options.register_check_class()
+bf_file_duplicates_options.register_check_class()

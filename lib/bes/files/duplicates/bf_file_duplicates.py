@@ -3,18 +3,21 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.fs.file_check import file_check
-from bes.fs.file_duplicates import file_duplicates
-from bes.fs.file_duplicates_item import file_duplicates_item
-from bes.fs.file_duplicates_options import file_duplicates_options
+from ..bf_check import bf_check
+#from bes.fs.bf_check import bf_check
+#from bes.fs.file_duplicates import file_duplicates
+#from bes.fs.file_duplicates_item import file_duplicates_item
+#from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.system.check import check
 from bes.system.log import logger
 
-from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
-from .file_duplicates_options import file_duplicates_options
-from .bf_file_duplicates_setup import bf_file_duplicates_setup
-from .file_util import file_util
+#from .file_attributes_metadata import file_attributes_metadata
+#from .bf_check import bf_check
+#from .file_duplicates_options import file_duplicates_options
+#from .bf_file_duplicates_setup import bf_file_duplicates_setup
+#from .file_util import file_util
+
+from .bf_file_duplicates_options import bf_file_duplicates_options
 
 class bf_file_duplicates(object):
   'A class to find duplicate files'
@@ -26,9 +29,9 @@ class bf_file_duplicates(object):
   @classmethod
   def find_duplicates(clazz, where, options = None):
     check.check_string_seq(where)
-    check.check_file_duplicates_options(options, allow_none = True)
+    check.check_bf_file_duplicates_options(options, allow_none = True)
 
-    options = options or file_duplicates_options()
+    options = options or bf_file_duplicates_options()
     setup = clazz.setup(where, options = options)
     return clazz.find_duplicates_with_setup(setup)
 
@@ -59,9 +62,9 @@ class bf_file_duplicates(object):
   @classmethod
   def setup(clazz, where, options = None, blurber = None):
     check.check_string_seq(where)
-    check.check_file_duplicates_options(options, allow_none = True)
+    check.check_bf_file_duplicates_options(options, allow_none = True)
 
-    options = options or file_duplicates_options()
+    options = options or bf_file_duplicates_options()
     resolved_files = clazz._resolve_files(where, options)
     if blurber:
       blurber.blurb_verbose(f'resolved {len(resolved_files)} files')
@@ -69,17 +72,17 @@ class bf_file_duplicates(object):
     
   @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string_seq(where)
-    check.check_file_duplicates_options(options, allow_none = True)
+    check.check_bf_file_duplicates_options(options, allow_none = True)
 
-    options = options or file_duplicates_options()
+    options = options or bf_file_duplicates_options()
     setup = clazz.setup(where, options = options)
     return clazz.find_file_duplicates_with_setup(filename, setup)
 
   @classmethod
   def find_file_duplicates_with_setup(clazz, filename, setup):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_bf_file_duplicates_setup(setup)
 
     resolved_one_file = clazz._resolve_one_file(filename)
@@ -141,9 +144,9 @@ class bf_file_duplicates(object):
   @classmethod
   def _resolve_files(clazz, files, options):
     match_function = lambda filename: clazz._match_function(filename, options)
-    resolver_options = file_duplicates_options(recursive = options.recursive,
-                                               match_basename = False,
-                                               match_function = match_function)
+    resolver_options = bf_file_duplicates_options(recursive = options.recursive,
+                                                  match_basename = False,
+                                                  match_function = match_function)
     return file_duplicates.resolve_files(files, options = resolver_options)
 
   @classmethod
