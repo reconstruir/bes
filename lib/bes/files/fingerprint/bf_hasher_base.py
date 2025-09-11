@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from .bf_fingerprint_i import bf_fingerprint_i
+from .bf_hasher_i import bf_hasher_i
 
-class bf_fingerprint_base(bf_fingerprint_i):
+class bf_hasher_base(bf_hasher_i):
   
   def checksum_sha256(self, filename, chunk_size = None, num_chunks = None):
     """Return the sha256 checksum for filename."""

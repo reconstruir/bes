@@ -7,9 +7,9 @@ from bes.system.log import logger
 
 from ..bf_check import bf_check
 
-from .bf_fingerprint_base import bf_fingerprint_base
+from .bf_hasher_base import bf_hasher_base
 
-class bf_fingerprint_hashlib(bf_fingerprint_base):
+class bf_hasher_hashlib(bf_hasher_base):
 
   _log = logger('bf_fingerprint')
 

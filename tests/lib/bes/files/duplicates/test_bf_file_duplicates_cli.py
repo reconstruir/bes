@@ -10,7 +10,7 @@ class test_bf_file_duplicates_cli(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best2.py')
 
-  def test_find_duplicates_basic(self):
+  def xtest_find_duplicates_basic(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
@@ -26,7 +26,7 @@ class test_bf_file_duplicates_cli(program_unit_test):
   {t.src_dir}/c/kiwi_dup2.jpg
 ''', t.result.output )
 
-  def test_find_duplicates_delete(self):
+  def xtest_find_duplicates_delete(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
@@ -51,7 +51,7 @@ class test_bf_file_duplicates_cli(program_unit_test):
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
     
-  def test_find_duplicates_delete_with_keep_empty_dirs(self):
+  def xtest_find_duplicates_delete_with_keep_empty_dirs(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),

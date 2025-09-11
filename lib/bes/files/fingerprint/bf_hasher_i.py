@@ -4,7 +4,7 @@ import abc
 
 from bes.system.check import check
 
-class bf_fingerprint_i(abc.ABC):
+class bf_hasher_i(abc.ABC):
 
   @abc.abstractmethod
   def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):
@@ -18,4 +18,4 @@ class bf_fingerprint_i(abc.ABC):
     """Return a short checksum for filename using sha algorithm."""
     raise NotImplementedError('checksum_short_sha')
 
-check.register_class(bf_fingerprint_i, name = 'bf_fingerprint', include_seq = False)
+check.register_class(bf_hasher_i, name = 'bf_fingerprint', include_seq = False)
