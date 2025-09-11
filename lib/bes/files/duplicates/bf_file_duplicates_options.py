@@ -10,13 +10,14 @@ from bes.system.check import check
 from bes.common.time_util import time_util
 from bes.script.blurber import blurber
 
+from bes.fs.files_cli_options import files_cli_options
+from bes.fs.files_cli_options import _files_cli_options_desc
+
 from ..ignore.bf_file_ignore_options_mixin import bf_file_ignore_options_mixin
 
 from .bf_file_duplicates_setup import bf_file_duplicates_setup
 from .bf_file_duplicates_setup import cli_bf_file_duplicates_setup
-from .file_util import file_util
-from .files_cli_options import files_cli_options
-from .files_cli_options import _files_cli_options_desc
+#from .file_util import file_util
 from .bf_file_duplicates_defaults import bf_file_duplicates_defaults
 
 class _bf_file_duplicates_options_desc(_files_cli_options_desc):

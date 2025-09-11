@@ -11,7 +11,7 @@ from .bf_hasher_base import bf_hasher_base
 
 class bf_hasher_hashlib(bf_hasher_base):
 
-  _log = logger('bf_fingerprint')
+  _log = logger('bf_hasher')
 
   #@abc.abstractmethod
   def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):

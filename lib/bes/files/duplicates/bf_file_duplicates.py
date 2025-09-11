@@ -147,7 +147,7 @@ class bf_file_duplicates(object):
     resolver_options = bf_file_duplicates_options(recursive = options.recursive,
                                                   match_basename = False,
                                                   match_function = match_function)
-    return file_duplicates.resolve_files(files, options = resolver_options)
+    return file_resolver.resolve_files(files, options = resolver_options)
 
   @classmethod
   def _resolve_one_file(clazz, filename):
