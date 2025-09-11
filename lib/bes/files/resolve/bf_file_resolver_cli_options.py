@@ -26,6 +26,7 @@ class _bf_file_resolver_cli_options_desc(bcli_options_desc):
   verbose  bool         default=False
     debug  bool         default=False
     quiet  bool         default=False
+  dry_run  bool         default=False
   stop_at  bool         default=False
      name  str
 file_type  bf_file_type default=FILE_OR_LINK

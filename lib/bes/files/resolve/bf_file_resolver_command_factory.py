@@ -32,6 +32,8 @@ class bf_file_resolver_command_factory(bcli_command_factory_base):
   def add_commands(self, subparsers):
     default_file_type = self.default('file_type')
     default_sort_order = self.default('sort_order')
+    default_min_depth = self.default('min_depth')
+    default_max_depth = self.default('max_depth')
     
     p = subparsers.add_parser('files', help = 'Resolve files.')
     p.add_argument('--name', action = 'store', default = None,
@@ -43,10 +45,11 @@ class bf_file_resolver_command_factory(bcli_command_factory_base):
                    default = default_sort_order, choices = default_sort_order.choices,
                    help = f'Sort order for resulting resolved files [ {default_sort_order.name} ]')
     p.add_argument('--mindepth', action = 'store', dest = 'min_depth',
-                   default = None, type = int, 
-                   help = 'Min depth [ None ]')
-    p.add_argument('--maxdepth', action = 'store', dest = 'max_depth', default = None, type = int,
-                   help = 'Max depth [ None ]')
+                   default = default_min_depth, type = int, 
+                   help = f'Min depth [ {default_min_depth} ]')
+    p.add_argument('--maxdepth', action = 'store', dest = 'max_depth',
+                   default = default_max_depth, type = int,
+                   help = f'Max depth [ {default_max_depth} ]')
     p.add_argument('--quiet', '-q', action = 'store_true', default = False,
                    help = 'Run quietly.  Do not print out filenames [ False ]')
     p.add_argument('--stop-at', action = 'store', default = None, type = int,
@@ -59,6 +62,8 @@ class bf_file_resolver_command_factory(bcli_command_factory_base):
     parser.add_argument('-v', '--verbose', action = 'store_true',
                         default = False, help = 'Verbose output')
     parser.add_argument('--debug', action = 'store_true',
+                        default = False, help = 'Debug mode')
+    parser.add_argument('--dry-run', action = 'store_true',
                         default = False, help = 'Debug mode')
 
   #@abstractmethod

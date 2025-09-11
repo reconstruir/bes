@@ -7,7 +7,7 @@ class bf_file_duplicates_command_factory(bcli_command_factory_i):
   @classmethod
   #@abstractmethod
   def path(clazz):
-    return 'resolve'
+    return 'files/dups'
 
   @classmethod
   #@abstractmethod
@@ -30,7 +30,7 @@ class bf_file_duplicates_command_factory(bcli_command_factory_i):
   
   #@abstractmethod
   def add_commands(self, subparsers):
-    p = subparsers.add_parser('where', help = 'Find duplictes in these files and/or directions.')
+    p = subparsers.add_parser('find', help = 'Find duplictes in these files and/or directions.')
     p.add_argument('--name', action = 'store', default = None,
                    help = 'Name to resolve [ None ]')
     p.add_argument('--type', '-t', dest = 'file_type', action = 'store', default = 'FILE_OR_LINK',
