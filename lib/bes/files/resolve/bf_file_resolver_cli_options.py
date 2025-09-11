@@ -4,7 +4,7 @@ import getpass
 
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
-from bes.credentials.credentials import credentials
+from ..bf_entry_sort_criteria import bf_entry_sort_criteria_bcli
 
 from ..bf_file_type import bf_cli_file_type
 
@@ -17,6 +17,7 @@ class _bf_file_resolver_cli_options_desc(bcli_options_desc):
   def _types(self):
     return [
       bf_cli_file_type,
+      bf_entry_sort_criteria_bcli,
     ]
   
   #@abstractmethod
@@ -31,6 +32,7 @@ file_type  bf_file_type default=FILE_OR_LINK
 max_depth  int
 min_depth  int
 stop_after int
+sort_order bf_entry_sort_criteria  default=FILENAME
 '''
 
   #@abstractmethod

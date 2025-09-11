@@ -1,51 +1,43 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from abc import abstractmethod
-from abc import ABC
+import abc
 
-from ..system.check import check
-from ..system.log import logger
-
-class bcli_command_factory_i(ABC):
-
-  _log = logger('bcli')
+class bcli_command_factory_i(abc.ABC):
 
   @classmethod
-  @abstractmethod
+  @abc.abstractmethod
   def path(clazz):
     raise NotImplementedError(f'path')
 
   @classmethod
-  @abstractmethod
+  @abc.abstractmethod
   def description(clazz):
     raise NotImplementedError(f'description')
   
-  @abstractmethod
+  @abc.abstractmethod
   def error_class(self):
     raise NotImplementedError(f'error_class')
 
-  @abstractmethod
+  @abc.abstractmethod
   def options_class(self):
     raise NotImplementedError(f'options_class')
   
-  @abstractmethod
+  @abc.abstractmethod
   def has_commands(self):
     raise NotImplementedError(f'has_commands')
   
-  @abstractmethod
+  @abc.abstractmethod
   def add_commands(self, subparsers):
     raise NotImplementedError(f'add_commands')
 
-  @abstractmethod
+  @abc.abstractmethod
   def add_arguments(self, parser):
     raise NotImplementedError(f'add_arguments')
 
-  @abstractmethod
+  @abc.abstractmethod
   def handler_class(self):
     raise NotImplementedError(f'handler_class')
 
-  @abstractmethod
+  @abc.abstractmethod
   def supported_platforms(self):
     raise NotImplementedError(f'supported_platforms')
-  
-check.register_class(bcli_command_factory_i, name = 'bcli_parser_factory', include_seq = False)

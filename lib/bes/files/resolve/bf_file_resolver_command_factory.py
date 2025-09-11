@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
+from bes.bcli.bcli_command_factory_base import bcli_command_factory_base
 
-class bf_file_resolver_command_factory(bcli_command_factory_i):
+class bf_file_resolver_command_factory(bcli_command_factory_base):
 
   @classmethod
   #@abstractmethod
@@ -30,12 +30,20 @@ class bf_file_resolver_command_factory(bcli_command_factory_i):
   
   #@abstractmethod
   def add_commands(self, subparsers):
+    default_file_type = self.default('file_type')
+    default_sort_order = self.default('sort_order')
+    
     p = subparsers.add_parser('files', help = 'Resolve files.')
     p.add_argument('--name', action = 'store', default = None,
                    help = 'Name to resolve [ None ]')
-    p.add_argument('--type', '-t', dest = 'file_type', action = 'store', default = 'FILE_OR_LINK',
+    p.add_argument('--type', '-t', dest = 'file_type', action = 'store',
+                   default = default_file_type, choices = default_file_type.choices,
                    help = 'Type if file to resolve [ None ]')
-    p.add_argument('--mindepth', action = 'store', dest = 'min_depth', default = None, type = int,
+    p.add_argument('--sort', '-s', dest = 'sort_order', action = 'store',
+                   default = default_sort_order, choices = default_sort_order.choices,
+                   help = f'Sort order for resulting resolved files [ {default_sort_order.name} ]')
+    p.add_argument('--mindepth', action = 'store', dest = 'min_depth',
+                   default = None, type = int, 
                    help = 'Min depth [ None ]')
     p.add_argument('--maxdepth', action = 'store', dest = 'max_depth', default = None, type = int,
                    help = 'Max depth [ None ]')

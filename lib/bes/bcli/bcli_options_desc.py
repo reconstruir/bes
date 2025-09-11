@@ -79,7 +79,7 @@ class bcli_options_desc(bcli_options_desc_i):
 
   def default(self, name):
     check.check_string(name)
-    
+
     assert self.has_option
     return self.items_dict[name].default
 

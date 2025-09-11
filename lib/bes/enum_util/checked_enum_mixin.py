@@ -51,6 +51,11 @@ class checked_enum_mixin:
     return set([ item.name.lower() for item in clazz ])
 
   @cached_class_property
+  def choices(clazz):
+    'Alias for argparser cli choices option.'
+    return clazz.names_lowercase
+  
+  @cached_class_property
   def name_to_item_dict(clazz):
     'Return a dict of names to items.'
     result = {}

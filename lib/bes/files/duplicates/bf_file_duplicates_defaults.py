@@ -4,4 +4,5 @@ class bf_file_duplicates_defaults:
 
   DELETE_EMPTY_DIRS = False
   INCLUDE_EMPTY_FILES = False
-  SMALL_CHECKSUM_SIZE = 1024 * 1024
+  INCLUDE_HARD_LINKS = False
+  INCLUDE_SOFT_LINKS = False

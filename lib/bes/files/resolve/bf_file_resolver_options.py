@@ -4,9 +4,7 @@ from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
 from bes.system.check import check
-from bes.property.cached_property import cached_property
 
-from ..find.bf_file_finder_options import _bf_file_finder_options_desc
 from ..find.bf_file_finder_mode import bf_cli_file_finder_mode
 from ..match.bf_file_matcher import bf_cli_file_matcher
 from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
@@ -37,18 +35,18 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-                 file_type bf_file_type         default=FILE_OR_LINK
+                 file_type bf_file_type            default=FILE_OR_LINK
                  max_depth int
                  min_depth int
                 stop_after int
           walk_dir_matcher bf_file_matcher 
-       walk_dir_match_type bf_file_matcher_mode   default=ANY
-                      mode bf_file_finder_mode    default=IMMEDIATE
-                sort_order bf_entry_sort_criteria default=FILENAME
-               entry_class type                   default=${_bf_file_resolver_entry_default_type}
+       walk_dir_match_type bf_file_matcher_mode    default=ANY
+                      mode bf_file_finder_mode     default=IMMEDIATE
+                sort_order bf_entry_sort_criteria  default=FILENAME
+               entry_class type                    default=${_bf_file_resolver_entry_default_type}
             match_function callable
          progress_callback callable
- progress_interval_percent float                  default=5.0
+ progress_interval_percent float                   default=5.0
 '''
   
   #@abstractmethod

@@ -18,7 +18,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_file_duplicates(unit_test):
 
-  def test_find_duplicates(self):
+  def test_find_duplicates_basic(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),

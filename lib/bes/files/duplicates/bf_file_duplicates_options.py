@@ -31,12 +31,13 @@ class _file_duplicates_options_desc(_files_cli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return self.combine_options_desc(super()._options_desc(), f'''
-small_checksum_size int                    default={bf_file_duplicates_defaults.SMALL_CHECKSUM_SIZE}
     prefer_prefixes list[str]
            sort_key callable               default=${{_default_sort_key}}
 include_empty_files bool                   default={bf_file_duplicates_defaults.INCLUDE_EMPTY_FILES}
         preparation bf_file_duplicates_setup
   delete_empty_dirs bool                   default={bf_file_duplicates_defaults.DELETE_EMPTY_DIRS}
+ include_hard_links bool                   default={bf_file_duplicates_defaults.INCLUDE_HARD_LINKS}
+ include_soft_links bool                   default={bf_file_duplicates_defaults.INCLUDE_SOFT_LINKS}
 ''')
 
   #@abstractmethod

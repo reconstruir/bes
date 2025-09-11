@@ -14,9 +14,9 @@ from ..bf_check import bf_check
 from ..bf_entry_list import bf_entry_list
 from ..bf_file_type import bf_file_type
 
-from ..find.bf_file_finder_options import bf_file_finder_options
 from ..find.bf_file_finder import bf_file_finder
 from ..find.bf_file_finder_mode import bf_file_finder_mode
+from ..find.bf_file_finder_options import bf_file_finder_options
 
 from .bf_file_resolver_entry import bf_file_resolver_entry
 from .bf_file_resolver_options import bf_file_resolver_options

@@ -142,8 +142,8 @@ class bf_file_duplicates(object):
   def _resolve_files(clazz, files, options):
     match_function = lambda filename: clazz._match_function(filename, options)
     resolver_options = file_duplicates_options(recursive = options.recursive,
-                                             match_basename = False,
-                                             match_function = match_function)
+                                               match_basename = False,
+                                               match_function = match_function)
     return file_duplicates.resolve_files(files, options = resolver_options)
 
   @classmethod
