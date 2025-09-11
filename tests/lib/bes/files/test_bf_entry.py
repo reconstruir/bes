@@ -361,6 +361,42 @@ class test_bf_entry(unit_test, unit_test_media_files):
 
     e.chmod(0o644)
     self.assertEqual( 0o644, os.stat(e.filename).st_mode & 0o777 )
+
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_hard_link_count_unix(self):
+    # create original file
+    e1 = self._make_test_entry(content='hardlink test')
+    self.assertEqual(1, e1.hard_link_count)
+
+    # create hard link
+    e2_path = e1.filename + '.link'
+    os.link(e1.filename, e2_path)
+    e2 = bf_entry(e2_path)
+
+    # both should report 2 links
+    self.assertEqual(2, e1.hard_link_count)
+    self.assertEqual(2, e2.hard_link_count)
+
+    # cleanup
+    filesystem.remove(e2.filename)
+
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_hard_link_count_windows(self):
+    # create original file
+    e1 = self._make_test_entry(content='hardlink test')
+    self.assertEqual(1, e1.hard_link_count)
+
+    # create hard link
+    e2_path = e1.filename + '.link'
+    os.link(e1.filename, e2_path)  # works on NTFS
+    e2 = bf_entry(e2_path)
+
+    # both should report 2 links
+    self.assertEqual(2, e1.hard_link_count)
+    self.assertEqual(2, e2.hard_link_count)
+
+    # cleanup
+    filesystem.remove(e2.filename)
     
 if __name__ == '__main__':
   unit_test.main()

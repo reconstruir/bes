@@ -355,7 +355,11 @@ class bf_entry(object):
   @property
   def is_hidden(self):
    return filesystem.file_is_hidden(self.filename)
-  
+
+  @property
+  def hard_link_count(self):
+   return filesystem.hard_link_count(self.filename)
+ 
   @cached_property
   def attributes(self):
     return bf_attr_file(self.filename)

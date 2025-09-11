@@ -66,3 +66,10 @@ class filesystem_unix(filesystem_base):
     'Return the id for the filesystem filename is found in.'
     statvfs = os.statvfs(filename)
     return statvfs.f_fsid
+
+  @classmethod
+  #@abstractmethod
+  def hard_link_count(clazz, filename):
+    'Return the number of hard links for a file.'
+    st = os.stat(filename)
+    return st.st_nlink

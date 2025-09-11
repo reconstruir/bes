@@ -276,3 +276,58 @@ class filesystem_windows(filesystem_base):
     statvfs = os.statvfs(filename)
     return statvfs.f_fsid
   
+  @classmethod
+  #@abstractmethod
+  def hard_link_count(clazz, filename):
+    'Return the number of hard links for a file.'
+    # Convert path to Windows wide string
+    path_w = os.path.abspath(filename)
+
+    # Open file handle
+    GENERIC_READ = 0x80000000
+    FILE_SHARE_READ = 0x00000001
+    FILE_SHARE_WRITE = 0x00000002
+    OPEN_EXISTING = 3
+
+    CreateFile = ctypes.windll.kernel32.CreateFileW
+    CreateFile.argtypes = [
+      wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+      wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE
+    ]
+    CreateFile.restype = wintypes.HANDLE
+
+    handle = CreateFile(
+      path_w, GENERIC_READ,
+      FILE_SHARE_READ | FILE_SHARE_WRITE,
+      None, OPEN_EXISTING, 0, None
+    )
+
+    if handle == wintypes.HANDLE(-1).value:
+      raise OSError(f"Unable to open file {filename}")
+
+    # Get file information
+    class BY_HANDLE_FILE_INFORMATION(ctypes.Structure):
+      _fields_ = [
+        ("dwFileAttributes", wintypes.DWORD),
+        ("ftCreationTime", wintypes.FILETIME),
+        ("ftLastAccessTime", wintypes.FILETIME),
+        ("ftLastWriteTime", wintypes.FILETIME),
+        ("dwVolumeSerialNumber", wintypes.DWORD),
+        ("nFileSizeHigh", wintypes.DWORD),
+        ("nFileSizeLow", wintypes.DWORD),
+        ("nNumberOfLinks", wintypes.DWORD),
+        ("nFileIndexHigh", wintypes.DWORD),
+        ("nFileIndexLow", wintypes.DWORD),
+      ]
+
+    GetFileInformationByHandle = ctypes.windll.kernel32.GetFileInformationByHandle
+    GetFileInformationByHandle.argtypes = [wintypes.HANDLE, ctypes.POINTER(BY_HANDLE_FILE_INFORMATION)]
+    GetFileInformationByHandle.restype = wintypes.BOOL
+
+    info = BY_HANDLE_FILE_INFORMATION()
+    if not GetFileInformationByHandle(handle, ctypes.byref(info)):
+      ctypes.windll.kernel32.CloseHandle(handle)
+      raise OSError(f"Unable to get file information for {filename}")
+
+    ctypes.windll.kernel32.CloseHandle(handle)
+    return info.nNumberOfLinks

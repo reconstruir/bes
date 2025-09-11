@@ -79,6 +79,12 @@ class filesystem(filesystem_base):
   def filesystem_id(clazz, filename):
     'Return the id for the filesystem filename is found in.'
     return clazz._impl_class.filesystem_id(filename)
+
+  @classmethod
+  #@abstractmethod
+  def hard_link_count(clazz, filename):
+    'Return the number of hard links for a file.'
+    return clazz._impl_class.hard_link_count(filename)
   
   @classmethod
   def remove(clazz, files, raise_not_found_error = False, raise_permission_error = False):
