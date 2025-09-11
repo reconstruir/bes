@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.fingerprint.bf_hasher_hashlib import bf_hasher_hashlib
+from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 from bes.common.hash_util import hash_util
 
 class test_bf_hasher_hashlib(unit_test):
