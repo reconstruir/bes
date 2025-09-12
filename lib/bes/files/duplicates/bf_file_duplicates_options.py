@@ -13,6 +13,8 @@ from bes.script.blurber import blurber
 from bes.fs.files_cli_options import files_cli_options
 from bes.fs.files_cli_options import _files_cli_options_desc
 
+from ..bf_file_type import bf_cli_file_type
+
 from ..ignore.bf_file_ignore_options_mixin import bf_file_ignore_options_mixin
 
 from .bf_file_duplicates_setup import bf_file_duplicates_setup
@@ -27,11 +29,15 @@ class _bf_file_duplicates_options_desc(_files_cli_options_desc):
     
     return [
       cli_bf_file_duplicates_setup,
+      bf_cli_file_type,
     ]
   
   #@abstractmethod
   def _options_desc(self):
     return self.combine_options_desc(super()._options_desc(), f'''
+          file_type bf_file_type            default=FILE_OR_LINK
+                 max_depth int
+                 min_depth int
     prefer_prefixes list[str]
            sort_key callable               default=${{_default_sort_key}}
 include_empty_files bool                   default={bf_file_duplicates_defaults.INCLUDE_EMPTY_FILES}

@@ -41,8 +41,6 @@ class bf_file_duplicates_command_factory(bcli_command_factory_i):
                    help = 'Max depth [ None ]')
     p.add_argument('--quiet', '-q', action = 'store_true', default = False,
                    help = 'Run quietly.  Do not print out filenames [ False ]')
-    p.add_argument('--stop-at', action = 'store', default = None, type = int,
-                   help = 'Stop after resolving the given number of matches. [ None ]')
     p.add_argument('where', action = 'store', default = [], nargs = '+',
                    help = 'A mix of files and dirs where to resolve files.')
     

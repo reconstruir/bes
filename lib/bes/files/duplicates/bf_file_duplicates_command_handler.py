@@ -15,10 +15,12 @@ class bf_file_duplicates_command_handler(bcli_command_handler):
   def name(self):
     return 'bf_file_duplicates'
   
-  def _command_files(self, where, options):
+  def _command_find(self, where, options):
     check.check_string_seq(where)
     check.check_bf_file_duplicates_cli_options(options)
 
+    print(f'where={where}')
+    return 0
     def _progress_cb(progress):
       if progress.state == 'finding':
         self.blurb(f'{progress.index} of {progress.total}: {progress.entry.filename}')
