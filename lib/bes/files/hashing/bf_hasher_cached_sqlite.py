@@ -10,7 +10,6 @@ from bes.system.log import logger
 from bes.sqlite.sqlite import sqlite
 
 from ..bf_check import bf_check
-#from .bf_checksum import bf_checksum
 
 from .bf_hasher_base import bf_hasher_base
 from .bf_hasher_hashlib import bf_hasher_hashlib
@@ -50,13 +49,13 @@ create table {table_name}(
     return self._do_checksum_sha(filename, table_name, algorithm, chunk_size, num_chunks)
 
   #@abc.abstractmethod
-  def checksum_short_sha(self, filename, algorithm):
+  def short_checksum_sha(self, filename, algorithm):
     """Return a short checksum for filename using sha algorithm."""
     filename = bf_check.check_file(filename)
     check.check_string(algorithm)
 
     table_name = f'short_checksums_{algorithm}_v1'
-    return self._do_checksum_sha(filename, table_name, algorithm, chunk_size, num_chunks)
+    return self._do_checksum_sha(filename, table_name, algorithm, None, None)
 
   def _do_checksum_sha(self, filename, table_name, algorithm, chunk_size, num_chunks):
     hash_key = self._make_hash_key(filename)
@@ -88,31 +87,3 @@ create table {table_name}(
     hash_string = f'{mtime}_{size}_{filename}'
     hash_object = hashlib.sha256(hash_string.encode('utf-8'))
     return hash_object.hexdigest()
-    
-  def get_checksum(self, filename):
-    filename = bf_check.check_file(filename)
-
-    hash_key = self._make_hash_key(filename)
-    rows = self._db.select_all('SELECT checksum_sha256 FROM checksums_v1 WHERE hash_key=?',
-                              ( hash_key, ))
-    if not rows:
-      checksum_sha256 = bf_checksum.checksum(filename, 'sha256')
-      self._num_computations += 1      
-      self._db.execute('INSERT INTO checksums_v1(hash_key, checksum_sha256) VALUES(?, ?)',
-                       ( hash_key, checksum_sha256, ))
-    else:
-      assert len(rows) == 1
-      checksum_sha256 = rows[0][0]
-    return checksum_sha256
-
-  def _checksum_sha_from_db(self, filename):
-    hash_key = self._make_hash_key(filename)
-    rows = self._db.select_all('SELECT checksum_sha256 FROM checksums_v1 WHERE hash_key=?',
-                              ( hash_key, ))
-    if not rows:
-      return None
-    else:
-      assert len(rows) == 1
-      checksum_sha256 = rows[0][0]
-    return checksum_sha256
-  

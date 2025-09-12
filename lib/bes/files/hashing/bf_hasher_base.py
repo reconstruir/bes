@@ -12,7 +12,15 @@ class bf_hasher_base(bf_hasher_i):
     """Return the sha512 checksum for filename."""
     return self.checksum_sha(filename, 'sha512', chunk_size, num_chunks)
 
-  #@abc.abstractmethod
   def checksum_md5(self, filename, chunk_size = None, num_chunks = None):
     """Return checksum for filename using md5 algorithm."""
     return self.checksum_sha(filename, 'md5', chunk_size, num_chunks)
+
+  def short_checksum_sha256(self, filename):
+    """Return the sha256 checksum for filename."""
+    return self.short_checksum_sha(filename, 'sha256')
+
+  def short_checksum_sha512(self, filename):
+    """Return the sha512 checksum for filename."""
+    return self.short_checksum_sha(filename, 'sha512')
+  

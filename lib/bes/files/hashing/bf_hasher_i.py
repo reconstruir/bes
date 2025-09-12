@@ -14,8 +14,8 @@ class bf_hasher_i(abc.ABC):
   SHORT_CHECKSUM_SIZE = 1024 * 1024
   
   @abc.abstractmethod
-  def checksum_short_sha(self, filename, algorithm):
+  def short_checksum_sha(self, filename, algorithm):
     """Return a short checksum for filename using sha algorithm."""
-    raise NotImplementedError('checksum_short_sha')
+    raise NotImplementedError('short_checksum_sha')
 
 check.register_class(bf_hasher_i, name = 'bf_fingerprint', include_seq = False)
