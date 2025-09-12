@@ -46,6 +46,32 @@ class bf_file_duplicates_command_factory(bcli_command_factory_i):
     p.add_argument('where', action = 'store', default = [], nargs = '+',
                    help = 'A mix of files and dirs where to resolve files.')
     
+    '''
+    from .bf_file_duplicates_defaults import bf_file_duplicates_defaults
+    p = subparser.add_parser('dups', help = 'Find dups in files or directories.')
+    self.__file_duplicates_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files or dirs to find dups in [ None ]')
+    p.add_argument('--delete', action = 'store_true', default = False,
+                   help = 'Delete the duplicates [ False ]')
+    p.add_argument('--empty', action = 'store_true',
+                   default = bf_file_duplicates_defaults.INCLUDE_EMPTY_FILES,
+                   dest = 'include_empty_files',
+                   help = 'Include empty files [ False ]')
+    p.add_argument('--keep', action = 'store_true', default = False,
+                   dest = 'keep_empty_dirs',
+                   help = 'Keep empty directories after deleting dups [ False ]')
+    p.add_argument('--small-checksum-size', action = 'store',
+                   default = bf_file_duplicates_defaults.SMALL_CHECKSUM_SIZE,
+                   help = f'Small checksum [ {bf_file_duplicates_defaults.SMALL_CHECKSUM_SIZE} ]')
+    p.add_argument('--prefer', action = 'append', dest = 'prefer_prefixes', default = [],
+                   help = 'Prefer the files starting at the given prefix.')
+    p.add_argument('--ignore', action = 'append', dest = 'ignore_files', default = [],
+                   help = 'Ignore file.')
+    p.add_argument('--delete-empty-dirs', action = 'store_true',
+                   default = bf_file_duplicates_defaults.DELETE_EMPTY_DIRS,
+                   help = 'Delete empty directories after partitioning [ False ]')
+'''    
   #@abstractmethod
   def add_arguments(self, parser):
     parser.add_argument('-v', '--verbose', action = 'store_true',
