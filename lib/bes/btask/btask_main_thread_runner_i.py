@@ -8,6 +8,6 @@ class btask_main_thread_runner_i(object, metaclass = ABCMeta):
 
   @abstractmethod
   def call_in_main_thread(self, function, *args, **kwargs):
-    raise NotImplemented('call_in_main_thread')
+    raise NotImplementedError('call_in_main_thread')
 
 check.register_class(btask_main_thread_runner_i, name = 'btask_main_thread_runner', include_seq = False)

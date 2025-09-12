@@ -59,12 +59,12 @@ class cli(object, metaclass = ABCMeta):
   @abstractmethod
   def command_list(self):
     'Return a list of commands for this cli.'
-    raise NotImplemented('command_list')
+    raise NotImplementedError('command_list')
 
   @abstractmethod
   def command_group_list(self):
     'Return a list of command groups for this cli.'
-    raise NotImplemented('command_group_list')
+    raise NotImplementedError('command_group_list')
 
   def main(self, args = None):
     return argparser_handler.main(self.name, self.parser, self.handler_object, args=args)

@@ -23,47 +23,47 @@ class python_installer_base(object, metaclass = ABCMeta):
   @abstractmethod
   def available_versions(self, num):
     'Return a list of python versions available to install.'
-    raise NotImplemented('available_versions')
+    raise NotImplementedError('available_versions')
   
   @abstractmethod
   def installed_versions(self):
     'Return a list of installed python versions.'
-    raise NotImplemented('installed_versions')
+    raise NotImplementedError('installed_versions')
 
   @abstractmethod
   def install(self, version):
     'Install the major.minor.revision or major.minor version of python.'
-    raise NotImplemented('install')
+    raise NotImplementedError('install')
 
   @abstractmethod
   def update(self, version):
     'Update to the latest major.minor version of python.'
-    raise NotImplemented('update')
+    raise NotImplementedError('update')
 
   @abstractmethod
   def needs_update(self, version):
     'Return True if python version major.minor needs update.'
-    raise NotImplemented('needs_update')
+    raise NotImplementedError('needs_update')
   
   @abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'
-    raise NotImplemented('install_package')
+    raise NotImplementedError('install_package')
   
   @abstractmethod
   def uninstall(self, full_version):
     'Uninstall the major.minor.revision full version of python.'
-    raise NotImplemented('uninstall_full_version')
+    raise NotImplementedError('uninstall_full_version')
 
   @abstractmethod
   def download(self, full_version):
     'Download the major.minor.revision full version of python to a temporary file.'
-    raise NotImplemented('download')
+    raise NotImplementedError('download')
 
   @abstractmethod
   def supports_full_version(self):
     'Return True if this installer supports installing by full version.'
-    raise NotImplemented('supports_full_version')
+    raise NotImplementedError('supports_full_version')
   
   def blurb(self, message, output = None, fit = False):
     'Print a blurb'

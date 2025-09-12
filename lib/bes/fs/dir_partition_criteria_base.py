@@ -10,7 +10,7 @@ class dir_partition_criteria_base(object, metaclass = ABCMeta):
   @abstractmethod
   def classify(self, filename):
     'Return a string that classifies filename for dir partition.'
-    raise NotImplemented('classify')
+    raise NotImplementedError('classify')
   
 check.register_class(dir_partition_criteria_base, name = 'dir_partition_criteria', include_seq = False)
 

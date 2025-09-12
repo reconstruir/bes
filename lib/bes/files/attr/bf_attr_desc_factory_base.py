@@ -24,6 +24,6 @@ class bf_attr_desc_factory_base(metaclass = _bf_attr_desc_factory_meta):
   @abstractmethod
   def descriptions(clazz):
     'Return a list of value descriptions this factory supports.'
-    raise NotImplemented('descriptions')
+    raise NotImplementedError('descriptions')
   
 check.register_class(bf_attr_desc_factory_base, name = 'bf_attr_desc_factory', include_seq = False)

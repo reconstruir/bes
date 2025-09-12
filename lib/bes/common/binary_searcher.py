@@ -12,22 +12,22 @@ class binary_searcher(object, metaclass = ABCMeta):
   @abstractmethod
   def item_at_index(self, index):
     'Return the item at the given index.'
-    raise NotImplemented('item_at_index')
+    raise NotImplementedError('item_at_index')
 
   @abstractmethod
   def compare(self, item1, item2):
     'Compare 2 items and return 0 if equal, -1 if item1 < item2 and 1 if item1 > item2.'
-    raise NotImplemented('compare')
+    raise NotImplementedError('compare')
 
   @abstractmethod
   def low_index(self):
     'Return the lowest possible index.'
-    raise NotImplemented('low_index')
+    raise NotImplementedError('low_index')
 
   @abstractmethod
   def high_index(self):
     'Return the highest possible index.'
-    raise NotImplemented('high_index')
+    raise NotImplementedError('high_index')
   
   def search(self, target):
     lower = self.low_index()

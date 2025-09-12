@@ -10,16 +10,16 @@ class file_metadata_getter_base(object, metaclass = ABCMeta):
   @abstractmethod
   def name(clazz):
     'Return the name of this getter.'
-    raise NotImplemented('name')
+    raise NotImplementedError('name')
   
   @abstractmethod
   def get_value(self, filename):
     'Get a metadata value from filename and return it encoded as bytes.'
-    raise NotImplemented('get_value')
+    raise NotImplementedError('get_value')
 
   @abstractmethod
   def decode_value(self, value):
     'Decode a value given as bytes.'
-    raise NotImplemented('decode_value')
+    raise NotImplementedError('decode_value')
   
 check.register_class(file_metadata_getter_base, name = 'file_metadata_getter', include_seq = False)

@@ -27,4 +27,4 @@ class python_source_linux(python_source_unix):
   #@abstractmethod
   def possible_python_dot_org_installer_filenames(clazz):
     'Return a list of possible python.org installer filenames.'
-    raise NotImplemented('possible_python_dot_org_installer_filenames')
+    raise NotImplementedError('possible_python_dot_org_installer_filenames')

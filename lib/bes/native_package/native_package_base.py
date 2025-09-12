@@ -16,42 +16,42 @@ class native_package_base(object, metaclass = ABCMeta):
   @abstractmethod
   def installed_packages(self):
     'Return a list of packages on this computer.'
-    raise NotImplemented('installed_packages')
+    raise NotImplementedError('installed_packages')
 
   @abstractmethod
   def package_files(self, package_name):
     'Return a list of files installed for package.'
-    raise NotImplemented('package_files')
+    raise NotImplementedError('package_files')
 
   @abstractmethod
   def package_dirs(self, package_name):
     'Return a list of dirs installed for package.'
-    raise NotImplemented('package_dirs')
+    raise NotImplementedError('package_dirs')
 
   @abstractmethod
   def is_installed(self, package_name):
     'Return True if package is installed.'
-    raise NotImplemented('is_installed')
+    raise NotImplementedError('is_installed')
 
   @abstractmethod
   def owner(self, filename):
     'Return the package that owns filename.'
-    raise NotImplemented('owner')
+    raise NotImplementedError('owner')
 
   @abstractmethod
   def package_info(self, filename):
     'Return info structure about the package.'
-    raise NotImplemented('package_info')
+    raise NotImplementedError('package_info')
   
   @abstractmethod
   def remove(self, package_name, force_package_root):
     'Remove a package.'
-    raise NotImplemented('remove')
+    raise NotImplementedError('remove')
 
   @abstractmethod
   def install(self, package_filename):
     'Install a package.'
-    raise NotImplemented('install')
+    raise NotImplementedError('install')
 
   def has_package(self, package_name):
     'Return True if package_name is installed.'
