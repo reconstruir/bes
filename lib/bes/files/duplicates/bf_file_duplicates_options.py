@@ -19,8 +19,6 @@ from ..ignore.bf_file_ignore_options_mixin import bf_file_ignore_options_mixin
 
 from .bf_file_duplicates_setup import bf_file_duplicates_setup
 from .bf_file_duplicates_setup import cli_bf_file_duplicates_setup
-#from .file_util import file_util
-from .bf_file_duplicates_defaults import bf_file_duplicates_defaults
 
 class _bf_file_duplicates_options_desc(_files_cli_options_desc):
 
@@ -40,11 +38,11 @@ class _bf_file_duplicates_options_desc(_files_cli_options_desc):
                  min_depth int
     prefer_prefixes list[str]
            sort_key callable               default=${{_default_sort_key}}
-include_empty_files bool                   default={bf_file_duplicates_defaults.INCLUDE_EMPTY_FILES}
+include_empty_files bool                   default=False
         preparation bf_file_duplicates_setup
-  delete_empty_dirs bool                   default={bf_file_duplicates_defaults.DELETE_EMPTY_DIRS}
- include_hard_links bool                   default={bf_file_duplicates_defaults.INCLUDE_HARD_LINKS}
- include_soft_links bool                   default={bf_file_duplicates_defaults.INCLUDE_SOFT_LINKS}
+  delete_empty_dirs bool                   default=False
+ include_hard_links bool                   default=False
+ include_soft_links bool                   default=False
 ''')
 
   #@abstractmethod

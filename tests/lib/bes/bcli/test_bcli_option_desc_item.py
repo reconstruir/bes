@@ -17,7 +17,7 @@ class test_bcli_option_desc_item(unit_test):
   def test___init__typing(self):
     item = bcli_option_desc_item('kiwi', 'list', typing.List[int], [], False)
 
-  def test_parse_text_caca(self):
+  def test_parse_text_basic(self):
     self.maxDiff = None
     m = bcli_type_manager()
     self.assert_json_equal('''
