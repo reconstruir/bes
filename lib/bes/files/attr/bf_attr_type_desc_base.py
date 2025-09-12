@@ -21,24 +21,24 @@ class bf_attr_type_desc_base(metaclass = _bf_attr_type_desc_meta):
   @abstractmethod
   def name(clazz):
     'Return the name for this type'
-    raise NotImplemented('name')
+    raise NotImplementedError('name')
 
   @classmethod
   @abstractmethod
   def encode(clazz, value):
     'Encode value into bytes'
-    raise NotImplemented('encode')
+    raise NotImplementedError('encode')
 
   @classmethod
   @abstractmethod
   def decode(clazz, value_bytes):
     'Decode value_bytes into a value'
-    raise NotImplemented('decode')
+    raise NotImplementedError('decode')
 
   @classmethod
   @abstractmethod
   def check(clazz, value):
     'Check type of value'
-    raise NotImplemented('check')
+    raise NotImplementedError('check')
   
 check.register_class(bf_attr_type_desc_base, name = 'bf_attr_type_desc', include_seq = False)
