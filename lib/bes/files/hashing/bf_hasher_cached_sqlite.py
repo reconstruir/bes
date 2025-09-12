@@ -13,15 +13,16 @@ from ..bf_check import bf_check
 #from .bf_checksum import bf_checksum
 
 from .bf_hasher_base import bf_hasher_base
+from .bf_hasher_hashlib import bf_hasher_hashlib
 
-class bf_hasher_cached_sqlite(object): #bf_hasher_base):
+class bf_hasher_cached_sqlite(bf_hasher_base):
 
   log = logger('bf_hasher')
   
-  _CHECKSUMS_V1_TABLE_SCHEMA = r'''
-create table checksums_v1(
+  _CHECKSUMS_SCHEMA_TEMPLATE_V1 = '''
+create table {table_name}(
     hash_key TEXT PRIMARY KEY NOT NULL,
-    checksum_sha256 TEXT NOT NULL
+    checksum TEXT NOT NULL
 );
 '''
 
@@ -30,9 +31,50 @@ create table checksums_v1(
     
     self._db_filename = db_filename
     self._db = sqlite(self._db_filename)
-    self._db.ensure_table('checksums_v1', self._CHECKSUMS_V1_TABLE_SCHEMA)
+    self._ensure_checksums_table('checksums_sha256_v1')
+    self._ensure_checksums_table('short_checksums_sha256_v1')
     self._num_computations = 0
+    self._hasher = bf_hasher_hashlib()
 
+  def _ensure_checksums_table(self, table_name):
+    schema = self._CHECKSUMS_SCHEMA_TEMPLATE_V1.format(table_name = table_name)
+    self._db.ensure_table(table_name, schema)
+    
+  #@abc.abstractmethod
+  def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):
+    """Return checksum for filename using sha algorithm."""
+    filename = bf_check.check_file(filename)
+    check.check_string(algorithm)
+    
+    table_name = f'checksums_{algorithm}_v1'
+    return self._do_checksum_sha(filename, table_name, algorithm, chunk_size, num_chunks)
+
+  #@abc.abstractmethod
+  def checksum_short_sha(self, filename, algorithm):
+    """Return a short checksum for filename using sha algorithm."""
+    filename = bf_check.check_file(filename)
+    check.check_string(algorithm)
+
+    table_name = f'short_checksums_{algorithm}_v1'
+    return self._do_checksum_sha(filename, table_name, algorithm, chunk_size, num_chunks)
+
+  def _do_checksum_sha(self, filename, table_name, algorithm, chunk_size, num_chunks):
+    hash_key = self._make_hash_key(filename)
+    rows = self._db.select_all(f'SELECT checksum FROM {table_name} WHERE hash_key=?',
+                               ( hash_key, ))
+    if not rows:
+      checksum = self._hasher.checksum_sha(filename,
+                                           algorithm,
+                                           chunk_size = chunk_size,
+                                           num_chunks = num_chunks)
+      self._num_computations += 1      
+      self._db.execute(f'INSERT INTO {table_name}(hash_key, checksum) VALUES(?, ?)',
+                       ( hash_key, checksum, ))
+    else:
+      assert len(rows) == 1
+      checksum = rows[0][0]
+    return checksum
+  
   @property
   def num_computations(self):
     return self._num_computations
