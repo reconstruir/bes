@@ -15,8 +15,6 @@ from bes.fs.files_cli_options import _files_cli_options_desc
 
 from ..bf_file_type import bf_cli_file_type
 
-from ..ignore.bf_file_ignore_options_mixin import bf_file_ignore_options_mixin
-
 from .bf_file_duplicates_setup import bf_file_duplicates_setup
 from .bf_file_duplicates_setup import cli_bf_file_duplicates_setup
 
@@ -51,7 +49,7 @@ include_empty_files bool                   default=False
       '_default_sort_key': lambda: bf_file_duplicates_options.mtime_sort_key,
     })
   
-class bf_file_duplicates_options(bcli_options, bf_file_ignore_options_mixin):
+class bf_file_duplicates_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_file_duplicates_options_desc(), **kwargs)
 

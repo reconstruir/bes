@@ -12,17 +12,22 @@ from bes.common.object_util import object_util
 from ..bf_check import bf_check
 from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
-from ..bf_filename import bf_filename
 from ..bf_file_type import bf_file_type
+from ..bf_filename import bf_filename
 from ..bf_path_type import bf_path_type
 from ..bf_symlink import bf_symlink
-from ..match.bf_file_matcher_mode import bf_file_matcher_mode
+
+from ..ignore.bf_file_ignore import bf_file_ignore
+
 from ..match.bf_file_matcher import bf_file_matcher
+from ..match.bf_file_matcher_mode import bf_file_matcher_mode
+
 from ..mime.bf_mime import bf_mime
 
+from .bf_file_scanner_context import bf_file_scanner_context
+from .bf_file_scanner_options import bf_file_scanner_options
 from .bf_file_scanner_result import bf_file_scanner_result
 from .bf_file_scanner_stats import bf_file_scanner_stats
-from .bf_file_scanner_options import bf_file_scanner_options
 from .bf_walk import bf_walk
 
 class bf_file_scanner(object):
@@ -41,13 +46,13 @@ class bf_file_scanner(object):
       for entry in self._scan_gen_one_dir(next_where, None):
         yield entry
 
-  def _scan_gen_with_stats(self, where, stats_dict):
+  def _scan_gen_with_context(self, where, context):
     where = bf_check.check_dir_seq(object_util.listify(where))
     for next_where in where:
-      for entry in self._scan_gen_one_dir(next_where, stats_dict):
+      for entry in self._scan_gen_one_dir(next_where, context):
         yield entry
         
-  def _scan_gen_one_dir(self, where, stats_dict):
+  def _scan_gen_one_dir(self, where, context):
     where = bf_check.check_dir(where)
     where = path.normpath(where)
     result = bf_entry_list()
@@ -66,11 +71,11 @@ class bf_file_scanner(object):
                              walk_dir_matcher = self._options.walk_dir_matcher,
                              walk_dir_match_type = self._options.walk_dir_match_type,
                              entry_class = self._options.entry_class):
-      self._log.log_d(f'next: {count + 1}: dirs={item.dirs} files={item.files}')
+      self._log.log_d(f'next: {count + 1}: dirs={item.dirs} files={item.files} where={where}')
       if done:
         break
-      if stats_dict:
-        stats_dict['depth'] = max(stats_dict['depth'], item.depth)
+      if context:
+        context.stats['depth'] = max(context.stats['depth'], item.depth)
       to_check_files = bf_entry_list()
       to_check_dirs = bf_entry_list()
 
@@ -89,12 +94,15 @@ class bf_file_scanner(object):
       if want_dirs:
         to_check_dirs += item.dirs
 
+      from ..ignore.bf_file_ignore import bf_file_ignore
+
       num_to_check_files = len(to_check_files)
       for i, next_file_entry in enumerate(to_check_files, start = 1):
+        p = path.join(where, next_file_entry.relative_filename, '.testing_test_ignore')
         if done:
           self._log.log_d(f'done at file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           break
-        if self._entry_matches(next_file_entry, where, stats_dict):
+        if self._entry_matches(next_file_entry, where, context):
           self._log.log_d(f'matched file|link {i} of {num_to_check_files}: filename={next_file_entry.relative_filename}')
           count += 1
           yield next_file_entry
@@ -103,10 +111,11 @@ class bf_file_scanner(object):
       matched_dirs = bf_entry_list()
       num_to_check_dirs = len(to_check_dirs)
       for i, next_dir_entry in enumerate(to_check_dirs, start = 1):
+        p = path.join(where, next_dir_entry.relative_filename, '.testing_test_ignore')
         if done:
           self._log.log_d(f'done at dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
           break
-        if self._entry_matches(next_dir_entry, where, stats_dict):
+        if self._entry_matches(next_dir_entry, where, context):
           self._log.log_d(f'matched dir {i} of {num_to_check_dirs}: filename={next_dir_entry.relative_filename}')
           matched_dirs.append(next_dir_entry)
           count += 1
@@ -115,52 +124,48 @@ class bf_file_scanner(object):
             done = True
       self._log.log_d(f'matched_dirs={matched_dirs.basenames()}')
 
-  def _entry_matches(self, entry, where, stats_dict):
+  def _entry_matches(self, entry, where, context):
     where_sep_count = where.count(os.sep)
-    #print(f'_entry_matches: entry={entry.relative_filename} where={where} where_sep_count={where_sep_count}')
     depth = entry.absolute_filename.count(os.sep) - where_sep_count
-    if stats_dict:
-      stats_dict['num_checked'] += 1
+    if context:
+      context.stats['num_checked'] += 1
       try:
         if entry.is_dir:
-          stats_dict['num_dirs_checked'] += 1
+          context.stats['num_dirs_checked'] += 1
       except FileNotFoundError as ex:
         pass
       try:
         if entry.is_file:
-          stats_dict['num_files_checked'] += 1
+          context.stats['num_files_checked'] += 1
       except FileNotFoundError as ex:
         pass
     if not self._options.depth_in_range(depth):
       return False
     if self._options.ignore_broken_links and entry.is_broken_link:
       return False
-    if self._options.should_ignore_entry(entry):
+    if self._should_ignore_entry(entry, where):
       return False
     if not self._options.include_resource_forks and bf_mime.is_apple_resource_fork(entry.filename):
       return False
     return True
-    
+
+  def _should_ignore_entry(self, entry, root_dir):
+    if not self._options.ignore_filename:
+      return False
+    if entry.basename == self._options.ignore_filename:
+      return True
+    ignore_filename_abs = path.join(entry.dirname, self._options.ignore_filename)
+    i = bf_file_ignore(ignore_filename_abs)
+    if i.should_ignore(entry, root_dir = root_dir):
+      return True
+    return False
+  
   def scan(self, where):
-    stats_dict = {
-      'num_checked': 0,
-      'num_files_checked': 0,
-      'num_dirs_checked': 0,
-      'start_time': datetime.now(),
-      'end_time': None,
-      'depth': 0,
-    }
+    context = bf_file_scanner_context()
     entries = bf_entry_list()
-    for entry in self._scan_gen_with_stats(where, stats_dict):
+    for entry in self._scan_gen_with_context(where, context):
       entries.append(entry)
-    stats_dict['end_time'] = datetime.now()
-    stats = bf_file_scanner_stats(stats_dict['num_checked'],
-                                 stats_dict['num_files_checked'],
-                                 stats_dict['num_dirs_checked'],
-                                 stats_dict['start_time'],
-                                 stats_dict['end_time'],
-                                 stats_dict['depth'])
-    return bf_file_scanner_result(entries, stats)
+    return bf_file_scanner_result(entries, context.make_stats())
 
   @classmethod
   def scan_with_options(clazz, where, **kwargs):

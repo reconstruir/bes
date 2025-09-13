@@ -43,7 +43,7 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
              stop_function callable
                 stop_after int
                entry_class type                 default=${_bf_file_scanner_entry_default_type}
-          ignore_filenames list[str]
+           ignore_filename str
     include_resource_forks bool                 default=False
 '''
   
@@ -65,20 +65,6 @@ class bf_file_scanner_options(bcli_options):
     if name in ( 'min_depth', 'max_depth' ):
       self._check_depth_limits()
 
-  def pass_through_keys(self):
-    return ( 'file_ignore_list', )
-
-  @property
-  def file_ignore_list(self):
-    if self.ignore_filenames:
-      from ..ignore.bf_file_ignore_list import bf_file_ignore_list
-      return bf_file_ignore_list(self.ignore_filenames)
-    return None
-
-  def should_ignore_entry(self, entry):
-    if self.file_ignore_list:
-      return self.file_ignore_list.should_ignore(entry)
-    
   def _check_depth_limits(self):
     if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
       raise bf_file_finder_error('max_depth needs to be >= min_depth.')

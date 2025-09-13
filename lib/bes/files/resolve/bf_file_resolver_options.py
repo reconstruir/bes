@@ -47,6 +47,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
             match_function callable
          progress_callback callable
  progress_interval_percent float                   default=5.0
+           ignore_filename str
 '''
   
   #@abstractmethod

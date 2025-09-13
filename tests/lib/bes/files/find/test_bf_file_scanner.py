@@ -464,7 +464,7 @@ class test_bf_file_scanner(unit_test):
     ], result.sorted_relative_filenames )
     self.assertEqual( type(result.entries[0]), _test_bf_entry )
 
-  def test_scan_with_ignore_filenames(self):
+  def test_scan_with_ignore_filename_basic(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',
@@ -474,15 +474,31 @@ class test_bf_file_scanner(unit_test):
       'file cheese/cheddar.cheese',
       'file cheese/.testing_test_ignore "cheddar.cheese\n" 644',
     ]
-    ignore_filenames = [ '.testing_test_ignore' ]
     self.assert_filename_list_equal( [
-      'cheese/.testing_test_ignore',
       'cheese/brie.cheese',
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], self._scan(content, ignore_filenames = ignore_filenames).sorted_relative_filenames )
+    ], self._scan(content, ignore_filename = '.testing_test_ignore').sorted_relative_filenames )
+
+  def xtest_scan_with_ignore_filename_one_level_up(self):
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+      'file .testing_test_ignore "cheddar.cheese\n" 644',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._scan(content, ignore_filename = '.testing_test_ignore').sorted_relative_filenames )
     
   def test_scan_with_resource_forks(self):
     content = [

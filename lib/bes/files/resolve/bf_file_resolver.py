@@ -47,7 +47,8 @@ class bf_file_resolver(object):
                                             mode = bf_file_finder_mode.WITH_PROGRESS,
                                             file_type = self._options.file_type,
                                             entry_class = self._options.entry_class,
-                                            progress_callback = self._options.progress_callback)
+                                            progress_callback = self._options.progress_callback,
+                                            ignore_filename = self._options.ignore_filename)
     finder = bf_file_finder(options = finder_options)
     for next_where in where:
       if path.isfile(next_where):

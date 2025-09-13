@@ -3,6 +3,7 @@
 from os import path
 
 from bes.system.check import check
+from bes.system.log import logger
 
 from ..bf_path import bf_path
 from ..bf_entry import bf_entry
@@ -16,10 +17,15 @@ class bf_file_ignore(object):
   def __init__(self, ignore_filename):
     self._ignore_filename = ignore_filename
     self._data = {}
-    
-  def should_ignore(self, entry, ignore_missing_files = True):
+
+  # FIXME make sure it works even if one level doesnt have it but a previous one does
+  def should_ignore(self, entry, ignore_missing_files = True, root_dir = None):
     check.check_bf_entry(entry)
     check.check_bool(ignore_missing_files)
+    check.check_string(root_dir, allow_none = True)
+
+    if root_dir:
+      root_dir = path.normpath(path.abspath(root_dir))
     
     if not entry.exists:
       if not ignore_missing_files:
@@ -27,12 +33,16 @@ class bf_file_ignore(object):
       return True
     if not self._ignore_filename:
       return False
-    for ancestor in entry.decomposed_path:
+    decomposed_path = reversed(entry.decomposed_path)
+    for ancestor in decomposed_path:
       ancestor_dirname = path.dirname(ancestor)
       ancestor_basename = path.basename(ancestor)
       data = self._get_data(ancestor_dirname)
       if data.should_ignore(bf_entry(ancestor_basename)):
         return True
+      if root_dir and root_dir == ancestor_dirname:
+        break
+        
     return False
   
   def _get_data(self, d):
