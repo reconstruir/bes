@@ -55,7 +55,7 @@ class bf_file_ignore(object):
 
   def _do_should_ignore_one_item(self, ignore_file, entry, root_dir, i, num):
     item = self._get_ignore_item(ignore_file)
-    should_ignore = item.should_ignore(entry)
+    should_ignore = item.should_ignore(entry, root_dir)
     self._log.log_d(f'should_ignore:  checking {i} of {num}: "{entry.absolute_filename}" with "{ignore_file}" => {should_ignore}')
     return should_ignore
   

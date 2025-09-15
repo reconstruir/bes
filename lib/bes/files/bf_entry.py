@@ -99,6 +99,17 @@ class bf_entry(object):
     return relative_filename.lower()
 
   @cached_property
+  def filename_relative_split(self):
+    return self.filename_relative.split(path.sep)
+
+  @cached_property
+  def filename_split(self):
+    return self.filename.split(path.sep)
+  
+  def filename_without_head(self, head):
+    return bf_filename.remove_head(self.filename, head)
+
+  @cached_property
   def is_absolute(self):
     return path.isabs(self.filename)
 

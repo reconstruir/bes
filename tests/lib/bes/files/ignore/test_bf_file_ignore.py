@@ -56,7 +56,7 @@ class test_bf_file_ignore(unit_test):
     self.assertEqual( True, t.should_ignore('something_not_there.txt') )
     self.assertEqual( False, t.should_ignore('a/b/c/d/foo.txt') )
     self.assertEqual( True, t.should_ignore('a/b/c/d/bar.ttt') )
-    #self.assertEqual( True, t.should_ignore('a/b/c/d2/never.txt') )
+    self.assertEqual( True, t.should_ignore('a/b/c/d2/never.txt') )
 
   def xtest_should_ignore_always_false(self):
     tmp_dir = self._make_temp_content()

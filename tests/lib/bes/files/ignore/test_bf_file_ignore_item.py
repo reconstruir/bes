@@ -31,12 +31,12 @@ foobar # comment
 '''
     tmp = self.make_temp_file(content = content)
     a = bf_file_ignore_item.read_file(tmp)
-    self.assertTrue( a.should_ignore(bf_entry('ppp.txt')) )
-    self.assertTrue( a.should_ignore(bf_entry('foo.png')) )
-    self.assertTrue( a.should_ignore(bf_entry('foobar')) )
-    self.assertFalse( a.should_ignore(bf_entry('ppp.pdf')) )
-    self.assertFalse( a.should_ignore(bf_entry('foo.jpg')) )
-    self.assertFalse( a.should_ignore(bf_entry('foobarx')) )
+    self.assertTrue( a.should_ignore(bf_entry('ppp.txt'), '/tmp') )
+    self.assertTrue( a.should_ignore(bf_entry('foo.png'), '/tmp') )
+    self.assertTrue( a.should_ignore(bf_entry('foobar'), '/tmp') )
+    self.assertFalse( a.should_ignore(bf_entry('ppp.pdf'), '/tmp') )
+    self.assertFalse( a.should_ignore(bf_entry('foo.jpg'), '/tmp') )
+    self.assertFalse( a.should_ignore(bf_entry('foobarx'), '/tmp') )
   
 if __name__ == '__main__':
   unit_test.main()
