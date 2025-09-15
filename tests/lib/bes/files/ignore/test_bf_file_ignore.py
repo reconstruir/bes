@@ -58,57 +58,19 @@ class test_bf_file_ignore(unit_test):
     self.assertEqual( True, t.should_ignore('a/b/c/d/bar.ttt') )
     self.assertEqual( True, t.should_ignore('a/b/c/d2/never.txt') )
 
-  def xtest_should_ignore_always_false(self):
-    tmp_dir = self._make_temp_content()
-    self.assertFalse( self._call_should_ignore(tmp_dir, None, 'a/b/c/d/foo.txt') )
-    self.assertFalse( self._call_should_ignore(tmp_dir, None, 'a/b/c/d/bar.ttt') )
-    self.assertFalse( self._call_should_ignore(tmp_dir, None, 'a/b/c/d2/never.txt') )
-
-  def x_make_temp_content(self):
-    return temp_content.write_items_to_temp_dir([
+  def test_should_ignore_always_false(self):
+    content = [
       'file a/b/c/.testing_test_ignore "d2\n\n" 644',
       'file a/b/c/d2/never.txt "this is never.txt\n" 644',
       'file a/b/c/d/bar.ttt "this is bar.ttt\n" 644',
       'file a/b/c/d/.testing_test_ignore "*.ttt\n" 644',
       'file a/b/c/d/foo.txt "this is foo.bar\n" 644',
-    ], delete = not self.DEBUG)
-
-  def xtest_poto_basic(self):
-    content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
-      'file cheese/cheddar.cheese',
-      'file cheese/.testing_test_ignore "cheddar.cheese\n" 644',
-    ]
-    tmp_dir = self._make_temp_content(content)
-
-    fi = bf_file_ignore(ignore_filename)
-    entry_path = path.join(tmp_content_dir, entry_fragment)
-    entry = bf_entry(entry_path)
-    return fi.should_ignore(entry)
-
-  def xtest_poto_one_level_up(self):
-    content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
-      'file cheese/cheddar.cheese',
-      'file .testing_test_ignore "cheddar.cheese\n" 644',
     ]
     t = _bf_file_ignore_tester(content, self.DEBUG)
-    self.assert_filename_list_equal( [
-      'cheese/brie.cheese',
-      'fruit/blueberry.fruit',
-      'fruit/kiwi.fruit',
-      'fruit/lemon.fruit',
-      'fruit/strawberry.fruit',
-    ], self._scan(content, ignore_filename = '.testing_test_ignore').sorted_relative_filenames )
-
+    self.assertEqual( False, t.should_ignore('a/b/c/d/foo.txt') )
+    self.assertEqual( True, t.should_ignore('a/b/c/d/bar.ttt') )
+    self.assertEqual( True, t.should_ignore('a/b/c/d2/never.txt') )
+    
   def test__find_ignore_files_one_file(self):
     content = [
       'file fruit/kiwi.fruit',
