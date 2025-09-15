@@ -13,54 +13,78 @@ from .bf_file_ignore_item import bf_file_ignore_item
   
 class bf_file_ignore(object):
   'Decide whether to ignore a bf_entry based on scheme similar to .gitignore'
+
+  _log = logger('bf_file_ignore')
   
   def __init__(self, ignore_filename):
+    if ignore_filename and ignore_filename != path.basename(ignore_filename):
+      raise ValueError(f'ignore_filename should be a basename: "{ignore_filename}"')
     self._ignore_filename = ignore_filename
-    self._data = {}
+    self._items = {}
 
-  # FIXME make sure it works even if one level doesnt have it but a previous one does
-  def should_ignore(self, entry, ignore_missing_files = True, root_dir = None):
+  def should_ignore(self, entry, root_dir, ignore_missing_files = True):
     check.check_bf_entry(entry)
+    check.check_string(root_dir)
     check.check_bool(ignore_missing_files)
-    check.check_string(root_dir, allow_none = True)
 
-    if root_dir:
-      root_dir = path.normpath(path.abspath(root_dir))
-    
-    if not entry.exists:
-      if not ignore_missing_files:
-        raise FileNotFoundError(f'File not found: {entry.absolute_filename}')
-      return True
-    if not self._ignore_filename:
-      return False
-    decomposed_path = reversed(entry.decomposed_path)
-    for ancestor in decomposed_path:
-      ancestor_dirname = path.dirname(ancestor)
-      ancestor_basename = path.basename(ancestor)
-      data = self._get_data(ancestor_dirname)
-      if data.should_ignore(bf_entry(ancestor_basename)):
+    try:
+      return self._do_should_ignore(entry, root_dir, ignore_missing_files)
+    except FileNotFoundError as ex:
+      if ignore_missing_files:
         return True
-      if root_dir and root_dir == ancestor_dirname:
-        break
-        
-    return False
+      else:
+        raise
   
-  def _get_data(self, d):
-    if not path.isdir(d):
-      raise IOError('not a directory: %s' % (d))
-    d = path.abspath(d)
-    if d not in self._data:
-      self._data[d] = self._load_data(d)
-    return self._data[d]
-    
-  def _load_data(self, d):
-    assert path.isdir(d)
-    assert path.isabs(d)
-    ignore_filename = path.join(d, self._ignore_filename)
-    if not path.isfile(ignore_filename):
-      return bf_file_ignore_item(d, None)
-    return bf_file_ignore_item.read_file(ignore_filename)
+  def _do_should_ignore(self, entry, root_dir, ignore_missing_files):
+    root_dir = path.normpath(path.abspath(root_dir))
 
-  def filter_entries(self, entries):
+    self._log.log_d(f'should_ignore: entry="{entry.filename}" root_dir="{root_dir}"')
+
+    if not self._ignore_filename:
+      self._log.log_d(f'should_ignore: no ignore_filename given.')
+      return False
+    
+    ignore_files = self._find_ignore_files(entry, root_dir)
+    num = len(ignore_files)
+    for i, next_ignore_file in enumerate(ignore_files, start = 1):
+      self._log.log_d(f'should_ignore: next_ignore_file: {i} of {num}: {next_ignore_file}')
+    for i, next_ignore_file in enumerate(ignore_files, start = 1):
+      if self._do_should_ignore_one_item(next_ignore_file, entry, root_dir, i, num):
+        return True
+    return False
+
+  def _do_should_ignore_one_item(self, ignore_file, entry, root_dir, i, num):
+    item = self._get_ignore_item(ignore_file)
+    should_ignore = item.should_ignore(entry)
+    self._log.log_d(f'should_ignore:  checking {i} of {num}: "{entry.absolute_filename}" with "{ignore_file}" => {should_ignore}')
+    return should_ignore
+  
+  def _find_ignore_files(self, entry, root_dir):
+    assert entry.is_file
+    decomposed_path = [ p for p in reversed(entry.decomposed_path) ]
+    decomposed_path.pop(0)
+    for i, next_path in enumerate(decomposed_path, start = 1):
+      self._log.log_d(f'_find_ignore_files: decomposed_path:{i}: {next_path}')
+    num = len(entry.decomposed_path)
+    result = []
+    for i, ancestor in enumerate(decomposed_path, start = 1):
+      if not ancestor.startswith(root_dir):
+        break
+      next_ignore_filename = path.join(ancestor, self._ignore_filename)
+      if path.exists(next_ignore_filename):
+        result.append(next_ignore_filename)
+    return result
+  
+  def _get_ignore_item(self, ignore_filename):
+    if ignore_filename not in self._items:
+      self._items[ignore_filename] = bf_file_ignore_item.read_file(ignore_filename)
+    return self._items[ignore_filename]
+  
+  def filter_entries(self, entries, root_dir, ignore_missing_files = True):
     check.check_bf_entry_list(entries)
-    return [ entry for entry in entries if not self.should_ignore(entry) ]
+    check.check_string(root_dir)
+    check.check_bool(ignore_missing_files)
+
+    return [ e for e in entries if not self.should_ignore(entry, root_dir, ignore_missing_files = ignore_missing_files) ]
+
+  

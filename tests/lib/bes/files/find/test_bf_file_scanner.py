@@ -482,7 +482,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content, ignore_filename = '.testing_test_ignore').sorted_relative_filenames )
 
-  def xtest_scan_with_ignore_filename_one_level_up(self):
+  def test_scan_with_ignore_filename_one_level_up(self):
     content = [
       'file fruit/kiwi.fruit',
       'file fruit/lemon.fruit',

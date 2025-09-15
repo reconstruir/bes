@@ -94,8 +94,6 @@ class bf_file_scanner(object):
       if want_dirs:
         to_check_dirs += item.dirs
 
-      from ..ignore.bf_file_ignore import bf_file_ignore
-
       num_to_check_files = len(to_check_files)
       for i, next_file_entry in enumerate(to_check_files, start = 1):
         p = path.join(where, next_file_entry.relative_filename, '.testing_test_ignore')
@@ -154,9 +152,8 @@ class bf_file_scanner(object):
       return False
     if entry.basename == self._options.ignore_filename:
       return True
-    ignore_filename_abs = path.join(entry.dirname, self._options.ignore_filename)
-    i = bf_file_ignore(ignore_filename_abs)
-    if i.should_ignore(entry, root_dir = root_dir):
+    file_ignore = bf_file_ignore(self._options.ignore_filename)
+    if file_ignore.should_ignore(entry, root_dir):
       return True
     return False
   
