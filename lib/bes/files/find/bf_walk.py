@@ -10,7 +10,7 @@ from bes.system.log import logger
 
 from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
-from ..bf_error import bf_error
+from ..core.bf_error import bf_error
 from ..bf_filename import bf_filename
 from ..match.bf_file_matcher import bf_file_matcher
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
