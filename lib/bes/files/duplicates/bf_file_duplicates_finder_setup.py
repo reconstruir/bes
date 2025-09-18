@@ -12,7 +12,7 @@ from bes.property.cached_property import cached_property
 #from .file_duplicates_item_list import file_duplicates_item_list
 #from .file_util import file_util
 
-class bf_file_duplicates_setup(namedtuple('bf_file_duplicates_setup', 'files, resolved_files, options')):
+class bf_file_duplicates_finder_setup(namedtuple('bf_file_duplicates_finder_setup', 'files, resolved_files, options')):
 
   def __new__(clazz, files, resolved_files, options):
     check.check_string_seq(files)
@@ -93,19 +93,19 @@ class bf_file_duplicates_setup(namedtuple('bf_file_duplicates_setup', 'files, re
       
     return result
   
-check.register_class(bf_file_duplicates_setup, include_seq = False)
+check.register_class(bf_file_duplicates_finder_setup, include_seq = False)
 
-class cli_bf_file_duplicates_setup(bcli_type_i):
+class cli_bf_file_duplicates_finder_setup(bcli_type_i):
 
   @classmethod
   #@abstractmethod
   def name_str(clazz):
-    return 'bf_file_duplicates_setup'
+    return 'bf_file_duplicates_finder_setup'
 
   @classmethod
   #@abstractmethod
   def type_function(clazz):
-    return bf_file_duplicates_setup
+    return bf_file_duplicates_finder_setup
 
   @classmethod
   #@abstractmethod
@@ -116,4 +116,4 @@ class cli_bf_file_duplicates_setup(bcli_type_i):
   @classmethod
   #@abstractmethod
   def check(clazz, value, allow_none = False):
-    return check.check_bf_file_duplicates_setup(value, allow_none = allow_none)
+    return check.check_bf_file_duplicates_finder_setup(value, allow_none = allow_none)

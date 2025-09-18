@@ -15,16 +15,16 @@ from bes.fs.files_cli_options import _files_cli_options_desc
 
 from ..bf_file_type import bf_cli_file_type
 
-from .bf_file_duplicates_setup import bf_file_duplicates_setup
-from .bf_file_duplicates_setup import cli_bf_file_duplicates_setup
+from .bf_file_duplicates_finder_setup import bf_file_duplicates_finder_setup
+from .bf_file_duplicates_finder_setup import cli_bf_file_duplicates_finder_setup
 
-class _bf_file_duplicates_options_desc(_files_cli_options_desc):
+class _bf_file_duplicates_finder_options_desc(_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
     
     return [
-      cli_bf_file_duplicates_setup,
+      cli_bf_file_duplicates_finder_setup,
       bf_cli_file_type,
     ]
   
@@ -37,7 +37,7 @@ class _bf_file_duplicates_options_desc(_files_cli_options_desc):
     prefer_prefixes list[str]
            sort_key callable               default=${{_default_sort_key}}
 include_empty_files bool                   default=False
-        preparation bf_file_duplicates_setup
+        preparation bf_file_duplicates_finder_setup
   delete_empty_dirs bool                   default=False
  include_hard_links bool                   default=False
  include_soft_links bool                   default=False
@@ -46,12 +46,12 @@ include_empty_files bool                   default=False
   #@abstractmethod
   def _variables(self):
     return self.combine_variables(super()._variables(), {
-      '_default_sort_key': lambda: bf_file_duplicates_options.mtime_sort_key,
+      '_default_sort_key': lambda: bf_file_duplicates_finder_options.mtime_sort_key,
     })
   
-class bf_file_duplicates_options(bcli_options):
+class bf_file_duplicates_finder_options(bcli_options):
   def __init__(self, **kwargs):
-    super().__init__(_bf_file_duplicates_options_desc(), **kwargs)
+    super().__init__(_bf_file_duplicates_finder_options_desc(), **kwargs)
 
   @staticmethod
   def sort_key_modification_date(filename):
@@ -63,8 +63,8 @@ class bf_file_duplicates_options(bcli_options):
 
   @staticmethod
   def mtime_sort_key(filename):
-    mtime = bf_file_duplicates_options.sort_key_modification_date(filename)
-    length = bf_file_duplicates_options.sort_key_basename_length(filename)
+    mtime = bf_file_duplicates_finder_options.sort_key_modification_date(filename)
+    length = bf_file_duplicates_finder_options.sort_key_basename_length(filename)
     return ( mtime, length )
 
-bf_file_duplicates_options.register_check_class()
+bf_file_duplicates_finder_options.register_check_class()
