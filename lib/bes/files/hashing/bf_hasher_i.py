@@ -18,4 +18,4 @@ class bf_hasher_i(abc.ABC):
     """Return a short checksum for filename using sha algorithm."""
     raise NotImplementedError('short_checksum_sha')
 
-check.register_class(bf_hasher_i, name = 'bf_fingerprint', include_seq = False)
+check.register_class(bf_hasher_i, name = 'bf_hasher', include_seq = False)

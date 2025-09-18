@@ -17,12 +17,16 @@ from bes.system.log import logger
 #from .bf_file_duplicates_setup import bf_file_duplicates_setup
 #from .file_util import file_util
 
+from ..hashing.bf_hasher_i import bf_hasher_i
+
 from .bf_file_duplicates_options import bf_file_duplicates_options
+from .bf_file_duplicates_result import bf_file_duplicates_result
+from .bf_file_duplicates_item import bf_file_duplicates_item
 
 class bf_file_duplicates(object):
   'A class to find duplicate files'
 
-  _log = logger('file_duplicates')
+  _log = logger('bf_file_duplicates')
 
   _dup_item = namedtuple('_dup_item', 'filename, duplicates')
   _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
