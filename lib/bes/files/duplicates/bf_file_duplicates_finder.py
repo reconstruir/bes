@@ -3,19 +3,10 @@
 from collections import namedtuple
 import os.path as path
 
-from ..bf_check import bf_check
-#from bes.fs.bf_check import bf_check
-#from bes.fs.file_duplicates import file_duplicates
-#from bes.fs.file_duplicates_item import file_duplicates_item
-#from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.system.check import check
 from bes.system.log import logger
 
-#from .file_attributes_metadata import file_attributes_metadata
-#from .bf_check import bf_check
-#from .file_duplicates_options import file_duplicates_options
-#from .bf_file_duplicates_finder_setup import bf_file_duplicates_finder_setup
-#from .file_util import file_util
+from ..bf_check import bf_check
 
 from ..hashing.bf_hasher_i import bf_hasher_i
 

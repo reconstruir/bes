@@ -10,15 +10,15 @@ from bes.system.check import check
 from bes.common.time_util import time_util
 from bes.script.blurber import blurber
 
-from bes.fs.files_cli_options import files_cli_options
-from bes.fs.files_cli_options import _files_cli_options_desc
+from ..core.bf_files_cli_options import bf_files_cli_options
+from ..core.bf_files_cli_options import _bf_files_cli_options_desc
 
 from ..bf_file_type import bf_cli_file_type
 
 from .bf_file_duplicates_finder_setup import bf_file_duplicates_finder_setup
 from .bf_file_duplicates_finder_setup import cli_bf_file_duplicates_finder_setup
 
-class _bf_file_duplicates_finder_options_desc(_files_cli_options_desc):
+class _bf_file_duplicates_finder_options_desc(_bf_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
@@ -31,16 +31,16 @@ class _bf_file_duplicates_finder_options_desc(_files_cli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return self.combine_options_desc(super()._options_desc(), f'''
-          file_type bf_file_type            default=FILE_OR_LINK
-                 max_depth int
-                 min_depth int
+          file_type bf_file_type                    default=FILE_OR_LINK
+          max_depth int
+          min_depth int
     prefer_prefixes list[str]
-           sort_key callable               default=${{_default_sort_key}}
-include_empty_files bool                   default=False
+           sort_key callable                        default=${{_default_sort_key}}
+include_empty_files bool                            default=False
         preparation bf_file_duplicates_finder_setup
-  delete_empty_dirs bool                   default=False
- include_hard_links bool                   default=False
- include_soft_links bool                   default=False
+  delete_empty_dirs bool                            default=False
+ include_hard_links bool                            default=False
+ include_soft_links bool                            default=False
 ''')
 
   #@abstractmethod
