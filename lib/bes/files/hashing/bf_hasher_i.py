@@ -7,15 +7,15 @@ from bes.system.check import check
 class bf_hasher_i(abc.ABC):
 
   @abc.abstractmethod
-  def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):
-    """Return checksum for filename using sha algorithm."""
+  def checksum_sha(self, entry, algorithm, chunk_size, num_chunks):
+    """Return checksum for entry using sha algorithm."""
     raise NotImplementedError('checksum_sha')
 
   SHORT_CHECKSUM_SIZE = 1024 * 1024
   
   @abc.abstractmethod
-  def short_checksum_sha(self, filename, algorithm):
-    """Return a short checksum for filename using sha algorithm."""
+  def short_checksum_sha(self, entry, algorithm):
+    """Return a short checksum for entry using sha algorithm."""
     raise NotImplementedError('short_checksum_sha')
 
 check.register_class(bf_hasher_i, name = 'bf_hasher', include_seq = False)

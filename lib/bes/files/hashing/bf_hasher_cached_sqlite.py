@@ -10,6 +10,7 @@ from bes.system.log import logger
 from bes.sqlite.sqlite import sqlite
 
 from ..bf_check import bf_check
+from ..bf_entry import bf_entry
 
 from .bf_hasher_base import bf_hasher_base
 from .bf_hasher_hashlib import bf_hasher_hashlib
@@ -40,29 +41,29 @@ create table {table_name}(
     self._db.ensure_table(table_name, schema)
     
   #@abc.abstractmethod
-  def checksum_sha(self, filename, algorithm, chunk_size, num_chunks):
-    """Return checksum for filename using sha algorithm."""
-    filename = bf_check.check_file(filename)
+  def checksum_sha(self, entry, algorithm, chunk_size, num_chunks):
+    """Return checksum for entry using sha algorithm."""
+    check.check_bf_entry(entry)
     check.check_string(algorithm)
     
     table_name = f'checksums_{algorithm}_v1'
-    return self._do_checksum_sha(filename, table_name, algorithm, chunk_size, num_chunks)
+    return self._do_checksum_sha(entry, table_name, algorithm, chunk_size, num_chunks)
 
   #@abc.abstractmethod
-  def short_checksum_sha(self, filename, algorithm):
-    """Return a short checksum for filename using sha algorithm."""
-    filename = bf_check.check_file(filename)
+  def short_checksum_sha(self, entry, algorithm):
+    """Return a short checksum for entry using sha algorithm."""
+    check.check_bf_entry(entry)
     check.check_string(algorithm)
 
     table_name = f'short_checksums_{algorithm}_v1'
-    return self._do_checksum_sha(filename, table_name, algorithm, None, None)
+    return self._do_checksum_sha(entry, table_name, algorithm, None, None)
 
-  def _do_checksum_sha(self, filename, table_name, algorithm, chunk_size, num_chunks):
-    hash_key = self._make_hash_key(filename)
+  def _do_checksum_sha(self, entry, table_name, algorithm, chunk_size, num_chunks):
+    hash_key = self._make_hash_key(entry)
     rows = self._db.select_all(f'SELECT checksum FROM {table_name} WHERE hash_key=?',
                                ( hash_key, ))
     if not rows:
-      checksum = self._hasher.checksum_sha(filename,
+      checksum = self._hasher.checksum_sha(entry,
                                            algorithm,
                                            chunk_size = chunk_size,
                                            num_chunks = num_chunks)
@@ -79,11 +80,8 @@ create table {table_name}(
     return self._num_computations
   
   @classmethod
-  def _make_hash_key(clazz, filename):
-    assert path.isabs(filename)
-    stat = os.stat(filename)
-    mtime = int(stat.st_mtime)
-    size = stat.st_size
-    hash_string = f'{mtime}_{size}_{filename}'
+  def _make_hash_key(clazz, entry):
+    assert entry.is_absolute
+    hash_string = f'{entry.mtime}_{entry.size}_{entry.filename}'
     hash_object = hashlib.sha256(hash_string.encode('utf-8'))
     return hash_object.hexdigest()

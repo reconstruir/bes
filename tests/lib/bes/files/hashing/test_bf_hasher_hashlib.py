@@ -3,55 +3,60 @@
 
 from bes.testing.unit_test import unit_test
 from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
+from bes.files.bf_entry import bf_entry
 from bes.common.hash_util import hash_util
 
 class test_bf_hasher_hashlib(unit_test):
 
+  def _make_temp_entry(self, content = None):
+    tmp = self.make_temp_file(content = content)
+    return bf_entry(tmp)
+  
   def test_checksum_sha256(self):
     f = bf_hasher_hashlib()
     content = 'this is kiwi'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
     actual = f.checksum_sha256(tmp)
     self.assertEqual( hash_util.hash_string_sha256(content), actual )
 
   def test_checksum_md5(self):
     f = bf_hasher_hashlib()
     content = 'this is kiwi'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
     actual = f.checksum_md5(tmp)
     self.assertEqual( hash_util.hash_string_md5(content), actual )
 
   def test_checksum_sha512(self):
     f = bf_hasher_hashlib()
     content = 'this is kiwi'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
     actual = f.checksum_sha512(tmp)
 
   def test_checksum_sha256_with_one_chunk(self):
     f = bf_hasher_hashlib()
     content = 'this is kiwi'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
     actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 1)
     self.assertEqual( hash_util.hash_string_sha256('this'), actual )
 
   def test_checksum_sha256_with_two_chunks(self):
     f = bf_hasher_hashlib()
     content = 'this is kiwi'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
     actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 2)
     self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
 
   def test_checksum_sha256_with_two_chunks(self):
     f = bf_hasher_hashlib()
     content = 'this is kiwi'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
     actual = f.checksum_sha256(tmp, chunk_size = 4, num_chunks = 2)
     self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
 
   def test_short_checksum_sha_matches_first_chunk(self):
     f = bf_hasher_hashlib()
     content = 'abcdefghij' * 200000  # make file > 2MB
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
 
     # short_checksum_sha should equal checksum of first SHORT_CHECKSUM_SIZE bytes
     first_part = content[:f.SHORT_CHECKSUM_SIZE]
@@ -62,7 +67,7 @@ class test_bf_hasher_hashlib(unit_test):
   def test_short_checksum_sha_small_file(self):
     f = bf_hasher_hashlib()
     content = 'tiny file'
-    tmp = self.make_temp_file(content = content)
+    tmp = self._make_temp_entry(content = content)
 
     # for small files, short checksum == full checksum
     expected = hash_util.hash_string_sha256(content)
