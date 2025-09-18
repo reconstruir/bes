@@ -9,6 +9,7 @@ from bes.system.log import logger
 from ..bf_check import bf_check
 
 from ..hashing.bf_hasher_i import bf_hasher_i
+from ..resolve.bf_file_resolver import bf_file_resolver
 
 from .bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
 from .bf_file_duplicates_finder_result import bf_file_duplicates_finder_result
@@ -19,6 +20,20 @@ class bf_file_duplicates_finder(object):
 
   _log = logger('bf_file_duplicates_finder')
 
+  def __init__(self, hasher, options = None):
+    check.check_bf_hasher(hasher)
+    check.check_bf_file_duplicates_finder_options(options, allow_none = True)
+
+    self._options = bf_file_duplicates_finder_options.clone_or_create(options)
+    self._hasher = hasher
+
+  def _resolve_files(self, where):
+    resolver = bf_file_resolver(options = self._options.file_resolver_options)
+    return resolver.resolve(where)
+
+  def _do_find_dups(self, where):
+    resolved_files = self._resolve_files(where)
+  
   _dup_item = namedtuple('_dup_item', 'filename, duplicates')
   _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
@@ -137,7 +152,7 @@ class bf_file_duplicates_finder(object):
       return False
   
   @classmethod
-  def _resolve_files(clazz, files, options):
+  def x_resolve_files(clazz, files, options):
     match_function = lambda filename: clazz._match_function(filename, options)
     resolver_options = bf_file_duplicates_finder_options(recursive = options.recursive,
                                                   match_basename = False,

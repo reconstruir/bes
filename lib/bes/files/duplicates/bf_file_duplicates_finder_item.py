@@ -12,6 +12,6 @@ from ..bf_entry_list import bf_entry_list
 @dataclasses.dataclass
 class bf_file_duplicates_finder_item(bdata_class_base):
   entry: bf_entry
-  duplicates: typing.Optional[bf_file_entry_list]
+  duplicates: typing.Optional[bf_entry_list]
 
 check.register_class(bf_file_duplicates_finder_item, include_seq = False)

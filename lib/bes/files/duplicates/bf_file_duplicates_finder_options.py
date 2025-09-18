@@ -13,6 +13,8 @@ from bes.script.blurber import blurber
 from ..core.bf_files_cli_options import bf_files_cli_options
 from ..core.bf_files_cli_options import _bf_files_cli_options_desc
 
+from ..resolve.bf_file_resolver_options import bf_file_resolver_options
+
 from ..bf_file_type import bf_cli_file_type
 
 from .bf_file_duplicates_finder_setup import bf_file_duplicates_finder_setup
@@ -30,18 +32,19 @@ class _bf_file_duplicates_finder_options_desc(_bf_files_cli_options_desc):
   
   #@abstractmethod
   def _options_desc(self):
-    return self.combine_options_desc(super()._options_desc(), f'''
+    return '''
           file_type bf_file_type                    default=FILE_OR_LINK
           max_depth int
           min_depth int
     prefer_prefixes list[str]
-           sort_key callable                        default=${{_default_sort_key}}
+#           sort_key callable                        default=${{_default_sort_key}}
 include_empty_files bool                            default=False
         preparation bf_file_duplicates_finder_setup
   delete_empty_dirs bool                            default=False
  include_hard_links bool                            default=False
  include_soft_links bool                            default=False
-''')
+    ignore_filename str
+'''
 
   #@abstractmethod
   def _variables(self):
@@ -67,4 +70,15 @@ class bf_file_duplicates_finder_options(bcli_options):
     length = bf_file_duplicates_finder_options.sort_key_basename_length(filename)
     return ( mtime, length )
 
+  def pass_through_keys(self):
+    return ( 'file_resolver_options', )
+
+  @property
+  def file_resolver_options(self):
+    return bf_file_resolver_options(file_type = self.file_type,
+                                    max_depth = self.max_depth,
+                                    min_depth = self.min_depth,
+#                                    sort_order = self.sort_order,
+                                    ignore_filename = self.ignore_filename)
+  
 bf_file_duplicates_finder_options.register_check_class()

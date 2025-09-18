@@ -9,9 +9,6 @@ from bes.system.check import check
 from ..bf_entry_list import bf_entry_list
 from .bf_file_duplicates_finder_item import bf_file_duplicates_finder_item
 
-  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
-
-
 @dataclasses.dataclass
 class bf_file_duplicates_finder_result(bdata_class_base):
   items: typing.List[bf_file_duplicates_finder_item]
