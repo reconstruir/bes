@@ -13,6 +13,7 @@ from .bf_check import bf_check
 from .bf_entry import bf_entry
 from .bf_entry_sort_criteria import bf_entry_sort_criteria
 from .bf_filename import bf_filename
+from .bf_path import bf_path
 
 class bf_entry_list(type_checked_list):
 
@@ -83,5 +84,8 @@ class bf_entry_list(type_checked_list):
 
   def unreadable_files(self):
     return bf_entry_list([ entry for entry in self if not entry.is_readable ])
+
+  def absolute_common_ancestor(self):
+    return bf_path.common_ancestor(self.absolute_files())
   
 bf_entry_list.register_check_class()
