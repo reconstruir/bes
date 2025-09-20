@@ -62,16 +62,6 @@ class bf_entry_list(type_checked_list):
   def unique_root_dirs(self):
     return sorted(list(set([ item.root_dir for item in self ])))
   
-  def as_relative_list(self, head):
-    check.check_string(head)
-
-    result = bf_entry_list()
-    for entry in self:
-      relative_filename = bf_filename.remove_head(entry.filename, head)
-      new_entry = bf_entry(relative_filename, root_dir = entry.root_dir)
-      result.append(new_entry)
-    return result
-
   @classmethod
   def listdir(clazz, where):
     where = bf_check.check_dir(where)
@@ -80,9 +70,9 @@ class bf_entry_list(type_checked_list):
     sorted_filenames = sorted(filenames)
     return bf_entry_list([ bf_entry(f, root_dir = where) for f in sorted_filenames ])
 
-  def sort_bt_criteria(self, sort_criteria, reverse = False):
+  def sort_by_criteria(self, sort_criteria, reverse = False):
     sort_criteria = check.check_bf_entry_sort_criteria(sort_criteria)
-
+    
     self.sort(key = lambda entry: entry._compare_criteria(sort_criteria), reverse = reverse)
 
   def sorted_by_criteria(self, sort_criteria, reverse = False):
