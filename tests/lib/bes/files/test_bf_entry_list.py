@@ -1,20 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-#from datetime import datetime
-#from datetime import timedelta
-
-#import os
-#from os import path
-
-#from bes.files.checksum.bf_checksum import bf_checksum
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.files.find.bf_file_finder import  bf_file_finder
-#from bes.files.bf_permission_error import bf_permission_error
-#from bes.files.bf_symlink import bf_symlink
-#from bes.system.check import check
-#from bes.system.filesystem import filesystem
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
@@ -22,6 +11,24 @@ from bes.fs.testing.temp_content import temp_content
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+
+class _bf_entry_list_tester(object):
+
+  def __init__(self, content):
+    self._tmp_dir = self._make_temp_content(content)
+    self._find_result = bf_file_finder.find_with_options(self._tmp_dir)
+
+  @property
+  def tmp_dir(self):
+    return self._tmp_dir
+
+  @property
+  def entries(self):
+    return self._find_result.entries
+  
+  @classmethod
+  def _make_temp_content(clazz, content):
+    return temp_content.write_items_to_temp_dir(content, delete = not test_bf_entry_list.DEBUG)
 
 class test_bf_entry_list(unit_test, unit_test_media_files):
   
@@ -46,37 +53,30 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
   def _make_test_entry_root_dir(self, root_dir, fragment, basename):
     filename = path.join(fragment, basename)
     return bf_entry(filename, root_dir = root_dir)
-
-  @classmethod
-  def _make_temp_content(clazz, items):
-    return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
   
   def test_to_dict_list(self):
-    content = [
+    t = _bf_entry_list_tester([
       'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
-    ]
-    tmp_dir = self._make_temp_content(content)
-    result = bf_file_finder.find_with_options(tmp_dir)
+    ])
     self.assertEqual( [
       {
         'filename': 'cheese/brie.cheese',
-        'root_dir': f'{tmp_dir}',
+        'root_dir': f'{t.tmp_dir}',
       },
       {
         'filename': 'fruits/kiwi.fruit',
-        'root_dir': f'{tmp_dir}',
+        'root_dir': f'{t.tmp_dir}',
       },
-    ], result.entries.to_dict_list() )
+    ], t.entries.to_dict_list() )
 
   def test_to_json(self):
-    content = [
+    t = _bf_entry_list_tester([
       'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
-    ]
-    tmp_dir = self._make_temp_content(content)
-    result = bf_file_finder.find_with_options(tmp_dir)
-    actual_json = result.entries.to_json().replace(tmp_dir, '${tmp_dir}')
+    ])
+    replacements = { t.tmp_dir: '${tmp_dir}' }
+    actual_json = t.entries.to_json(replacements = replacements)
     self.assert_json_equal( '''
 [
   {
@@ -89,355 +89,26 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
   }
 ]
 ''', actual_json )
-    
-  def xtest_absolute_filename_only(self):
-    e = bf_entry('/store/fruits/kiwi.fruit')
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.filename )
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.relative_filename )
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.absolute_filename )
 
-  def xtest_relative_filename_and_root_dir(self):
-    e = bf_entry('fruits/kiwi.fruit', root_dir = '/store')
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.filename )
-    self.assertEqual( 'fruits/kiwi.fruit', e.relative_filename )
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.absolute_filename )
-    
-  def xtest_exits_true(self):
-    self.assertEqual( True, self._make_test_entry().exists )
-
-  def xtest_exits_false(self):
-    e = self._make_test_entry()
-    self.assertEqual( True, e.exists )
-    filesystem.remove(e.filename)
-    self.assertEqual( False, e.exists )
-
-  @unit_test_function_skip.skip_if_not_unix()
-  def xtest_access_unix(self):
-    self.assertEqual( ( True, True, True, False ), self._make_test_entry().access )
-
-  @unit_test_function_skip.skip_if_not_windows()
-  def xtest_access_windows(self):
-    self.assertEqual( ( True, True, True, True ), self._make_test_entry().access )
-    
-  def xtest_is_file(self):
-    self.assertEqual( True, self._make_test_entry().is_file )
-    self.assertEqual( 'file', self._make_test_entry().file_type )
-
-  def xtest_is_dir(self):
-    self.assertEqual( True, self._make_test_entry_dir().is_dir )
-    self.assertEqual( 'dir', self._make_test_entry_dir().file_type )
-
-  @unit_test_function_skip.skip_if_not_unix()
-  def xtest_is_link(self):
-    self.assertEqual( True, self._make_test_entry_link().is_link )
-    self.assertEqual( 'link', self._make_test_entry_link().file_type )
-    
-  def xtest_size(self):
-    self.assertEqual( 4, self._make_test_entry(content = 'kiwi').size )
-
-  def xtest_extension(self):
-    self.assertEqual( 'kiwi', self._make_test_entry(suffix = '.kiwi').extension )
-    
-  def xtest_modification_date_get(self):
-    e = self._make_test_entry()
-    self.assertEqual( datetime.fromtimestamp(path.getmtime(e.filename)), e.modification_date )
-
-  def xtest_modification_date_set(self):
-    e = self._make_test_entry()
-    d = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
-    e.modification_date = d
-    self.assertEqual( d, e.modification_date )
-
-  def xtest_modification_date_timestamp(self):
-    e = self._make_test_entry()
-    e.modification_date = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
-    self.assertEqual( '2000-01-01-01-00-01', e.modification_date_timestamp )
-
-  def xtest_attributes_has_key_false(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    self.assertFalse( tmp.attributes.has_key('foo') )
-  
-  def xtest_attributes_has_key_true(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_bytes('foo', 'hi'.encode('utf-8'))
-    self.assertTrue( tmp.attributes.has_key('foo') )
-    
-  def xtest_attributes_get_bytes_never_set(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    self.assertEqual( None, tmp.attributes.get_bytes('foo') )
-  
-  def xtest_attributes_set_bytes_get_bytes(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_bytes('foo', 'hi'.encode('utf-8'))
-    self.assertEqual( 'hi', tmp.attributes.get_bytes('foo').decode('utf-8') )
-    tmp.attributes.set_bytes('bar', '99'.encode('utf-8'))
-    self.assertEqual( '99', tmp.attributes.get_bytes('bar').decode('utf-8') )
-
-  def xtest_attributes_empty_keys(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    self.assertEqual( [], tmp.attributes.keys() )
-
-  def xtest_attributes_keys(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_bytes('foo', 'hi'.encode('utf-8'))
-    tmp.attributes.set_bytes('bar', '99'.encode('utf-8'))
-    self.assertEqual( [ 'bar', 'foo' ], tmp.attributes.keys() )
-    
-  def xtest_attributes_clear(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_bytes('foo', 'hi'.encode('utf-8'))
-    tmp.attributes.set_bytes('bar', '99'.encode('utf-8'))
-    self.assertEqual( [ 'bar', 'foo' ], tmp.attributes.keys() )
-    tmp.attributes.clear()
-    self.assertEqual( [], tmp.attributes.keys() )
-
-  def xtest_attributes_set_png_get_png(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    data = unit_test_media.PNG_SMALLEST_POSSIBLE
-    tmp.attributes.set_bytes('picture', data)
-    self.assertEqual( data, tmp.attributes.get_bytes('picture') )
-
-  def xtest_attributes_set_string_get_string(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_string('foo', 'hi')
-    self.assertEqual( 'hi', tmp.attributes.get_string('foo') )
-      
-  def xtest_attributes_set_date_get_date(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    now = datetime.now()
-    tmp.attributes.set_date('foo', now)
-    self.assertEqual( now, tmp.attributes.get_date('foo') )
-
-  def xtest_attributes_set_all_get_all(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    d = {
-      'foo': b'hi',
-      'bar': b'666',
-    }
-    tmp.attributes.set_all(d)
-    self.assertEqual( d, tmp.attributes.get_all() )
-
-  def xtest_attributes_set_bool_get_bool(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_bool('foo', True)
-    tmp.attributes.set_bool('bar', False)
-    self.assertEqual( True, tmp.attributes.get_bool('foo') )
-    self.assertEqual( False, tmp.attributes.get_bool('bar') )
-      
-  def xtest_attributes_set_int_get_int(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'foo')
-    tmp.attributes.set_int('foo', 666)
-    tmp.attributes.set_int('bar', -1024)
-    self.assertEqual( 666, tmp.attributes.get_int('foo') )
-    self.assertEqual( -1024, tmp.attributes.get_int('bar') )
-      
-  def xtest_attributes_set_no_write_permission_unix(self):
-    tmp = self._make_test_entry(dir = __file__, perm = 0o0400)
-    with self.assertRaises(bf_permission_error) as ctx:
-      tmp.attributes.set_string('foo', 'hi')
-
-  def xtest_attributes_remove_no_write_permission_unix(self):
-    tmp = self._make_test_entry(dir = __file__, perm = 0o0400)
-    with self.assertRaises(bf_permission_error) as ctx:
-      tmp.attributes.remove('foo')
-
-  def xtest_attributes_clear_no_write_permission_unix(self):
-    tmp = self._make_test_entry(dir = __file__, perm = 0o0400)
-    with self.assertRaises(bf_permission_error) as ctx:
-      tmp.attributes.clear()
-
-  def xtest_metadata_checksum_md5(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'this is kiwi')
-    self.assertEqual( bf_checksum.checksum(tmp.filename, 'md5'), tmp.checksum_md5 )
-      
-  def xtest_metadata_checksum_sha1(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'this is kiwi')
-    self.assertEqual( bf_checksum.checksum(tmp.filename, 'sha1'), tmp.checksum_sha1 )
-
-  def xtest_metadata_checksum_sha256(self):
-    tmp = self._make_test_entry(dir = __file__, content = 'this is kiwi')
-    self.assertEqual( bf_checksum.checksum(tmp.filename, 'sha256'), tmp.checksum_sha256 )
-
-  def xtest_metadata_mime_type(self):
-    tmp = self._make_test_entry(dir = __file__, content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
-    self.assertEqual( 'image/png', tmp.mime_type )
-
-  def xtest_metadata_media_type(self):
-    tmp = self._make_test_entry(dir = __file__, content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
-    self.assertEqual( 'image', tmp.media_type )
-    self.assertEqual( True, tmp.is_image )
-
-  def xtest_relative_filename(self):
-    tmp_dir = self._make_tmp_dir()
-    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/kiwi.fruit')
-    self.assert_filename_equal( 'stuff/fruits/kiwi.fruit', e.relative_filename )
-
-  def xtest_filename_for_matcher_absolute(self):
-    tmp_dir = self._make_tmp_dir()
-    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
-    self.assert_filename_equal( path.join(tmp_dir, 'stuff/fruits/Kiwi.fruit'),
-                                e.filename_for_matcher('absolute', False) )
-
-  def xtest_filename_for_matcher_basename(self):
-    tmp_dir = self._make_tmp_dir()
-    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
-    self.assert_filename_equal( 'Kiwi.fruit',
-                                e.filename_for_matcher('basename', False) )
-
-  def xtest_filename_for_matcher_relative(self):
-    tmp_dir = self._make_tmp_dir()
-    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
-    self.assert_filename_equal( 'stuff/fruits/Kiwi.fruit',
-                                e.filename_for_matcher('relative', False) )
-
-  def xtest_filename_for_matcher_relative_ignore_case(self):
-    tmp_dir = self._make_tmp_dir()
-    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
-    self.assert_filename_equal( 'stuff/fruits/kiwi.fruit',
-                                e.filename_for_matcher('relative', True) )
-    
-  def xtest_compare_modification_date(self):
-    e = self._make_test_entry()
-    dold = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
-    d = datetime(year = 2000, month = 2, day = 1, hour = 1, second = 1)
-    dnew = datetime(year = 2000, month = 3, day = 1, hour = 1, second = 1)
-    e.modification_date = d
-    self.assertEqual( 0, e.compare_modification_date(d) )
-    self.assertEqual( 1, e.compare_modification_date(dold) )
-    self.assertEqual( -1, e.compare_modification_date(dnew) )
-
-  def xtest_modification_date_matches(self):
-    e = self._make_test_entry()
-    dold = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
-    d = datetime(year = 2000, month = 2, day = 1, hour = 1, second = 1)
-    dnew = datetime(year = 2000, month = 3, day = 1, hour = 1, second = 1)
-    e.modification_date = d
-    
-    self.assertEqual( True, e.modification_date_matches(d, 'eq') )
-    self.assertEqual( True, e.modification_date_matches(d, 'le') )
-    self.assertEqual( True, e.modification_date_matches(d, 'ge') )
-    self.assertEqual( False, e.modification_date_matches(d, 'ne') )
-    self.assertEqual( False, e.modification_date_matches(d, 'gt') )
-    self.assertEqual( False, e.modification_date_matches(d, 'lt') )
-
-    self.assertEqual( False, e.modification_date_matches(dold, 'eq') )
-    self.assertEqual( False, e.modification_date_matches(dold, 'le') )
-    self.assertEqual( True, e.modification_date_matches(dold, 'ge') )
-    self.assertEqual( True, e.modification_date_matches(dold, 'ne') )
-    self.assertEqual( True, e.modification_date_matches(dold, 'gt') )
-    self.assertEqual( False, e.modification_date_matches(dold, 'lt') )
-
-    self.assertEqual( False, e.modification_date_matches(dnew, 'eq') )
-    self.assertEqual( True, e.modification_date_matches(dnew, 'le') )
-    self.assertEqual( False, e.modification_date_matches(dnew, 'ge') )
-    self.assertEqual( True, e.modification_date_matches(dnew, 'ne') )
-    self.assertEqual( False, e.modification_date_matches(dnew, 'gt') )
-    self.assertEqual( True, e.modification_date_matches(dnew, 'lt') )
-
-  def xtest_modification_date_matches_delta(self):
-    e = self._make_test_entry()
-    d = datetime(year = 2000, month = 2, day = 1, hour = 1, second = 1)
-    e.modification_date = d
-    t = timedelta()
-    told = -timedelta(days = 42)
-    tnew = timedelta(days = 42)
-    
-    self.assertEqual( True, e.modification_date_matches_delta(t, 'eq') )
-    self.assertEqual( True, e.modification_date_matches_delta(t, 'le') )
-    self.assertEqual( True, e.modification_date_matches_delta(t, 'ge') )
-    self.assertEqual( False, e.modification_date_matches_delta(t, 'ne') )
-    self.assertEqual( False, e.modification_date_matches_delta(t, 'gt') )
-    self.assertEqual( False, e.modification_date_matches_delta(t, 'lt') )
-
-    self.assertEqual( False, e.modification_date_matches_delta(told, 'eq') )
-    self.assertEqual( False, e.modification_date_matches_delta(told, 'le') )
-    self.assertEqual( True, e.modification_date_matches_delta(told, 'ge') )
-    self.assertEqual( True, e.modification_date_matches_delta(told, 'ne') )
-    self.assertEqual( True, e.modification_date_matches_delta(told, 'gt') )
-    self.assertEqual( False, e.modification_date_matches_delta(told, 'lt') )
-
-    self.assertEqual( False, e.modification_date_matches_delta(tnew, 'eq') )
-    self.assertEqual( True, e.modification_date_matches_delta(tnew, 'le') )
-    self.assertEqual( False, e.modification_date_matches_delta(tnew, 'ge') )
-    self.assertEqual( True, e.modification_date_matches_delta(tnew, 'ne') )
-    self.assertEqual( False, e.modification_date_matches_delta(tnew, 'gt') )
-    self.assertEqual( True, e.modification_date_matches_delta(tnew, 'lt') )
-
-  def xtest_files_are_the_same_true(self):
-    f1 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
-    f2 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
-    self.assertEqual( True, f1.content_is_same(f2) )
-
-  def xtest_files_are_the_same_false(self):
-    f1 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
-    f2 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxy')
-    self.assertEqual( False, f1.content_is_same(f2) )
-
-  def xtest_clone_replace_root_dir(self):
-    e1 = bf_entry('fruits/Kiwi.fruit', root_dir = '/store')
-    self.assertEqual( '/store/fruits/Kiwi.fruit', e1.filename )
-    e2 = e1.clone_replace_root_dir('/foo')
-    self.assertEqual( '/foo/fruits/Kiwi.fruit', e2.filename )
-
-  def xtest_decomposed_path(self):
-    e = bf_entry('fruits/Kiwi.fruit', root_dir = '/store')
+  def test_filenames(self):
+    t = _bf_entry_list_tester([
+      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file cheese/brie.cheese "this is brie.cheese\n"',
+    ])
     self.assertEqual( [
-      '/store',
-      '/store/fruits',
-      '/store/fruits/Kiwi.fruit',
-    ], e.decomposed_path )
+      f'{t.tmp_dir}/cheese/brie.cheese',
+      f'{t.tmp_dir}/fruits/kiwi.fruit',
+    ], t.entries.filenames() )
 
-  def xtest_mode(self):
-    e = self._make_test_entry()
-    os.chmod(e.filename, 0o755)
-    self.assertEqual( 0o755, e.mode )
-
-    os.chmod(e.filename, 0o644)
-    self.assertEqual( 0o644, e.mode )
-
-  def xtest_chmod(self):
-    e = self._make_test_entry()
-    e.chmod(0o755)
-    self.assertEqual( 0o755, os.stat(e.filename).st_mode & 0o777 )
-
-    e.chmod(0o644)
-    self.assertEqual( 0o644, os.stat(e.filename).st_mode & 0o777 )
-
-  @unit_test_function_skip.skip_if_not_unix()
-  def xtest_hard_link_count_unix(self):
-    # create original file
-    e1 = self._make_test_entry(content='hardlink test')
-    self.assertEqual(1, e1.hard_link_count)
-
-    # create hard link
-    e2_path = e1.filename + '.link'
-    os.link(e1.filename, e2_path)
-    e2 = bf_entry(e2_path)
-
-    # both should report 2 links
-    self.assertEqual(2, e1.hard_link_count)
-    self.assertEqual(2, e2.hard_link_count)
-
-    # cleanup
-    filesystem.remove(e2.filename)
-
-  @unit_test_function_skip.skip_if_not_windows()
-  def xtest_hard_link_count_windows(self):
-    # create original file
-    e1 = self._make_test_entry(content='hardlink test')
-    self.assertEqual(1, e1.hard_link_count)
-
-    # create hard link
-    e2_path = e1.filename + '.link'
-    os.link(e1.filename, e2_path)  # works on NTFS
-    e2 = bf_entry(e2_path)
-
-    # both should report 2 links
-    self.assertEqual(2, e1.hard_link_count)
-    self.assertEqual(2, e2.hard_link_count)
-
-    # cleanup
-    filesystem.remove(e2.filename)
+  def test_relative_filenames(self):
+    t = _bf_entry_list_tester([
+      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file cheese/brie.cheese "this is brie.cheese\n"',
+    ])
+    self.assertEqual( [
+      f'cheese/brie.cheese',
+      f'fruits/kiwi.fruit',
+    ], t.entries.relative_filenames() )
     
 if __name__ == '__main__':
   unit_test.main()
