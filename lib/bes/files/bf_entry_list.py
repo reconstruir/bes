@@ -83,5 +83,13 @@ class bf_entry_list(type_checked_list):
 
   def absolute_common_ancestor(self):
     return bf_path.common_ancestor(self.absolute_filenames())
+
+  def basename_map(self):
+    result = {}
+    for entry in self:
+      if not entry.basename in result:
+        result[entry.basename] = bf_entry_list()
+      result[entry.basename].append(entry)
+    return result
   
 bf_entry_list.register_check_class()

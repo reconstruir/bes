@@ -31,6 +31,9 @@ class _bf_entry_list_tester(object):
   @property
   def entries(self):
     return self._find_result.entries
+
+  def make_entry(self, fragment):
+    return bf_entry(path.join(self.tmp_dir, fragment))
   
   @classmethod
   def _make_temp_content(clazz, content):
@@ -62,7 +65,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
   
   def test_to_dict_list(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
@@ -71,14 +74,14 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
         'root_dir': f'{t.tmp_dir}',
       },
       {
-        'filename': 'fruits/kiwi.fruit',
+        'filename': 'fruit/kiwi.fruit',
         'root_dir': f'{t.tmp_dir}',
       },
     ], t.entries.to_dict_list() )
 
   def test_to_json(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assert_json_equal( '''
@@ -88,7 +91,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
     "root_dir": "${tmp_dir}"
   },
   {
-    "filename": "fruits/kiwi.fruit",
+    "filename": "fruit/kiwi.fruit",
     "root_dir": "${tmp_dir}"
   }
 ]
@@ -96,37 +99,37 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 
   def test_filenames(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
       f'{t.tmp_dir}/cheese/brie.cheese',
-      f'{t.tmp_dir}/fruits/kiwi.fruit',
+      f'{t.tmp_dir}/fruit/kiwi.fruit',
     ], t.entries.filenames() )
 
   def test_relative_filenames(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
       f'cheese/brie.cheese',
-      f'fruits/kiwi.fruit',
+      f'fruit/kiwi.fruit',
     ], t.entries.relative_filenames() )
 
   def test_absolute_filenames(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
       f'{t.tmp_dir}/cheese/brie.cheese',
-      f'{t.tmp_dir}/fruits/kiwi.fruit',
+      f'{t.tmp_dir}/fruit/kiwi.fruit',
     ], t.entries.filenames() )
 
   def test_basenames(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
@@ -136,9 +139,9 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 
   def test_root_dirs(self):
     t = _bf_entry_list_tester([
-      'file foo/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file foo/cheese/brie.cheese "this is brie.cheese\n"',
-      'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
     ], where = [ 'foo', 'bar' ])
     print(t.entries.root_dirs())
@@ -151,9 +154,9 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 
   def test_unique_root_dirs(self):
     t = _bf_entry_list_tester([
-      'file foo/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file foo/cheese/brie.cheese "this is brie.cheese\n"',
-      'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
     ], where = [ 'foo', 'bar' ])
     self.assertEqual( [
@@ -163,12 +166,46 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 
   def test_absolute_common_ancestor(self):
     t = _bf_entry_list_tester([
-      'file foo/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file foo/cheese/brie.cheese "this is brie.cheese\n"',
-      'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
     ], where = [ 'foo', 'bar' ])
     self.assertEqual( t.tmp_dir, t.entries.absolute_common_ancestor() )
 
+  def test_basename_map(self):
+    t = _bf_entry_list_tester([
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    m = t.entries.basename_map()
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "cheese/brie.cheese",
+    "root_dir": "${tmp_dir}/foo"
+  },
+  {
+    "filename": "cheese/brie.cheese",
+    "root_dir": "${tmp_dir}/bar"
+  }
+]
+''', m['brie.cheese'].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+    
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/foo"
+  },
+  {
+    "filename": "fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/bar"
+  }
+]
+''', m['kiwi.fruit'].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+    
 if __name__ == '__main__':
   unit_test.main()
