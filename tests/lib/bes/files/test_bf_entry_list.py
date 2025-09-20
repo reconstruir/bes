@@ -181,6 +181,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
     ], where = [ 'foo', 'bar' ])
     m = t.entries.basename_map()
+    self.assertEqual( { 'brie.cheese', 'kiwi.fruit' }, m.keys() )
     self.assert_json_equal( '''
 [
   {
