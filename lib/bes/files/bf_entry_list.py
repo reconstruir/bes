@@ -82,6 +82,6 @@ class bf_entry_list(type_checked_list):
     return bf_entry_list([ entry for entry in self if not entry.is_readable ])
 
   def absolute_common_ancestor(self):
-    return bf_path.common_ancestor(self.absolute_files())
+    return bf_path.common_ancestor(self.absolute_filenames())
   
 bf_entry_list.register_check_class()

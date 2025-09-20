@@ -156,11 +156,19 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
       'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
     ], where = [ 'foo', 'bar' ])
-    print(t.entries.root_dirs())
     self.assertEqual( [
       path.join(t.tmp_dir, 'bar'),
       path.join(t.tmp_dir, 'foo'),
     ], t.entries.unique_root_dirs() )
-    
+
+  def test_absolute_common_ancestor(self):
+    t = _bf_entry_list_tester([
+      'file foo/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    self.assertEqual( t.tmp_dir, t.entries.absolute_common_ancestor() )
+
 if __name__ == '__main__':
   unit_test.main()
