@@ -17,7 +17,7 @@ from bes.system.filesystem import filesystem
 from .bf_date import bf_date
 from .bf_date_comparison_type import bf_date_comparison_type
 from .bf_entry_sort_criteria import bf_entry_sort_criteria
-from .bf_error import bf_error
+from .core.bf_error import bf_error
 from .bf_file_type import bf_file_type
 from .bf_filename import bf_filename
 from .bf_mtime_cached_info import bf_mtime_cached_info

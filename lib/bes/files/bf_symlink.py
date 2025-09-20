@@ -5,7 +5,7 @@ import os.path as path
 
 from bes.system.filesystem import filesystem
 
-from .bf_error import bf_error
+from .core.bf_error import bf_error
 
 class bf_symlink(object):
   'Class to deal with symlinks.'

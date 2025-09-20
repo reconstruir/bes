@@ -4,7 +4,7 @@
 import os, os.path as path, tempfile
 from bes.testing.unit_test import unit_test
 from bes.files.bf_symlink import bf_symlink
-from bes.files.bf_error import bf_error
+from bes.files.core.bf_error import bf_error
 from bes.system.filesystem import filesystem
 
 from bes.testing.unit_test_class_skip import unit_test_class_skip
