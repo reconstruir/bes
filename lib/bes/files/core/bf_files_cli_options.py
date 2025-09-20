@@ -6,6 +6,8 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.system.check import check
 from bes.common.time_util import time_util
 
+from .bf_error import bf_error
+
 class _bf_files_cli_options_desc(bcli_options_desc):
 
   #@abstractmethod
@@ -29,7 +31,7 @@ class _bf_files_cli_options_desc(bcli_options_desc):
 
   #@abstractmethod
   def _error_class(self):
-    return IOError
+    return bf_error
   
 class bf_files_cli_options(bcli_options):
   def __init__(self, **kwargs):
