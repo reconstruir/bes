@@ -207,6 +207,41 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
   }
 ]
 ''', m['kiwi.fruit'].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+
+  def test_size_map(self):
+    t = _bf_entry_list_tester([
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    m = t.entries.size_map()
+    self.assertEqual( { 20, 19 }, m.keys() )
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "cheese/brie.cheese",
+    "root_dir": "${tmp_dir}/foo"
+  },
+  {
+    "filename": "cheese/brie.cheese",
+    "root_dir": "${tmp_dir}/bar"
+  }
+]
+''', m[20].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+    
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/foo"
+  },
+  {
+    "filename": "fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/bar"
+  }
+]
+''', m[19].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
     
 if __name__ == '__main__':
   unit_test.main()

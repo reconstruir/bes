@@ -91,5 +91,18 @@ class bf_entry_list(type_checked_list):
         result[entry.basename] = bf_entry_list()
       result[entry.basename].append(entry)
     return result
+
+  def size_map(self):
+    result = {}
+    for entry in self:
+      try:
+        size = entry.size
+      except FileNotFoundError as ex:
+        size = None
+      if size != None:
+        if not entry.size in result:
+          result[entry.size] = bf_entry_list()
+        result[entry.size].append(entry)
+    return result
   
 bf_entry_list.register_check_class()
