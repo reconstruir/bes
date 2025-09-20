@@ -57,7 +57,10 @@ class bf_entry_list(type_checked_list):
     return result
 
   def root_dirs(self):
-    return [ item.root_dir for item in self ]
+    return sorted([ item.root_dir for item in self ])
+
+  def unique_root_dirs(self):
+    return sorted(list(set([ item.root_dir for item in self ])))
   
   def as_relative_list(self, head):
     check.check_string(head)

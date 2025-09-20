@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.files.find.bf_file_finder import  bf_file_finder
@@ -14,9 +16,13 @@ from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 class _bf_entry_list_tester(object):
 
-  def __init__(self, content):
+  def __init__(self, content, where = None):
     self._tmp_dir = self._make_temp_content(content)
-    self._find_result = bf_file_finder.find_with_options(self._tmp_dir)
+    if where:
+      find_where = [ path.join(self._tmp_dir, nw) for nw in where ]
+    else:
+      find_where = self._tmp_dir
+    self._find_result = bf_file_finder.find_with_options(find_where)
 
   @property
   def tmp_dir(self):
@@ -128,15 +134,33 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
       'kiwi.fruit',
     ], t.entries.basenames() )
 
-  def test_root_dir(self):
+  def test_root_dirs(self):
     t = _bf_entry_list_tester([
-      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
-      'file cheese/brie.cheese "this is brie.cheese\n"',
-    ])
+      'file foo/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    print(t.entries.root_dirs())
     self.assertEqual( [
-      t.tmp_dir,
-      t.tmp_dir,
+      path.join(t.tmp_dir, 'bar'),
+      path.join(t.tmp_dir, 'bar'),
+      path.join(t.tmp_dir, 'foo'),
+      path.join(t.tmp_dir, 'foo'),
     ], t.entries.root_dirs() )
+
+  def test_unique_root_dirs(self):
+    t = _bf_entry_list_tester([
+      'file foo/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    print(t.entries.root_dirs())
+    self.assertEqual( [
+      path.join(t.tmp_dir, 'bar'),
+      path.join(t.tmp_dir, 'foo'),
+    ], t.entries.unique_root_dirs() )
     
 if __name__ == '__main__':
   unit_test.main()
