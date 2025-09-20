@@ -56,6 +56,9 @@ class bf_entry_list(type_checked_list):
       result.sort()
     return result
 
+  def root_dirs(self):
+    return [ item.root_dir for item in self ]
+  
   def as_relative_list(self, head):
     check.check_string(head)
 

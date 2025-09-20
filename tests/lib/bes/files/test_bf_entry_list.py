@@ -75,8 +75,6 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
       'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
-    replacements = { t.tmp_dir: '${tmp_dir}' }
-    actual_json = t.entries.to_json(replacements = replacements)
     self.assert_json_equal( '''
 [
   {
@@ -88,7 +86,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
     "root_dir": "${tmp_dir}"
   }
 ]
-''', actual_json )
+''', t.entries.to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
 
   def test_filenames(self):
     t = _bf_entry_list_tester([
@@ -109,6 +107,36 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
       f'cheese/brie.cheese',
       f'fruits/kiwi.fruit',
     ], t.entries.relative_filenames() )
+
+  def test_absolute_filenames(self):
+    t = _bf_entry_list_tester([
+      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file cheese/brie.cheese "this is brie.cheese\n"',
+    ])
+    self.assertEqual( [
+      f'{t.tmp_dir}/cheese/brie.cheese',
+      f'{t.tmp_dir}/fruits/kiwi.fruit',
+    ], t.entries.filenames() )
+
+  def test_basenames(self):
+    t = _bf_entry_list_tester([
+      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file cheese/brie.cheese "this is brie.cheese\n"',
+    ])
+    self.assertEqual( [
+      'brie.cheese',
+      'kiwi.fruit',
+    ], t.entries.basenames() )
+
+  def test_root_dir(self):
+    t = _bf_entry_list_tester([
+      'file fruits/kiwi.fruit "this is kiwi.fruit\n"',
+      'file cheese/brie.cheese "this is brie.cheese\n"',
+    ])
+    self.assertEqual( [
+      t.tmp_dir,
+      t.tmp_dir,
+    ], t.entries.root_dirs() )
     
 if __name__ == '__main__':
   unit_test.main()
