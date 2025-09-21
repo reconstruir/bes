@@ -246,7 +246,32 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
     
   def test_checksum_map(self):
     t = _bf_entry_list_tester([
-      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      f'file foo/fruit/kiwi.fruit "{'kiwi.fruit' * 200000}"',
+      f'file foo/cheese/brie.cheese file:{'brie.cheese' * 200000}',
+      f'file bar/fruit/kiwi.fruit file:{'kiwi.fruit' * 200000}',
+      f'file bar/cheese/brie.cheese file:{'brie.cheese' * 200000}',
+    ], where = [ 'foo', 'bar' ])
+    print(t.entries.checksum_map(bf_hasher_hashlib(), 'sha256'))
+    self.assertEqual( {
+      '974515d347bbcd8600e9c6ee8e3db433415b89c7f7a865cac47781b7e93f2822': [
+        t.make_entry('foo/cheese/brie.cheese'),
+        t.make_entry('bar/cheese/brie.cheese'),
+      ],
+      'cedf6390305749237858b7f7061a131e5b2407c826f1f2a1afb4667c7e5fbc15': [
+        t.make_entry('foo/fruit/kiwi.fruit'),
+        t.make_entry('bar/fruit/kiwi.fruit'),
+      ],
+    }, t.entries.checksum_map(bf_hasher_hashlib(), 'sha256') )
+
+  def test_short_checksum_map(self):
+#    content = 'abcdefghij' * 200000  # make file > 2MB
+
+#    kiwi_content = 'kiwi.fruit' * 200000
+#    brie_content = 'brie.cheese' * 200000
+    kiwi_tmp = self.make_temp_file(content = 'kiwi.fruit' * 200000)
+    #tmp = self._make_temp_entry(content = content)
+    t = _bf_entry_list_tester([
+      f'file foo/fruit/kiwi.fruit "{kiwi_tmp}\n"',
       'file foo/cheese/brie.cheese "this is brie.cheese\n"',
       'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
@@ -260,7 +285,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
         t.make_entry('foo/fruit/kiwi.fruit'),
         t.make_entry('bar/fruit/kiwi.fruit'),
       ],
-    }, t.entries.checksum_map(bf_hasher_hashlib(), 'sha256') )
+    }, t.entries.short_checksum_map(bf_hasher_hashlib(), 'sha256') )
     
 if __name__ == '__main__':
   unit_test.main()

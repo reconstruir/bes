@@ -21,7 +21,7 @@ class bf_hasher_hashlib(bf_hasher_base):
     check.check_string(algorithm)
     check.check_int(chunk_size, allow_none = True)
     check.check_int(num_chunks, allow_none = True)
-    
+
     self._log.log_method_d()
     
     chunk_size = chunk_size or (1024 * 1024)
