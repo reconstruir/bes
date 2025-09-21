@@ -12,14 +12,14 @@ from bes.property.cached_property import cached_property
 #from .file_duplicates_item_list import file_duplicates_item_list
 #from .file_util import file_util
 
-class bf_file_duplicates_finder_setup(namedtuple('bf_file_duplicates_finder_setup', 'files, resolved_files, options')):
+class bf_file_duplicates_finder_setup(namedtuple('bf_file_duplicates_finder_setup', 'files, resolved_entries, options')):
 
-  def __new__(clazz, files, resolved_files, options):
+  def __new__(clazz, files, resolved_entries, options):
     check.check_string_seq(files)
-    check.check_file_duplicates_item_list(resolved_files)
+    check.check_file_duplicates_item_list(resolved_entries)
     check.check_file_duplicates_options(options)
 
-    return clazz.__bases__[0].__new__(clazz, files, resolved_files, options)
+    return clazz.__bases__[0].__new__(clazz, files, resolved_entries, options)
 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
@@ -27,7 +27,7 @@ class bf_file_duplicates_finder_setup(namedtuple('bf_file_duplicates_finder_setu
   def to_dict(self):
     return {
       'files': self.files,
-      'resolved_files': self.resolved_files.to_list(),
+      'resolved_entries': self.resolved_entries.to_list(),
       'options': self.options.to_dict(),
     }
   
@@ -36,7 +36,7 @@ class bf_file_duplicates_finder_setup(namedtuple('bf_file_duplicates_finder_setu
   
   @cached_property
   def dup_checksum_map(self):
-    dmap = self.resolved_files.duplicate_size_map()
+    dmap = self.resolved_entries.duplicate_size_map()
     num_dmap = len(dmap)
     #self.options.blurber.blurb_verbose(f'found {num_dmap} duplicate sizes')
     flat_size_dup_files = self._flat_duplicate_files(dmap)

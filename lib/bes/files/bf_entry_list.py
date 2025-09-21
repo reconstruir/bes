@@ -104,5 +104,18 @@ class bf_entry_list(type_checked_list):
           result[entry.size] = bf_entry_list()
         result[entry.size].append(entry)
     return result
+
+  def checksum_map(self, hasher, algorithm, ignore_missing_files = True):
+    result = {}
+    for entry in self:
+      try:
+        checksum = hasher.checksum_sha(entry, algorithm, None, None)
+        if not checksum in result:
+          result[checksum] = bf_entry_list()
+        result[checksum].append(entry)
+      except FileNotFoundError as ex:
+        if not ignore_missing_files:
+          raise
+    return result
   
 bf_entry_list.register_check_class()

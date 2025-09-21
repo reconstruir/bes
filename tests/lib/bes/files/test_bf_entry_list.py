@@ -5,7 +5,8 @@ from os import path
 
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
-from bes.files.find.bf_file_finder import  bf_file_finder
+from bes.files.find.bf_file_finder import bf_file_finder
+from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
@@ -242,6 +243,24 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
   }
 ]
 ''', m[19].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+    
+  def test_checksum_map(self):
+    t = _bf_entry_list_tester([
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    self.assertEqual( {
+      '974515d347bbcd8600e9c6ee8e3db433415b89c7f7a865cac47781b7e93f2822': [
+        t.make_entry('foo/cheese/brie.cheese'),
+        t.make_entry('bar/cheese/brie.cheese'),
+      ],
+      'fcf40d88314778f705b355d3cd1d84a45b61788c7510852c9133d4dc94f32647': [
+        t.make_entry('foo/fruit/kiwi.fruit'),
+        t.make_entry('bar/fruit/kiwi.fruit'),
+      ],
+    }, t.entries.checksum_map(bf_hasher_hashlib(), 'sha256') )
     
 if __name__ == '__main__':
   unit_test.main()
