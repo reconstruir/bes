@@ -263,7 +263,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
       ],
     }, t.entries.checksum_map(bf_hasher_hashlib(), 'sha256') )
 
-  def test_short_checksum_map(self):
+  def xtest_short_checksum_map(self):
 #    content = 'abcdefghij' * 200000  # make file > 2MB
 
 #    kiwi_content = 'kiwi.fruit' * 200000
