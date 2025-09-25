@@ -116,6 +116,8 @@ class bf_entry_list(type_checked_list):
       except FileNotFoundError as ex:
         if not ignore_missing_files:
           raise
+    for _, entries in result.items():
+      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
   def short_checksum_map(self, hasher, algorithm, ignore_missing_files = True):
@@ -129,6 +131,8 @@ class bf_entry_list(type_checked_list):
       except FileNotFoundError as ex:
         if not ignore_missing_files:
           raise
+    for _, entries in result.items():
+      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
   
 bf_entry_list.register_check_class()
