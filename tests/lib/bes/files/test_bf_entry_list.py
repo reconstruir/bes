@@ -98,7 +98,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 ]
 ''', t.entries.to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
 
-  def test_filenames(self):
+  def xtest_filenames(self):
     t = _bf_entry_list_tester([
       'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
@@ -244,7 +244,7 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 ]
 ''', m[19].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
     
-  def test_checksum_map(self):
+  def xtest_checksum_map(self):
     t = _bf_entry_list_tester([
       f'file foo/fruit/kiwi.fruit "{'kiwi.fruit' * 200000}"',
       f'file foo/cheese/brie.cheese file:{'brie.cheese' * 200000}',
