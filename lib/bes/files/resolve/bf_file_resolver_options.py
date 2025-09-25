@@ -43,7 +43,8 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
        walk_dir_match_type bf_file_matcher_mode    default=ANY
                       mode bf_file_finder_mode     default=IMMEDIATE
                 sort_order bf_entry_sort_criteria  default=FILENAME
-               entry_class type                    default=${_bf_file_resolver_entry_default_type}
+          file_entry_class type                    default=${_bf_file_resolver_entry_default_type}
+           dir_entry_class type                    default=${_bf_file_resolver_entry_default_type}
             match_function callable
          progress_callback callable
  progress_interval_percent float                   default=5.0

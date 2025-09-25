@@ -34,7 +34,8 @@ class bf_file_resolver(object):
   def resolve_gen(self, where):
     where = bf_check.check_file_or_dir_seq(object_util.listify(where))
 
-    entry_class = self._options.entry_class or bf_file_resolver_entry
+    file_entry_class = self._options.file_entry_class or bf_file_resolver_entry
+    dir_entry_class = self._options.dir_entry_class or bf_file_resolver_entry
 
     def _matcher(entry):
       if self._options.match_function:
@@ -46,13 +47,14 @@ class bf_file_resolver(object):
                                             stop_after = self._options.stop_after,
                                             mode = bf_file_finder_mode.WITH_PROGRESS,
                                             file_type = self._options.file_type,
-                                            entry_class = self._options.entry_class,
+                                            file_entry_class = file_entry_class,
+                                            dir_entry_class = dir_entry_class,
                                             progress_callback = self._options.progress_callback,
                                             ignore_filename = self._options.ignore_filename)
     finder = bf_file_finder(options = finder_options)
     for next_where in where:
       if path.isfile(next_where):
-        entry = entry_class(next_where)
+        entry = file_entry_class(next_where)
         if _matcher(entry):
           yield entry
       elif path.isdir(next_where):

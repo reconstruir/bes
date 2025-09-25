@@ -458,7 +458,9 @@ class test_bf_file_scanner(unit_test):
     content = [
       'file foo.txt "foo.txt\n"',
     ]
-    result = self._scan(content, file_type = 'file', entry_class = _test_bf_entry)
+    result = self._scan(content, file_type = 'file',
+                        file_entry_class = _test_bf_entry,
+                        dir_entry_class = _test_bf_entry)
     self.assert_filename_list_equal( [
       'foo.txt',
     ], result.sorted_relative_filenames )

@@ -42,7 +42,8 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
        walk_dir_match_type bf_file_matcher_mode default=ANY
              stop_function callable
                 stop_after int
-               entry_class type                 default=${_bf_file_scanner_entry_default_type}
+          file_entry_class type                 default=${_bf_file_scanner_entry_default_type}
+           dir_entry_class type                 default=${_bf_file_scanner_entry_default_type}
            ignore_filename str
     include_resource_forks bool                 default=False
 '''

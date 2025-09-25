@@ -25,16 +25,20 @@ class bf_walk(object):
   @classmethod
   def walk(clazz, where, max_depth = None, follow_links = False,
            walk_dir_matcher = None, walk_dir_match_type = None,
-           entry_class = None):
+           file_entry_class = None, dir_entry_class = None):
     check.check_string(where)
     check.check_int(max_depth, allow_none = True)
     check.check_bool(follow_links)
     check.check_bf_file_matcher(walk_dir_matcher, allow_none = True)
     walk_dir_match_type = check.check_bf_file_matcher_mode(walk_dir_match_type, allow_none = True)
-    entry_class = check.check_class(entry_class, allow_none = True) or bf_entry
+    file_entry_class = check.check_class(file_entry_class, allow_none = True) or bf_entry
+    dir_entry_class = check.check_class(dir_entry_class, allow_none = True) or bf_entry
 
-    if not issubclass(entry_class, bf_entry):
-      raise TypeError(f'entry_class should be a subclass of bf_entry instead of: "{entry_class}" - {type(entry_class)}')
+    if not issubclass(file_entry_class, bf_entry):
+      raise TypeError(f'file_entry_class should be a subclass of bf_entry instead of: "{file_entry_class}" - {type(file_entry_class)}')
+    
+    if not issubclass(dir_entry_class, bf_entry):
+      raise TypeError(f'dir_entry_class should be a subclass of bf_entry instead of: "{dir_entry_class}" - {type(dir_entry_class)}')
     
     where = path.normpath(where.rstrip(path.sep))
     if not path.isdir(where):
@@ -46,13 +50,13 @@ class bf_walk(object):
       clazz._log.log_d(f'walk_with_depth: next_root_dir={next_root_dir} dirs={dirs} files={files}')
       num_sep_this = next_root_dir.count(path.sep)
       depth = num_sep_this - num_sep
-      dir_entries = clazz._make_entry_list(where, next_root_dir, dirs, entry_class)
+      dir_entries = clazz._make_entry_list(where, next_root_dir, dirs, dir_entry_class)
       if walk_dir_matcher:
         filtered_dir_entries = walk_dir_matcher.match_entries(dir_entries,
                                                               match_type = walk_dir_match_type)
         dir_entries = filtered_dir_entries
       
-      file_entries = clazz._make_entry_list(where, next_root_dir, files, entry_class)
+      file_entries = clazz._make_entry_list(where, next_root_dir, files, file_entry_class)
       walk_item = clazz._bf_walk_item(next_root_dir, dir_entries, file_entries, depth)
       yield walk_item
       if max_depth is not None:

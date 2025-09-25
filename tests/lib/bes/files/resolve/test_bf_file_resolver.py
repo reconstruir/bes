@@ -214,7 +214,9 @@ class test_bf_file_resolver(unit_test):
       'file kiwi/emptyfile.txt',
       'dir kiwi/emptydir',
     ]
-    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir' ], entry_class = _test_entry_class)
+    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir' ],
+                      file_entry_class = _test_entry_class,
+                      dir_entry_class = _test_entry_class)
 
     self.assert_json_equal( '''
 [
