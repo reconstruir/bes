@@ -9,12 +9,20 @@ class bf_file_resolver_entry(bf_entry):
 
   _log = logger('resolve')
   
-  def __init__(self, filename, root_dir = None, index = None, found_index = None):
-    super().__init__(filename, root_dir = root_dir)
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
 
-    self._index = index
-    self._found_index = found_index
+    self._index = None
+    self._found_index = None
 
+  def to_dict(self):
+    d = super().to_dict()
+    d.update( {
+      'index': self.index,
+      'found_index': self.found_index,
+    })
+    return d
+    
   @property
   def index(self):
     return self._index
@@ -22,3 +30,12 @@ class bf_file_resolver_entry(bf_entry):
   @index.setter
   def index(self, index):
     self._index = index
+
+  @property
+  def found_index(self):
+    return self._found_index
+
+  @found_index.setter
+  def found_index(self, found_index):
+    self._found_index = found_index
+    

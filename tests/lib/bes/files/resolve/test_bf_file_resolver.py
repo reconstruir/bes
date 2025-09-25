@@ -64,19 +64,27 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "emptyfile.txt",
-    "root_dir": "${tmp_dir}/kiwi"
+    "root_dir": "${tmp_dir}/kiwi",
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "foo.txt",
-    "root_dir": "${tmp_dir}/kiwi"
+    "root_dir": "${tmp_dir}/kiwi",
+    "index": 1,
+    "found_index": 1
   },
   {
     "filename": "subdir/bar.txt",
-    "root_dir": "${tmp_dir}/kiwi"
+    "root_dir": "${tmp_dir}/kiwi",
+    "index": 2,
+    "found_index": 2
   },
   {
     "filename": "subdir/subberdir/baz.txt",
-    "root_dir": "${tmp_dir}/kiwi"
+    "root_dir": "${tmp_dir}/kiwi",
+    "index": 3,
+    "found_index": 3
   }
 ]
 ''', r.entries_json )
@@ -94,7 +102,9 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "${tmp_dir}/kiwi/foo.txt",
-    "root_dir": null
+    "root_dir": null,
+    "index": 0,
+    "found_index": 0
   }
 ]
 ''', r.entries_json )
@@ -112,11 +122,15 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "${tmp_dir}/kiwi/foo.txt",
-    "root_dir": null
+    "root_dir": null,
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "${tmp_dir}/kiwi/subdir/subberdir/baz.txt",
-    "root_dir": null
+    "root_dir": null,
+    "index": 1,
+    "found_index": 1
   }
 ]
 ''', r.entries_json )
@@ -135,15 +149,21 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "${tmp_dir}/kiwi/foo.txt",
-    "root_dir": null
+    "root_dir": null,
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "bar.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 1,
+    "found_index": 1
   },
   {
     "filename": "subberdir/baz.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 2,
+    "found_index": 2
   }
 ]
 ''', r.entries_json )
@@ -164,15 +184,21 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "bar.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "subberdir/baz.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 1,
+    "found_index": 1
   },
   {
     "filename": "bar3.txt",
-    "root_dir": "${tmp_dir}/lemon/subdir"
+    "root_dir": "${tmp_dir}/lemon/subdir",
+    "index": 2,
+    "found_index": 2
   }
 ]
 ''', r.entries_json )
@@ -194,15 +220,23 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "${tmp_dir}/kiwi/foo.txt",
-    "root_dir": null
+    "root_dir": null,
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "bar.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 1,
+    "found_index": 1
+
   },
   {
     "filename": "subberdir/baz.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 2,
+    "found_index": 2
+
   }
 ]
 ''', r.entries_json )
@@ -229,11 +263,15 @@ class test_bf_file_resolver(unit_test):
 [
   {
     "filename": "${tmp_dir}/kiwi/foo.txt",
-    "root_dir": null
+    "root_dir": null,
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "foo.txt",
-    "root_dir": "${tmp_dir}/kiwi/subdir"
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 1,
+    "found_index": 1
   }
 ]
 ''', r.entries_json )

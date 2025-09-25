@@ -36,23 +36,33 @@ class test_file_duplicates(unit_test):
 [
   {
     "filename": "a/apple.jpg",
-    "root_dir": "${root_dir}"
+    "root_dir": "${root_dir}",
+    "index": 0,
+    "found_index": 0
   },
   {
     "filename": "a/kiwi.jpg",
-    "root_dir": "${root_dir}"
+    "root_dir": "${root_dir}",
+    "index": 1,
+    "found_index": 1
   },
   {
     "filename": "a/lemon.jpg",
-    "root_dir": "${root_dir}"
+    "root_dir": "${root_dir}",
+    "index": 2,
+    "found_index": 2
   },
   {
     "filename": "b/kiwi_dup1.jpg",
-    "root_dir": "${root_dir}"
+    "root_dir": "${root_dir}",
+    "index": 3,
+    "found_index": 3
   },
   {
     "filename": "c/kiwi_dup2.jpg",
-    "root_dir": "${root_dir}"
+    "root_dir": "${root_dir}",
+    "index": 4,
+    "found_index": 4
   }
 ]
 ''', resolved_files.to_json().replace(tester.src_dir, '${root_dir}') )

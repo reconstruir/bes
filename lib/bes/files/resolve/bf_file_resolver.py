@@ -62,6 +62,8 @@ class bf_file_resolver(object):
     
   def resolve(self, where):
     result = bf_entry_list()
-    for entry in self.resolve_gen(where):
+    for index, entry in enumerate(self.resolve_gen(where)):
+      entry.index = index
+      entry.found_index = index
       result.append(entry)
     return result
