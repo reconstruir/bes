@@ -11,7 +11,7 @@ from ..bf_file_type import bf_cli_file_type
 from ..core.bf_files_cli_options import bf_files_cli_options
 from ..core.bf_files_cli_options import _bf_files_cli_options_desc
 
-from .bf_file_dups_finder_error import bf_file_dups_finder_error
+from .bf_file_dups_error import bf_file_dups_error
 from .bf_file_dups_finder_options import bf_file_dups_finder_options
 
 class _bf_file_dups_command_options_desc(_bf_files_cli_options_desc):
@@ -41,7 +41,7 @@ sort_order bf_entry_sort_criteria  default=FILENAME
 
   #@abstractmethod
   def _error_class(self):
-    return bf_file_dups_finder_error
+    return bf_file_dups_error
   
 class bf_file_dups_command_options(bf_files_cli_options):
   def __init__(self, **kwargs):

@@ -16,8 +16,8 @@ class bf_file_dups_command_factory(bcli_command_factory_i):
   
   #@abstractmethod
   def error_class(self):
-    from .bf_file_dups_finder_error import bf_file_dups_finder_error
-    raise bf_file_dups_finder_error
+    from .bf_file_dups_error import bf_file_dups_error
+    raise bf_file_dups_error
 
   #@abstractmethod
   def options_class(self):
