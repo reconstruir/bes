@@ -7,7 +7,7 @@ from bes.system.check import check
 from bes.bcli.bcli_command_handler import bcli_command_handler
 
 from .bf_file_dups_finder import bf_file_dups_finder
-from .bf_file_dups_finder_cli_options import bf_file_dups_finder_cli_options
+from .bf_file_dups_command_options import bf_file_dups_command_options
 
 class bf_file_dups_command_handler(bcli_command_handler):
 
@@ -17,7 +17,7 @@ class bf_file_dups_command_handler(bcli_command_handler):
   
   def _command_find(self, where, options):
     check.check_string_seq(where)
-    check.check_bf_file_dups_finder_cli_options(options)
+    check.check_bf_file_dups_command_options(options)
 
     print(f'where={where}')
     return 0

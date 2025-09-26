@@ -21,8 +21,8 @@ class bf_file_dups_command_factory(bcli_command_factory_i):
 
   #@abstractmethod
   def options_class(self):
-    from .bf_file_dups_finder_cli_options import bf_file_dups_finder_cli_options
-    return bf_file_dups_finder_cli_options
+    from .bf_file_dups_command_options import bf_file_dups_command_options
+    return bf_file_dups_command_options
   
   #@abstractmethod
   def has_commands(self):
