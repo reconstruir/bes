@@ -9,7 +9,7 @@ from bes.bcli.bcli_command_handler import bcli_command_handler
 from .bf_file_dups_finder import bf_file_dups_finder
 from .bf_file_dups_finder_cli_options import bf_file_dups_finder_cli_options
 
-class bf_file_dups_finder_command_handler(bcli_command_handler):
+class bf_file_dups_command_handler(bcli_command_handler):
 
   #@abc.abstractmethod
   def name(self):

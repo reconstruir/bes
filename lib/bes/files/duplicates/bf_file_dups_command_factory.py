@@ -2,7 +2,7 @@
 
 from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
-class bf_file_dups_finder_command_factory(bcli_command_factory_i):
+class bf_file_dups_command_factory(bcli_command_factory_i):
 
   @classmethod
   #@abstractmethod
@@ -83,8 +83,8 @@ class bf_file_dups_finder_command_factory(bcli_command_factory_i):
 
   #@abstractmethod
   def handler_class(self):
-    from .bf_file_dups_finder_command_handler import bf_file_dups_finder_command_handler
-    return bf_file_dups_finder_command_handler
+    from .bf_file_dups_command_handler import bf_file_dups_command_handler
+    return bf_file_dups_command_handler
 
   #@abstractmethod
   def supported_platforms(self):
