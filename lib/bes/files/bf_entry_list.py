@@ -90,6 +90,8 @@ class bf_entry_list(type_checked_list):
       if not entry.basename in result:
         result[entry.basename] = bf_entry_list()
       result[entry.basename].append(entry)
+    for _, entries in result.items():
+      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
   def size_map(self):
@@ -103,6 +105,8 @@ class bf_entry_list(type_checked_list):
         if not entry.size in result:
           result[entry.size] = bf_entry_list()
         result[entry.size].append(entry)
+    for _, entries in result.items():
+      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
   def checksum_map(self, hasher, algorithm, ignore_missing_files = True):

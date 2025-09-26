@@ -187,11 +187,11 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 [
   {
     "filename": "cheese/brie.cheese",
-    "root_dir": "${tmp_dir}/foo"
+    "root_dir": "${tmp_dir}/bar"
   },
   {
     "filename": "cheese/brie.cheese",
-    "root_dir": "${tmp_dir}/bar"
+    "root_dir": "${tmp_dir}/foo"
   }
 ]
 ''', m['brie.cheese'].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
@@ -200,11 +200,11 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 [
   {
     "filename": "fruit/kiwi.fruit",
-    "root_dir": "${tmp_dir}/foo"
+    "root_dir": "${tmp_dir}/bar"
   },
   {
     "filename": "fruit/kiwi.fruit",
-    "root_dir": "${tmp_dir}/bar"
+    "root_dir": "${tmp_dir}/foo"
   }
 ]
 ''', m['kiwi.fruit'].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
@@ -222,11 +222,11 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 [
   {
     "filename": "cheese/brie.cheese",
-    "root_dir": "${tmp_dir}/foo"
+    "root_dir": "${tmp_dir}/bar"
   },
   {
     "filename": "cheese/brie.cheese",
-    "root_dir": "${tmp_dir}/bar"
+    "root_dir": "${tmp_dir}/foo"
   }
 ]
 ''', m[20].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
@@ -235,11 +235,11 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
 [
   {
     "filename": "fruit/kiwi.fruit",
-    "root_dir": "${tmp_dir}/foo"
+    "root_dir": "${tmp_dir}/bar"
   },
   {
     "filename": "fruit/kiwi.fruit",
-    "root_dir": "${tmp_dir}/bar"
+    "root_dir": "${tmp_dir}/foo"
   }
 ]
 ''', m[19].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
