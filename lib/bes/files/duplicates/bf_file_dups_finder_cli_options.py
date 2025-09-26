@@ -11,10 +11,10 @@ from ..bf_file_type import bf_cli_file_type
 from ..core.bf_files_cli_options import bf_files_cli_options
 from ..core.bf_files_cli_options import _bf_files_cli_options_desc
 
-from .bf_file_duplicates_finder_error import bf_file_duplicates_finder_error
-from .bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
+from .bf_file_dups_finder_error import bf_file_dups_finder_error
+from .bf_file_dups_finder_options import bf_file_dups_finder_options
 
-class _bf_file_duplicates_finder_cli_options_desc(_bf_files_cli_options_desc):
+class _bf_file_dups_finder_cli_options_desc(_bf_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
@@ -41,19 +41,19 @@ sort_order bf_entry_sort_criteria  default=FILENAME
 
   #@abstractmethod
   def _error_class(self):
-    return bf_file_duplicates_finder_error
+    return bf_file_dups_finder_error
   
-class bf_file_duplicates_finder_cli_options(bf_files_cli_options):
+class bf_file_dups_finder_cli_options(bf_files_cli_options):
   def __init__(self, **kwargs):
-    super().__init__(_bf_file_duplicates_finder_cli_options_desc(), **kwargs)
+    super().__init__(_bf_file_dups_finder_cli_options_desc(), **kwargs)
 
   def pass_through_keys(self):
     return ( 'file_duplicates_options', )
     
   @property
   def file_duplicates_options(self):
-    return bf_file_duplicates_finder_options(file_type = self.file_type,
+    return bf_file_dups_finder_options(file_type = self.file_type,
                                              max_depth = self.max_depth,
                                              min_depth = self.min_depth)
   
-bf_file_duplicates_finder_cli_options.register_check_class()
+bf_file_dups_finder_cli_options.register_check_class()

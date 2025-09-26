@@ -9,7 +9,7 @@ from datetime import timedelta
 #from bes.fs.file_duplicates import file_duplicates
 #from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.files.bf_path import bf_path
-from bes.files.duplicates.bf_file_duplicates_finder import bf_file_duplicates_finder
+from bes.files.duplicates.bf_file_dups_finder import bf_file_dups_finder
 from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 #from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
@@ -30,7 +30,7 @@ class test_file_duplicates(unit_test):
     ]
     with dir_operation_tester(extra_content_items = items) as tester:
       hasher = bf_hasher_hashlib()
-      finder = bf_file_duplicates_finder(hasher = hasher)
+      finder = bf_file_dups_finder(hasher = hasher)
       resolved_files = finder._resolve_files(tester.src_dir)
       self.assert_json_equal( '''
 [

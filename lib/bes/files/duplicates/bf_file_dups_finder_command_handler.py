@@ -6,18 +6,18 @@ from bes.system.check import check
 
 from bes.bcli.bcli_command_handler import bcli_command_handler
 
-from .bf_file_duplicates_finder import bf_file_duplicates_finder
-from .bf_file_duplicates_finder_cli_options import bf_file_duplicates_finder_cli_options
+from .bf_file_dups_finder import bf_file_dups_finder
+from .bf_file_dups_finder_cli_options import bf_file_dups_finder_cli_options
 
-class bf_file_duplicates_finder_command_handler(bcli_command_handler):
+class bf_file_dups_finder_command_handler(bcli_command_handler):
 
   #@abc.abstractmethod
   def name(self):
-    return 'bf_file_duplicates_finder'
+    return 'bf_file_dups_finder'
   
   def _command_find(self, where, options):
     check.check_string_seq(where)
-    check.check_bf_file_duplicates_finder_cli_options(options)
+    check.check_bf_file_dups_finder_cli_options(options)
 
     print(f'where={where}')
     return 0
@@ -28,7 +28,7 @@ class bf_file_duplicates_finder_command_handler(bcli_command_handler):
     resolver_options = options.file_duplicates_options.clone()
     resolver_options.progress_callback = _progress_cb
       
-    resolver = bf_file_duplicates_finder(options = resolver_options)
+    resolver = bf_file_dups_finder(options = resolver_options)
     entries = resolver.resolve(where)
     for entry in entries:
       print(entry.filename)
