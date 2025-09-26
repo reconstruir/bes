@@ -6,14 +6,10 @@ from os import path
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_entry_list import bf_entry_list
 from bes.files.find.bf_file_finder import bf_file_finder
-from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.fs.testing.temp_content import temp_content
-
-from _bes_unit_test_common.unit_test_media import unit_test_media
-from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 class _bf_entry_list_tester(object):
 
@@ -40,7 +36,7 @@ class _bf_entry_list_tester(object):
   def _make_temp_content(clazz, content):
     return temp_content.write_items_to_temp_dir(content, delete = not test_bf_entry_list.DEBUG)
 
-class test_bf_entry_list(unit_test, unit_test_media_files):
+class test_bf_entry_list(unit_test):
   
   def _make_test_entry(self, *args, **kargs):
     tmp = self.make_temp_file(*args, **kargs)
@@ -243,46 +239,6 @@ class test_bf_entry_list(unit_test, unit_test_media_files):
   }
 ]
 ''', m[19].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
-    
-  def test_checksum_map(self):
-    kiwi_tmp = self.make_temp_file(content = 'kiwi.fruit' * 200000)
-    brie_tmp = self.make_temp_file(content = 'brie.cheese' * 200000)
-    t = _bf_entry_list_tester([
-      f'file foo/fruit/kiwi.fruit "file:{kiwi_tmp}"',
-      f'file foo/cheese/brie.cheese "file:{brie_tmp}"',
-      f'file bar/fruit/kiwi.fruit "file:{kiwi_tmp}"',
-      f'file bar/cheese/brie.cheese "file:{brie_tmp}"',
-    ], where = [ 'foo', 'bar' ])
-    self.assertEqual( {
-      '98d4cb8bfd2a0adc645e1b56d9a1353afabee286b8dc55406fb31077d686d355': [
-        t.make_entry('bar/cheese/brie.cheese'),
-        t.make_entry('foo/cheese/brie.cheese'),
-      ],
-      'cedf6390305749237858b7f7061a131e5b2407c826f1f2a1afb4667c7e5fbc15': [
-        t.make_entry('bar/fruit/kiwi.fruit'),
-        t.make_entry('foo/fruit/kiwi.fruit'),
-      ],
-    }, t.entries.checksum_map(bf_hasher_hashlib(), 'sha256') )
-
-  def test_short_checksum_map(self):
-    kiwi_tmp = self.make_temp_file(content = 'kiwi.fruit' * 200000)
-    brie_tmp = self.make_temp_file(content = 'brie.cheese' * 200000)
-    t = _bf_entry_list_tester([
-      f'file foo/fruit/kiwi.fruit "file:{kiwi_tmp}"',
-      f'file foo/cheese/brie.cheese "file:{brie_tmp}"',
-      f'file bar/fruit/kiwi.fruit "file:{kiwi_tmp}"',
-      f'file bar/cheese/brie.cheese "file:{brie_tmp}"',
-    ], where = [ 'foo', 'bar' ])
-    self.assertEqual( {
-      'd40fcfedf10603b4814ca7e13daf571c0b82b8240ac219df5fce0f97e5ee6287': [
-        t.make_entry('bar/cheese/brie.cheese'),
-        t.make_entry('foo/cheese/brie.cheese'),
-      ],
-      'b78b51fc10a1b3947d3de469f582c6dbb976642b2d0fd739665f2240df24cbbf': [
-        t.make_entry('bar/fruit/kiwi.fruit'),
-        t.make_entry('foo/fruit/kiwi.fruit'),
-      ],
-    }, t.entries.short_checksum_map(bf_hasher_hashlib(), 'sha256') )
     
 if __name__ == '__main__':
   unit_test.main()

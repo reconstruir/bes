@@ -9,6 +9,7 @@ from ..match.bf_file_matcher import bf_cli_file_matcher
 from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
 
 from ..bf_entry import bf_entry
+from ..bf_entry_list import bf_entry_list
 from ..bf_file_type import bf_cli_file_type
 
 from .bf_file_finder_error import bf_file_finder_error
@@ -28,6 +29,7 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
   def _variables(self):
     return {
       '_bf_file_scanner_entry_default_type': lambda: bf_entry,
+      '_bf_file_scanner_entry_list_default_type': lambda: bf_entry_list,
     }
   
   #@abstractmethod
@@ -44,6 +46,7 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
                 stop_after int
           file_entry_class type                 default=${_bf_file_scanner_entry_default_type}
            dir_entry_class type                 default=${_bf_file_scanner_entry_default_type}
+          entry_list_class type                 default=${_bf_file_scanner_entry_list_default_type}
            ignore_filename str
     include_resource_forks bool                 default=False
 '''

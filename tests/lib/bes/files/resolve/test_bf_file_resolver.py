@@ -7,6 +7,7 @@ from collections import namedtuple
 from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.files.resolve.bf_file_resolver import bf_file_resolver
 from bes.files.bf_entry import bf_entry
+from bes.files.bf_entry_list import bf_entry_list
 from bes.files.resolve.bf_file_resolver_options import bf_file_resolver_options
 from bes.files.resolve.bf_file_resolver_entry import bf_file_resolver_entry
 from bes.fs.testing.temp_content import temp_content
@@ -245,6 +246,47 @@ class test_bf_file_resolver(unit_test):
 
     for entry in r.entries:
       self.assertTrue( isinstance(entry, _test_entry_class) )
+
+  def test_resolve_with_entry_list_class(self):
+    class _test_entry_list_class(bf_entry_list):
+      pass
+    
+    content = [
+      'file kiwi/foo.txt "foo.txt\n"',
+      'file kiwi/subdir/bar.txt "bar.txt\n"',
+      'file kiwi/subdir/subberdir/baz.txt "baz.txt\n"',
+      'file kiwi/emptyfile.txt',
+      'dir kiwi/emptydir',
+    ]
+    r = self._resolve(content, [ 'kiwi/foo.txt', 'kiwi/subdir' ],
+                      entry_list_class = _test_entry_list_class)
+
+    self.assert_json_equal( '''
+[
+  {
+    "filename": "${tmp_dir}/kiwi/foo.txt",
+    "root_dir": null,
+    "index": 0,
+    "found_index": 0
+  },
+  {
+    "filename": "bar.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 1,
+    "found_index": 1
+
+  },
+  {
+    "filename": "subberdir/baz.txt",
+    "root_dir": "${tmp_dir}/kiwi/subdir",
+    "index": 2,
+    "found_index": 2
+
+  }
+]
+''', r.entries_json )
+
+    self.assertTrue( isinstance(r.entries, _test_entry_list_class) )
 
   def test_resolve_with_match_function(self):
 

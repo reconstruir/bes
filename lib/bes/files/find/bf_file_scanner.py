@@ -11,7 +11,6 @@ from bes.common.object_util import object_util
 
 from ..bf_check import bf_check
 from ..bf_entry import bf_entry
-from ..bf_entry_list import bf_entry_list
 from ..bf_file_type import bf_file_type
 from ..bf_filename import bf_filename
 from ..bf_path_type import bf_path_type
@@ -55,7 +54,8 @@ class bf_file_scanner(object):
   def _scan_gen_one_dir(self, where, context):
     where = bf_check.check_dir(where)
     where = path.normpath(where)
-    result = bf_entry_list()
+    print(f'entry_list_class={self._options.entry_list_class}', flush = True)
+    result = self._options.entry_list_class()
     where = path.normpath(where)
 
     self._log.log_d(f'find_gen: where={where} options={self._options}')
@@ -77,8 +77,8 @@ class bf_file_scanner(object):
         break
       if context:
         context.stats['depth'] = max(context.stats['depth'], item.depth)
-      to_check_files = bf_entry_list()
-      to_check_dirs = bf_entry_list()
+      to_check_files = self._options.entry_list_class()
+      to_check_dirs = self._options.entry_list_class()
 
       if want_files or want_links:
         for next_file_entry in item.files:
@@ -107,7 +107,7 @@ class bf_file_scanner(object):
           yield next_file_entry
           if self._options.stop_after == count:
             done = True
-      matched_dirs = bf_entry_list()
+      matched_dirs = self._options.entry_list_class()
       num_to_check_dirs = len(to_check_dirs)
       for i, next_dir_entry in enumerate(to_check_dirs, start = 1):
         p = path.join(where, next_dir_entry.relative_filename, '.testing_test_ignore')
@@ -160,7 +160,7 @@ class bf_file_scanner(object):
   
   def scan(self, where):
     context = bf_file_scanner_context()
-    entries = bf_entry_list()
+    entries = self._options.entry_list_class()
     for entry in self._scan_gen_with_context(where, context):
       entries.append(entry)
     return bf_file_scanner_result(entries, context.make_stats())

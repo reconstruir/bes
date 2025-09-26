@@ -9,6 +9,7 @@ from ..find.bf_file_finder_mode import bf_cli_file_finder_mode
 from ..match.bf_file_matcher import bf_cli_file_matcher
 from ..match.bf_file_matcher_mode import bf_cli_file_matcher_mode
 
+from ..bf_entry_list import bf_entry_list
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria_bcli
 from ..bf_file_type import bf_cli_file_type
 
@@ -30,6 +31,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
   def _variables(self):
     return {
       '_bf_file_resolver_entry_default_type': lambda: bf_file_resolver_entry,
+      '_bf_file_resolver_entry_list_default_type': lambda: bf_entry_list,
     }
   
   #@abstractmethod
@@ -45,6 +47,7 @@ class _bf_file_resolver_options_desc(bcli_options_desc):
                 sort_order bf_entry_sort_criteria  default=FILENAME
           file_entry_class type                    default=${_bf_file_resolver_entry_default_type}
            dir_entry_class type                    default=${_bf_file_resolver_entry_default_type}
+          entry_list_class type                    default=${_bf_file_resolver_entry_list_default_type}
             match_function callable
          progress_callback callable
  progress_interval_percent float                   default=5.0

@@ -7,7 +7,6 @@ from bes.system.log import logger
 
 from ..bf_check import bf_check
 from ..bf_entry import bf_entry
-from ..bf_entry_list import bf_entry_list
 from ..bf_file_type import bf_file_type
 from ..bf_path_type import bf_path_type
 from ..match.bf_file_matcher_mode import bf_file_matcher_mode
@@ -69,7 +68,7 @@ class bf_file_finder(object):
       
   def find(self, where):
     context = bf_file_scanner_context()
-    entries = bf_entry_list()
+    entries = self._options.entry_list_class()
     for entry in self._find_gen(where, context):
       entries.append(entry)
     return bf_file_scanner_result(entries, context.make_stats())

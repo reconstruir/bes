@@ -109,34 +109,5 @@ class bf_entry_list(type_checked_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
-  def checksum_map(self, hasher, algorithm, ignore_missing_files = True):
-    result = {}
-    for entry in self:
-      try:
-        checksum = hasher.checksum_sha(entry, algorithm, None, None)
-        if not checksum in result:
-          result[checksum] = bf_entry_list()
-        result[checksum].append(entry)
-      except FileNotFoundError as ex:
-        if not ignore_missing_files:
-          raise
-    for _, entries in result.items():
-      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
-    return result
-
-  def short_checksum_map(self, hasher, algorithm, ignore_missing_files = True):
-    result = {}
-    for entry in self:
-      try:
-        checksum = hasher.short_checksum_sha(entry, algorithm)
-        if not checksum in result:
-          result[checksum] = bf_entry_list()
-        result[checksum].append(entry)
-      except FileNotFoundError as ex:
-        if not ignore_missing_files:
-          raise
-    for _, entries in result.items():
-      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
-    return result
   
 bf_entry_list.register_check_class()
