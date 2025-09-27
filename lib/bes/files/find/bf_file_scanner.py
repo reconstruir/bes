@@ -54,7 +54,6 @@ class bf_file_scanner(object):
   def _scan_gen_one_dir(self, where, context):
     where = bf_check.check_dir(where)
     where = path.normpath(where)
-    print(f'entry_list_class={self._options.entry_list_class}', flush = True)
     result = self._options.entry_list_class()
     where = path.normpath(where)
 
