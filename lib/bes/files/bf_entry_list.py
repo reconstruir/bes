@@ -83,31 +83,5 @@ class bf_entry_list(type_checked_list):
 
   def absolute_common_ancestor(self):
     return bf_path.common_ancestor(self.absolute_filenames())
-
-  def basename_map(self):
-    result = {}
-    for entry in self:
-      if not entry.basename in result:
-        result[entry.basename] = bf_entry_list()
-      result[entry.basename].append(entry)
-    for _, entries in result.items():
-      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
-    return result
-
-  def size_map(self):
-    result = {}
-    for entry in self:
-      try:
-        size = entry.size
-      except FileNotFoundError as ex:
-        size = None
-      if size != None:
-        if not entry.size in result:
-          result[entry.size] = bf_entry_list()
-        result[entry.size].append(entry)
-    for _, entries in result.items():
-      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
-    return result
-
   
 bf_entry_list.register_check_class()

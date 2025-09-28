@@ -7,8 +7,6 @@ from collections import namedtuple
 
 from bes.bcli.bcli_type_i import bcli_type_i
 from bes.system.check import check
-from bes.common.tuple_util import tuple_util
-from bes.common.json_util import json_util
 from bes.property.cached_property import cached_property
 from bes.data_classes.bdata_class_base import bdata_class_base
 
@@ -20,28 +18,6 @@ class bf_file_dups_finder_setup(bdata_class_base):
   where: typing.List[str]
   resolved_entries: bf_file_dups_entry_list
   options: bf_file_dups_entry_list
-
-#class bf_file_dups_finder_setup(namedtuple('bf_file_dups_finder_setup', 'files, resolved_entries, options')):
-#
-#  def __new__(clazz, files, resolved_entries, options):
-#    check.check_string_seq(files)
-#    check.check_file_duplicates_item_list(resolved_entries)
-#    check.check_file_duplicates_options(options)
-#
-#    return clazz.__bases__[0].__new__(clazz, files, resolved_entries, options)
-#
-#  def clone(self, mutations = None):
-#    return tuple_util.clone(self, mutations = mutations)
-#
-#  def to_dict(self):
-#    return {
-#      'files': self.where,
-#      'resolved_entries': self.resolved_entries.to_list(),
-#      'options': self.options.to_dict(),
-#    }
-#  
-#  def to_json(self):
-#    return json_util.to_json(self.to_dict(), indent = 2)
 
   def to_dict(self):
     return {

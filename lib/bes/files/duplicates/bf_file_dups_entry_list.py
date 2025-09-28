@@ -43,5 +43,31 @@ class bf_file_dups_entry_list(bf_entry_list):
     for _, entries in result.items():
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
-    
+
+
+  def basename_map(self):
+    result = {}
+    for entry in self:
+      if not entry.basename in result:
+        result[entry.basename] = bf_entry_list()
+      result[entry.basename].append(entry)
+    for _, entries in result.items():
+      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
+    return result
+
+  def size_map(self):
+    result = {}
+    for entry in self:
+      try:
+        size = entry.size
+      except FileNotFoundError as ex:
+        size = None
+      if size != None:
+        if not entry.size in result:
+          result[entry.size] = bf_entry_list()
+        result[entry.size].append(entry)
+    for _, entries in result.items():
+      entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
+    return result
+  
 check.register_class(bf_file_dups_entry_list, include_seq = False)
