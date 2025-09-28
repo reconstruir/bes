@@ -1,5 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import dataclasses
+import typing
+
 from collections import namedtuple
 
 from bes.bcli.bcli_type_i import bcli_type_i
@@ -7,33 +10,51 @@ from bes.system.check import check
 from bes.common.tuple_util import tuple_util
 from bes.common.json_util import json_util
 from bes.property.cached_property import cached_property
+from bes.data_classes.bdata_class_base import bdata_class_base
 
-#from .file_attributes_metadata import file_attributes_metadata
-#from .file_duplicates_item_list import file_duplicates_item_list
-#from .file_util import file_util
+from .bf_file_dups_finder_options import bf_file_dups_finder_options
+from .bf_file_dups_entry_list import bf_file_dups_entry_list
 
-class bf_file_dups_finder_setup(namedtuple('bf_file_dups_finder_setup', 'files, resolved_entries, options')):
+@dataclasses.dataclass(frozen = True)
+class bf_file_dups_finder_setup(bdata_class_base):
+  where: typing.List[str]
+  resolved_entries: bf_file_dups_entry_list
+  options: bf_file_dups_entry_list
 
-  def __new__(clazz, files, resolved_entries, options):
-    check.check_string_seq(files)
-    check.check_file_duplicates_item_list(resolved_entries)
-    check.check_file_duplicates_options(options)
-
-    return clazz.__bases__[0].__new__(clazz, files, resolved_entries, options)
-
-  def clone(self, mutations = None):
-    return tuple_util.clone(self, mutations = mutations)
+#class bf_file_dups_finder_setup(namedtuple('bf_file_dups_finder_setup', 'files, resolved_entries, options')):
+#
+#  def __new__(clazz, files, resolved_entries, options):
+#    check.check_string_seq(files)
+#    check.check_file_duplicates_item_list(resolved_entries)
+#    check.check_file_duplicates_options(options)
+#
+#    return clazz.__bases__[0].__new__(clazz, files, resolved_entries, options)
+#
+#  def clone(self, mutations = None):
+#    return tuple_util.clone(self, mutations = mutations)
+#
+#  def to_dict(self):
+#    return {
+#      'files': self.where,
+#      'resolved_entries': self.resolved_entries.to_list(),
+#      'options': self.options.to_dict(),
+#    }
+#  
+#  def to_json(self):
+#    return json_util.to_json(self.to_dict(), indent = 2)
 
   def to_dict(self):
     return {
-      'files': self.files,
-      'resolved_entries': self.resolved_entries.to_list(),
+      'where': self.where,
+      'resolved_entries': self.resolved_entries.to_dict_list(),
       'options': self.options.to_dict(),
     }
   
-  def to_json(self):
-    return json_util.to_json(self.to_dict(), indent = 2)
-  
+#  def to_json_dict_hook(self, d):
+#    d['resolved_entries'] = self.resolved_entries.to_dict_list()
+#    d['options'] = self.options.to_dict()
+#    return d
+
   @cached_property
   def dup_checksum_map(self):
     dmap = self.resolved_entries.duplicate_size_map()

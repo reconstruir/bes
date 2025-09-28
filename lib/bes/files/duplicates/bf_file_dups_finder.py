@@ -11,9 +11,10 @@ from ..bf_check import bf_check
 from ..hashing.bf_hasher_i import bf_hasher_i
 from ..resolve.bf_file_resolver import bf_file_resolver
 
+from .bf_file_dups_finder_item import bf_file_dups_finder_item
 from .bf_file_dups_finder_options import bf_file_dups_finder_options
 from .bf_file_dups_finder_result import bf_file_dups_finder_result
-from .bf_file_dups_finder_item import bf_file_dups_finder_item
+from .bf_file_dups_finder_setup import bf_file_dups_finder_setup
 
 class bf_file_dups_finder(object):
   'A class to find duplicate files'
@@ -69,16 +70,12 @@ class bf_file_dups_finder(object):
       i = i + 1
     return clazz._find_duplicates_result(items, setup.resolved_files)
   
-  @classmethod
-  def setup(clazz, where, options = None, blurber = None):
+  def setup(self, where):
     check.check_string_seq(where)
-    check.check_bf_file_dups_finder_options(options, allow_none = True)
+    #check.check_bf_file_dups_finder_options(options, allow_none = True)
 
-    options = options or bf_file_dups_finder_options()
-    resolved_files = clazz._resolve_files(where, options)
-    if blurber:
-      blurber.blurb_verbose(f'resolved {len(resolved_files)} files')
-    return bf_file_dups_finder_setup(where, resolved_files, options)
+    resolved_files = self._resolve_files(where)
+    return bf_file_dups_finder_setup(where, resolved_files, self._options)
     
   @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
@@ -151,14 +148,6 @@ class bf_file_dups_finder(object):
     except FileNotFoundError as ex:
       return False
   
-  @classmethod
-  def x_resolve_files(clazz, files, options):
-    match_function = lambda filename: clazz._match_function(filename, options)
-    resolver_options = bf_file_dups_finder_options(recursive = options.recursive,
-                                                  match_basename = False,
-                                                  match_function = match_function)
-    return file_resolver.resolve_files(files, options = resolver_options)
-
   @classmethod
   def _resolve_one_file(clazz, filename):
     return file_duplicates_item(path.dirname(filename), path.basename(filename), filename, 0, 0)

@@ -7,9 +7,10 @@ from os import path
 from datetime import datetime
 from datetime import timedelta
 #from bes.fs.file_duplicates import file_duplicates
-#from bes.fs.file_duplicates_options import file_duplicates_options
+#from bes.fs.bf_file_dups_finder_options import bf_file_dups_finder_options
 from bes.files.bf_path import bf_path
 from bes.files.duplicates.bf_file_dups_finder import bf_file_dups_finder
+from bes.files.duplicates.bf_file_dups_finder_options import bf_file_dups_finder_options
 from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 #from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
@@ -67,6 +68,69 @@ class test_file_duplicates(unit_test):
 ]
 ''', resolved_files.to_json().replace(tester.src_dir, '${root_dir}') )
 
+  def test_setup(self):
+    items = [
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+    ]
+    with dir_operation_tester(extra_content_items = items) as tester:
+      hasher = bf_hasher_hashlib()
+      finder = bf_file_dups_finder(hasher = hasher)
+      setup = finder.setup([ tester.src_dir ])
+      self.assert_json_equal( '''
+{
+  "where": [
+    "${root_dir}"
+  ],
+  "resolved_entries": [
+    {
+      "filename": "a/apple.jpg",
+      "root_dir": "${root_dir}",
+      "index": 0,
+      "found_index": 0
+    },
+    {
+      "filename": "a/kiwi.jpg",
+      "root_dir": "${root_dir}",
+      "index": 1,
+      "found_index": 1
+    },
+    {
+      "filename": "a/lemon.jpg",
+      "root_dir": "${root_dir}",
+      "index": 2,
+      "found_index": 2
+    },
+    {
+      "filename": "b/kiwi_dup1.jpg",
+      "root_dir": "${root_dir}",
+      "index": 3,
+      "found_index": 3
+    },
+    {
+      "filename": "c/kiwi_dup2.jpg",
+      "root_dir": "${root_dir}",
+      "index": 4,
+      "found_index": 4
+    }
+  ],
+  "options": {
+    "delete_empty_dirs": false,
+    "file_type": 10,
+    "ignore_filename": null,
+    "include_empty_files": false,
+    "include_hard_links": false,
+    "include_soft_links": false,
+    "max_depth": null,
+    "min_depth": null,
+    "prefer_prefixes": null
+  }
+}
+''', setup.to_json().replace(tester.src_dir, '${root_dir}') )
+      
   def xtest_find_duplicates_basic(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
@@ -168,7 +232,7 @@ class test_file_duplicates(unit_test):
     ]
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
-                                   sort_key = file_duplicates_options.sort_key_basename_length)
+                                   sort_key = bf_file_dups_finder_options.sort_key_basename_length)
     self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/c/kiwi_123.jpg', [
         f'{t.src_dir}/b/kiwi_1234.jpg',
@@ -193,7 +257,7 @@ class test_file_duplicates(unit_test):
                                       datetime.now() - timedelta(days = 2))
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
-                                   sort_key = file_duplicates_options.sort_key_modification_date,
+                                   sort_key = bf_file_dups_finder_options.sort_key_modification_date,
                                    pre_test_function = _ptf)
     self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/kiwi_03.jpg', [
@@ -284,7 +348,7 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
     ]
-    options = file_duplicates_options(recursive = True)
+    options = bf_file_dups_finder_options(recursive = True)
     with dir_operation_tester(extra_content_items = items) as t:
       setup = file_duplicates.setup([ t.src_dir ], options = options)
       t.result = file_duplicates.find_duplicates_with_setup(setup)
@@ -341,7 +405,7 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
       temp_content('file', 'foo/cheese/gouda.jpg', 'this is lemon', 0o0644),
     ]
-    options = file_duplicates_options(recursive = True)
+    options = bf_file_dups_finder_options(recursive = True)
     with dir_operation_tester(extra_content_items = items) as t:
       setup = file_duplicates.setup([ t.src_dir ], options = options)
 
@@ -368,7 +432,7 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
       temp_content('file', 'foo/cheese/gouda.jpg', 'this is lemon', 0o0644),
     ]
-    options = file_duplicates_options(recursive = True)
+    options = bf_file_dups_finder_options(recursive = True)
     with dir_operation_tester(extra_content_items = items) as t:
       setup = file_duplicates.setup([ t.src_dir ], options = options)
 
@@ -385,16 +449,16 @@ class test_file_duplicates(unit_test):
         f'{t.src_dir}/a/lemon.jpg',
       ], dups )
       
-  def _call_find_duplicates(self,
-                            extra_content_items = None,
-                            recursive = False,
-                            small_checksum_size = 1024 * 1024,
-                            prefer_prefixes = None,
-                            sort_key = None,
-                            pre_test_function = None,
-                            include_empty_files = False,
-                            ignore_files = []):
-    options = file_duplicates_options(recursive = recursive,
+  def _call_find_duplicates(self): #,
+                            #extra_content_items = None,
+                            #recursive = False,
+                            #small_checksum_size = 1024 * 1024,
+                            #prefer_prefixes = None,
+                            #sort_key = None,
+                            #pre_test_function = None,
+                            #include_empty_files = False,
+                            #ignore_files = []):
+    options = bf_file_dups_finder_options(recursive = recursive,
                                       small_checksum_size = small_checksum_size,
                                       sort_key = sort_key,
                                       include_empty_files = include_empty_files,
@@ -422,7 +486,7 @@ class test_file_duplicates(unit_test):
                   sort_key = None,
                   include_empty_files = False,
                   ignore_files = []):
-    options = file_duplicates_options(recursive = recursive,
+    options = bf_file_dups_finder_options(recursive = recursive,
                                       small_checksum_size = small_checksum_size,
                                       sort_key = sort_key,
                                       include_empty_files = include_empty_files,
@@ -443,7 +507,7 @@ class test_file_duplicates(unit_test):
                                  pre_test_function = None,
                                  include_empty_files = False,
                                  ignore_files = []):
-    options = file_duplicates_options(recursive = recursive,
+    options = bf_file_dups_finder_options(recursive = recursive,
                                       small_checksum_size = small_checksum_size,
                                       sort_key = sort_key,
                                       include_empty_files = include_empty_files,
