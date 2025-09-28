@@ -29,6 +29,14 @@ class bf_file_dups_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
+  def duplicate_checksum_map(self, hasher, algorithm, ignore_missing_files = True):
+    result = {}
+    for size, entries in self.checksum_map(hasher, algorithm, ignore_missing_files = ignore_missing_files).items():
+      if len(entries) > 1:
+        assert size not in result
+        result[size] = entries
+    return result
+  
   def short_checksum_map(self, hasher, algorithm, ignore_missing_files = True):
     result = {}
     for entry in self:
@@ -43,7 +51,6 @@ class bf_file_dups_entry_list(bf_entry_list):
     for _, entries in result.items():
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
-
 
   def basename_map(self):
     result = {}
@@ -72,10 +79,10 @@ class bf_file_dups_entry_list(bf_entry_list):
 
   def duplicate_size_map(self):
     result = {}
-    for size, items in self.size_map().items():
-      if len(items) > 1:
+    for size, entries in self.size_map().items():
+      if len(entries) > 1:
         assert size not in result
-        result[size] = items
+        result[size] = entries
     return result
   
 check.register_class(bf_file_dups_entry_list, include_seq = False)
