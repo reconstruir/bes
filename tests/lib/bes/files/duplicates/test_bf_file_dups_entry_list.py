@@ -41,7 +41,7 @@ class _bf_entry_list_tester(object):
 
   def duplicate_size_map_as_json(self):
     sm = self.entries.size_map()
-    dsm = self.entries.duplicate_size_map(sm)
+    dsm = bf_file_dups_entry_list.map_filter_out_non_duplicates(sm)
     json_text = json_util.to_json(dsm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
@@ -52,7 +52,7 @@ class _bf_entry_list_tester(object):
 
   def duplicate_checksum_map_as_json(self):
     cm = self.entries.checksum_map(bf_hasher_hashlib(), 'sha256')
-    dcm = self.entries.duplicate_checksum_map(cm)
+    dcm = bf_file_dups_entry_list.map_filter_out_non_duplicates(cm)
     json_text = json_util.to_json(dcm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
@@ -63,7 +63,7 @@ class _bf_entry_list_tester(object):
 
   def duplicate_short_checksum_map_as_json(self):
     scm = self.entries.short_checksum_map(bf_hasher_hashlib(), 'sha256')
-    dscm = self.entries.duplicate_short_checksum_map(scm)
+    dscm = bf_file_dups_entry_list.map_filter_out_non_duplicates(scm)
     json_text = json_util.to_json(dscm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   

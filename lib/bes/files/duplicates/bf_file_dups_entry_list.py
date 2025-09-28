@@ -29,15 +29,6 @@ class bf_file_dups_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
-  @classmethod
-  def duplicate_checksum_map(clazz, checksum_map):
-    result = {}
-    for size, entries in checksum_map.items():
-      if len(entries) > 1:
-        assert size not in result
-        result[size] = entries
-    return result
-  
   def short_checksum_map(self, hasher, algorithm, ignore_missing_files = True):
     result = {}
     for entry in self:
@@ -53,15 +44,6 @@ class bf_file_dups_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
-  @classmethod
-  def duplicate_short_checksum_map(clazz, short_checksum_map):
-    result = {}
-    for size, entries in short_checksum_map.items():
-      if len(entries) > 1:
-        assert size not in result
-        result[size] = entries
-    return result
-  
   def basename_map(self):
     result = {}
     for entry in self:
@@ -88,12 +70,12 @@ class bf_file_dups_entry_list(bf_entry_list):
     return result
 
   @classmethod
-  def duplicate_size_map(clazz, size_map):
+  def map_filter_out_non_duplicates(clazz, m):
     result = {}
-    for size, entries in size_map.items():
+    for key, entries in m.items():
       if len(entries) > 1:
-        assert size not in result
-        result[size] = entries
+        assert key not in result
+        result[key] = entries
     return result
   
 check.register_class(bf_file_dups_entry_list, include_seq = False)
