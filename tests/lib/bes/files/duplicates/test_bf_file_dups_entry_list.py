@@ -39,14 +39,21 @@ class _bf_entry_list_tester(object):
   def _make_temp_content(clazz, content):
     return temp_content.write_items_to_temp_dir(content, delete = not test_bf_file_dups_entry_list.DEBUG)
 
+  def duplicate_size_map_as_json(self):
+    sm = self.entries.size_map()
+    dsm = self.entries.duplicate_size_map(sm)
+    json_text = json_util.to_json(dsm, indent = 2, sort_keys = True)
+    return json_text.replace(self._tmp_dir, '${tmp_dir}')
+  
   def checksum_map_as_json(self):
     cm = self.entries.checksum_map(bf_hasher_hashlib(), 'sha256')
     json_text = json_util.to_json(cm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
 
   def duplicate_checksum_map_as_json(self):
-    cm = self.entries.duplicate_checksum_map(bf_hasher_hashlib(), 'sha256')
-    json_text = json_util.to_json(cm, indent = 2, sort_keys = True)
+    cm = self.entries.checksum_map(bf_hasher_hashlib(), 'sha256')
+    dcm = self.entries.duplicate_checksum_map(cm)
+    json_text = json_util.to_json(dcm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
   def short_checksum_map_as_json(self):
@@ -55,8 +62,9 @@ class _bf_entry_list_tester(object):
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
 
   def duplicate_short_checksum_map_as_json(self):
-    cm = self.entries.duplicate_short_checksum_map(bf_hasher_hashlib(), 'sha256')
-    json_text = json_util.to_json(cm, indent = 2, sort_keys = True)
+    scm = self.entries.short_checksum_map(bf_hasher_hashlib(), 'sha256')
+    dscm = self.entries.duplicate_short_checksum_map(scm)
+    json_text = json_util.to_json(dscm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
 class test_bf_file_dups_entry_list(unit_test):
@@ -347,7 +355,6 @@ class test_bf_file_dups_entry_list(unit_test):
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
       'file bar/cheese/cheddar.cheese "this is cheddar.cheese\n"',
     ], where = [ 'foo', 'bar' ])
-    json_util.to_json(t.entries.size_map(), indent = 2, sort_keys = True)
     self.assert_json_equal( '''
 {
   "19": {
@@ -393,7 +400,7 @@ class test_bf_file_dups_entry_list(unit_test):
       }
     ]
   }
-}''', json_util.to_json(t.entries.duplicate_size_map(), indent = 2, sort_keys = True).replace(t.tmp_dir, '${tmp_dir}') )
+}''', t.duplicate_size_map_as_json() )
 
   def test_duplicate_checksum_map(self):
     brie_tmp = self.make_temp_file(content = 'brie.cheese' * 200000)
