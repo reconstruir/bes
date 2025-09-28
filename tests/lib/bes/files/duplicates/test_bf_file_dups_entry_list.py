@@ -53,6 +53,11 @@ class _bf_entry_list_tester(object):
     cm = self.entries.short_checksum_map(bf_hasher_hashlib(), 'sha256')
     json_text = json_util.to_json(cm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
+
+  def duplicate_short_checksum_map_as_json(self):
+    cm = self.entries.duplicate_short_checksum_map(bf_hasher_hashlib(), 'sha256')
+    json_text = json_util.to_json(cm, indent = 2, sort_keys = True)
+    return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
 class test_bf_file_dups_entry_list(unit_test):
   
@@ -443,6 +448,60 @@ class test_bf_file_dups_entry_list(unit_test):
   }
 }
 ''', t.duplicate_checksum_map_as_json() )
+
+  def test_duplicate_short_checksum_map(self):
+    brie_tmp = self.make_temp_file(content = 'brie.cheese' * 200000)
+    cheddar_tmp = self.make_temp_file(content = 'cheddar.cheese' * 200000)
+    kiwi_tmp = self.make_temp_file(content = 'kiwi.fruit' * 200000)
+    lemon_tmp = self.make_temp_file(content = 'lemon.cheese' * 200000)
+    t = _bf_entry_list_tester([
+      f'file foo/fruit/lemon.fruit "file:{lemon_tmp}"',
+      f'file foo/fruit/kiwi.fruit "file:{kiwi_tmp}"',
+      f'file foo/cheese/brie.cheese "file:{brie_tmp}"',
+      f'file bar/fruit/kiwi.fruit "file:{kiwi_tmp}"',
+      f'file bar/cheese/brie.cheese "file:{brie_tmp}"',
+      f'file bar/cheese/cheddar.cheese "file:{cheddar_tmp}"',
+    ], where = [ 'foo', 'bar' ])
+    self.assert_json_equal( '''
+{
+  "b78b51fc10a1b3947d3de469f582c6dbb976642b2d0fd739665f2240df24cbbf": {
+    "_values": [
+      {
+        "_filename": "fruit/kiwi.fruit",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/fruit/kiwi.fruit",
+        "filename": "${tmp_dir}/bar/fruit/kiwi.fruit",
+        "relative_filename": "fruit/kiwi.fruit"
+      },
+      {
+        "_filename": "fruit/kiwi.fruit",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/fruit/kiwi.fruit",
+        "filename": "${tmp_dir}/foo/fruit/kiwi.fruit",
+        "relative_filename": "fruit/kiwi.fruit"
+      }
+    ]
+  },
+  "d40fcfedf10603b4814ca7e13daf571c0b82b8240ac219df5fce0f97e5ee6287": {
+    "_values": [
+      {
+        "_filename": "cheese/brie.cheese",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/cheese/brie.cheese",
+        "filename": "${tmp_dir}/bar/cheese/brie.cheese",
+        "relative_filename": "cheese/brie.cheese"
+      },
+      {
+        "_filename": "cheese/brie.cheese",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/cheese/brie.cheese",
+        "filename": "${tmp_dir}/foo/cheese/brie.cheese",
+        "relative_filename": "cheese/brie.cheese"
+      }
+    ]
+  }
+}
+''', t.duplicate_short_checksum_map_as_json() )
     
 if __name__ == '__main__':
   unit_test.main()
