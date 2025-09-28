@@ -3,6 +3,7 @@
 
 from os import path
 
+from bes.common.json_util import json_util
 from bes.files.bf_entry import bf_entry
 from bes.files.find.bf_file_finder import bf_file_finder
 from bes.files.duplicates.bf_file_dups_entry_list import bf_file_dups_entry_list
@@ -140,38 +141,128 @@ class test_bf_file_dups_entry_list(unit_test):
 
   def test_size_map(self):
     t = _bf_entry_list_tester([
+      'file foo/fruit/lemon.fruit "this is lemon.fruit\n"',
       'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file foo/cheese/brie.cheese "this is brie.cheese\n"',
       'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/cheese/cheddar.cheese "this is cheddar.cheese\n"',
     ], where = [ 'foo', 'bar' ])
-    m = t.entries.size_map()
-    self.assertEqual( { 20, 19 }, m.keys() )
+    json_util.to_json(t.entries.size_map(), indent = 2, sort_keys = True)
     self.assert_json_equal( '''
-[
-  {
-    "filename": "cheese/brie.cheese",
-    "root_dir": "${tmp_dir}/bar"
+{
+  "19": {
+    "_values": [
+      {
+        "_filename": "fruit/kiwi.fruit",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/fruit/kiwi.fruit",
+        "filename": "${tmp_dir}/bar/fruit/kiwi.fruit",
+        "relative_filename": "fruit/kiwi.fruit"
+      },
+      {
+        "_filename": "fruit/kiwi.fruit",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/fruit/kiwi.fruit",
+        "filename": "${tmp_dir}/foo/fruit/kiwi.fruit",
+        "relative_filename": "fruit/kiwi.fruit"
+      }
+    ]
   },
-  {
-    "filename": "cheese/brie.cheese",
-    "root_dir": "${tmp_dir}/foo"
+  "20": {
+    "_values": [
+      {
+        "_filename": "cheese/brie.cheese",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/cheese/brie.cheese",
+        "filename": "${tmp_dir}/bar/cheese/brie.cheese",
+        "relative_filename": "cheese/brie.cheese"
+      },
+      {
+        "_filename": "cheese/brie.cheese",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/cheese/brie.cheese",
+        "filename": "${tmp_dir}/foo/cheese/brie.cheese",
+        "relative_filename": "cheese/brie.cheese"
+      },
+      {
+        "_filename": "fruit/lemon.fruit",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/fruit/lemon.fruit",
+        "filename": "${tmp_dir}/foo/fruit/lemon.fruit",
+        "relative_filename": "fruit/lemon.fruit"
+      }
+    ]
+  },
+  "23": {
+    "_values": [
+      {
+        "_filename": "cheese/cheddar.cheese",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/cheese/cheddar.cheese",
+        "filename": "${tmp_dir}/bar/cheese/cheddar.cheese",
+        "relative_filename": "cheese/cheddar.cheese"
+      }
+    ]
   }
-]
-''', m[20].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
-    
+}''', json_util.to_json(t.entries.size_map(), indent = 2, sort_keys = True).replace(t.tmp_dir, '${tmp_dir}') )
+
+  def test_duplicate_size_map(self):
+    t = _bf_entry_list_tester([
+      'file foo/fruit/lemon.fruit "this is lemon.fruit\n"',
+      'file foo/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file foo/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/fruit/kiwi.fruit "this is kiwi.fruit\n"',
+      'file bar/cheese/brie.cheese "this is brie.cheese\n"',
+      'file bar/cheese/cheddar.cheese "this is cheddar.cheese\n"',
+    ], where = [ 'foo', 'bar' ])
+    json_util.to_json(t.entries.size_map(), indent = 2, sort_keys = True)
     self.assert_json_equal( '''
-[
-  {
-    "filename": "fruit/kiwi.fruit",
-    "root_dir": "${tmp_dir}/bar"
+{
+  "19": {
+    "_values": [
+      {
+        "_filename": "fruit/kiwi.fruit",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/fruit/kiwi.fruit",
+        "filename": "${tmp_dir}/bar/fruit/kiwi.fruit",
+        "relative_filename": "fruit/kiwi.fruit"
+      },
+      {
+        "_filename": "fruit/kiwi.fruit",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/fruit/kiwi.fruit",
+        "filename": "${tmp_dir}/foo/fruit/kiwi.fruit",
+        "relative_filename": "fruit/kiwi.fruit"
+      }
+    ]
   },
-  {
-    "filename": "fruit/kiwi.fruit",
-    "root_dir": "${tmp_dir}/foo"
+  "20": {
+    "_values": [
+      {
+        "_filename": "cheese/brie.cheese",
+        "_root_dir": "${tmp_dir}/bar",
+        "absolute_filename": "${tmp_dir}/bar/cheese/brie.cheese",
+        "filename": "${tmp_dir}/bar/cheese/brie.cheese",
+        "relative_filename": "cheese/brie.cheese"
+      },
+      {
+        "_filename": "cheese/brie.cheese",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/cheese/brie.cheese",
+        "filename": "${tmp_dir}/foo/cheese/brie.cheese",
+        "relative_filename": "cheese/brie.cheese"
+      },
+      {
+        "_filename": "fruit/lemon.fruit",
+        "_root_dir": "${tmp_dir}/foo",
+        "absolute_filename": "${tmp_dir}/foo/fruit/lemon.fruit",
+        "filename": "${tmp_dir}/foo/fruit/lemon.fruit",
+        "relative_filename": "fruit/lemon.fruit"
+      }
+    ]
   }
-]
-''', m[19].to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+}''', json_util.to_json(t.entries.duplicate_size_map(), indent = 2, sort_keys = True).replace(t.tmp_dir, '${tmp_dir}') )
     
 if __name__ == '__main__':
   unit_test.main()

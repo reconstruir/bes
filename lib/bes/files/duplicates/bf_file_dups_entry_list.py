@@ -69,5 +69,13 @@ class bf_file_dups_entry_list(bf_entry_list):
     for _, entries in result.items():
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
+
+  def duplicate_size_map(self):
+    result = {}
+    for size, items in self.size_map().items():
+      if len(items) > 1:
+        assert size not in result
+        result[size] = items
+    return result
   
 check.register_class(bf_file_dups_entry_list, include_seq = False)
