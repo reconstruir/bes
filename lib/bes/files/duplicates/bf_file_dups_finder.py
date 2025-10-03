@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
+
 from collections import namedtuple
 import os.path as path
 
@@ -15,11 +17,12 @@ from .bf_file_dups_finder_item import bf_file_dups_finder_item
 from .bf_file_dups_finder_options import bf_file_dups_finder_options
 from .bf_file_dups_finder_result import bf_file_dups_finder_result
 from .bf_file_dups_finder_setup import bf_file_dups_finder_setup
+from .bf_file_dups_entry_list import bf_file_dups_entry_list
 
 class bf_file_dups_finder(object):
   'A class to find duplicate files'
 
-  _log = logger('bf_file_dups_finder')
+  _log = logger('bf_file_dups')
 
   def __init__(self, hasher, options = None):
     check.check_bf_hasher(hasher)
@@ -35,16 +38,31 @@ class bf_file_dups_finder(object):
   def _do_find_dups(self, where):
     resolved_files = self._resolve_files(where)
   
-  _dup_item = namedtuple('_dup_item', 'filename, duplicates')
-  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
-  @classmethod
-  def find_duplicates(clazz, where, options = None):
-    check.check_string_seq(where)
-    check.check_bf_file_dups_finder_options(options, allow_none = True)
+#  _dup_item = namedtuple('_dup_item', 'filename, duplicates')
+#  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
+  def find_duplicates(self, where):
+    where = bf_check.check_file_or_dir_seq(where)
 
-    options = options or bf_file_dups_finder_options()
-    setup = clazz.setup(where, options = options)
-    return clazz.find_duplicates_with_setup(setup)
+    resolved_entries = self._resolve_files(where)
+    size_map = resolved_entries.size_map()
+    self._log.log_d(f'size_map={pprint.pformat(size_map)}')
+    dup_size_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(size_map)
+    num_dup_size_map = len(dup_size_map)
+    self._log.log_d(f'dup_size_map={pprint.pformat(dup_size_map)}')
+    flat_size_dup_files = self._flat_duplicate_files(dup_size_map)
+    num_flat_size = len(flat_size_dup_files)
+    self._log.log_d(f'flat_size_dup_files={pprint.pformat(flat_size_dup_files)}')
+    short_checksum_map = flat_size_dup_files.short_checksum_map(self._hasher,
+                                                                'sha256',
+                                                                ignore_missing_files = True)
+    dup_short_checksum_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(short_checksum_map)
+    flat_short_checksum_dup_files = self._flat_duplicate_files(dup_short_checksum_map)
+    checksum_map = flat_short_checksum_dup_files.checksum_map(self._hasher,
+                                                              'sha256',
+                                                              ignore_missing_files = True)
+    dup_checksum_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(checksum_map)
+    print(pprint.pformat(dup_checksum_map))
+    return None
 
   @classmethod
   def find_duplicates_with_setup(clazz, setup):
@@ -113,11 +131,12 @@ class bf_file_dups_finder(object):
     return sorted(result)
   
   @classmethod
-  def _flat_duplicate_files(clazz, dmap):
-    result = []
-    for size, files in sorted(dmap.items()):
-      result.extend(files)
-    return sorted(result)
+  def _flat_duplicate_files(clazz, dup_size_map):
+    result = bf_file_dups_entry_list()
+    for size, entries in dup_size_map.items():
+      result.extend(entries)
+    result.sort_by_criteria('FILENAME')
+    return result
 
   @classmethod
   def _sort_criteria_by_prefer_prefixes(clazz, filename, prefer_prefixes):
@@ -165,32 +184,3 @@ class bf_file_dups_finder(object):
       criteria.append(filename)
       return tuple(criteria)
     return sorted(filenames, key = _sort_key)
-  
-  @classmethod
-  def _small_checksum_map(clazz, files, num_bytes):
-    result = {}
-    for filename in files:
-      small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
-      if not small_checksum in result:
-        result[small_checksum] = []
-      result[small_checksum].append(filename)
-    return result
-
-  @classmethod
-  def _duplicate_small_checksum_map(clazz, dmap):
-    result = {}
-    for small_checksum, files in sorted(dmap.items()):
-      if len(files) > 1:
-        assert small_checksum not in result
-        result[small_checksum] = files
-    return result
-
-  @classmethod
-  def _checksum_map(clazz, files):
-    result = {}
-    for filename in files:
-      checksum = file_attributes_metadata.get_checksum_sha256(filename, fallback = True, cached = True)
-      if not checksum in result:
-        result[checksum] = []
-      result[checksum].append(filename)
-    return result

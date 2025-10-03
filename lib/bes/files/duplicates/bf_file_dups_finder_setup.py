@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import dataclasses
+import pprint
 import typing
 
 from collections import namedtuple
@@ -9,12 +10,19 @@ from bes.bcli.bcli_type_i import bcli_type_i
 from bes.system.check import check
 from bes.property.cached_property import cached_property
 from bes.data_classes.bdata_class_base import bdata_class_base
+from bes.system.log import logger
 
+from ..hashing.bf_hasher_i import bf_hasher_i
 from .bf_file_dups_finder_options import bf_file_dups_finder_options
 from .bf_file_dups_entry_list import bf_file_dups_entry_list
 
 @dataclasses.dataclass(frozen = True)
 class bf_file_dups_finder_setup(bdata_class_base):
+
+  _log = logger('bf_file_dups')
+
+  hasher: bf_hasher_i
+  algorithm: str
   where: typing.List[str]
   resolved_entries: bf_file_dups_entry_list
   options: bf_file_dups_entry_list
@@ -24,6 +32,7 @@ class bf_file_dups_finder_setup(bdata_class_base):
       'where': self.where,
       'resolved_entries': self.resolved_entries.to_dict_list(),
       'options': self.options.to_dict(),
+      'algorithm': self.algorithm,
     }
   
 #  def to_json_dict_hook(self, d):
@@ -33,12 +42,14 @@ class bf_file_dups_finder_setup(bdata_class_base):
 
   @cached_property
   def dup_checksum_map(self):
-    dmap = self.resolved_entries.duplicate_size_map()
-    num_dmap = len(dmap)
-    #self.options.blurber.blurb_verbose(f'found {num_dmap} duplicate sizes')
-    flat_size_dup_files = self._flat_duplicate_files(dmap)
+    size_map = self.resolved_entries.size_map()
+    self._log.log_d(f'size_map={pprint.pformat(size_map)}')
+    dup_size_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(size_map)
+    num_dup_size_map = len(dup_size_map)
+    self._log.log_d(f'dup_size_map={pprint.pformat(dup_size_map)}')
+    flat_size_dup_files = self._flat_duplicate_files(dup_size_map)
     num_flat_size = len(flat_size_dup_files)
-    #self.options.blurber.blurb_verbose(f'found {num_flat_size} files to check')
+    self._log.log_d(f'flat_size_dup_files={pprint.pformat(flat_size_dup_files)}')
     small_checksum_map = self._small_checksum_map(flat_size_dup_files,
                                                   self.options.small_checksum_size,
                                                   blurber = None)
@@ -48,11 +59,12 @@ class bf_file_dups_finder_setup(bdata_class_base):
     return self._duplicate_small_checksum_map(checksum_map)
   
   @classmethod
-  def _flat_duplicate_files(clazz, dmap):
-    result = []
-    for size, files in sorted(dmap.items()):
-      result.extend(files)
-    return sorted(result)
+  def _flat_duplicate_files(clazz, dup_size_map):
+    result = bf_file_dups_entry_list()
+    for size, entries in dup_size_map.items():
+      result.extend(entries)
+    result.sort_by_criteria('FILENAME')
+    return result
 
   @classmethod
   def _small_checksum_map(clazz, files, num_bytes, blurber = None):
@@ -68,9 +80,9 @@ class bf_file_dups_finder_setup(bdata_class_base):
     return result
 
   @classmethod
-  def _duplicate_small_checksum_map(clazz, dmap):
+  def _duplicate_small_checksum_map(clazz, dup_size_map):
     result = {}
-    for small_checksum, files in sorted(dmap.items()):
+    for small_checksum, files in sorted(dup_size_map.items()):
       if len(files) > 1:
         assert small_checksum not in result
         result[small_checksum] = files

@@ -11,6 +11,7 @@ from datetime import timedelta
 from bes.files.bf_path import bf_path
 from bes.files.duplicates.bf_file_dups_finder import bf_file_dups_finder
 from bes.files.duplicates.bf_file_dups_finder_options import bf_file_dups_finder_options
+from bes.files.duplicates.bf_file_dups_entry_list import bf_file_dups_entry_list
 from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 #from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
@@ -131,7 +132,7 @@ class test_file_duplicates(unit_test):
 }
 ''', setup.to_json().replace(tester.src_dir, '${root_dir}') )
 
-  def xtest_setup_dup_checksum_map(self):
+  def test_find_duplicates_basic(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
@@ -142,58 +143,7 @@ class test_file_duplicates(unit_test):
     with dir_operation_tester(extra_content_items = items) as tester:
       hasher = bf_hasher_hashlib()
       finder = bf_file_dups_finder(hasher = hasher)
-      setup = finder.setup([ tester.src_dir ])
-      self.assert_json_equal( '''
-{
-  "where": [
-    "${root_dir}"
-  ],
-  "resolved_entries": [
-    {
-      "filename": "a/apple.jpg",
-      "root_dir": "${root_dir}",
-      "index": 0,
-      "found_index": 0
-    },
-    {
-      "filename": "a/kiwi.jpg",
-      "root_dir": "${root_dir}",
-      "index": 1,
-      "found_index": 1
-    },
-    {
-      "filename": "a/lemon.jpg",
-      "root_dir": "${root_dir}",
-      "index": 2,
-      "found_index": 2
-    },
-    {
-      "filename": "b/kiwi_dup1.jpg",
-      "root_dir": "${root_dir}",
-      "index": 3,
-      "found_index": 3
-    },
-    {
-      "filename": "c/kiwi_dup2.jpg",
-      "root_dir": "${root_dir}",
-      "index": 4,
-      "found_index": 4
-    }
-  ],
-  "options": {
-    "delete_empty_dirs": false,
-    "file_type": 10,
-    "ignore_filename": null,
-    "include_empty_files": false,
-    "include_hard_links": false,
-    "include_soft_links": false,
-    "max_depth": null,
-    "min_depth": null,
-    "prefer_prefixes": null
-  }
-}
-''', setup.to_json().replace(tester.src_dir, '${root_dir}') )
-      d = setup.dup_checksum_map
+      r = finder.find_duplicates([ tester.src_dir ])
       
   def xtest_find_duplicates_basic(self):
     items = [
