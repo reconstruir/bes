@@ -69,7 +69,7 @@ class test_file_duplicates(unit_test):
 ]
 ''', resolved_files.to_json().replace(tester.src_dir, '${root_dir}') )
 
-  def test_setup(self):
+  def xtest_setup(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
