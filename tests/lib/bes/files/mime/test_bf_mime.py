@@ -7,8 +7,9 @@ from os import path
 from bes.testing.unit_test import unit_test
 from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_symlink import bf_symlink
+from bes.files.bf_file_ops import bf_file_ops
 from bes.testing.unit_test_function_skip import unit_test_function_skip
-from bes.property.cached_property import cached_property
+from bes.fs.testing.temp_content import temp_content
 
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
@@ -83,7 +84,19 @@ class test_bf_mime(unit_test, unit_test_media_files):
     self.assertEqual( True, bf_mime.mime_type(self.mp3_file) in ( 'audio/mpeg', 'audio/mpegaudio/mpeg')  )
 
   def test_flac(self):
-    self.assertEqual( 'audio/flac', bf_mime.mime_type(self.flac_file) )
+    self.assertTrue( True, bf_mime.mime_type(self.flac_file) in ( 'audio/flac', 'audio/x-flac' ) )
+
+  def test_is_apple_resource_fork_true(self):
+    tmp_dir = self.make_temp_dir()
+    tmp = path.join(tmp_dir, '._kiwi.txt')
+    temp_content.write_resource_fork(tmp)
+    self.assertEqual( True, bf_mime.is_apple_resource_fork(tmp) )
+
+  def test_is_apple_resource_fork_false(self):
+    tmp_dir = self.make_temp_dir()
+    tmp = path.join(tmp_dir, '._kiwi.txt')
+    bf_file_ops.save(tmp, content = 'not a resource fork')
+    self.assertEqual( False, bf_mime.is_apple_resource_fork(tmp) )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -131,7 +131,12 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
 
   def _write_resource_fork(self, root_dir):
     p = path.join(root_dir, self.filename)
+    self.write_resource_fork(p)
+    if self.mode:
+      os.chmod(p, self.mode)
 
+  @classmethod
+  def write_resource_fork(clazz, filename):
     apple_resource_fork_with_entry = (
       b"\x00\x05\x16\x07"          # Magic
       b"\x00\x02\x00\x00"          # Version
@@ -141,11 +146,8 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
       b"\x00\x00\x00\x1C"          # Offset (28 bytes from start)
       b"\x00\x00\x00\x00"          # Length = 0
     )
-
-    with open(p, 'wb') as fout:
+    with open(filename, 'wb') as fout:
       fout.write(apple_resource_fork_with_entry)    
-    if self.mode:
-      os.chmod(p, self.mode)
       
   def _write_link(self, root_dir):
     content = self._determine_content()
