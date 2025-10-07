@@ -85,35 +85,35 @@ class test_log(unit_test):
   def test_output_stdout(self):
     rv = self.run_test('foo=critical', self._test_log_func_stdout)
     expected = '''\
-(foo.CRITICAL) critical
+(foo.CRITICAL)  critical
 '''
 
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_stdout)
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG) debug
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
 (foo.INFO)  info
-(foo.WARNING) warning
+(foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     
     rv = self.run_test('foo=error', self._test_log_func_stdout)
     expected = '''\
-(foo.CRITICAL) critical
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.ERROR)  error
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_stdout)
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG) debug
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
 (foo.INFO)  info
-(foo.WARNING) warning
+(foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
@@ -133,7 +133,7 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=critical', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
+(foo.CRITICAL)  critical
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -141,11 +141,11 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG) debug
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
 (foo.INFO)  info
-(foo.WARNING) warning
+(foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -153,8 +153,8 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=error', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.ERROR)  error
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -162,11 +162,11 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG) debug
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
 (foo.INFO)  info
-(foo.WARNING) warning
+(foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -189,7 +189,7 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=critical', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
+(foo.CRITICAL)  critical
 '''
     self.assertEqual( '', rv.output )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -197,11 +197,11 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG) debug
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
 (foo.INFO)  info
-(foo.WARNING) warning
+(foo.WARNING)  warning
 '''
     self.assertEqual( '', rv.output )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -209,8 +209,8 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=error', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.ERROR)  error
 '''
     self.assertEqual( '', rv.output )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -218,11 +218,11 @@ class test_log(unit_test):
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG) debug
-(foo.ERROR) error
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
 (foo.INFO)  info
-(foo.WARNING) warning
+(foo.WARNING)  warning
 '''
     self.assertEqual( '', rv.output )
     self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
@@ -270,33 +270,33 @@ class test_log(unit_test):
   def test_add_logging(self):
     rv = self.run_test('foo=critical', self._test_log_func_add_logging)
     expected = '''\
-(foo.CRITICAL) critical
+(foo.CRITICAL)  critical
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_add_logging)
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG)    debug
-(foo.ERROR)    error
-(foo.INFO)     info
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
+(foo.INFO)  info
 (foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     
     rv = self.run_test('foo=error', self._test_log_func_add_logging)
     expected = '''\
-(foo.CRITICAL) critical
-(foo.ERROR)    error
+(foo.CRITICAL)  critical
+(foo.ERROR)  error
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_add_logging)
     expected = '''\
-(foo.CRITICAL) critical
-(foo.DEBUG)    debug
-(foo.ERROR)    error
-(foo.INFO)     info
+(foo.CRITICAL)  critical
+(foo.DEBUG)  debug
+(foo.ERROR)  error
+(foo.INFO)  info
 (foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
