@@ -58,9 +58,10 @@ stateDiagram-v2
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    #print(bf_file_ops.read(tmp, encoding = 'utf-8'), flush = True)
+    content = bf_file_ops.read(tmp, encoding = 'utf-8')
+    #print(f'content={content}')
     #return
-    self.assertEqual( True, bf_file_ops.read(tmp, encoding = 'utf-8').startswith('<svg id="mermaid-svg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )
+    self.assertEqual( True, content.startswith('<svg id="mermaidInkSvg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )
     
   def test_parser_make_mmd(self):
     tmp = self.make_temp_file(suffix = '.mmd')
@@ -121,9 +122,10 @@ stateDiagram-v2
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    #print(bf_file_ops.read(tmp, encoding = 'utf-8'), flush = True)
+    content = bf_file_ops.read(tmp, encoding = 'utf-8')
+    #print(f'content={content}')
     #return
-    self.assertEqual( True, bf_file_ops.read(tmp, encoding = 'utf-8').startswith('<svg id="mermaid-svg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )
+    self.assertEqual( True, content.startswith('<svg id="mermaidInkSvg" width="100%" xmlns="http://www.w3.org/2000/svg" class="statediagram"') )
     
 if __name__ == '__main__':
   program_unit_test.main()

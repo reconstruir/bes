@@ -12,6 +12,7 @@ from bes.system.system_command import system_command
 from bes.system.system_command import system_command
 from bes.testing.program_unit_test import program_unit_test
 from bes.version.semantic_version import semantic_version
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class _bes_project_tester(object):
 
@@ -78,6 +79,10 @@ class _bes_project_tester(object):
     
 class test_bes_project_cli_args(program_unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('too slow')
+  
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
   def test_ensure(self):

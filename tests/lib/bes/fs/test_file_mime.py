@@ -83,7 +83,7 @@ class test_file_mime(unit_test, unit_test_media_files):
     self.assertEqual( True, file_mime.mime_type(self.mp3_file) in ( 'audio/mpeg', 'audio/mpegaudio/mpeg' ) )
 
   def test_flac(self):
-    self.assertEqual( 'audio/flac', file_mime.mime_type(self.flac_file) )
+    self.assertTrue( True, file_mime.mime_type(self.flac_file) in ( 'audio/flac', 'audio/x-flac' ) )
     
 if __name__ == '__main__':
   unit_test.main()

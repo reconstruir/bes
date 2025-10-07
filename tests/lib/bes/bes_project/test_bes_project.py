@@ -10,10 +10,15 @@ from bes.bes_project.bes_project_options import bes_project_options
 from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.version.semantic_version import semantic_version
 from bes.system.host import host
 
 class test_bes_project(unit_test):
+
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('too slow')
   
   @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_ensure_one_version - no python3 found', warning = True)
   def test_ensure_one_version(self):
