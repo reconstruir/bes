@@ -82,5 +82,4 @@ class bf_mime(object):
     if not basename.startswith('._'):
       return False
     mime_type = clazz.mime_type(filename)
-    print(f'mime_type={mime_type}')
     return clazz.mime_type(filename) == 'application/applefile'
