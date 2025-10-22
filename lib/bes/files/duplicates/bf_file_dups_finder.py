@@ -13,11 +13,12 @@ from ..bf_check import bf_check
 from ..hashing.bf_hasher_i import bf_hasher_i
 from ..resolve.bf_file_resolver import bf_file_resolver
 
+from .bf_file_dups_entry_list import bf_file_dups_entry_list
 from .bf_file_dups_finder_item import bf_file_dups_finder_item
+from .bf_file_dups_finder_item_list import bf_file_dups_finder_item_list
 from .bf_file_dups_finder_options import bf_file_dups_finder_options
 from .bf_file_dups_finder_result import bf_file_dups_finder_result
 from .bf_file_dups_finder_setup import bf_file_dups_finder_setup
-from .bf_file_dups_entry_list import bf_file_dups_entry_list
 
 class bf_file_dups_finder(object):
   'A class to find duplicate files'
@@ -61,8 +62,13 @@ class bf_file_dups_finder(object):
                                                               'sha256',
                                                               ignore_missing_files = True)
     dup_checksum_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(checksum_map)
-    print(pprint.pformat(dup_checksum_map))
-    return None
+    duplicate_items = bf_file_dups_finder_item_list()
+    for checksum, dup_entries in dup_checksum_map.items():
+      entry = dup_entries.pop(0)
+      item = bf_file_dups_finder_item(entry, dup_entries)
+      duplicate_items.append(item)
+    self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
+    return bf_file_dups_finder_result(resolved_entries, duplicate_items)
 
   @classmethod
   def find_duplicates_with_setup(clazz, setup):
