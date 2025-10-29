@@ -139,6 +139,8 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/empty1.txt', '', 0o0644),
+      temp_content('file', 'src/e/empty2.txt', '', 0o0644),
     ]
     with dir_operation_tester(extra_content_items = items) as tester:
       hasher = bf_hasher_hashlib()
@@ -192,6 +194,24 @@ class test_file_duplicates(unit_test):
         "filename": "${root_dir}/c/kiwi_dup2.jpg",
         "relative_filename": "c/kiwi_dup2.jpg",
         "absolute_filename": "${root_dir}/c/kiwi_dup2.jpg"
+      },
+      {
+        "_filename": "d/empty1.txt",
+        "_root_dir": "${root_dir}",
+        "_index": 5,
+        "_found_index": 5,
+        "filename": "${root_dir}/d/empty1.txt",
+        "relative_filename": "d/empty1.txt",
+        "absolute_filename": "${root_dir}/d/empty1.txt"
+      },
+      {
+        "_filename": "e/empty2.txt",
+        "_root_dir": "${root_dir}",
+        "_index": 6,
+        "_found_index": 6,
+        "filename": "${root_dir}/e/empty2.txt",
+        "relative_filename": "e/empty2.txt",
+        "absolute_filename": "${root_dir}/e/empty2.txt"
       }
     ]
   },
@@ -226,6 +246,154 @@ class test_file_duplicates(unit_test):
               "filename": "${root_dir}/c/kiwi_dup2.jpg",
               "relative_filename": "c/kiwi_dup2.jpg",
               "absolute_filename": "${root_dir}/c/kiwi_dup2.jpg"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+''', result.to_json().replace(tester.src_dir, '${root_dir}') )
+
+  def test_find_duplicates_with_empty_files(self):
+    items = [
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/empty1.txt', '', 0o0644),
+      temp_content('file', 'src/e/empty2.txt', '', 0o0644),
+    ]
+    with dir_operation_tester(extra_content_items = items) as tester:
+      hasher = bf_hasher_hashlib()
+      options = bf_file_dups_finder_options(include_empty_files = True)
+      finder = bf_file_dups_finder(hasher = hasher, options = options)
+      result = finder.find_duplicates([ tester.src_dir ])
+      self.assert_json_equal( '''
+{
+  "resolved_entries": {
+    "_values": [
+      {
+        "_filename": "a/apple.jpg",
+        "_root_dir": "${root_dir}",
+        "_index": 0,
+        "_found_index": 0,
+        "filename": "${root_dir}/a/apple.jpg",
+        "relative_filename": "a/apple.jpg",
+        "absolute_filename": "${root_dir}/a/apple.jpg"
+      },
+      {
+        "_filename": "a/kiwi.jpg",
+        "_root_dir": "${root_dir}",
+        "_index": 1,
+        "_found_index": 1,
+        "filename": "${root_dir}/a/kiwi.jpg",
+        "relative_filename": "a/kiwi.jpg",
+        "absolute_filename": "${root_dir}/a/kiwi.jpg"
+      },
+      {
+        "_filename": "a/lemon.jpg",
+        "_root_dir": "${root_dir}",
+        "_index": 2,
+        "_found_index": 2,
+        "filename": "${root_dir}/a/lemon.jpg",
+        "relative_filename": "a/lemon.jpg",
+        "absolute_filename": "${root_dir}/a/lemon.jpg"
+      },
+      {
+        "_filename": "b/kiwi_dup1.jpg",
+        "_root_dir": "${root_dir}",
+        "_index": 3,
+        "_found_index": 3,
+        "filename": "${root_dir}/b/kiwi_dup1.jpg",
+        "relative_filename": "b/kiwi_dup1.jpg",
+        "absolute_filename": "${root_dir}/b/kiwi_dup1.jpg"
+      },
+      {
+        "_filename": "c/kiwi_dup2.jpg",
+        "_root_dir": "${root_dir}",
+        "_index": 4,
+        "_found_index": 4,
+        "filename": "${root_dir}/c/kiwi_dup2.jpg",
+        "relative_filename": "c/kiwi_dup2.jpg",
+        "absolute_filename": "${root_dir}/c/kiwi_dup2.jpg"
+      },
+      {
+        "_filename": "d/empty1.txt",
+        "_root_dir": "${root_dir}",
+        "_index": 5,
+        "_found_index": 5,
+        "filename": "${root_dir}/d/empty1.txt",
+        "relative_filename": "d/empty1.txt",
+        "absolute_filename": "${root_dir}/d/empty1.txt"
+      },
+      {
+        "_filename": "e/empty2.txt",
+        "_root_dir": "${root_dir}",
+        "_index": 6,
+        "_found_index": 6,
+        "filename": "${root_dir}/e/empty2.txt",
+        "relative_filename": "e/empty2.txt",
+        "absolute_filename": "${root_dir}/e/empty2.txt"
+      }
+    ]
+  },
+  "duplicate_items": {
+    "_values": [
+      {
+        "entry": {
+          "_filename": "a/kiwi.jpg",
+          "_root_dir": "${root_dir}",
+          "_index": 1,
+          "_found_index": 1,
+          "filename": "${root_dir}/a/kiwi.jpg",
+          "relative_filename": "a/kiwi.jpg",
+          "absolute_filename": "${root_dir}/a/kiwi.jpg"
+        },
+        "duplicates": {
+          "_values": [
+            {
+              "_filename": "b/kiwi_dup1.jpg",
+              "_root_dir": "${root_dir}",
+              "_index": 3,
+              "_found_index": 3,
+              "filename": "${root_dir}/b/kiwi_dup1.jpg",
+              "relative_filename": "b/kiwi_dup1.jpg",
+              "absolute_filename": "${root_dir}/b/kiwi_dup1.jpg"
+            },
+            {
+              "_filename": "c/kiwi_dup2.jpg",
+              "_root_dir": "${root_dir}",
+              "_index": 4,
+              "_found_index": 4,
+              "filename": "${root_dir}/c/kiwi_dup2.jpg",
+              "relative_filename": "c/kiwi_dup2.jpg",
+              "absolute_filename": "${root_dir}/c/kiwi_dup2.jpg"
+            }
+          ]
+        }
+      },
+      {
+        "entry": {
+          "_filename": "d/empty1.txt",
+          "_root_dir": "${root_dir}",
+          "_index": 5,
+          "_found_index": 5,
+          "filename": "${root_dir}/d/empty1.txt",
+          "relative_filename": "d/empty1.txt",
+          "absolute_filename": "${root_dir}/d/empty1.txt"
+        },
+        "duplicates": {
+          "_values": [
+            {
+              "_filename": "e/empty2.txt",
+              "_root_dir": "${root_dir}",
+              "_index": 6,
+              "_found_index": 6,
+              "filename": "${root_dir}/e/empty2.txt",
+              "relative_filename": "e/empty2.txt",
+              "absolute_filename": "${root_dir}/e/empty2.txt"
             }
           ]
         }

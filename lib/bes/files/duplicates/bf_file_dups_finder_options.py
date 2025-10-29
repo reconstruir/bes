@@ -41,7 +41,6 @@ class _bf_file_dups_finder_options_desc(_bf_files_cli_options_desc):
     prefer_prefixes list[str]
 #           sort_key callable                        default=${{_default_sort_key}}
 include_empty_files bool                            default=False
-#        preparation bf_file_dups_finder_setup
   delete_empty_dirs bool                            default=False
  include_hard_links bool                            default=False
  include_soft_links bool                            default=False

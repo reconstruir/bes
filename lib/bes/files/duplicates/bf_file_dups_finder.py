@@ -65,8 +65,9 @@ class bf_file_dups_finder(object):
     duplicate_items = bf_file_dups_finder_item_list()
     for checksum, dup_entries in dup_checksum_map.items():
       entry = dup_entries.pop(0)
-      item = bf_file_dups_finder_item(entry, dup_entries)
-      duplicate_items.append(item)
+      if self._match_function(entry, self._options):
+        item = bf_file_dups_finder_item(entry, dup_entries)
+        duplicate_items.append(item)
     self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
     return bf_file_dups_finder_result(resolved_entries, duplicate_items)
 
@@ -162,13 +163,14 @@ class bf_file_dups_finder(object):
     return result
 
   @classmethod
-  def _match_function(clazz, filename, options):
+  def _match_function(clazz, entry, options):
     try:
+      clazz._log.log_d(f'_match_function: filename={entry.filename} include_empty_files={options.include_empty_files} is_empty={entry.is_empty}')
       if not options.include_empty_files:
-        if file_util.is_empty(filename):
+        if entry.is_empty:
           return False
-      if options.should_ignore_file(filename):
-        return False
+#      if options.should_ignore_file(filename):
+#        return False
       return True
     except FileNotFoundError as ex:
       return False
