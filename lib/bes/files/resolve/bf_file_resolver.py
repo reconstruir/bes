@@ -52,7 +52,8 @@ class bf_file_resolver(object):
                                             entry_list_class = entry_list_class,
                                             dir_entry_class = dir_entry_class,
                                             progress_callback = self._options.progress_callback,
-                                            ignore_filename = self._options.ignore_filename)
+                                            ignore_filename = self._options.ignore_filename,
+                                            include_resource_forks = self._options.include_resource_forks)
     finder = bf_file_finder(options = finder_options)
     for next_where in where:
       if path.isfile(next_where):

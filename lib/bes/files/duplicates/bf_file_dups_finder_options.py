@@ -35,16 +35,16 @@ class _bf_file_dups_finder_options_desc(_bf_files_cli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-          file_type bf_file_type                    default=FILE_OR_LINK
-          max_depth int
-          min_depth int
-    prefer_prefixes list[str]
-#           sort_key callable                        default=${{_default_sort_key}}
-include_empty_files bool                            default=False
-  delete_empty_dirs bool                            default=False
- include_hard_links bool                            default=False
- include_soft_links bool                            default=False
-    ignore_filename str
+          file_type    bf_file_type  default=FILE_OR_LINK
+          max_depth    int
+          min_depth    int
+    prefer_prefixes    list[str]
+#           sort_key   callable      default=${{_default_sort_key}}
+include_empty_files    bool          default=False
+include_resource_forks bool          default=False
+ include_hard_links    bool          default=False
+ include_soft_links    bool          default=False
+    ignore_filename    str
 '''
 
   #@abstractmethod
@@ -81,6 +81,7 @@ class bf_file_dups_finder_options(bcli_options):
                                     min_depth = self.min_depth,
 #                                    sort_order = self.sort_order,
                                     ignore_filename = self.ignore_filename,
-                                    entry_list_class = bf_file_dups_entry_list)
+                                    entry_list_class = bf_file_dups_entry_list,
+                                    include_resource_forks = self.include_resource_forks)
   
 bf_file_dups_finder_options.register_check_class()
