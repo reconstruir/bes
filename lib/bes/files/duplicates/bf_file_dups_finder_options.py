@@ -42,7 +42,6 @@ class _bf_file_dups_finder_options_desc(_bf_files_cli_options_desc):
 #           sort_key   callable      default=${{_default_sort_key}}
 include_empty_files    bool          default=False
 include_resource_forks bool          default=False
- include_hard_links    bool          default=False
  include_soft_links    bool          default=False
     ignore_filename    str
 '''

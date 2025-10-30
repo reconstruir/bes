@@ -31,8 +31,7 @@ class bf_file_dups_command_factory(bcli_command_factory_i):
   #@abstractmethod
   def add_commands(self, subparsers):
     include_empty_files = self.default('include_empty_files')
-    delete_empty_dirs = self.default('delete_empty_dirs')
-    include_hard_links = self.default('include_hard_links')
+    include_resource_forks = self.default('include_resource_forks')
     include_soft_links = self.default('include_soft_links')
     
     p = subparsers.add_parser('find', help = 'Find duplictes in these files and/or directions.')
@@ -51,15 +50,12 @@ class bf_file_dups_command_factory(bcli_command_factory_i):
     p.add_argument('--include-empty-files', action = 'store_true',
                    default = include_empty_files,
                    help = f'Include empty files [ {include_empty_files} ]')
-    p.add_argument('--include-hard-links', action = 'store_true',
-                   default = include_hard_links,
-                   help = f'Include hard links [ {include_hard_links} ]')
+    p.add_argument('--include-resource-forks', action = 'store_true',
+                   default = include_resource_forks,
+                   help = f'Include resource forks [ {include_resource_forks} ]')
     p.add_argument('--include-soft-links', action = 'store_true',
                    default = include_soft_links,
                    help = f'Include soft links [ {include_soft_links} ]')
-    p.add_argument('--delete-empty-dirs', action = 'store_true',
-                   default = delete_empty_dirs,
-                   help = f'Delete empty dirs [ {delete_empty_dirs} ]')
 
     '''
 
