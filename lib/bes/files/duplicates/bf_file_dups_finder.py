@@ -18,7 +18,6 @@ from .bf_file_dups_finder_item import bf_file_dups_finder_item
 from .bf_file_dups_finder_item_list import bf_file_dups_finder_item_list
 from .bf_file_dups_finder_options import bf_file_dups_finder_options
 from .bf_file_dups_finder_result import bf_file_dups_finder_result
-from .bf_file_dups_finder_setup import bf_file_dups_finder_setup
 
 class bf_file_dups_finder(object):
   'A class to find duplicate files'
@@ -36,11 +35,6 @@ class bf_file_dups_finder(object):
     resolver = bf_file_resolver(options = self._options.file_resolver_options)
     return resolver.resolve(where)
 
-  def _do_find_dups(self, where):
-    resolved_files = self._resolve_files(where)
-  
-#  _dup_item = namedtuple('_dup_item', 'filename, duplicates')
-#  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   def find_duplicates(self, where):
     where = bf_check.check_file_or_dir_seq(where)
 
@@ -72,37 +66,6 @@ class bf_file_dups_finder(object):
     return bf_file_dups_finder_result(resolved_entries, duplicate_items)
 
   @classmethod
-  def find_duplicates_with_setup(clazz, setup):
-    check.check_bf_file_dups_finder_setup(setup)
-
-    clazz._log.log_d(f'find_duplicates_with_setup: setup={setup.to_json()}', multi_line = True)
-    items = []
-    i = 1
-    checksum_map_items = sorted(setup.dup_checksum_map.items())
-    num = len(checksum_map_items)
-    for checksum, where in checksum_map_items:
-      sorted_where = clazz._sort_filename_list_by_preference(where,
-                                                             setup.options.prefer_prefixes,
-                                                             setup.options.sort_key)
-      #for x in where:
-      #  clazz._log.log_d(f'fdws:        where: {x}')
-      #for x in sorted_where:
-      #  clazz._log.log_d(f'fdws: sorted_where: {x}')
-      filename = sorted_where[0]
-      duplicates = sorted_where[1:]
-      item = clazz._dup_item(filename, duplicates)
-      items.append(item)
-      i = i + 1
-    return clazz._find_duplicates_result(items, setup.resolved_files)
-  
-  def setup(self, where):
-    check.check_string_seq(where)
-    #check.check_bf_file_dups_finder_options(options, allow_none = True)
-
-    resolved_files = self._resolve_files(where)
-    return bf_file_dups_finder_setup(where, resolved_files, self._options)
-    
-  @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
     filename = bf_check.check_file(filename)
     check.check_string_seq(where)
@@ -112,31 +75,6 @@ class bf_file_dups_finder(object):
     setup = clazz.setup(where, options = options)
     return clazz.find_file_duplicates_with_setup(filename, setup)
 
-  @classmethod
-  def find_file_duplicates_with_setup(clazz, filename, setup):
-    filename = bf_check.check_file(filename)
-    check.check_bf_file_dups_finder_setup(setup)
-
-    resolved_one_file = clazz._resolve_one_file(filename)
-    new_resolved_files = setup.resolved_files
-    new_resolved_files.append(resolved_one_file)
-    new_setup = setup.clone(mutations = { 'resolved_files': new_resolved_files })
-    dups_result = clazz.find_duplicates_with_setup(new_setup)
-    return clazz._compute_file_duplicates(dups_result, filename)
-
-  @classmethod
-  def _compute_file_duplicates(clazz, dups_result, filename):
-    result = []
-    for item in dups_result.items:
-      #clazz._log.log_d(f'item={item}')
-      all_files = set([ item.filename ] + item.duplicates)
-      #clazz._log.log_d(f'all_files={all_files}')
-      if filename in all_files:
-        all_files.remove(filename)
-        result.extend(list(all_files))
-    #clazz._log.log_d(f'result={result}')
-    return sorted(result)
-  
   @classmethod
   def _flat_duplicate_files(clazz, dup_size_map):
     result = bf_file_dups_entry_list()

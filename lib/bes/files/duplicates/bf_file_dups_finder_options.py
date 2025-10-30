@@ -19,16 +19,12 @@ from ..bf_file_type import bf_cli_file_type
 
 from .bf_file_dups_entry_list import bf_file_dups_entry_list
 
-#from .bf_file_dups_finder_setup import bf_file_dups_finder_setup
-#from .bf_file_dups_finder_setup import cli_bf_file_dups_finder_setup
-
 class _bf_file_dups_finder_options_desc(_bf_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
     
     return [
-#      cli_bf_file_dups_finder_setup,
       bf_cli_file_type,
     ]
   
