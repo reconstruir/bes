@@ -469,41 +469,6 @@ class test_file_duplicates(unit_test):
 }
 ''', result.to_json().replace(tester.src_dir, '${root_dir}') )
       
-  def xtest_find_duplicates_basic(self):
-    items = [
-      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-    ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/a/kiwi.jpg', [
-        f'{t.src_dir}/b/kiwi_dup1.jpg',
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
-      ] ),
-    ]), t.result.items )
-
-  def xtest_find_duplicates_with_small_checksum_size(self):
-    items = [
-      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-    ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   small_checksum_size = 4)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/a/kiwi.jpg', [
-        f'{t.src_dir}/b/kiwi_dup1.jpg',
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
-      ] ),
-    ]), t.result.items )
-
   def xtest_find_duplicates_correct_order(self):
     items = [
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
@@ -601,28 +566,6 @@ class test_file_duplicates(unit_test):
       ( f'{t.src_dir}/a/kiwi_03.jpg', [
         f'{t.src_dir}/b/kiwi_02.jpg',
         f'{t.src_dir}/c/kiwi_01.jpg',
-      ] ),
-    ]), t.result.items )
-
-  def xtest_find_duplicates_with_ignore_files(self):
-    ignore_file = self.make_temp_file(content = r'''
-*.foo
-''')
-    items = [
-      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/d/ignore.foo', 'this is kiwi', 0o0644),
-    ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   ignore_files = [ ignore_file ])
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/a/kiwi.jpg', [
-        f'{t.src_dir}/b/kiwi_dup1.jpg',
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
     ]), t.result.items )
     
