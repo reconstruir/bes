@@ -13,22 +13,22 @@ from ..bf_check import bf_check
 from ..hashing.bf_hasher_i import bf_hasher_i
 from ..resolve.bf_file_resolver import bf_file_resolver
 
-from .bf_file_dups_entry_list import bf_file_dups_entry_list
-from .bf_file_dups_finder_item import bf_file_dups_finder_item
-from .bf_file_dups_finder_item_list import bf_file_dups_finder_item_list
-from .bf_file_dups_finder_options import bf_file_dups_finder_options
-from .bf_file_dups_finder_result import bf_file_dups_finder_result
+from .bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
+from .bf_file_duplicates_finder_item import bf_file_duplicates_finder_item
+from .bf_file_duplicates_finder_item_list import bf_file_duplicates_finder_item_list
+from .bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
+from .bf_file_duplicates_finder_result import bf_file_duplicates_finder_result
 
-class bf_file_dups_finder(object):
+class bf_file_duplicates_finder(object):
   'A class to find duplicate files'
 
-  _log = logger('bf_file_dups')
+  _log = logger('bf_file_duplicates')
 
   def __init__(self, hasher, options = None):
     check.check_bf_hasher(hasher)
-    check.check_bf_file_dups_finder_options(options, allow_none = True)
+    check.check_bf_file_duplicates_finder_options(options, allow_none = True)
 
-    self._options = bf_file_dups_finder_options.clone_or_create(options)
+    self._options = bf_file_duplicates_finder_options.clone_or_create(options)
     self._hasher = hasher
 
   def _resolve_files(self, where):
@@ -41,7 +41,7 @@ class bf_file_dups_finder(object):
     resolved_entries = self._resolve_files(where)
     size_map = resolved_entries.size_map()
     self._log.log_d(f'size_map={pprint.pformat(size_map)}')
-    dup_size_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(size_map)
+    dup_size_map = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(size_map)
     num_dup_size_map = len(dup_size_map)
     self._log.log_d(f'dup_size_map={pprint.pformat(dup_size_map)}')
     flat_size_dup_files = self._flat_duplicate_files(dup_size_map)
@@ -50,34 +50,34 @@ class bf_file_dups_finder(object):
     short_checksum_map = flat_size_dup_files.short_checksum_map(self._hasher,
                                                                 'sha256',
                                                                 ignore_missing_files = True)
-    dup_short_checksum_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(short_checksum_map)
+    dup_short_checksum_map = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(short_checksum_map)
     flat_short_checksum_dup_files = self._flat_duplicate_files(dup_short_checksum_map)
     checksum_map = flat_short_checksum_dup_files.checksum_map(self._hasher,
                                                               'sha256',
                                                               ignore_missing_files = True)
-    dup_checksum_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(checksum_map)
-    duplicate_items = bf_file_dups_finder_item_list()
+    dup_checksum_map = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(checksum_map)
+    duplicate_items = bf_file_duplicates_finder_item_list()
     for checksum, dup_entries in dup_checksum_map.items():
       entry = dup_entries.pop(0)
       if self._match_function(entry, self._options):
-        item = bf_file_dups_finder_item(entry, dup_entries)
+        item = bf_file_duplicates_finder_item(entry, dup_entries)
         duplicate_items.append(item)
     self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
-    return bf_file_dups_finder_result(resolved_entries, duplicate_items)
+    return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
 
   @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
     filename = bf_check.check_file(filename)
     check.check_string_seq(where)
-    check.check_bf_file_dups_finder_options(options, allow_none = True)
+    check.check_bf_file_duplicates_finder_options(options, allow_none = True)
 
-    options = options or bf_file_dups_finder_options()
+    options = options or bf_file_duplicates_finder_options()
     setup = clazz.setup(where, options = options)
     return clazz.find_file_duplicates_with_setup(filename, setup)
 
   @classmethod
   def _flat_duplicate_files(clazz, dup_size_map):
-    result = bf_file_dups_entry_list()
+    result = bf_file_duplicates_entry_list()
     for size, entries in dup_size_map.items():
       result.extend(entries)
     result.sort_by_criteria('FILENAME')

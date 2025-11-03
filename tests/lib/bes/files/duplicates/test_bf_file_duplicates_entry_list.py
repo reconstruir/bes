@@ -6,7 +6,7 @@ from os import path
 from bes.common.json_util import json_util
 from bes.files.bf_entry import bf_entry
 from bes.files.find.bf_file_finder import bf_file_finder
-from bes.files.duplicates.bf_file_dups_entry_list import bf_file_dups_entry_list
+from bes.files.duplicates.bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
 from bes.files.hashing.bf_hasher_hashlib import bf_hasher_hashlib
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -22,7 +22,7 @@ class _bf_entry_list_tester(object):
     else:
       find_where = self._tmp_dir
     self._find_result = bf_file_finder.find_with_options(find_where,
-                                                         entry_list_class = bf_file_dups_entry_list)
+                                                         entry_list_class = bf_file_duplicates_entry_list)
 
   @property
   def tmp_dir(self):
@@ -37,11 +37,11 @@ class _bf_entry_list_tester(object):
   
   @classmethod
   def _make_temp_content(clazz, content):
-    return temp_content.write_items_to_temp_dir(content, delete = not test_bf_file_dups_entry_list.DEBUG)
+    return temp_content.write_items_to_temp_dir(content, delete = not test_bf_file_duplicates_entry_list.DEBUG)
 
   def duplicate_size_map_as_json(self):
     sm = self.entries.size_map()
-    dsm = bf_file_dups_entry_list.map_filter_out_non_duplicates(sm)
+    dsm = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(sm)
     json_text = json_util.to_json(dsm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
@@ -52,7 +52,7 @@ class _bf_entry_list_tester(object):
 
   def duplicate_checksum_map_as_json(self):
     cm = self.entries.checksum_map(bf_hasher_hashlib(), 'sha256')
-    dcm = bf_file_dups_entry_list.map_filter_out_non_duplicates(cm)
+    dcm = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(cm)
     json_text = json_util.to_json(dcm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
@@ -63,11 +63,11 @@ class _bf_entry_list_tester(object):
 
   def duplicate_short_checksum_map_as_json(self):
     scm = self.entries.short_checksum_map(bf_hasher_hashlib(), 'sha256')
-    dscm = bf_file_dups_entry_list.map_filter_out_non_duplicates(scm)
+    dscm = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(scm)
     json_text = json_util.to_json(dscm, indent = 2, sort_keys = True)
     return json_text.replace(self._tmp_dir, '${tmp_dir}')
   
-class test_bf_file_dups_entry_list(unit_test):
+class test_bf_file_duplicates_entry_list(unit_test):
   
   def _make_test_entry(self, *args, **kargs):
     tmp = self.make_temp_file(*args, **kargs)
@@ -85,7 +85,7 @@ class test_bf_file_dups_entry_list(unit_test):
     return bf_entry(tmp2)
 
   def _make_tmp_dir(self):
-    return self.make_temp_dir(prefix = 'test_bf_file_dups_entry_list_', suffix = '.dir')
+    return self.make_temp_dir(prefix = 'test_bf_file_duplicates_entry_list_', suffix = '.dir')
 
   def _make_test_entry_root_dir(self, root_dir, fragment, basename):
     filename = path.join(fragment, basename)

@@ -10,7 +10,7 @@ from ..bf_entry import bf_entry
 from ..bf_entry_list import bf_entry_list
 
 @dataclasses.dataclass
-class bf_file_dups_finder_item(bdata_class_base):
+class bf_file_duplicates_finder_item(bdata_class_base):
   entry: bf_entry
   duplicates: typing.Optional[bf_entry_list]
 
@@ -20,4 +20,4 @@ class bf_file_dups_finder_item(bdata_class_base):
       'duplicates': self.duplicates.to_dict_list()if self.duplicates else [],
     }
   
-check.register_class(bf_file_dups_finder_item, include_seq = False)
+check.register_class(bf_file_duplicates_finder_item, include_seq = False)

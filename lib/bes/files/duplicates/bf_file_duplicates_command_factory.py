@@ -2,7 +2,7 @@
 
 from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
 
-class bf_file_dups_command_factory(bcli_command_factory_i):
+class bf_file_duplicates_command_factory(bcli_command_factory_i):
 
   @classmethod
   #@abstractmethod
@@ -16,13 +16,13 @@ class bf_file_dups_command_factory(bcli_command_factory_i):
   
   #@abstractmethod
   def error_class(self):
-    from .bf_file_dups_error import bf_file_dups_error
-    raise bf_file_dups_error
+    from .bf_file_duplicates_error import bf_file_duplicates_error
+    raise bf_file_duplicates_error
 
   #@abstractmethod
   def options_class(self):
-    from .bf_file_dups_command_options import bf_file_dups_command_options
-    return bf_file_dups_command_options
+    from .bf_file_duplicates_command_options import bf_file_duplicates_command_options
+    return bf_file_duplicates_command_options
   
   #@abstractmethod
   def has_commands(self):
@@ -79,8 +79,8 @@ class bf_file_dups_command_factory(bcli_command_factory_i):
 
   #@abstractmethod
   def handler_class(self):
-    from .bf_file_dups_command_handler import bf_file_dups_command_handler
-    return bf_file_dups_command_handler
+    from .bf_file_duplicates_command_handler import bf_file_duplicates_command_handler
+    return bf_file_duplicates_command_handler
 
   #@abstractmethod
   def supported_platforms(self):

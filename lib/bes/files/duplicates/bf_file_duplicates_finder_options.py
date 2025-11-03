@@ -17,9 +17,9 @@ from ..resolve.bf_file_resolver_options import bf_file_resolver_options
 
 from ..bf_file_type import bf_cli_file_type
 
-from .bf_file_dups_entry_list import bf_file_dups_entry_list
+from .bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
 
-class _bf_file_dups_finder_options_desc(_bf_files_cli_options_desc):
+class _bf_file_duplicates_finder_options_desc(_bf_files_cli_options_desc):
 
   #@abstractmethod
   def _types(self):
@@ -45,12 +45,12 @@ include_resource_forks bool          default=False
   #@abstractmethod
   def _variables(self):
     return self.combine_variables(super()._variables(), {
-      '_default_sort_key': lambda: bf_file_dups_finder_options.mtime_sort_key,
+      '_default_sort_key': lambda: bf_file_duplicates_finder_options.mtime_sort_key,
     })
   
-class bf_file_dups_finder_options(bcli_options):
+class bf_file_duplicates_finder_options(bcli_options):
   def __init__(self, **kwargs):
-    super().__init__(_bf_file_dups_finder_options_desc(), **kwargs)
+    super().__init__(_bf_file_duplicates_finder_options_desc(), **kwargs)
 
   @staticmethod
   def sort_key_modification_date(filename):
@@ -62,8 +62,8 @@ class bf_file_dups_finder_options(bcli_options):
 
   @staticmethod
   def mtime_sort_key(filename):
-    mtime = bf_file_dups_finder_options.sort_key_modification_date(filename)
-    length = bf_file_dups_finder_options.sort_key_basename_length(filename)
+    mtime = bf_file_duplicates_finder_options.sort_key_modification_date(filename)
+    length = bf_file_duplicates_finder_options.sort_key_basename_length(filename)
     return ( mtime, length )
 
   def pass_through_keys(self):
@@ -76,7 +76,7 @@ class bf_file_dups_finder_options(bcli_options):
                                     min_depth = self.min_depth,
 #                                    sort_order = self.sort_order,
                                     ignore_filename = self.ignore_filename,
-                                    entry_list_class = bf_file_dups_entry_list,
+                                    entry_list_class = bf_file_duplicates_entry_list,
                                     include_resource_forks = self.include_resource_forks)
   
-bf_file_dups_finder_options.register_check_class()
+bf_file_duplicates_finder_options.register_check_class()

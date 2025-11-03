@@ -2,5 +2,5 @@
 
 from ..core.bf_error import bf_error
 
-class bf_file_dups_error(bf_error):
+class bf_file_duplicates_error(bf_error):
   pass

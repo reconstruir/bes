@@ -5,11 +5,11 @@ from bes.system.check import check
 from ..bf_entry_list import bf_entry_list
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria
 
-from .bf_file_dups_entry import bf_file_dups_entry
+from .bf_file_duplicates_entry import bf_file_duplicates_entry
 
-class bf_file_dups_entry_list(bf_entry_list):
+class bf_file_duplicates_entry_list(bf_entry_list):
 
-  __value_type__ = bf_file_dups_entry
+  __value_type__ = bf_file_duplicates_entry
   
   def __init__(self, values = None):
     super().__init__(values = values)
@@ -78,4 +78,4 @@ class bf_file_dups_entry_list(bf_entry_list):
         result[key] = entries
     return result
   
-check.register_class(bf_file_dups_entry_list, include_seq = False)
+check.register_class(bf_file_duplicates_entry_list, include_seq = False)

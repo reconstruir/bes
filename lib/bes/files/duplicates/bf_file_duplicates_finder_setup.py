@@ -13,19 +13,19 @@ from bes.data_classes.bdata_class_base import bdata_class_base
 from bes.system.log import logger
 
 from ..hashing.bf_hasher_i import bf_hasher_i
-from .bf_file_dups_finder_options import bf_file_dups_finder_options
-from .bf_file_dups_entry_list import bf_file_dups_entry_list
+from .bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
+from .bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
 
 @dataclasses.dataclass(frozen = True)
-class bf_file_dups_finder_setup(bdata_class_base):
+class bf_file_duplicates_finder_setup(bdata_class_base):
 
-  _log = logger('bf_file_dups')
+  _log = logger('bf_file_duplicates')
 
   hasher: bf_hasher_i
   algorithm: str
   where: typing.List[str]
-  resolved_entries: bf_file_dups_entry_list
-  options: bf_file_dups_entry_list
+  resolved_entries: bf_file_duplicates_entry_list
+  options: bf_file_duplicates_entry_list
 
   def to_dict(self):
     return {
@@ -44,7 +44,7 @@ class bf_file_dups_finder_setup(bdata_class_base):
   def dup_checksum_map(self):
     size_map = self.resolved_entries.size_map()
     self._log.log_d(f'size_map={pprint.pformat(size_map)}')
-    dup_size_map = bf_file_dups_entry_list.map_filter_out_non_duplicates(size_map)
+    dup_size_map = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(size_map)
     num_dup_size_map = len(dup_size_map)
     self._log.log_d(f'dup_size_map={pprint.pformat(dup_size_map)}')
     flat_size_dup_files = self._flat_duplicate_files(dup_size_map)
@@ -60,7 +60,7 @@ class bf_file_dups_finder_setup(bdata_class_base):
   
   @classmethod
   def _flat_duplicate_files(clazz, dup_size_map):
-    result = bf_file_dups_entry_list()
+    result = bf_file_duplicates_entry_list()
     for size, entries in dup_size_map.items():
       result.extend(entries)
     result.sort_by_criteria('FILENAME')
@@ -102,19 +102,19 @@ class bf_file_dups_finder_setup(bdata_class_base):
       
     return result
   
-check.register_class(bf_file_dups_finder_setup, include_seq = False)
+check.register_class(bf_file_duplicates_finder_setup, include_seq = False)
 
-class cli_bf_file_dups_finder_setup(bcli_type_i):
+class cli_bf_file_duplicates_finder_setup(bcli_type_i):
 
   @classmethod
   #@abstractmethod
   def name_str(clazz):
-    return 'bf_file_dups_finder_setup'
+    return 'bf_file_duplicates_finder_setup'
 
   @classmethod
   #@abstractmethod
   def type_function(clazz):
-    return bf_file_dups_finder_setup
+    return bf_file_duplicates_finder_setup
 
   @classmethod
   #@abstractmethod
@@ -125,4 +125,4 @@ class cli_bf_file_dups_finder_setup(bcli_type_i):
   @classmethod
   #@abstractmethod
   def check(clazz, value, allow_none = False):
-    return check.check_bf_file_dups_finder_setup(value, allow_none = allow_none)
+    return check.check_bf_file_duplicates_finder_setup(value, allow_none = allow_none)
