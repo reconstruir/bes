@@ -384,6 +384,8 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/kiwi_dup3.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/.testing_test_ignore', 'kiwi_dup3.jpg\n', 0o0644),
       temp_content('file', 'src/d/empty1.txt', '', 0o0644),
       temp_content('resource_fork', 'src/d/._empty1.txt', '', 0o0644),
       temp_content('file', 'src/e/empty2.txt', '', 0o0644),
