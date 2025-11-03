@@ -9,6 +9,7 @@ from ..common.time_util import time_util
 from ..data_output.data_output import data_output
 from ..files.bf_file_ops import bf_file_ops
 from ..system.check import check
+from ..text.text_replace import text_replace
 
 class bdata_class_base(object):
   
@@ -23,9 +24,12 @@ class bdata_class_base(object):
   def from_dict_hook(clazz, d):
     return d
   
-  def to_json(self):
+  def to_json(self, replacements = None):
     d = self.to_dict()
-    return json_util.to_json(d, indent = 2, sort_keys = False)
+    json_str = json_util.to_json(d, indent = 2, sort_keys = False)
+    if replacements:
+      json_str = text_replace.replace(json_str, replacements)
+    return json_str
 
   def to_list(self):
     return [ getattr(self, field.name) for field in dataclasses.fields(self) ]
