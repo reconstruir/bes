@@ -58,13 +58,14 @@ class bf_file_duplicates_finder(object):
                                                               ignore_missing_files = True)
     dup_checksum_map = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(checksum_map)
     duplicate_items = bf_file_duplicates_finder_item_list()
+    
     for checksum, dup_entries in dup_checksum_map.items():
+      def _sort_key(entry_):
+        return self._sort_sort_criteria(entry_, self._options)
+      dup_entries = dup_entries.sorted_(key = _sort_key)
       entry = dup_entries.pop(0)
       if self._match_function(entry, self._options):
-        def _sort_key(entry_):
-          return self._sort_sort_criteria(entry_, self._options)
-        sorted_dup_entries = dup_entries.sorted_(key = _sort_key)
-        item = bf_file_duplicates_finder_item(entry, sorted_dup_entries)
+        item = bf_file_duplicates_finder_item(entry, dup_entries)
         duplicate_items.append(item)
     self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
     return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
@@ -93,7 +94,8 @@ class bf_file_duplicates_finder(object):
       return []
     result = []
     for next_prefix in options.prefer_prefixes:
-      result.append(int(entry.absolute_filename.startswith(next_prefix)))
+      positive = entry.absolute_filename.startswith(next_prefix)
+      result.append(int(not positive))
     return result
 
   @classmethod
@@ -109,8 +111,7 @@ class bf_file_duplicates_finder(object):
   def _sort_sort_criteria(clazz, entry, options):
     sort_key_criteria = clazz._sort_sort_criteria_by_sort_key(entry, options)
     prefer_prefixes_criteria = clazz._sort_sort_criteria_by_prefer_prefixes(entry, options)
-
-    return tuple(sort_key_criteria + prefer_prefixes_criteria)
+    return tuple(prefer_prefixes_criteria + sort_key_criteria)
   
   @classmethod
   def _match_function(clazz, entry, options):

@@ -35,26 +35,16 @@ class _bf_file_duplicates_finder_options_desc(_bf_files_cli_options_desc):
           max_depth    int
           min_depth    int
     prefer_prefixes    list[str]
-           sort_key    callable      default=${_default_sort_key}
+           sort_key    callable
 include_empty_files    bool          default=False
 include_resource_forks bool          default=False
  include_soft_links    bool          default=False
     ignore_filename    str
 '''
 
-  #@abstractmethod
-  def _variables(self):
-    return self.combine_variables(super()._variables(), {
-      '_default_sort_key': lambda: bf_file_duplicates_finder_options.sort_key_modification_date,
-    })
-  
 class bf_file_duplicates_finder_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_file_duplicates_finder_options_desc(), **kwargs)
-
-  @staticmethod
-  def sort_key_modification_date(entry):
-    return [ entry.modification_date ]
 
   def pass_through_keys(self):
     return ( 'file_resolver_options', )

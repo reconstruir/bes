@@ -426,6 +426,94 @@ class test_file_duplicates(unit_test):
 }
 ''', result.to_json().replace(tester.src_dir, '${root_dir}') )
 
+  def test_find_duplicates_with_prefer_prefixes(self):
+    items = [
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/z/kiwi_dup3.jpg', 'this is kiwi', 0o0644),
+    ]
+    with dir_operation_tester(extra_content_items = items) as tester:
+      hasher = bf_hasher_hashlib()
+      prefer_prefixes = [ path.join(tester.src_dir, 'z') ]
+      options = bf_file_duplicates_finder_options(prefer_prefixes = prefer_prefixes)
+      finder = bf_file_duplicates_finder(hasher = hasher, options = options)
+      result = finder.find_duplicates([ tester.src_dir ])
+      self.assert_json_equal( '''
+{
+  "resolved_entries": [
+    {
+      "filename": "a/apple.jpg",
+      "root_dir": "${root_dir}",
+      "index": 0,
+      "found_index": 0
+    },
+    {
+      "filename": "a/kiwi.jpg",
+      "root_dir": "${root_dir}",
+      "index": 1,
+      "found_index": 1
+    },
+    {
+      "filename": "a/lemon.jpg",
+      "root_dir": "${root_dir}",
+      "index": 2,
+      "found_index": 2
+    },
+    {
+      "filename": "b/kiwi_dup1.jpg",
+      "root_dir": "${root_dir}",
+      "index": 3,
+      "found_index": 3
+    },
+    {
+      "filename": "c/kiwi_dup2.jpg",
+      "root_dir": "${root_dir}",
+      "index": 4,
+      "found_index": 4
+    },
+    {
+      "filename": "z/kiwi_dup3.jpg",
+      "root_dir": "${root_dir}",
+      "index": 5,
+      "found_index": 5
+    }
+  ],
+  "duplicate_items": [
+    {
+      "entry": {
+        "filename": "z/kiwi_dup3.jpg",
+        "root_dir": "${root_dir}",
+        "index": 5,
+        "found_index": 5
+      },
+      "duplicates": [
+        {
+          "filename": "a/kiwi.jpg",
+          "root_dir": "${root_dir}",
+          "index": 1,
+          "found_index": 1
+        },
+        {
+          "filename": "b/kiwi_dup1.jpg",
+          "root_dir": "${root_dir}",
+          "index": 3,
+          "found_index": 3
+        },
+        {
+          "filename": "c/kiwi_dup2.jpg",
+          "root_dir": "${root_dir}",
+          "index": 4,
+          "found_index": 4
+        }
+      ]
+    }
+  ]
+}
+''', result.to_json().replace(tester.src_dir, '${root_dir}') )
+      
   def test_find_duplicates_with_ignore_filename(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
