@@ -14,6 +14,7 @@ from ..hashing.bf_hasher_i import bf_hasher_i
 from ..resolve.bf_file_resolver import bf_file_resolver
 
 from .bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
+from .bf_file_duplicates_error import bf_file_duplicates_error
 from .bf_file_duplicates_finder_item import bf_file_duplicates_finder_item
 from .bf_file_duplicates_finder_item_list import bf_file_duplicates_finder_item_list
 from .bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
@@ -60,7 +61,10 @@ class bf_file_duplicates_finder(object):
     for checksum, dup_entries in dup_checksum_map.items():
       entry = dup_entries.pop(0)
       if self._match_function(entry, self._options):
-        item = bf_file_duplicates_finder_item(entry, dup_entries)
+        def _sort_key(entry_):
+          return self._sort_sort_criteria(entry_, self._options)
+        sorted_dup_entries = dup_entries.sorted_(key = _sort_key)
+        item = bf_file_duplicates_finder_item(entry, sorted_dup_entries)
         duplicate_items.append(item)
     self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
     return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
@@ -84,22 +88,30 @@ class bf_file_duplicates_finder(object):
     return result
 
   @classmethod
-  def _sort_criteria_by_prefer_prefixes(clazz, filename, prefer_prefixes):
-    if not prefer_prefixes:
-      return None
-    for p in prefer_prefixes:
-      if filename.startswith(p):
-        return 0
-    return 1
-
-  @classmethod
-  def _sort_criteria_by_sort_key(clazz, filename, sort_key):
-    if not sort_key:
-      return None
-    result = sort_key(filename)
-    assert result != None
+  def _sort_sort_criteria_by_prefer_prefixes(clazz, entry, options):
+    if not options.prefer_prefixes:
+      return []
+    result = []
+    for next_prefix in options.prefer_prefixes:
+      result.append(int(entry.absolute_filename.startswith(next_prefix)))
     return result
 
+  @classmethod
+  def _sort_sort_criteria_by_sort_key(clazz, entry, options):
+    if not options.sort_key:
+      return []
+    sort_key_result = options.sort_key(entry)
+    if not isinstance(sort_key_result, list):
+      raise bf_file_duplicates_error(f'return type of sort_key "{options.sort_key}" should be list instead of "{type(sort_key_result)}"')
+    return sort_key_result
+
+  @classmethod
+  def _sort_sort_criteria(clazz, entry, options):
+    sort_key_criteria = clazz._sort_sort_criteria_by_sort_key(entry, options)
+    prefer_prefixes_criteria = clazz._sort_sort_criteria_by_prefer_prefixes(entry, options)
+
+    return tuple(sort_key_criteria + prefer_prefixes_criteria)
+  
   @classmethod
   def _match_function(clazz, entry, options):
     try:
@@ -107,26 +119,6 @@ class bf_file_duplicates_finder(object):
       if not options.include_empty_files:
         if entry.is_empty:
           return False
-#      if options.should_ignore_file(filename):
-#        return False
       return True
     except FileNotFoundError as ex:
       return False
-  
-  @classmethod
-  def _resolve_one_file(clazz, filename):
-    return file_duplicates_item(path.dirname(filename), path.basename(filename), filename, 0, 0)
-  
-  @classmethod
-  def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, sort_key):
-    def _sort_key(filename):
-      criteria = []
-      function_criteria = clazz._sort_criteria_by_sort_key(filename, sort_key)
-      if function_criteria != None:
-        criteria.append(function_criteria)
-      prefixes_criteria = clazz._sort_criteria_by_prefer_prefixes(filename, prefer_prefixes)
-      if prefixes_criteria != None:
-        criteria.append(prefixes_criteria)
-      criteria.append(filename)
-      return tuple(criteria)
-    return sorted(filenames, key = _sort_key)

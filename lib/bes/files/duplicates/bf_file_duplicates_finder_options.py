@@ -35,7 +35,7 @@ class _bf_file_duplicates_finder_options_desc(_bf_files_cli_options_desc):
           max_depth    int
           min_depth    int
     prefer_prefixes    list[str]
-#           sort_key   callable      default=${{_default_sort_key}}
+           sort_key    callable      default=${_default_sort_key}
 include_empty_files    bool          default=False
 include_resource_forks bool          default=False
  include_soft_links    bool          default=False
@@ -45,7 +45,7 @@ include_resource_forks bool          default=False
   #@abstractmethod
   def _variables(self):
     return self.combine_variables(super()._variables(), {
-      '_default_sort_key': lambda: bf_file_duplicates_finder_options.mtime_sort_key,
+      '_default_sort_key': lambda: bf_file_duplicates_finder_options.sort_key_modification_date,
     })
   
 class bf_file_duplicates_finder_options(bcli_options):
@@ -53,18 +53,8 @@ class bf_file_duplicates_finder_options(bcli_options):
     super().__init__(_bf_file_duplicates_finder_options_desc(), **kwargs)
 
   @staticmethod
-  def sort_key_modification_date(filename):
-    return ( file_util.get_modification_date(filename), )
-
-  @staticmethod
-  def sort_key_basename_length(filename):
-    return ( len(path.basename(filename)),  )
-
-  @staticmethod
-  def mtime_sort_key(filename):
-    mtime = bf_file_duplicates_finder_options.sort_key_modification_date(filename)
-    length = bf_file_duplicates_finder_options.sort_key_basename_length(filename)
-    return ( mtime, length )
+  def sort_key_modification_date(entry):
+    return [ entry.modification_date ]
 
   def pass_through_keys(self):
     return ( 'file_resolver_options', )
@@ -74,7 +64,6 @@ class bf_file_duplicates_finder_options(bcli_options):
     return bf_file_resolver_options(file_type = self.file_type,
                                     max_depth = self.max_depth,
                                     min_depth = self.min_depth,
-#                                    sort_order = self.sort_order,
                                     ignore_filename = self.ignore_filename,
                                     entry_list_class = bf_file_duplicates_entry_list,
                                     include_resource_forks = self.include_resource_forks)
