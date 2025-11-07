@@ -9,6 +9,7 @@ from datetime import timedelta
 from bes.property.cached_property import cached_property
 from bes.files.bf_path import bf_path
 from bes.files.bf_entry import bf_entry
+from bes.files.bf_file_ops import bf_file_ops
 from bes.files.duplicates.bf_file_duplicates_finder import bf_file_duplicates_finder
 from bes.files.duplicates.bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
 from bes.files.duplicates.bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
@@ -1016,34 +1017,87 @@ class test_bf_file_duplicates_finder(unit_test):
 }
 ''', result.to_json(replacements = { tester.src_dir: '${root_dir}', tmp_file: '${tmp_file}' }) )
       
-      
-  def xtest_find_file_duplicates_with_setup_and_removed_resolved_file(self):
+  def test_find_duplicates_with_resolve_files_removed_file(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'foo/cheese/brie.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
-      temp_content('file', 'foo/cheese/gouda.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/d/empty1.txt', '', 0o0644),
+      temp_content('file', 'src/e/empty2.txt', '', 0o0644),
+      temp_content('resource_fork', 'src/e/._empty2.txt', '', 0o0644),
     ]
-    tester.options = bf_file_duplicates_finder_options(recursive = True)
-    with _file_duplicates_finder_tester(extra_content_items = items) as t:
-      setup = file_duplicates.setup([ t.src_dir ], options = options)
-
-      file_util.remove(f'{t.src_dir}/a/kiwi.jpg')
-      
-      dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
-      self.assert_filename_list_equal( [
-        f'{t.src_dir}/b/kiwi_dup1.jpg',
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
-      ], dups )
-
-      dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/gouda.jpg', setup)
-      self.assert_filename_list_equal( [
-        f'{t.src_dir}/a/lemon.jpg',
-      ], dups )
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      resolved_entries = tester.finder.resolve_files(tester.src_dir)
+      bf_file_ops.remove(f'{tester.src_dir}/a/kiwi.jpg')
+      result = tester.finder.find_duplicates(resolved_entries = resolved_entries)
+      self.assert_json_equal( '''
+{
+  "resolved_entries": [
+    {
+      "filename": "a/apple.jpg",
+      "root_dir": "${root_dir}",
+      "index": 0,
+      "found_index": 0
+    },
+    {
+      "filename": "a/kiwi.jpg",
+      "root_dir": "${root_dir}",
+      "index": 1,
+      "found_index": 1
+    },
+    {
+      "filename": "a/lemon.jpg",
+      "root_dir": "${root_dir}",
+      "index": 2,
+      "found_index": 2
+    },
+    {
+      "filename": "b/kiwi_dup1.jpg",
+      "root_dir": "${root_dir}",
+      "index": 3,
+      "found_index": 3
+    },
+    {
+      "filename": "c/kiwi_dup2.jpg",
+      "root_dir": "${root_dir}",
+      "index": 4,
+      "found_index": 4
+    },
+    {
+      "filename": "d/empty1.txt",
+      "root_dir": "${root_dir}",
+      "index": 5,
+      "found_index": 5
+    },
+    {
+      "filename": "e/empty2.txt",
+      "root_dir": "${root_dir}",
+      "index": 6,
+      "found_index": 6
+    }
+  ],
+  "duplicate_items": [
+    {
+      "entry": {
+        "filename": "b/kiwi_dup1.jpg",
+        "root_dir": "${root_dir}",
+        "index": 3,
+        "found_index": 3
+      },
+      "duplicates": [
+        {
+          "filename": "c/kiwi_dup2.jpg",
+          "root_dir": "${root_dir}",
+          "index": 4,
+          "found_index": 4
+        }
+      ]
+    }
+  ]
+}
+''', result.to_json(replacements = { tester.src_dir: '${root_dir}' }) )
       
   def _xp_result_item(self, item):
     return file_duplicates._dup_item(self.xp_filename(item[0], sep = path.sep),
