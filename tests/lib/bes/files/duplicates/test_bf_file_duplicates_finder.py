@@ -868,7 +868,75 @@ class test_file_duplicates(unit_test):
   ]
 }
 ''', result.to_json(replacements = { tester.src_dir: '${root_dir}', tmp_file: '${tmp_file}' }) )
-    
+
+  def test_find_duplicates_for_entry_no_match(self):
+    items = [
+      temp_content('file', 'src/a/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.txt', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.txt', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/kiwi_dup3.txt', 'this is kiwi', 0o0644),
+    ]
+    with dir_operation_tester(extra_content_items = items) as tester:
+      hasher = bf_hasher_hashlib()
+      finder = bf_file_duplicates_finder(hasher = hasher)
+      tmp_file = self.make_temp_file(content = 'this is not kiwi', suffix = '.txt')
+      entry = bf_entry(tmp_file)
+      result = finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
+      self.assert_json_equal( '''
+{
+  "resolved_entries": [
+    {
+      "filename": "a/apple.txt",
+      "root_dir": "${root_dir}",
+      "index": 0,
+      "found_index": 0
+    },
+    {
+      "filename": "a/kiwi.txt",
+      "root_dir": "${root_dir}",
+      "index": 1,
+      "found_index": 1
+    },
+    {
+      "filename": "a/lemon.txt",
+      "root_dir": "${root_dir}",
+      "index": 2,
+      "found_index": 2
+    },
+    {
+      "filename": "b/kiwi_dup1.txt",
+      "root_dir": "${root_dir}",
+      "index": 3,
+      "found_index": 3
+    },
+    {
+      "filename": "c/kiwi_dup2.txt",
+      "root_dir": "${root_dir}",
+      "index": 4,
+      "found_index": 4
+    },
+    {
+      "filename": "d/kiwi_dup3.txt",
+      "root_dir": "${root_dir}",
+      "index": 5,
+      "found_index": 5
+    }
+  ],
+  "duplicate_items": [
+    {
+      "entry": {
+        "filename": "${tmp_file}",
+        "root_dir": null
+      },
+      "duplicates": []
+    }
+  ]
+}
+''', result.to_json(replacements = { tester.src_dir: '${root_dir}', tmp_file: '${tmp_file}' }) )
+      
+      
   def xtest_find_file_duplicates_with_setup_and_removed_resolved_file(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),

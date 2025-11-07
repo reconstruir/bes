@@ -43,6 +43,10 @@ class bf_file_duplicates_finder(object):
 
     resolved_entries = self.resolve_files(where)
     return self._do_find_duplicates(resolved_entries)
+
+  def find_duplicates_with_resolved_entries(self, resolved_entries):
+    check.check_bf_file_duplicates_entry_list(resolved_entries)
+    return self._do_find_duplicates(resolved_entries)
   
   def resolve_files(self, where):
     resolver = bf_file_resolver(options = self._options.file_resolver_options)
