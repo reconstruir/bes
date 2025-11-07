@@ -6,6 +6,7 @@ import pprint
 from os import path
 from datetime import datetime
 from datetime import timedelta
+from bes.property.cached_property import cached_property
 from bes.files.bf_path import bf_path
 from bes.files.bf_entry import bf_entry
 from bes.files.duplicates.bf_file_duplicates_finder import bf_file_duplicates_finder
@@ -18,7 +19,30 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
-class test_file_duplicates(unit_test):
+'''
+dir_operation_tester
+
+with dir_operation_tester(extra_content_items = items) as tester:
+      hasher = bf_hasher_hashlib()
+      finder = bf_file_duplicates_finder(hasher = hasher)
+      tmp_file = self.make_temp_file(content = 'this is not kiwi', suffix = '.txt')
+      entry = bf_entry(tmp_file)
+      result = tester.finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
+'''
+
+class _file_duplicates_finder_tester(dir_operation_tester):
+
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+
+    self.options = None
+
+  @cached_property
+  def finder(self):
+    hasher = hasher = bf_hasher_hashlib()
+    return bf_file_duplicates_finder(hasher = hasher, options = self.options)
+
+class test_bf_file_duplicates_finder(unit_test):
 
   def test_resolve_files(self):
     items = [
@@ -28,10 +52,8 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      finder = bf_file_duplicates_finder(hasher = hasher)
-      resolved_files = finder.resolve_files(tester.src_dir)
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      resolved_files = tester.finder.resolve_files(tester.src_dir)
       self.assert_json_equal( '''
 [
   {
@@ -78,10 +100,8 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/e/empty2.txt', '', 0o0644),
       temp_content('resource_fork', 'src/e/._empty2.txt', '', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      finder = bf_file_duplicates_finder(hasher = hasher)
-      result = finder.find_duplicates([ tester.src_dir ])
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -163,10 +183,8 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi 2', 0o0644),
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi 3', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      finder = bf_file_duplicates_finder(hasher = hasher)
-      result = finder.find_duplicates([ tester.src_dir ])
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -215,11 +233,9 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/d/empty1.txt', '', 0o0644),
       temp_content('file', 'src/e/empty2.txt', '', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      options = bf_file_duplicates_finder_options(include_empty_files = True)
-      finder = bf_file_duplicates_finder(hasher = hasher, options = options)
-      result = finder.find_duplicates([ tester.src_dir ])
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      tester.options = bf_file_duplicates_finder_options(include_empty_files = True)
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -321,11 +337,9 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/e/empty2.txt', '', 0o0644),
       temp_content('resource_fork', 'src/e/._empty2.txt', '', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      options = bf_file_duplicates_finder_options(include_resource_forks = True)
-      finder = bf_file_duplicates_finder(hasher = hasher, options = options)
-      result = finder.find_duplicates([ tester.src_dir ])
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      tester.options = bf_file_duplicates_finder_options(include_resource_forks = True)
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -436,12 +450,10 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/z/kiwi_dup3.jpg', 'this is kiwi', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       prefer_prefixes = [ path.join(tester.src_dir, 'z') ]
-      options = bf_file_duplicates_finder_options(prefer_prefixes = prefer_prefixes)
-      finder = bf_file_duplicates_finder(hasher = hasher, options = options)
-      result = finder.find_duplicates([ tester.src_dir ])
+      tester.options = bf_file_duplicates_finder_options(prefer_prefixes = prefer_prefixes)
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -524,12 +536,10 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/z/kiwi_dup3.jpg', 'this is kiwi', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       sort_key = lambda entry: [ 0 if 'z' in entry.filename_split else 1 ]
-      options = bf_file_duplicates_finder_options(sort_key = sort_key)
-      finder = bf_file_duplicates_finder(hasher = hasher, options = options)
-      result = finder.find_duplicates([ tester.src_dir ])
+      tester.options = bf_file_duplicates_finder_options(sort_key = sort_key)
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -617,11 +627,9 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/e/empty2.txt', '', 0o0644),
       temp_content('resource_fork', 'src/e/._empty2.txt', '', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      options = bf_file_duplicates_finder_options(ignore_filename = '.testing_test_ignore')
-      finder = bf_file_duplicates_finder(hasher = hasher, options = options)
-      result = finder.find_duplicates([ tester.src_dir ])
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
+      tester.options = bf_file_duplicates_finder_options(ignore_filename = '.testing_test_ignore')
+      result = tester.finder.find_duplicates([ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -786,12 +794,10 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.txt', 'this is kiwi', 0o0644),
       temp_content('file', 'src/d/kiwi_dup3.txt', 'this is kiwi', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      finder = bf_file_duplicates_finder(hasher = hasher)
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       tmp_file = self.make_temp_file(content = 'this is kiwi', suffix = '.txt')
       entry = bf_entry(tmp_file)
-      result = finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
+      result = tester.finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -878,12 +884,10 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.txt', 'this is kiwi', 0o0644),
       temp_content('file', 'src/d/kiwi_dup3.txt', 'this is kiwi', 0o0644),
     ]
-    with dir_operation_tester(extra_content_items = items) as tester:
-      hasher = bf_hasher_hashlib()
-      finder = bf_file_duplicates_finder(hasher = hasher)
+    with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       tmp_file = self.make_temp_file(content = 'this is not kiwi', suffix = '.txt')
       entry = bf_entry(tmp_file)
-      result = finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
+      result = tester.finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
       self.assert_json_equal( '''
 {
   "resolved_entries": [
@@ -948,8 +952,8 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
       temp_content('file', 'foo/cheese/gouda.jpg', 'this is lemon', 0o0644),
     ]
-    options = bf_file_duplicates_finder_options(recursive = True)
-    with dir_operation_tester(extra_content_items = items) as t:
+    tester.options = bf_file_duplicates_finder_options(recursive = True)
+    with _file_duplicates_finder_tester(extra_content_items = items) as t:
       setup = file_duplicates.setup([ t.src_dir ], options = options)
 
       file_util.remove(f'{t.src_dir}/a/kiwi.jpg')
