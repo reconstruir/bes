@@ -32,19 +32,12 @@ class bf_file_duplicates_finder(object):
     self._options = bf_file_duplicates_finder_options.clone_or_create(options)
     self._hasher = hasher
 
+  def resolve_files(self, where):
+    resolver = bf_file_resolver(options = self._options.file_resolver_options)
+    return resolver.resolve(where)
+  
   def find_duplicates(self, where = None, resolved_entries = None):
-    if not where and not resolved_entries:
-      raise bf_file_duplicates_error(f'One of "where" or "resolved_entries" should be given.')
-
-    if where and resolved_entries:
-      raise bf_file_duplicates_error(f'Only one of "where" or "resolved_entries" should be given.')
-
-    if where:
-      where = bf_check.check_file_or_dir_seq(where)
-      resolved_entries = self.resolve_files(where)
-    else:
-      assert resolved_entries
-      check.check_bf_file_duplicates_entry_list(resolved_entries)
+    where, resolved_entries = self._check_args(where, resolved_entries)
       
     size_map = resolved_entries.size_map()
     self._log.log_d(f'size_map={pprint.pformat(size_map)}')
@@ -75,20 +68,11 @@ class bf_file_duplicates_finder(object):
         duplicate_items.append(item)
     self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
     return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
-
-  def find_duplicates_with_resolved_entries(self, resolved_entries):
-    check.check_bf_file_duplicates_entry_list(resolved_entries)
-    return self._do_find_duplicates(resolved_entries)
   
-  def resolve_files(self, where):
-    resolver = bf_file_resolver(options = self._options.file_resolver_options)
-    return resolver.resolve(where)
-  
-  def find_duplicates_for_entry(self, entry, where):
+  def find_duplicates_for_entry(self, entry, where = None, resolved_entries = None):
     check.check_bf_entry(entry)
-    where = bf_check.check_file_or_dir_seq(where)
-
-    resolved_entries = self.resolve_files(where)
+    where, resolved_entries = self._check_args(where, resolved_entries)
+    
     entry_short_checksum = None
     entry_checksum = None
 
@@ -112,6 +96,22 @@ class bf_file_duplicates_finder(object):
     duplicate_items.append(item)
     return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
 
+  def _check_args(self, where, resolved_entries):
+    if not where and not resolved_entries:
+      raise bf_file_duplicates_error(f'One of "where" or "resolved_entries" should be given.')
+
+    if where and resolved_entries:
+      raise bf_file_duplicates_error(f'Only one of "where" or "resolved_entries" should be given.')
+
+    if where:
+      where = bf_check.check_file_or_dir_seq(where)
+      resolved_entries = self.resolve_files(where)
+    else:
+      assert resolved_entries
+      check.check_bf_file_duplicates_entry_list(resolved_entries)
+
+    return where, resolved_entries
+  
   @classmethod
   def _flat_duplicate_files(clazz, dup_size_map):
     result = bf_file_duplicates_entry_list()
