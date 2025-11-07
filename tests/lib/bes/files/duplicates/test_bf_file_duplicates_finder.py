@@ -20,7 +20,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_file_duplicates(unit_test):
 
-  def test__resolve_files(self):
+  def test_resolve_files(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
@@ -31,7 +31,7 @@ class test_file_duplicates(unit_test):
     with dir_operation_tester(extra_content_items = items) as tester:
       hasher = bf_hasher_hashlib()
       finder = bf_file_duplicates_finder(hasher = hasher)
-      resolved_files = finder._resolve_files(tester.src_dir)
+      resolved_files = finder.resolve_files(tester.src_dir)
       self.assert_json_equal( '''
 [
   {

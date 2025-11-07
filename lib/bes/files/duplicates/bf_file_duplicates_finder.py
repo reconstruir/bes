@@ -35,10 +35,16 @@ class bf_file_duplicates_finder(object):
   def find_duplicates(self, where):
     where = bf_check.check_file_or_dir_seq(where)
 
-    resolved_entries = self._resolve_files(where)
+    resolved_entries = self.resolve_files(where)
     return self._do_find_duplicates(resolved_entries)
 
-  def _resolve_files(self, where):
+  def find_duplicates(self, where):
+    where = bf_check.check_file_or_dir_seq(where)
+
+    resolved_entries = self.resolve_files(where)
+    return self._do_find_duplicates(resolved_entries)
+  
+  def resolve_files(self, where):
     resolver = bf_file_resolver(options = self._options.file_resolver_options)
     return resolver.resolve(where)
 
@@ -77,7 +83,7 @@ class bf_file_duplicates_finder(object):
     check.check_bf_entry(entry)
     where = bf_check.check_file_or_dir_seq(where)
 
-    resolved_entries = self._resolve_files(where)
+    resolved_entries = self.resolve_files(where)
     entry_short_checksum = None
     entry_checksum = None
 
