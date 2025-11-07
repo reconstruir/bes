@@ -780,67 +780,6 @@ class test_bf_file_duplicates_finder(unit_test):
 }
 ''', result.to_json().replace(tester.src_dir, '${root_dir}') )
       
-  def xtest_find_duplicates_correct_order(self):
-    items = [
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/z/kiwi.jpg', 'this is kiwi', 0o0644),
-    ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/b/kiwi_dup1.jpg', [
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
-        f'{t.src_dir}/z/kiwi.jpg',
-      ] ),
-    ]), t.result.items )
-
-  def xtest_find_duplicates_with_sort_key_basename_length(self):
-    items = [
-      temp_content('file', 'src/a/kiwi_12345.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_1234.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_123.jpg', 'this is kiwi', 0o0644),
-    ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   sort_key = bf_file_duplicates_finder_options.sort_key_basename_length)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/c/kiwi_123.jpg', [
-        f'{t.src_dir}/b/kiwi_1234.jpg',
-        f'{t.src_dir}/a/kiwi_12345.jpg',
-      ] ),
-    ]), t.result.items )
-
-  def xtest_find_duplicates_with_sort_key_modification_date(self):
-    items = [
-      temp_content('file', 'src/a/kiwi_03.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/b/kiwi_02.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_01.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-    ]
-    def _ptf(test):
-      file_util.set_modification_date(f'{test.src_dir}/c/kiwi_01.jpg',
-                                      datetime.now())
-      file_util.set_modification_date(f'{test.src_dir}/b/kiwi_02.jpg',
-                                      datetime.now() - timedelta(days = 1))
-      file_util.set_modification_date(f'{test.src_dir}/a/kiwi_03.jpg',
-                                      datetime.now() - timedelta(days = 2))
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   sort_key = bf_file_duplicates_finder_options.sort_key_modification_date,
-                                   pre_test_function = _ptf)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/a/kiwi_03.jpg', [
-        f'{t.src_dir}/b/kiwi_02.jpg',
-        f'{t.src_dir}/c/kiwi_01.jpg',
-      ] ),
-    ]), t.result.items )
-    
   # FIXME: this test would prove the dups thing works
   # even with no write permissions for files
   @unit_test_function_skip.skip_if_not_unix()
