@@ -24,6 +24,7 @@ class bf_mime(object):
     'application/x-msdownload',
     'application/java', # both java class files and mach-o binaries share the same CAFEBABE magic
     'application/x-dosexec',
+    'application/vnd.microsoft.portable-executable',
   ]
 
   @classmethod
