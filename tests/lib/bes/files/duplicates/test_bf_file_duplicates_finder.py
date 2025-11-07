@@ -7,6 +7,7 @@ from os import path
 from datetime import datetime
 from datetime import timedelta
 from bes.files.bf_path import bf_path
+from bes.files.bf_entry import bf_entry
 from bes.files.duplicates.bf_file_duplicates_finder import bf_file_duplicates_finder
 from bes.files.duplicates.bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
 from bes.files.duplicates.bf_file_duplicates_entry_list import bf_file_duplicates_entry_list
@@ -711,25 +712,6 @@ class test_file_duplicates(unit_test):
       ] ),
     ]), t.result.items )
 
-  def xtest_find_duplicates_with_sort_key(self):
-    items = [
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/z/kiwi.jpg', 'this is kiwi', 0o0644),
-    ]
-    sort_key = lambda filename: 0 if 'z' in bf_path.split(filename) else 1
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   sort_key = sort_key)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/z/kiwi.jpg', [
-        f'{t.src_dir}/b/kiwi_dup1.jpg',
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
-      ] ),
-    ]), t.result.items )
-
   def xtest_find_duplicates_with_sort_key_basename_length(self):
     items = [
       temp_content('file', 'src/a/kiwi_12345.jpg', 'this is kiwi', 0o0644),
@@ -795,76 +777,98 @@ class test_file_duplicates(unit_test):
     ] )
     self.assertTrue( file_duplicates._dup_item('${{_bin}}/{}'.format(shell), [ '${_tmp}/dupsh.exe']) in result )
 
-  def xtest_find_duplicates_with_empty_files(self):
+  def test_find_duplicates_for_entry_basic(self):
     items = [
-      temp_content('file', 'src/a/empty.jpg', '', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/empty_dup1.jpg', '', 0o0644),
-      temp_content('file', 'src/c/empty_dup2.jpg', '', 0o0644),
+      temp_content('file', 'src/a/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.txt', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.txt', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/kiwi_dup3.txt', 'this is kiwi', 0o0644),
     ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   include_empty_files = True)
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/a/empty.jpg', [
-        f'{t.src_dir}/b/empty_dup1.jpg',
-        f'{t.src_dir}/c/empty_dup2.jpg',
-      ] ),
-    ]), t.result.items )
-
-  def xtest_find_duplicates_without_empty_files(self):
-    items = [
-      temp_content('file', 'src/a/empty.jpg', '', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/empty_dup1.jpg', '', 0o0644),
-      temp_content('file', 'src/c/empty_dup2.jpg', '', 0o0644),
-    ]
-    t = self._call_find_duplicates(extra_content_items = items,
-                                   recursive = True,
-                                   include_empty_files = False)
-    self.assertEqual( self._xp_result_item_list([]), t.result.items )
-
-  def xtest_find_duplicates_with_setup(self):
-    items = [
-      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-    ]
-    options = bf_file_duplicates_finder_options(recursive = True)
-    with dir_operation_tester(extra_content_items = items) as t:
-      setup = file_duplicates.setup([ t.src_dir ], options = options)
-      t.result = file_duplicates.find_duplicates_with_setup(setup)
-      
-    self.assertEqual( self._xp_result_item_list([
-      ( f'{t.src_dir}/a/kiwi.jpg', [
-        f'{t.src_dir}/b/kiwi_dup1.jpg',
-        f'{t.src_dir}/c/kiwi_dup2.jpg',
-      ] ),
-    ]), t.result.items )
-
-  def xtest_find_file_duplicates(self):
-    items = [
-      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
-      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
-      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'foo/cheese/brie.jpg', 'this is kiwi', 0o0644),
-      temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
-    ]
-    t = self._call_find_file_duplicates('foo/cheese/brie.jpg',
-                                        extra_content_items = items,
-                                        recursive = True)
-    self.assert_filename_list_equal( [
-      f'{t.src_dir}/a/kiwi.jpg',
-      f'{t.src_dir}/b/kiwi_dup1.jpg',
-      f'{t.src_dir}/c/kiwi_dup2.jpg',
-    ], t.result )
-
+    with dir_operation_tester(extra_content_items = items) as tester:
+      hasher = bf_hasher_hashlib()
+      finder = bf_file_duplicates_finder(hasher = hasher)
+      tmp_file = self.make_temp_file(content = 'this is kiwi', suffix = '.txt')
+      entry = bf_entry(tmp_file)
+      result = finder.find_duplicates_for_entry(entry, [ tester.src_dir ])
+      self.assert_json_equal( '''
+{
+  "resolved_entries": [
+    {
+      "filename": "a/apple.txt",
+      "root_dir": "${root_dir}",
+      "index": 0,
+      "found_index": 0
+    },
+    {
+      "filename": "a/kiwi.txt",
+      "root_dir": "${root_dir}",
+      "index": 1,
+      "found_index": 1
+    },
+    {
+      "filename": "a/lemon.txt",
+      "root_dir": "${root_dir}",
+      "index": 2,
+      "found_index": 2
+    },
+    {
+      "filename": "b/kiwi_dup1.txt",
+      "root_dir": "${root_dir}",
+      "index": 3,
+      "found_index": 3
+    },
+    {
+      "filename": "c/kiwi_dup2.txt",
+      "root_dir": "${root_dir}",
+      "index": 4,
+      "found_index": 4
+    },
+    {
+      "filename": "d/kiwi_dup3.txt",
+      "root_dir": "${root_dir}",
+      "index": 5,
+      "found_index": 5
+    }
+  ],
+  "duplicate_items": [
+    {
+      "entry": {
+        "filename": "${tmp_file}",
+        "root_dir": null
+      },
+      "duplicates": [
+        {
+          "filename": "a/kiwi.txt",
+          "root_dir": "${root_dir}",
+          "index": 1,
+          "found_index": 1
+        },
+        {
+          "filename": "b/kiwi_dup1.txt",
+          "root_dir": "${root_dir}",
+          "index": 3,
+          "found_index": 3
+        },
+        {
+          "filename": "c/kiwi_dup2.txt",
+          "root_dir": "${root_dir}",
+          "index": 4,
+          "found_index": 4
+        },
+        {
+          "filename": "d/kiwi_dup3.txt",
+          "root_dir": "${root_dir}",
+          "index": 5,
+          "found_index": 5
+        }
+      ]
+    }
+  ]
+}
+''', result.to_json(replacements = { tester.src_dir: '${root_dir}', tmp_file: '${tmp_file}' }) )
+    
   def xtest_find_file_duplicates_with_setup_and_removed_resolved_file(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
@@ -893,33 +897,6 @@ class test_file_duplicates(unit_test):
         f'{t.src_dir}/a/lemon.jpg',
       ], dups )
       
-  def _call_find_file_duplicates(self,
-                                 filename,
-                                 extra_content_items = None,
-                                 recursive = False,
-                                 small_checksum_size = 1024 * 1024,
-                                 prefer_prefixes = None,
-                                 sort_key = None,
-                                 pre_test_function = None,
-                                 include_empty_files = False,
-                                 ignore_files = []):
-    options = bf_file_duplicates_finder_options(recursive = recursive,
-                                      small_checksum_size = small_checksum_size,
-                                      sort_key = sort_key,
-                                      include_empty_files = include_empty_files,
-                                      ignore_files = ignore_files)
-    with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      if pre_test_function:
-        pre_test_function(test)
-      if prefer_prefixes:
-        xglobals = { 'test': test }
-        prefer_prefixes = [ eval(x, xglobals) for x in prefer_prefixes ]
-        options.prefer_prefixes = prefer_prefixes
-      test.result = file_duplicates.find_file_duplicates(path.join(test.tmp_dir, filename),
-                                                         [ test.src_dir ],
-                                                         options = options)
-    return test
-
   def _xp_result_item(self, item):
     return file_duplicates._dup_item(self.xp_filename(item[0], sep = path.sep),
                                      self.xp_filename_list(item[1], sep = path.sep))

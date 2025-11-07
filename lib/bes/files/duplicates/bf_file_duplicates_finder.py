@@ -32,14 +32,17 @@ class bf_file_duplicates_finder(object):
     self._options = bf_file_duplicates_finder_options.clone_or_create(options)
     self._hasher = hasher
 
-  def _resolve_files(self, where):
-    resolver = bf_file_resolver(options = self._options.file_resolver_options)
-    return resolver.resolve(where)
-
   def find_duplicates(self, where):
     where = bf_check.check_file_or_dir_seq(where)
 
     resolved_entries = self._resolve_files(where)
+    return self._do_find_duplicates(resolved_entries)
+
+  def _resolve_files(self, where):
+    resolver = bf_file_resolver(options = self._options.file_resolver_options)
+    return resolver.resolve(where)
+
+  def _do_find_duplicates(self, resolved_entries):
     size_map = resolved_entries.size_map()
     self._log.log_d(f'size_map={pprint.pformat(size_map)}')
     dup_size_map = bf_file_duplicates_entry_list.map_filter_out_non_duplicates(size_map)
@@ -69,17 +72,35 @@ class bf_file_duplicates_finder(object):
         duplicate_items.append(item)
     self._log.log_d(f'dup_checksum_map={pprint.pformat(dup_checksum_map)}')
     return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
+  
+  def find_duplicates_for_entry(self, entry, where):
+    check.check_bf_entry(entry)
+    where = bf_check.check_file_or_dir_seq(where)
 
-  @classmethod
-  def find_file_duplicates(clazz, filename, where, options = None):
-    filename = bf_check.check_file(filename)
-    check.check_string_seq(where)
-    check.check_bf_file_duplicates_finder_options(options, allow_none = True)
+    resolved_entries = self._resolve_files(where)
+    entry_short_checksum = None
+    entry_checksum = None
 
-    options = options or bf_file_duplicates_finder_options()
-    setup = clazz.setup(where, options = options)
-    return clazz.find_file_duplicates_with_setup(filename, setup)
-
+    duplicate_entries = bf_file_duplicates_entry_list()
+    for next_resolved_entry in resolved_entries:
+      if next_resolved_entry.size != entry.size:
+        continue
+      next_resolved_entry_short_checksum = self._hasher.short_checksum_sha(next_resolved_entry, 'sha256')
+      if entry_short_checksum == None:
+        entry_short_checksum = self._hasher.short_checksum_sha(entry, 'sha256')
+      if next_resolved_entry_short_checksum != entry_short_checksum:
+        continue
+      if entry_checksum == None:
+        entry_checksum = self._hasher.checksum_sha(entry, 'sha256', None, None)
+      next_resolved_entry_checksum = self._hasher.checksum_sha(next_resolved_entry, 'sha256', None, None)
+      if next_resolved_entry_checksum != entry_checksum:
+        continue
+      duplicate_entries.append(next_resolved_entry)
+    duplicate_items = bf_file_duplicates_finder_item_list()
+    item = bf_file_duplicates_finder_item(entry, duplicate_entries)
+    duplicate_items.append(item)
+    return bf_file_duplicates_finder_result(resolved_entries, duplicate_items)
+    
   @classmethod
   def _flat_duplicate_files(clazz, dup_size_map):
     result = bf_file_duplicates_entry_list()
