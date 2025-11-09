@@ -67,11 +67,11 @@ class test_bf_entry_list(unit_test):
     ])
     self.assertEqual( [
       {
-        'filename': 'cheese/brie.cheese',
+        'filename': self.native_filename('cheese/brie.cheese'),
         'root_dir': f'{t.tmp_dir}',
       },
       {
-        'filename': 'fruit/kiwi.fruit',
+        'filename': self.native_filename('fruit/kiwi.fruit'),
         'root_dir': f'{t.tmp_dir}',
       },
     ], t.entries.to_dict_list() )
@@ -93,15 +93,15 @@ class test_bf_entry_list(unit_test):
   }
 ]
 ''', t.entries.to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
-
+  
   def test_filenames(self):
     t = _bf_entry_list_tester([
       'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
-      f'{t.tmp_dir}/cheese/brie.cheese',
-      f'{t.tmp_dir}/fruit/kiwi.fruit',
+      self.native_filename(f'{t.tmp_dir}/cheese/brie.cheese'),
+      self.native_filename(f'{t.tmp_dir}/fruit/kiwi.fruit'),
     ], t.entries.filenames() )
 
   def test_relative_filenames(self):
@@ -110,8 +110,8 @@ class test_bf_entry_list(unit_test):
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
-      f'cheese/brie.cheese',
-      f'fruit/kiwi.fruit',
+      self.native_filename(f'cheese/brie.cheese'),
+      self.native_filename(f'fruit/kiwi.fruit'),
     ], t.entries.relative_filenames() )
 
   def test_absolute_filenames(self):
@@ -120,8 +120,8 @@ class test_bf_entry_list(unit_test):
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
     self.assertEqual( [
-      f'{t.tmp_dir}/cheese/brie.cheese',
-      f'{t.tmp_dir}/fruit/kiwi.fruit',
+      self.native_filename(f'{t.tmp_dir}/cheese/brie.cheese'),
+      self.native_filename(f'{t.tmp_dir}/fruit/kiwi.fruit'),
     ], t.entries.filenames() )
 
   def test_basenames(self):
