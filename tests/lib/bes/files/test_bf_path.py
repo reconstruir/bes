@@ -4,6 +4,7 @@
 import os, os.path as path, unittest
 
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.files.bf_path import bf_path
 from bes.system.env_override import env_override
@@ -101,7 +102,8 @@ class test_bf_path(unit_test):
       'foo/base-1.2.3/foo.txt',
     ]) )
     
-  def test_decompose(self):
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_decompose_unix(self):
     self.assert_filename_list_equal( [ '/foo', '/foo/bar', '/foo/bar/baz' ],
                                      bf_path.decompose('/foo/bar/baz') )
     self.assert_filename_list_equal( [ '/foo', '/foo/bar' ],
@@ -111,6 +113,17 @@ class test_bf_path(unit_test):
     self.assert_filename_list_equal( [],
                                      bf_path.decompose('/') )
 
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_decompose_windows(self):
+    self.assert_filename_list_equal( [ r'c:\foo', r'c:\foo\bar', r'c:\foo\bar\baz' ],
+                                     bf_path.decompose(r'c:\foo\bar\baz') )
+    self.assert_filename_list_equal( [ r'c:\foo', r'c:\foo\bar' ],
+                                     bf_path.decompose(r'c:\foo\bar') )
+    self.assert_filename_list_equal( [ r'c:\foo' ],
+                                     bf_path.decompose(r'c:\foo') )
+    self.assert_filename_list_equal( [],
+                                     bf_path.decompose(r'c:\\') )
+    
   def test_normalize_sep(self):
     self.assert_filename_equal( '/foo/bar', bf_path.normalize_sep('/foo/bar') )
     self.assert_filename_equal( '/foo/bar', bf_path.normalize_sep('/foo\\bar') )
@@ -140,16 +153,28 @@ class test_bf_path(unit_test):
   @classmethod
   def _test_shorten(clazz, p, max_path_length, max_filename_length):
     return bf_path.shorten(p,
-                              max_path_length = max_path_length,
-                              max_filename_length = max_filename_length)
+                           max_path_length = max_path_length,
+                           max_filename_length = max_filename_length)
   
-  def test_shorten(self):
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_shorten_unix(self):
     self.assert_filename_equal( '/tmp/foo.jpg', self._test_shorten('/tmp/foo_bar.jpg', 12, 1000) )
     self.assert_filename_equal( '/tmp/fo.jpg', self._test_shorten('/tmp/foo_bar.jpg', 11, 1000) )
     self.assert_filename_equal( '/tmp/f.jpg', self._test_shorten('/tmp/foo_bar.jpg', 10, 1000) )
 
-  def test_shorten_no_extension(self):
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_shorten_windows(self):
+    self.assert_filename_equal( r'c:\tmp\foo.jpg', self._test_shorten(r'c:\tmp\foo_bar.jpg', 14, 1000) )
+    self.assert_filename_equal( r'c:\tmp\fo.jpg', self._test_shorten(r'c:\tmp\foo_bar.jpg', 13, 1000) )
+    self.assert_filename_equal( r'c:\tmp\f.jpg', self._test_shorten(r'c:\tmp\foo_bar.jpg', 12, 1000) )
+    
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_shorten_no_extension_unix(self):
     self.assert_filename_equal( '/tmp/foo_bar', self._test_shorten('/tmp/foo_bar_baz', 12, 1000) )
+
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_shorten_no_extension_windows(self):
+    self.assert_filename_equal( r'c:\tmp\foo_b', self._test_shorten(r'c:\tmp\foo_bar_baz', 12, 1000) )
     
   def test_shorten_not_enough_space(self):
     with self.assertRaises(ValueError) as _:
