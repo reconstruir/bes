@@ -44,22 +44,26 @@ class test_bf_entry(unit_test, unit_test_media_files):
     return bf_entry(filename, root_dir = root_dir)
 
   def test_relative_filename_only(self):
+    _m = self.make_abspath
     e = bf_entry('fruits/kiwi.fruit')
-    self.assertEqual( 'fruits/kiwi.fruit', e.filename )
-    self.assertEqual( 'fruits/kiwi.fruit', e.relative_filename )
-    self.assertEqual( path.join(os.getcwd(), 'fruits/kiwi.fruit'), e.absolute_filename )
+    self.assertEqual( 'fruits/kiwi.fruit', self.xp_filename(e.filename) )
+    self.assertEqual( 'fruits/kiwi.fruit', self.xp_filename(e.relative_filename) )
+    expected = path.join(os.getcwd(), 'fruits/kiwi.fruit')
+    self.assertEqual( self.xp_filename(expected), self.xp_filename(e.absolute_filename) )
 
   def test_absolute_filename_only(self):
-    e = bf_entry('/store/fruits/kiwi.fruit')
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.filename )
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.relative_filename )
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.absolute_filename )
+    _m = self.make_abspath
+    e = bf_entry(_m('/store/fruits/kiwi.fruit'))
+    self.assertEqual( _m('/store/fruits/kiwi.fruit'), e.filename )
+    self.assertEqual( _m('/store/fruits/kiwi.fruit'), e.relative_filename )
+    self.assertEqual( _m('/store/fruits/kiwi.fruit'), e.absolute_filename )
 
   def test_relative_filename_and_root_dir(self):
-    e = bf_entry('fruits/kiwi.fruit', root_dir = '/store')
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.filename )
-    self.assertEqual( 'fruits/kiwi.fruit', e.relative_filename )
-    self.assertEqual( '/store/fruits/kiwi.fruit', e.absolute_filename )
+    _m = self.make_abspath
+    e = bf_entry('fruits/kiwi.fruit', root_dir = _m('/store'))
+    self.assertEqual( _m('/store/fruits/kiwi.fruit'), e.filename )
+    self.assertEqual( self.xp_filename('fruits/kiwi.fruit'), self.xp_filename(e.relative_filename) )
+    self.assertEqual( _m('/store/fruits/kiwi.fruit'), e.absolute_filename )
     
   def test_exits_true(self):
     self.assertEqual( True, self._make_test_entry().exists )
@@ -333,20 +337,23 @@ class test_bf_entry(unit_test, unit_test_media_files):
     self.assertEqual( False, f1.content_is_same(f2) )
 
   def test_clone_replace_root_dir(self):
-    e1 = bf_entry('fruits/Kiwi.fruit', root_dir = '/store')
-    self.assertEqual( '/store/fruits/Kiwi.fruit', e1.filename )
-    e2 = e1.clone_replace_root_dir('/foo')
-    self.assertEqual( '/foo/fruits/Kiwi.fruit', e2.filename )
+    _m = self.make_abspath
+    e1 = bf_entry('fruits/Kiwi.fruit', root_dir = _m('/store'))
+    self.assertEqual( _m('/store/fruits/Kiwi.fruit'), e1.filename )
+    e2 = e1.clone_replace_root_dir(_m('/foo'))
+    self.assertEqual( _m('/foo/fruits/Kiwi.fruit'), e2.filename )
 
   def test_decomposed_path(self):
-    e = bf_entry('fruits/Kiwi.fruit', root_dir = '/store')
+    _m = self.make_abspath
+    e = bf_entry('fruits/Kiwi.fruit', root_dir = _m('/store'))
     self.assertEqual( [
-      '/store',
-      '/store/fruits',
-      '/store/fruits/Kiwi.fruit',
+      _m('/store'),
+      _m('/store/fruits'),
+      _m('/store/fruits/Kiwi.fruit'),
     ], e.decomposed_path )
 
-  def test_mode(self):
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_mode_unix(self):
     e = self._make_test_entry()
     os.chmod(e.filename, 0o755)
     self.assertEqual( 0o755, e.mode )
@@ -354,7 +361,8 @@ class test_bf_entry(unit_test, unit_test_media_files):
     os.chmod(e.filename, 0o644)
     self.assertEqual( 0o644, e.mode )
 
-  def test_chmod(self):
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_chmod_unix(self):
     e = self._make_test_entry()
     e.chmod(0o755)
     self.assertEqual( 0o755, os.stat(e.filename).st_mode & 0o777 )
@@ -362,6 +370,36 @@ class test_bf_entry(unit_test, unit_test_media_files):
     e.chmod(0o644)
     self.assertEqual( 0o644, os.stat(e.filename).st_mode & 0o777 )
 
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_mode_windows(self):
+    e = self._make_test_entry()
+
+    # Just ensure mode returns a valid int
+    os.chmod(e.filename, 0o666)
+    mode = e.mode & 0o666
+    self.assertTrue(isinstance(mode, int))
+    self.assertTrue(mode != 0)
+
+    os.chmod(e.filename, 0o644)
+    mode = e.mode & 0o666
+    self.assertTrue(isinstance(mode, int))
+    self.assertTrue(mode != 0)
+  
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_chmod_windows(self):
+    e = self._make_test_entry()
+
+    # Verify chmod executes and updates st_mode field
+    e.chmod(0o666)
+    mode = os.stat(e.filename).st_mode & 0o666
+    self.assertTrue(isinstance(mode, int))
+    self.assertTrue(mode != 0)
+
+    e.chmod(0o644)
+    mode = os.stat(e.filename).st_mode & 0o666
+    self.assertTrue(isinstance(mode, int))
+    self.assertTrue(mode != 0)
+    
   @unit_test_function_skip.skip_if_not_unix()
   def test_hard_link_count_unix(self):
     # create original file

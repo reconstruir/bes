@@ -552,3 +552,8 @@ class unit_test(unittest.TestCase):
                                     ignore_white_space = False,
                                     native_line_breaks = True)
       
+  def make_abspath(self, p):
+    if path.isabs(p):
+      return p
+    else:
+      return path.abspath(p)

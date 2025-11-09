@@ -101,28 +101,17 @@ class test_bf_path(unit_test):
     self.assert_filename_equal( 'foo/base-1.2.3', bf_path.common_ancestor([
       'foo/base-1.2.3/foo.txt',
     ]) )
-    
-  @unit_test_function_skip.skip_if_not_unix()
-  def test_decompose_unix(self):
-    self.assert_filename_list_equal( [ '/foo', '/foo/bar', '/foo/bar/baz' ],
-                                     bf_path.decompose('/foo/bar/baz') )
-    self.assert_filename_list_equal( [ '/foo', '/foo/bar' ],
-                                     bf_path.decompose('/foo/bar') )
-    self.assert_filename_list_equal( [ '/foo' ],
-                                     bf_path.decompose('/foo') )
-    self.assert_filename_list_equal( [],
-                                     bf_path.decompose('/') )
 
-  @unit_test_function_skip.skip_if_not_windows()
-  def test_decompose_windows(self):
-    self.assert_filename_list_equal( [ r'c:\foo', r'c:\foo\bar', r'c:\foo\bar\baz' ],
-                                     bf_path.decompose(r'c:\foo\bar\baz') )
-    self.assert_filename_list_equal( [ r'c:\foo', r'c:\foo\bar' ],
-                                     bf_path.decompose(r'c:\foo\bar') )
-    self.assert_filename_list_equal( [ r'c:\foo' ],
-                                     bf_path.decompose(r'c:\foo') )
+  def test_decompose(self):
+    _m = self.make_abspath
+    self.assert_filename_list_equal( [ _m('/foo'), _m('/foo/bar'), _m('/foo/bar/baz') ],
+                                     bf_path.decompose(_m('/foo/bar/baz')) )
+    self.assert_filename_list_equal( [ _m('/foo'), _m('/foo/bar') ],
+                                     bf_path.decompose(_m('/foo/bar')) )
+    self.assert_filename_list_equal( [ _m('/foo') ],
+                                     bf_path.decompose(_m('/foo')) )
     self.assert_filename_list_equal( [],
-                                     bf_path.decompose(r'c:\\') )
+                                     bf_path.decompose(_m('/')) )
     
   def test_normalize_sep(self):
     self.assert_filename_equal( '/foo/bar', bf_path.normalize_sep('/foo/bar') )
