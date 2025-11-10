@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
+from bes.common.json_util import json_util
 
 from ..bf_entry_list import bf_entry_list
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria
@@ -29,6 +30,11 @@ class bf_file_duplicates_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
+  def checksum_map_as_json(self, hasher, algorithm, ignore_missing_files = True,
+                           replacements = None, xp_filenames = False):
+    m = self.checksum_map(hasher, algorithm, ignore_missing_files = ignore_missing_files)
+    return self._map_as_json(m, replacements, xp_filenames)
+  
   def short_checksum_map(self, hasher, algorithm, ignore_missing_files = True):
     result = {}
     for entry in self:
@@ -44,6 +50,11 @@ class bf_file_duplicates_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
+  def short_checksum_map_as_json(self, hasher, algorithm, ignore_missing_files = True,
+                                 replacements = None, xp_filenames = False):
+    m = self.short_checksum_map(hasher, algorithm, ignore_missing_files = ignore_missing_files)
+    return self._map_as_json(m, replacements, xp_filenames)
+  
   def basename_map(self):
     result = {}
     for entry in self:
@@ -54,6 +65,9 @@ class bf_file_duplicates_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
+  def basename_map_as_json(self, replacements = None, xp_filenames = False):
+    return self._map_as_json(self.basename_map(), replacements, xp_filenames)
+  
   def size_map(self):
     result = {}
     for entry in self:
@@ -69,6 +83,16 @@ class bf_file_duplicates_entry_list(bf_entry_list):
       entries.sort_by_criteria(bf_entry_sort_criteria.FILENAME)
     return result
 
+  def size_map_as_json(self, replacements = None, xp_filenames = False):
+    return self._map_as_json(self.size_map(), replacements, xp_filenames)
+  
+  @classmethod
+  def _map_as_json(clazz, m, replacements, xp_filenames):
+    result = {}
+    for size, entries in m.items():
+      result[size] = entries.to_dict_list(replacements = replacements, xp_filenames = xp_filenames)
+    return json_util.to_json(result, indent = 2, sort_keys = True)
+  
   @classmethod
   def map_filter_out_non_duplicates(clazz, m):
     result = {}

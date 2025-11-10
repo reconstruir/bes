@@ -13,10 +13,14 @@ class bf_file_resolver_result(namedtuple('bf_file_resolver_result', 'entries, st
 
     return clazz.__bases__[0].__new__(clazz, entries, stats)
 
-  def to_dict(self):
-    return dict(self._asdict())
+  def to_dict(self, replacements = None, xp_filenames = False):
+    return {
+      'entries': self.entries.to_dict(replacements = replacements, xp_filenames = xp_filenames),
+      'stats': self.stats.to_dict(),
+    }
   
-  def to_json(self):
-    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
+  def to_json(self, replacements = None, xp_filenames = False):
+    d = self.to_dict(replacements = replacements, xp_filenames = xp_filenames)
+    return json_util.to_json(d, indent = 2, sort_keys = True)
   
 check.register_class(bf_file_resolver_result, include_seq = False)

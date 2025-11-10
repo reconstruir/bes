@@ -41,7 +41,7 @@ class test_bf_file_resolver(unit_test):
     replacements = {
       tmp_dir: '${tmp_dir}',
     }
-    entries_json = entries.to_json(replacements = replacements)
+    entries_json = entries.to_json(replacements = replacements, xp_filenames = True)
     return self._resolve_result(tmp_dir,
                                 entries,
                                 entries_json,
