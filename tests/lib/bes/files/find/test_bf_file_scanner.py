@@ -13,6 +13,7 @@ from bes.fs.testing.temp_content import temp_content
 from bes.system.log import logger
 
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_bf_file_scanner(unit_test):
 
@@ -254,6 +255,7 @@ class test_bf_file_scanner(unit_test):
       '1b.f',
     ]), self._scan(content, min_depth = 1, max_depth = 1).sorted_relative_filenames )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_scan_with_broken_symlink(self):
     content = [
       'file fruit/kiwi.fruit',
@@ -271,6 +273,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content).sorted_relative_filenames )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_scan_with_broken_symlink_without_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',
@@ -289,6 +292,7 @@ class test_bf_file_scanner(unit_test):
       'fruit/strawberry.fruit',
     ], self._scan(content, ignore_broken_links = False).sorted_relative_filenames )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_scan_with_broken_symlink_with_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',

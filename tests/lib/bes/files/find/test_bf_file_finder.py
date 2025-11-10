@@ -15,6 +15,7 @@ from bes.fs.testing.temp_content import temp_content
 from bes.system.log import logger
 
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_bf_file_finder(unit_test):
 
@@ -556,6 +557,7 @@ class test_bf_file_finder(unit_test):
       'd/e/bar.txt',
     ], self._find(content, file_matcher = matcher, match_type = 'all').sorted_relative_filenames )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_find_with_broken_symlink(self):
     content = [
       'file fruit/kiwi.fruit',
@@ -573,6 +575,7 @@ class test_bf_file_finder(unit_test):
       'fruit/strawberry.fruit',
     ], self._find(content).sorted_relative_filenames )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_find_with_broken_symlink_without_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',
@@ -591,6 +594,7 @@ class test_bf_file_finder(unit_test):
       'fruit/strawberry.fruit',
     ], self._find(content, ignore_broken_links = False).sorted_relative_filenames )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_find_with_broken_symlink_with_ignore_broken_links(self):
     content = [
       'file fruit/kiwi.fruit',
@@ -855,70 +859,44 @@ class test_bf_file_finder(unit_test):
       path.join(tmp_dir, '2'),
       path.join(tmp_dir, '3'),
     ])
-
-    dicts = [ item.to_dict() for item in progress_items ]
-    json = json_util.to_json(dicts)
-
-    json = json.replace(tmp_dir, '${tmp_dir}')
-    
+    replacements = {
+      tmp_dir: '${tmp_dir}',
+    }
+    entries = bf_entry_list([ item.entry for item in progress_items if item.entry ])
     self.assert_json_equal( '''
 [
-    {
-      "state": "scanning",
-      "entry": null,
-      "index": null,
-      "total": null
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/1/a/fruit/kiwi.fruit",
-      "index": 1,
-      "total": 7
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/1/a/fruit/lemon.fruit",
-      "index": 2,
-      "total": 7
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/2/b/fruit/kiwi.fruit",
-      "index": 3,
-      "total": 7
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/2/b/fruit/lemon.fruit",
-      "index": 4,
-      "total": 7
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/2/b/fruit/strawberry.fruit",
-      "index": 5,
-      "total": 7
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/3/c/fruit/kiwi.fruit",
-      "index": 6,
-      "total": 7
-    },
-    {
-      "state": "finding",
-      "entry": "${tmp_dir}/3/c/fruit/lemon.fruit",
-      "index": 7,
-      "total": 7
-    },
-    {
-      "state": "finished",
-      "entry": null,
-      "index": null,
-      "total": null
-    }
+  {
+    "filename": "a/fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/1"
+  },
+  {
+    "filename": "a/fruit/lemon.fruit",
+    "root_dir": "${tmp_dir}/1"
+  },
+  {
+    "filename": "b/fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/2"
+  },
+  {
+    "filename": "b/fruit/lemon.fruit",
+    "root_dir": "${tmp_dir}/2"
+  },
+  {
+    "filename": "b/fruit/strawberry.fruit",
+    "root_dir": "${tmp_dir}/2"
+  },
+  {
+    "filename": "c/fruit/kiwi.fruit",
+    "root_dir": "${tmp_dir}/3"
+  },
+  {
+    "filename": "c/fruit/lemon.fruit",
+    "root_dir": "${tmp_dir}/3"
+  }
 ]
-''', json )
+''', entries.to_json(replacements = replacements, xp_filenames = True) )
+    self.assertEqual( [ None, 1, 2, 3, 4, 5, 6, 7, None ], [ item.index for item in progress_items ] )
+    self.assertEqual( [ None, 7, 7, 7, 7, 7, 7, 7, None ], [ item.total for item in progress_items ] )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -7,7 +7,6 @@ from ..compat.cmp import cmp
 from ..system.check import check
 from ..common.type_checked_list import type_checked_list
 from ..common.json_util import json_util
-from ..common.dict_util import dict_util
 
 from .bf_check import bf_check
 from .bf_entry import bf_entry
@@ -22,14 +21,11 @@ class bf_entry_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
-  def to_dict_list(self):
-    return [ entry.to_dict() for entry in self ]
+  def to_dict_list(self, replacements = None, xp_filenames = False):
+    return [ entry.to_dict(replacements = replacements, xp_filenames = xp_filenames) for entry in self ]
 
-  def to_json(self, replacements = None):
-    dl = self.to_dict_list()
-    if replacements:
-      for d in dl:
-        dict_util.replace_values(d, replacements)
+  def to_json(self, replacements = None, xp_filenames = False):
+    dl = self.to_dict_list(replacements = replacements, xp_filenames = xp_filenames)
     return json_util.to_json(dl)
   
   def filenames(self, sort = False):

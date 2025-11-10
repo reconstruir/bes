@@ -9,6 +9,8 @@ from collections import namedtuple
 from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
 from bes.common.json_util import json_util
+from ..common.dict_util import dict_util
+from ..text.text_replace import text_replace
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
@@ -17,14 +19,14 @@ from bes.system.filesystem import filesystem
 from .bf_date import bf_date
 from .bf_date_comparison_type import bf_date_comparison_type
 from .bf_entry_sort_criteria import bf_entry_sort_criteria
-from .core.bf_error import bf_error
 from .bf_file_type import bf_file_type
 from .bf_filename import bf_filename
 from .bf_mtime_cached_info import bf_mtime_cached_info
-from .bf_path_type import bf_path_type
 from .bf_path import bf_path
+from .bf_path_type import bf_path_type
 from .bf_permission_error import bf_permission_error
 from .bf_symlink import bf_symlink
+from .core.bf_error import bf_error
 
 from .attr.bf_attr_file import bf_attr_file
 from .metadata.bf_metadata_file import bf_metadata_file
@@ -49,11 +51,27 @@ class bf_entry(object):
     self._filename = filename
     self._root_dir = root_dir
 
-  def to_dict(self):
-    return {
-      'filename': self._filename,
-      'root_dir': self._root_dir,
-    }
+  def to_dict(self, replacements = None, xp_filenames = False):
+    root_dir = None
+    if self._root_dir:
+      if replacements:
+        root_dir = text_replace.replace(self._root_dir, replacements)
+      else:
+        root_dir = self._root_dir
+    if replacements:
+      filename = text_replace.replace(self._filename, replacements)
+    else:
+      filename = self._filename
+    if xp_filenames:
+      return {
+        'filename': bf_filename.xp_filename(filename),
+        'root_dir': bf_filename.xp_filename(root_dir) if root_dir else None,
+      }
+    else:
+      return {
+        'filename': filename,
+        'root_dir': root_dir,
+      }
 
   def to_json(self):
     return json_util.to_json(self.to_dict())

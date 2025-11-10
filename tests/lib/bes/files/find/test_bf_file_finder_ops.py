@@ -61,7 +61,7 @@ class test_bf_file_finder_ops(unit_test):
     rels = entries.relative_filenames(sort = True)
     # should contain all files and dirs
     self.assertTrue('a.txt' in rels)
-    self.assertTrue('subdir/b.txt' in rels)
+    self.assertTrue(path.join('subdir', 'b.txt') in rels)
     self.assertTrue('subdir' in rels)
     self.assertTrue('emptydir' in rels)
 
@@ -106,7 +106,7 @@ class test_bf_file_finder_ops(unit_test):
     ]
     tmp_dir = self._make_temp_content(content)
     rels = bf_file_finder_ops.find_empty_dirs(tmp_dir).relative_filenames(sort = True)
-    self.assertEqual([ 'd1', 'd3/empty' ], rels)
+    self.assertEqual(self.native_filename_list([ 'd1', 'd3/empty' ]), rels)
 
   def test_remove_empty_dirs(self):
     content = [
@@ -116,11 +116,11 @@ class test_bf_file_finder_ops(unit_test):
     ]
     tmp_dir = self._make_temp_content(content)
     removed = bf_file_finder_ops.remove_empty_dirs(tmp_dir)
-    self.assertEqual( [
+    self.assertEqual( self.native_filename_list([
       'd1',
       'd3',
       'd3/empty'
-    ], removed.relative_filenames(sort = True) )
+    ]), removed.relative_filenames(sort = True) )
 
     for next_removed in removed:
       self.assertEqual( False, next_removed.exists )
