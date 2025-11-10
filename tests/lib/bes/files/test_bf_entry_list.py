@@ -81,6 +81,11 @@ class test_bf_entry_list(unit_test):
       'file fruit/kiwi.fruit "this is kiwi.fruit\n"',
       'file cheese/brie.cheese "this is brie.cheese\n"',
     ])
+    replacements = {
+      t.tmp_dir: '${tmp_dir}',
+      self.native_filename('cheese/brie.cheese'): 'cheese/brie.cheese',
+      self.native_filename('fruit/kiwi.fruit'): 'fruit/kiwi.fruit',
+    }
     self.assert_json_equal( '''
 [
   {
@@ -92,7 +97,7 @@ class test_bf_entry_list(unit_test):
     "root_dir": "${tmp_dir}"
   }
 ]
-''', t.entries.to_json(replacements = { t.tmp_dir: '${tmp_dir}' }) )
+''', t.entries.to_json(replacements = replacements) )
   
   def test_filenames(self):
     t = _bf_entry_list_tester([
