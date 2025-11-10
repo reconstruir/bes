@@ -83,7 +83,7 @@ class test_bf_file_ignore(unit_test):
     ]
     t = _bf_file_ignore_tester(content, self.DEBUG)
     self.assertEqual( [
-      f'{t.tmp_dir}/cheese/.testing_test_ignore',
+      self.native_filename(f'{t.tmp_dir}/cheese/.testing_test_ignore'),
     ], t._find_ignore_files('cheese/cheddar.cheese') )
 
   def test__find_ignore_files_two_files(self):
@@ -99,8 +99,8 @@ class test_bf_file_ignore(unit_test):
     ]
     t = _bf_file_ignore_tester(content, self.DEBUG)
     self.assertEqual( [
-      f'{t.tmp_dir}/cheese/.testing_test_ignore',
-      f'{t.tmp_dir}/.testing_test_ignore',
+      self.native_filename(f'{t.tmp_dir}/cheese/.testing_test_ignore'),
+      self.native_filename(f'{t.tmp_dir}/.testing_test_ignore'),
     ], t._find_ignore_files('cheese/cheddar.cheese') )
                       
 if __name__ == '__main__':
