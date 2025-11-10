@@ -15,8 +15,8 @@ class bf_file_resolver_entry(bf_entry):
     self._index = None
     self._found_index = None
 
-  def to_dict(self):
-    d = super().to_dict()
+  def to_dict(self, replacements = None, xp_filenames = False):
+    d = super().to_dict(replacements = replacements, xp_filenames = xp_filenames)
     d.update( {
       'index': self.index,
       'found_index': self.found_index,
