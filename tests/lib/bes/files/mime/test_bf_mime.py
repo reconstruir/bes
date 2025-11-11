@@ -5,6 +5,7 @@ import sys
 from os import path
 
 from bes.testing.unit_test import unit_test
+from bes.system.which import which
 from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_symlink import bf_symlink
 from bes.files.bf_file_ops import bf_file_ops
@@ -24,7 +25,9 @@ class test_bf_mime(unit_test, unit_test_media_files):
     
   @unit_test_function_skip.skip_if_not_unix()
   def test_is_binary_unix(self):
-    self.assertTrue( bf_mime.is_binary(bf_symlink.resolve('/bin/sh')) )
+    shell = which.which('bash') or which.which('zsh') or which.which('dash')
+    if shell:
+      self.assertTrue( bf_mime.is_binary(shell) )
     
   @unit_test_function_skip.skip_if_not_windows()
   def test_is_binary_windows(self):

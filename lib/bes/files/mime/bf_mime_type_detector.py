@@ -6,7 +6,6 @@ from bes.files.bf_check import bf_check
 from ._detail._bf_mime_type_detector_base import _bf_mime_type_detector_base
 from ._detail._bf_mime_type_detector_cheesy  import _bf_mime_type_detector_cheesy
 from ._detail._bf_mime_type_detector_file_exe  import _bf_mime_type_detector_file_exe
-from ._detail._bf_mime_type_detector_magic  import _bf_mime_type_detector_magic
 from ._detail._bf_mime_type_detector_mimetypes  import _bf_mime_type_detector_mimetypes
 from ._detail._bf_mime_type_detector_puremagic  import _bf_mime_type_detector_puremagic
 
@@ -20,7 +19,6 @@ class bf_mime_type_detector(_bf_mime_type_detector_base):
 
   _ALL_DETECTORS = [
     _bf_mime_type_detector_cheesy,
-    _bf_mime_type_detector_magic,
     _bf_mime_type_detector_puremagic,
     _bf_mime_type_detector_file_exe,
     _bf_mime_type_detector_mimetypes,

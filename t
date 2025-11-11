@@ -1,3 +1,3 @@
 #!/bin/bash
 
-PYTHONPATH=lib uv run pytest ${1+"$@"}
+PYTHONPATH=../bes/lib:lib uv run pytest ${1+"$@"}

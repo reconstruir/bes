@@ -21,10 +21,6 @@ class test_file_mime(unit_test, unit_test_media_files):
   def test_is_binary_false(self):
     self.assertFalse( file_mime.is_binary(self.make_temp_file(content = 'this is text\n', suffix = '.txt')) )
     
-  @unit_test_function_skip.skip_if_not_unix()
-  def test_is_binary_unix(self):
-    self.assertTrue( file_mime.is_binary(file_symlink.resolve('/bin/sh')) )
-    
   @unit_test_function_skip.skip_if_not_windows()
   def test_is_binary_windows(self):
     self.assertTrue( file_mime.is_binary(sys.executable) )

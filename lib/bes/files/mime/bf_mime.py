@@ -15,17 +15,18 @@ class bf_mime(object):
 
   TEXT = 'text'
 
-  BINARY_TYPES = [
-    'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
+  BINARY_TYPES = set([
+    'application/java', # both java class files and mach-o binaries share the same CAFEBABE magic
     'application/octet-stream',
+    'application/vnd.microsoft.portable-executable',
+    'application/x-dosexec',
     'application/x-executable',
-    'application/x-pie-executable',
+    'application/x-iso9660-appimage',
     'application/x-mach-binary', # This is new in macos sierra
     'application/x-msdownload',
-    'application/java', # both java class files and mach-o binaries share the same CAFEBABE magic
-    'application/x-dosexec',
-    'application/vnd.microsoft.portable-executable',
-  ]
+    'application/x-pie-executable',
+    'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
+  ])
 
   @classmethod
   def mime_type(clazz, filename):
