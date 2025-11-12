@@ -274,45 +274,44 @@ class test_bf_file_duplicates_finder(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi 3', 0o0644),
     ]
     with _file_duplicates_finder_tester(extra_content_items = items) as tester:
-      result = tester.finder.find_duplicates(where = [ tester.src_dir ])
       self.assert_json_equal( '''
 {
+  "duplicate_items": [],
   "resolved_entries": [
     {
       "filename": "a/apple.jpg",
-      "root_dir": "${root_dir}",
+      "found_index": 0,
       "index": 0,
-      "found_index": 0
+      "root_dir": "${root_dir}"
     },
     {
       "filename": "a/kiwi.jpg",
-      "root_dir": "${root_dir}",
+      "found_index": 1,
       "index": 1,
-      "found_index": 1
+      "root_dir": "${root_dir}"
     },
     {
       "filename": "a/lemon.jpg",
-      "root_dir": "${root_dir}",
+      "found_index": 2,
       "index": 2,
-      "found_index": 2
+      "root_dir": "${root_dir}"
     },
     {
       "filename": "b/kiwi_dup1.jpg",
-      "root_dir": "${root_dir}",
+      "found_index": 3,
       "index": 3,
-      "found_index": 3
+      "root_dir": "${root_dir}"
     },
     {
       "filename": "c/kiwi_dup2.jpg",
-      "root_dir": "${root_dir}",
+      "found_index": 4,
       "index": 4,
-      "found_index": 4
+      "root_dir": "${root_dir}"
     }
-  ],
-  "duplicate_items": []
+  ]
 }
-''', result.to_json(replacements = { tester.src_dir: '${root_dir}' }) )
-
+''', tester.find_duplicates_as_json(where = [ tester.src_dir ]) )
+      
   def test_find_duplicates_with_empty_files(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
@@ -986,81 +985,64 @@ class test_bf_file_duplicates_finder(unit_test):
       result = tester.finder.find_duplicates(resolved_entries = resolved_entries)
       self.assert_json_equal( '''
 {
-  "resolved_entries": [
-    {
-      "filename": "a/apple.jpg",
-      "root_dir": "${root_dir}",
-      "index": 0,
-      "found_index": 0
-    },
-    {
-      "filename": "a/kiwi.jpg",
-      "root_dir": "${root_dir}",
-      "index": 1,
-      "found_index": 1
-    },
-    {
-      "filename": "a/lemon.jpg",
-      "root_dir": "${root_dir}",
-      "index": 2,
-      "found_index": 2
-    },
-    {
-      "filename": "b/kiwi_dup1.jpg",
-      "root_dir": "${root_dir}",
-      "index": 3,
-      "found_index": 3
-    },
-    {
-      "filename": "c/kiwi_dup2.jpg",
-      "root_dir": "${root_dir}",
-      "index": 4,
-      "found_index": 4
-    },
-    {
-      "filename": "d/empty1.txt",
-      "root_dir": "${root_dir}",
-      "index": 5,
-      "found_index": 5
-    },
-    {
-      "filename": "e/empty2.txt",
-      "root_dir": "${root_dir}",
-      "index": 6,
-      "found_index": 6
-    }
-  ],
   "duplicate_items": [
     {
-      "entry": {
-        "filename": "b/kiwi_dup1.jpg",
-        "root_dir": "${root_dir}",
-        "index": 3,
-        "found_index": 3
-      },
       "duplicates": [
         {
           "filename": "c/kiwi_dup2.jpg",
-          "root_dir": "${root_dir}",
-          "index": 4,
-          "found_index": 4
+          "found_index": 3,
+          "index": 3,
+          "root_dir": "${root_dir}"
         }
-      ]
+      ],
+      "entry": {
+        "filename": "b/kiwi_dup1.jpg",
+        "found_index": 2,
+        "index": 2,
+        "root_dir": "${root_dir}"
+      }
+    }
+  ],
+  "resolved_entries": [
+    {
+      "filename": "a/apple.jpg",
+      "found_index": 0,
+      "index": 0,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "a/lemon.jpg",
+      "found_index": 1,
+      "index": 1,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "b/kiwi_dup1.jpg",
+      "found_index": 2,
+      "index": 2,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "c/kiwi_dup2.jpg",
+      "found_index": 3,
+      "index": 3,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "d/empty1.txt",
+      "found_index": 4,
+      "index": 4,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "e/empty2.txt",
+      "found_index": 5,
+      "index": 5,
+      "root_dir": "${root_dir}"
     }
   ]
 }
-''', result.to_json(replacements = { tester.src_dir: '${root_dir}' }) )
-      
-  def _xp_result_item(self, item):
-    return file_duplicates._dup_item(self.xp_filename(item[0], sep = path.sep),
-                                     self.xp_filename_list(item[1], sep = path.sep))
-
-  def _xp_result_item_list(self, items):
-    return [ self._xp_result_item(item) for item in items ]
-  
-  def _xp_result(self, result):
-    return file_duplicates._find_duplicates_result(self._xp_result_item_list(result.items),
-                                                   result.resolved_files)
+''', tester.find_duplicates_as_json(where = [ tester.src_dir ]) )
   
 if __name__ == '__main__':
   unit_test.main()
