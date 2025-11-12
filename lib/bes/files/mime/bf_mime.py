@@ -8,10 +8,13 @@ from collections import OrderedDict
 
 from bes.text.text_detect import text_detect
 from bes.system.host import host
+from bes.system.log import logger
 
 from .bf_mime_type_detector import bf_mime_type_detector
 
 class bf_mime(object):
+
+  _log = logger('bf_mime')
 
   TEXT = 'text'
 
@@ -42,7 +45,9 @@ class bf_mime(object):
 
   @classmethod
   def is_binary(clazz, filename):
-    return clazz.mime_type(filename) in clazz.BINARY_TYPES
+    mime_type = clazz.mime_type(filename)
+    clazz._log.log_d(f'filename={filename} mime_type={mime_type}')
+    return mime_type in clazz.BINARY_TYPES
 
   _GZIP_MIME_TYPES = [ 'application/x-gzip', 'application/gzip', 'application/x-tar' ]
   _ZIP_MIME_TYPES = [ 'application/zip', 'application/x-zip-compressed' ]
