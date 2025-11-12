@@ -18,6 +18,7 @@ class test_url_util(unit_test):
 
   def test_make_file_url(self):
     f = url_util.make_file_url
+#    self.assertEqual( 'file:///foo/bar/kiwi.txt', f(self.xp_filename(self.make_abspath('/foo/bar/kiwi.txt'))) )
     self.assertEqual( 'file:///foo/bar/kiwi.txt', f('/foo/bar/kiwi.txt') )
     
 if __name__ == '__main__':

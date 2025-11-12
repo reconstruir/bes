@@ -14,6 +14,12 @@ class bf_file_duplicates_finder_item(bdata_class_base):
   entry: bf_entry
   duplicates: typing.Optional[bf_entry_list]
 
+  def to_dict(self, replacements = None, xp_filenames = False):
+    return {
+      'entry': self.entry.to_dict(replacements = replacements, xp_filenames = xp_filenames),
+      'duplicates': self.duplicates.to_dict_list(replacements = replacements, xp_filenames = xp_filenames) if self.duplicates else [],
+    }
+  
   def to_json_dict_hook(self, d):
     return {
       'entry': self.entry.to_dict(),

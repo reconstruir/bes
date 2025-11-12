@@ -44,6 +44,9 @@ class test_bf_file_duplicates_finder(unit_test):
     ]
     with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       resolved_files = tester.finder.resolve_files(tester.src_dir)
+      replacements = {
+        tester.src_dir: '${root_dir}',
+      }
       self.assert_json_equal( '''
 [
   {
@@ -77,7 +80,7 @@ class test_bf_file_duplicates_finder(unit_test):
     "found_index": 4
   }
 ]
-''', resolved_files.to_json().replace(tester.src_dir, '${root_dir}') )
+''', resolved_files.to_json(replacements = replacements, xp_filenames = True) )
 
   def test_find_duplicates_basic(self):
     items = [
