@@ -32,6 +32,14 @@ class _file_duplicates_finder_tester(dir_operation_tester):
     hasher = hasher = bf_hasher_hashlib()
     return bf_file_duplicates_finder(hasher = hasher, options = self.options)
 
+  def resolve_files_as_json(self):
+    resolved_files = self.finder.resolve_files(self.src_dir)
+    replacements = {
+      self.src_dir: '${root_dir}',
+    }
+    return resolved_files.to_json(replacements = replacements,
+                                  xp_filenames = True)
+
 class test_bf_file_duplicates_finder(unit_test):
 
   def test_resolve_files(self):
@@ -43,10 +51,6 @@ class test_bf_file_duplicates_finder(unit_test):
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
     ]
     with _file_duplicates_finder_tester(extra_content_items = items) as tester:
-      resolved_files = tester.finder.resolve_files(tester.src_dir)
-      replacements = {
-        tester.src_dir: '${root_dir}',
-      }
       self.assert_json_equal( '''
 [
   {
@@ -80,7 +84,7 @@ class test_bf_file_duplicates_finder(unit_test):
     "found_index": 4
   }
 ]
-''', resolved_files.to_json(replacements = replacements, xp_filenames = True) )
+''', tester.resolve_files_as_json() )
 
   def test_find_duplicates_basic(self):
     items = [

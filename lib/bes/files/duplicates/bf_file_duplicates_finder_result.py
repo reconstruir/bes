@@ -5,6 +5,7 @@ import typing
 
 from bes.data_classes.bdata_class_base import bdata_class_base
 from bes.system.check import check
+from bes.common.json_util import json_util
 
 from ..bf_entry_list import bf_entry_list
 from .bf_file_duplicates_finder_item import bf_file_duplicates_finder_item
@@ -23,6 +24,6 @@ class bf_file_duplicates_finder_result(bdata_class_base):
 
   def to_json(self, replacements = None, xp_filenames = False):
     d = self.to_dict(replacements = replacements, xp_filenames = xp_filenames)
-    return json_util.to_json(dl, indent = 2, sort_keys = True)
+    return json_util.to_json(d, indent = 2, sort_keys = True)
 
 check.register_class(bf_file_duplicates_finder_result, include_seq = False)
