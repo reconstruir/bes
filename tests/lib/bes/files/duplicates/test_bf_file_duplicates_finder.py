@@ -324,95 +324,94 @@ class test_bf_file_duplicates_finder(unit_test):
     ]
     with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       tester.options = bf_file_duplicates_finder_options(include_empty_files = True)
-      result = tester.finder.find_duplicates(where = [ tester.src_dir ])
       self.assert_json_equal( '''
 {
-  "resolved_entries": [
-    {
-      "filename": "a/apple.jpg",
-      "root_dir": "${root_dir}",
-      "index": 0,
-      "found_index": 0
-    },
-    {
-      "filename": "a/kiwi.jpg",
-      "root_dir": "${root_dir}",
-      "index": 1,
-      "found_index": 1
-    },
-    {
-      "filename": "a/lemon.jpg",
-      "root_dir": "${root_dir}",
-      "index": 2,
-      "found_index": 2
-    },
-    {
-      "filename": "b/kiwi_dup1.jpg",
-      "root_dir": "${root_dir}",
-      "index": 3,
-      "found_index": 3
-    },
-    {
-      "filename": "c/kiwi_dup2.jpg",
-      "root_dir": "${root_dir}",
-      "index": 4,
-      "found_index": 4
-    },
-    {
-      "filename": "d/empty1.txt",
-      "root_dir": "${root_dir}",
-      "index": 5,
-      "found_index": 5
-    },
-    {
-      "filename": "e/empty2.txt",
-      "root_dir": "${root_dir}",
-      "index": 6,
-      "found_index": 6
-    }
-  ],
   "duplicate_items": [
     {
-      "entry": {
-        "filename": "a/kiwi.jpg",
-        "root_dir": "${root_dir}",
-        "index": 1,
-        "found_index": 1
-      },
       "duplicates": [
         {
           "filename": "b/kiwi_dup1.jpg",
-          "root_dir": "${root_dir}",
+          "found_index": 3,
           "index": 3,
-          "found_index": 3
+          "root_dir": "${root_dir}"
         },
         {
           "filename": "c/kiwi_dup2.jpg",
-          "root_dir": "${root_dir}",
+          "found_index": 4,
           "index": 4,
-          "found_index": 4
+          "root_dir": "${root_dir}"
         }
-      ]
+      ],
+      "entry": {
+        "filename": "a/kiwi.jpg",
+        "found_index": 1,
+        "index": 1,
+        "root_dir": "${root_dir}"
+      }
     },
     {
-      "entry": {
-        "filename": "d/empty1.txt",
-        "root_dir": "${root_dir}",
-        "index": 5,
-        "found_index": 5
-      },
       "duplicates": [
         {
           "filename": "e/empty2.txt",
-          "root_dir": "${root_dir}",
+          "found_index": 6,
           "index": 6,
-          "found_index": 6
+          "root_dir": "${root_dir}"
         }
-      ]
+      ],
+      "entry": {
+        "filename": "d/empty1.txt",
+        "found_index": 5,
+        "index": 5,
+        "root_dir": "${root_dir}"
+      }
+    }
+  ],
+  "resolved_entries": [
+    {
+      "filename": "a/apple.jpg",
+      "found_index": 0,
+      "index": 0,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "a/kiwi.jpg",
+      "found_index": 1,
+      "index": 1,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "a/lemon.jpg",
+      "found_index": 2,
+      "index": 2,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "b/kiwi_dup1.jpg",
+      "found_index": 3,
+      "index": 3,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "c/kiwi_dup2.jpg",
+      "found_index": 4,
+      "index": 4,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "d/empty1.txt",
+      "found_index": 5,
+      "index": 5,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "e/empty2.txt",
+      "found_index": 6,
+      "index": 6,
+      "root_dir": "${root_dir}"
     }
   ]
 }
-''', result.to_json().replace(tester.src_dir, '${root_dir}') )
+''', tester.find_duplicates_as_json(where = [ tester.src_dir ]) )
 
   def test_find_duplicates_with_resource_forks(self):
     items = [
@@ -428,107 +427,106 @@ class test_bf_file_duplicates_finder(unit_test):
     ]
     with _file_duplicates_finder_tester(extra_content_items = items) as tester:
       tester.options = bf_file_duplicates_finder_options(include_resource_forks = True)
-      result = tester.finder.find_duplicates(where = [ tester.src_dir ])
       self.assert_json_equal( '''
 {
-  "resolved_entries": [
-    {
-      "filename": "a/apple.jpg",
-      "root_dir": "${root_dir}",
-      "index": 0,
-      "found_index": 0
-    },
-    {
-      "filename": "a/kiwi.jpg",
-      "root_dir": "${root_dir}",
-      "index": 1,
-      "found_index": 1
-    },
-    {
-      "filename": "a/lemon.jpg",
-      "root_dir": "${root_dir}",
-      "index": 2,
-      "found_index": 2
-    },
-    {
-      "filename": "b/kiwi_dup1.jpg",
-      "root_dir": "${root_dir}",
-      "index": 3,
-      "found_index": 3
-    },
-    {
-      "filename": "c/kiwi_dup2.jpg",
-      "root_dir": "${root_dir}",
-      "index": 4,
-      "found_index": 4
-    },
-    {
-      "filename": "d/._empty1.txt",
-      "root_dir": "${root_dir}",
-      "index": 5,
-      "found_index": 5
-    },
-    {
-      "filename": "d/empty1.txt",
-      "root_dir": "${root_dir}",
-      "index": 6,
-      "found_index": 6
-    },
-    {
-      "filename": "e/._empty2.txt",
-      "root_dir": "${root_dir}",
-      "index": 7,
-      "found_index": 7
-    },
-    {
-      "filename": "e/empty2.txt",
-      "root_dir": "${root_dir}",
-      "index": 8,
-      "found_index": 8
-    }
-  ],
   "duplicate_items": [
     {
-      "entry": {
-        "filename": "a/kiwi.jpg",
-        "root_dir": "${root_dir}",
-        "index": 1,
-        "found_index": 1
-      },
       "duplicates": [
         {
           "filename": "b/kiwi_dup1.jpg",
-          "root_dir": "${root_dir}",
+          "found_index": 3,
           "index": 3,
-          "found_index": 3
+          "root_dir": "${root_dir}"
         },
         {
           "filename": "c/kiwi_dup2.jpg",
-          "root_dir": "${root_dir}",
+          "found_index": 4,
           "index": 4,
-          "found_index": 4
+          "root_dir": "${root_dir}"
         }
-      ]
+      ],
+      "entry": {
+        "filename": "a/kiwi.jpg",
+        "found_index": 1,
+        "index": 1,
+        "root_dir": "${root_dir}"
+      }
     },
     {
-      "entry": {
-        "filename": "d/._empty1.txt",
-        "root_dir": "${root_dir}",
-        "index": 5,
-        "found_index": 5
-      },
       "duplicates": [
         {
           "filename": "e/._empty2.txt",
-          "root_dir": "${root_dir}",
+          "found_index": 7,
           "index": 7,
-          "found_index": 7
+          "root_dir": "${root_dir}"
         }
-      ]
+      ],
+      "entry": {
+        "filename": "d/._empty1.txt",
+        "found_index": 5,
+        "index": 5,
+        "root_dir": "${root_dir}"
+      }
+    }
+  ],
+  "resolved_entries": [
+    {
+      "filename": "a/apple.jpg",
+      "found_index": 0,
+      "index": 0,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "a/kiwi.jpg",
+      "found_index": 1,
+      "index": 1,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "a/lemon.jpg",
+      "found_index": 2,
+      "index": 2,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "b/kiwi_dup1.jpg",
+      "found_index": 3,
+      "index": 3,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "c/kiwi_dup2.jpg",
+      "found_index": 4,
+      "index": 4,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "d/._empty1.txt",
+      "found_index": 5,
+      "index": 5,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "d/empty1.txt",
+      "found_index": 6,
+      "index": 6,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "e/._empty2.txt",
+      "found_index": 7,
+      "index": 7,
+      "root_dir": "${root_dir}"
+    },
+    {
+      "filename": "e/empty2.txt",
+      "found_index": 8,
+      "index": 8,
+      "root_dir": "${root_dir}"
     }
   ]
 }
-''', result.to_json().replace(tester.src_dir, '${root_dir}') )
+''', tester.find_duplicates_as_json(where = [ tester.src_dir ]) )
 
   def test_find_duplicates_with_prefer_prefixes(self):
     items = [
