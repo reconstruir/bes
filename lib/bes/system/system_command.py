@@ -119,7 +119,7 @@ class system_command(object, metaclass = ABCMeta):
     cmd.append(exe)
     cmd.extend(list(static_args))
     cmd.extend(args)
-    clazz._log.log_d('call_command: cmd={} env={}'.format(' '.join(cmd), env))
+    clazz._log.log_d('call_command: cmd="{}" env="{}"'.format(' '.join(cmd), env))
     return execute.execute(cmd,
                            raise_error = raise_error,
                            env = env,
