@@ -17,6 +17,9 @@ class bdata_class_base(object):
     d = dataclasses.asdict(self)
     return self.to_json_dict_hook(d)
 
+  def to_json_dict(self):
+    return self.to_dict()
+  
   def to_json_dict_hook(self, d):
     return d
 
