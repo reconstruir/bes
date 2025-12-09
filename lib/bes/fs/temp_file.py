@@ -6,6 +6,8 @@ from ..system.filesystem import filesystem
 from ..system.check import check
 
 import os, os.path as path, sys, tempfile
+import pty
+
 from .file_util import file_util
 
 class temp_item(namedtuple('temp_item', 'filename, content, mode')):
@@ -99,3 +101,9 @@ class temp_file(object):
     'Write a sequence of temp files specified by items.'
     for item in items:
       item.write(root_dir)
+
+  @classmethod
+  def make_temp_chardev(clazz):
+    master_fd, slave_fd = pty.openpty()
+    real_path = os.ttyname(slave_fd)
+    return real_path
