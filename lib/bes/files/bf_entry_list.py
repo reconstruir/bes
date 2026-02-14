@@ -3,10 +3,10 @@
 import os
 from os import path
 
-from ..compat.cmp import cmp
-from ..system.check import check
-from ..common.type_checked_list import type_checked_list
+from ..common.algorithm import algorithm
 from ..common.json_util import json_util
+from ..common.type_checked_list import type_checked_list
+from ..system.check import check
 
 from .bf_check import bf_check
 from .bf_entry import bf_entry
@@ -40,6 +40,20 @@ class bf_entry_list(type_checked_list):
       result.sort()
     return result
 
+  def relative_dirnames(self, sort = False):
+    result = [ path.dirname(entry.relative_filename) for entry in self ]
+    result = algorithm.unique(result)
+    if sort:
+      result.sort()
+    return result
+
+  def absolute_dirnames(self, sort = False):
+    result = [ path.dirname(entry.absolute_filename) for entry in self ]
+    result = algorithm.unique(result)
+    if sort:
+      result.sort()
+    return result
+  
   def absolute_filenames(self, sort = False):
     result = [ entry.absolute_filename for entry in self ]
     if sort:
