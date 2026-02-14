@@ -150,13 +150,39 @@ class bf_filename(object):
   @classmethod
   def shorten(clazz, basename, max_length = None, include_hash = False, hash_length = None):
     'Shorten a basename preserving the extension'
+    return clazz._shorten_impl(basename,
+                               max_length = max_length,
+                               include_hash = include_hash,
+                               hash_length = hash_length,
+                               measure = len,
+                               truncate = lambda s, n: s[0:n])
+
+  @classmethod
+  def shorten_bytes(clazz, basename, max_length_bytes=None, include_hash=False,
+                    hash_length=None, encoding='utf-8'):
+    'Shorten a basename preserving the extension, measuring length in encoded bytes'
+    def _measure(s):
+      return len(s.encode(encoding))
+    def _truncate(s, available):
+      while _measure(s) > available:
+        s = s[:-1]
+      return s
+    return clazz._shorten_impl(basename,
+                               max_length = max_length_bytes,
+                               include_hash = include_hash,
+                               hash_length = hash_length,
+                               measure = _measure,
+                               truncate = _truncate)
+
+  @classmethod
+  def _shorten_impl(clazz, basename, max_length, include_hash, hash_length, measure, truncate):
     check.check_string(basename)
     check.check_int(max_length, allow_none = True)
     check.check_bool(include_hash)
     check.check_int(hash_length, allow_none = True)
 
     if path.sep in basename:
-      raise ValueError(f'filename should be a basename not path: "{basename}"')
+      raise ValueError(f'no path separators allowed in basename: "{basename}"')
 
     if hash_length is not None:
       if hash_length < 8 or hash_length > 64:
@@ -164,14 +190,15 @@ class bf_filename(object):
 
     max_length = max_length or filesystem.max_filename_length()
 
-    if len(basename) <= max_length:
+    if measure(basename) <= max_length:
       return basename
 
     ext = clazz.extension(basename)
     basename_no_ext = clazz.without_extension(basename)
 
     if ext:
-      ext_length = len(ext) + len(path.extsep)
+      ext_with_sep = path.extsep + ext
+      ext_length = measure(ext_with_sep)
     else:
       ext_length = 0
     if ext_length >= max_length:
@@ -185,64 +212,13 @@ class bf_filename(object):
       if hash_length is not None:
         hash_string = hash_string[0:hash_length]
       hash_part = hash_sep + hash_string
-      len_hash_part = len(hash_part)
+      len_hash_part = measure(hash_part)
       if len_hash_part > available:
         raise ValueError(f'hash would exceed max length({max_length}): "{basename}"')
     else:
       hash_part = ''
       len_hash_part = 0
-    basename_no_ext = basename_no_ext[0:available - len_hash_part] + hash_part
-    return clazz.add_extension(basename_no_ext, ext)
-
-  @classmethod
-  def shorten_bytes(clazz, basename, max_length_bytes=None, include_hash=False,
-                    hash_length=None, encoding='utf-8'):
-    'Shorten a basename preserving the extension, measuring length in encoded bytes'
-    check.check_string(basename)
-    check.check_int(max_length_bytes, allow_none = True)
-    check.check_bool(include_hash)
-    check.check_int(hash_length, allow_none = True)
-
-    if path.sep in basename:
-      raise ValueError(f'filename should be a basename not path: "{basename}"')
-
-    if hash_length is not None:
-      if hash_length < 8 or hash_length > 64:
-        raise ValueError(f'hash_length should be between 8 and 64: "{hash_length}"')
-
-    max_length_bytes = max_length_bytes or filesystem.max_filename_length()
-
-    if len(basename.encode(encoding)) <= max_length_bytes:
-      return basename
-
-    ext = clazz.extension(basename)
-    basename_no_ext = clazz.without_extension(basename)
-
-    if ext:
-      ext_with_sep = path.extsep + ext
-      ext_byte_length = len(ext_with_sep.encode(encoding))
-    else:
-      ext_byte_length = 0
-    if ext_byte_length >= max_length_bytes:
-      raise ValueError(f'extension exceeds max length({max_length_bytes}): "{basename}"')
-    available = max_length_bytes - ext_byte_length
-    if available < 1:
-      raise ValueError(f'extension exceeds max length({max_length_bytes}): "{basename}"')
-    if include_hash:
-      hash_sep = '-'
-      hash_string = hash_util.hash_string_sha256(basename)
-      if hash_length is not None:
-        hash_string = hash_string[0:hash_length]
-      hash_part = hash_sep + hash_string
-      hash_part_byte_length = len(hash_part.encode(encoding))
-      if hash_part_byte_length > available:
-        raise ValueError(f'hash would exceed max length({max_length_bytes}): "{basename}"')
-    else:
-      hash_part = ''
-      hash_part_byte_length = 0
-    stem = basename_no_ext
-    while len((stem + hash_part).encode(encoding)) > available:
-      stem = stem[:-1]
+    stem = truncate(basename_no_ext, available - len_hash_part)
     basename_no_ext = stem + hash_part
     return clazz.add_extension(basename_no_ext, ext)
 
