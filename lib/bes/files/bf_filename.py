@@ -158,41 +158,40 @@ class bf_filename(object):
     if path.sep in basename:
       raise ValueError(f'filename should be a basename not path: "{basename}"')
 
-    if hash_length != None:
-      if hash_length < 8:
+    if hash_length is not None:
+      if hash_length < 8 or hash_length > 64:
         raise ValueError(f'hash_length should be between 8 and 64: "{hash_length}"')
-      if hash_length > 64:
-        raise ValueError(f'hash_length should be between 8 and 64: "{hash_length}"')
-        
+
     max_length = max_length or filesystem.max_filename_length()
+
+    if len(basename) <= max_length:
+      return basename
 
     ext = clazz.extension(basename)
     basename_no_ext = clazz.without_extension(basename)
-    len_basename_no_ext = len(basename_no_ext)
 
     if ext:
-      min_needed_ext = len(ext) + len(path.extsep)
+      ext_length = len(ext) + len(path.extsep)
     else:
-      min_needed_ext = 0
-    if min_needed_ext >= max_length:
+      ext_length = 0
+    if ext_length >= max_length:
       raise ValueError(f'extension exceeds max length({max_length}): "{basename}"')
-    available = max_length - min_needed_ext + 1
-    assert available >= 1
-    if available <= len_basename_no_ext:
+    available = max_length - ext_length
+    if available < 1:
+      raise ValueError(f'extension exceeds max length({max_length}): "{basename}"')
+    if include_hash:
       hash_sep = '-'
-      if include_hash:
-        hash_string = hash_util.hash_string_sha256(basename)
-        if hash_length != None:
-          hash_string = hash_string[0:hash_length]
-        hash_part = hash_sep + hash_string
-        hash_part_length = len(hash_sep) + hash_length
-        if hash_part_length >= available:
-          raise ValueError(f'hash would exceed max length({max_length}): "{basename}"')
-      else:
-        hash_part = ''
-        hash_part_length = 0
+      hash_string = hash_util.hash_string_sha256(basename)
+      if hash_length is not None:
+        hash_string = hash_string[0:hash_length]
+      hash_part = hash_sep + hash_string
       len_hash_part = len(hash_part)
-      basename_no_ext = basename_no_ext[0:available - 1 - len_hash_part] + hash_part
+      if len_hash_part > available:
+        raise ValueError(f'hash would exceed max length({max_length}): "{basename}"')
+    else:
+      hash_part = ''
+      len_hash_part = 0
+    basename_no_ext = basename_no_ext[0:available - len_hash_part] + hash_part
     return clazz.add_extension(basename_no_ext, ext)
 
   @classmethod
