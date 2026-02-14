@@ -102,6 +102,65 @@ class test_bf_filename(unit_test):
     with self.assertRaises(ValueError) as _:
       self._test_shorten('foo12345678901234567890.jpg', 12, True, 8)
 
+  @classmethod
+  def _test_shorten_bytes(clazz, filename, max_length_bytes, include_hash, hash_length):
+    return bf_filename.shorten_bytes(filename,
+                                     max_length_bytes = max_length_bytes,
+                                     include_hash = include_hash,
+                                     hash_length = hash_length)
+
+  def test_shorten_bytes(self):
+    self.assert_filename_equal( 'foo.jpg', self._test_shorten_bytes('foo.jpg', 8, False, None) )
+    self.assert_filename_equal( 'foo.jpg', self._test_shorten_bytes('foo.jpg', 7, False, None) )
+    self.assert_filename_equal( 'fo.jpg', self._test_shorten_bytes('foo.jpg', 6, False, None) )
+    self.assert_filename_equal( 'f.jpg', self._test_shorten_bytes('foo.jpg', 5, False, None) )
+
+  def test_shorten_bytes_no_extension(self):
+    self.assert_filename_equal( 'foo', self._test_shorten_bytes('foo', 4, False, None) )
+    self.assert_filename_equal( 'foo', self._test_shorten_bytes('foo', 3, False, None) )
+    self.assert_filename_equal( 'fo', self._test_shorten_bytes('foo', 2, False, None) )
+    self.assert_filename_equal( 'f', self._test_shorten_bytes('foo', 1, False, None) )
+
+  def test_shorten_bytes_not_enough_space(self):
+    with self.assertRaises(ValueError) as _:
+      self._test_shorten_bytes('foo.jpg', 4, False, None)
+    with self.assertRaises(ValueError) as _:
+      self._test_shorten_bytes('foo.jpg', 3, False, None)
+
+  def test_shorten_bytes_with_hash(self):
+    self.assert_filename_equal( 'foo-e70422ca.jpg', self._test_shorten_bytes('foo12345678901234567890.jpg', 16, True, 8) )
+    self.assert_filename_equal( 'fo-e70422ca.jpg', self._test_shorten_bytes('foo12345678901234567890.jpg', 15, True, 8) )
+    self.assert_filename_equal( 'f-e70422ca.jpg', self._test_shorten_bytes('foo12345678901234567890.jpg', 14, True, 8) )
+    self.assert_filename_equal( '-e70422ca.jpg', self._test_shorten_bytes('foo12345678901234567890.jpg', 13, True, 8) )
+
+  def test_shorten_bytes_with_hash_not_enough_space(self):
+    with self.assertRaises(ValueError) as _:
+      self._test_shorten_bytes('foo12345678901234567890.jpg', 12, True, 8)
+
+  def test_shorten_bytes_multibyte(self):
+    # '日本語テスト.txt' = 15 chars (6 kanji/kana + . + txt), 22 bytes (6*3 + 4)
+    # Each Japanese char is 3 bytes, .txt is 4 bytes
+    self.assert_filename_equal( '日本語テスト.txt', self._test_shorten_bytes('日本語テスト.txt', 22, False, None) )
+    # 19 bytes available: 19 - 4(.txt) = 15 stem bytes = 5 chars * 3 bytes
+    self.assert_filename_equal( '日本語テス.txt', self._test_shorten_bytes('日本語テスト.txt', 19, False, None) )
+    # 10 bytes available: 10 - 4(.txt) = 6 stem bytes = 2 chars * 3 bytes
+    self.assert_filename_equal( '日本.txt', self._test_shorten_bytes('日本語テスト.txt', 10, False, None) )
+    # 7 bytes available: 7 - 4(.txt) = 3 stem bytes = 1 char * 3 bytes
+    self.assert_filename_equal( '日.txt', self._test_shorten_bytes('日本語テスト.txt', 7, False, None) )
+
+  def test_shorten_bytes_multibyte_no_extension(self):
+    # '日本語' = 9 bytes
+    self.assert_filename_equal( '日本語', self._test_shorten_bytes('日本語', 9, False, None) )
+    self.assert_filename_equal( '日本', self._test_shorten_bytes('日本語', 6, False, None) )
+    self.assert_filename_equal( '日', self._test_shorten_bytes('日本語', 3, False, None) )
+
+  def test_shorten_bytes_multibyte_with_hash(self):
+    # '日本語テスト.txt' hash[:8] = 'cad66b86', hash_part = '-cad66b86' (9 bytes)
+    # max=17: 17 - 4(.txt) = 13 available, 13 - 9(hash) = 4 stem bytes => 1 char (3 bytes) + pad? No, 1 char = 3 bytes fits
+    self.assert_filename_equal( '日-cad66b86.txt', self._test_shorten_bytes('日本語テスト.txt', 17, True, 8) )
+    # max=20: 20 - 4(.txt) = 16 available, 16 - 9(hash) = 7 stem bytes => 2 chars (6 bytes)
+    self.assert_filename_equal( '日本-cad66b86.txt', self._test_shorten_bytes('日本語テスト.txt', 20, True, 8) )
+
   def test_lstrip_sep(self):
     self.assertEqual( self.native_filename('foo'), bf_filename.lstrip_sep('foo') )
     self.assertEqual( self.native_filename('foo'), bf_filename.lstrip_sep(self.native_filename('/foo')) )
