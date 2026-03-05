@@ -219,13 +219,16 @@ class file_attributes_metadata(object):
 
   @classmethod
   def media_type_matches(clazz, filename, media_types):
-    filename = file_check.check_file(filename)
-    check.check_string_seq(media_types)
+    try:
+      filename = file_check.check_file(filename)
+      check.check_string_seq(media_types)
     
-    media_type = clazz.get_metadata(filename, 'media_type')
-    if not media_type:
+      media_type = clazz.get_metadata(filename, 'media_type')
+      if not media_type:
+        return False
+      return media_type in media_types
+    except FileNotFoundError as ex:
       return False
-    return media_type in media_types
   
   @classmethod
   def is_media(clazz, filename):

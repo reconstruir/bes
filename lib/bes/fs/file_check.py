@@ -21,7 +21,7 @@ class file_check(object):
     if allow_none and filename == None:
       return None
     if not path.exists(filename):
-      raise exception_class(f'File not found: {filename}')
+      raise FileNotFoundError(f'File not found: {filename}')
     if not path.isfile(filename):
       raise exception_class(f'Not a file: {filename}')
     return path.abspath(filename)
@@ -39,7 +39,7 @@ class file_check(object):
     if allow_none and dirname == None:
       return None
     if not path.exists(dirname):
-      raise exception_class(f'Directory not found: {dirname}')
+      raise FileNotFoundError(f'Directory not found: {dirname}')
     if not path.isdir(dirname):
       raise exception_class(f'Not a directory: {dirname}')
     return path.abspath(dirname)
@@ -79,7 +79,7 @@ class file_check(object):
     if allow_none and ford == None:
       return None
     if not path.exists(ford):
-      raise exception_class(f'File not found: {ford}')
+      raise FileNotFoundError(f'File not found: {ford}')
     if not (path.isfile(ford) or path.isdir(ford)):
       raise exception_class(f'Not a file or directory: {ford}')
     return path.abspath(ford)

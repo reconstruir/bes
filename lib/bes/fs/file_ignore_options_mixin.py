@@ -14,9 +14,10 @@ class file_ignore_options_mixin(object):
     return file_multi_ignore(self.ignore_files)
     
   def should_ignore_file(self, ford):
-    ford = file_check.check_file_or_dir(ford)
+    try:
+      ford = file_check.check_file_or_dir(ford)
+  
+      return self.file_ignorer().should_ignore(ford)
+    except FileNotFoundError as ex:
+      return True
     
-#    r = self.file_ignorer.should_ignore(ford)
-#    from bes.system.log import log
-#    log.console(f'CONO: should_ignore_file({ford}) => {r}')
-    return self.file_ignorer().should_ignore(ford)
