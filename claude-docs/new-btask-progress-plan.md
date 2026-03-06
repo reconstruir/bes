@@ -51,30 +51,69 @@ Add alongside existing `report_progress`, do not modify it.
 
 **Auto-throttling in `btask_function_context` (worker process side):**
 
-The throttle must live in the worker process — in `report_step_progress` itself — not in the
-collector. Dropping at the collector side is too late: the expensive Manager Queue IPC `put()` has
-already happened. Dropping in the worker process costs nothing.
+The throttle lives in `report_step_progress` itself, inside `btask_function_context`, which runs
+in the worker subprocess. The dedup check happens before `status_queue.put()`, so IPC never occurs
+for duplicate calls. The manager process/thread never sees them. This is different from the old
+`_should_drop_progress` which ran in the collector thread of the main process — too late, the IPC
+cost had already been paid.
 
-Dedup rule: drop the call (zero IPC) if `(step, step_percent) == last_reported`. Always pass if
-either `step` or `step_percent` changed. Step transitions (N→N+1) always pass even when both
-start at `step_percent=0`.
+Dedup key: `(step, total_steps, step_percent)`. `total_steps` is included so the
+indeterminate→determinate transition (`None→N`) is not accidentally dropped.
 
-State added to `btask_function_context`:
-- `_last_step_report = None` — tuple `(step, step_percent)` of last call that was not dropped
-- `_step_drop_count = 0` — consecutive drop counter for warning
+Drop rule: if key equals `_last_step_report`, increment `_step_drop_count` and return (no IPC).
+Otherwise pass through, update `_last_step_report`, reset `_step_drop_count = 0`.
 
 Warning log: when `_step_drop_count` reaches a threshold (e.g. 100), log once:
 `"report_step_progress: auto-throttled {n} identical calls for step {step} — caller is reporting
-too frequently, consider reducing call frequency"`. Reset `_step_drop_count = 0` when a
-non-duplicate passes.
+too frequently, consider reducing call frequency"`. Reset counter after warning.
 
-This means callers can call `report_step_progress` on every ffmpeg frame (thousands/second) and
-the system remains efficient. The warning tells them when they are excessive, but the system never
-overloads regardless.
+**Worker computes percent (simplification over old interface):**
 
-**Rounding note:** Callers must normalize to integer percent (0-100) before calling, e.g.:
-`step_percent = min(100, int(current_ms / duration_ms * 100))`. Many frames will map to the same
-integer and be auto-dropped. This is the desired behavior — only distinct percent values cause IPC.
+Old interface required `report_progress(minimum, maximum, value, message)` — the worker carried
+three numbers and the receiver inferred percent. IPC payload was larger and dedup key was awkward.
+New interface: the worker has all context needed (it knows `duration_ms`, `total_files`, etc.) so
+it computes a single 0-100 int and sends it. The dedup key is a simple tuple comparison. The
+system never needs to understand what the raw numbers mean.
+
+Callers normalize to integer percent before calling:
+`step_percent = min(100, int(current_ms / duration_ms * 100))`
+Many frames map to the same integer and are auto-dropped. Only distinct percent values cost IPC.
+
+**Indeterminate steps (step_percent=None):**
+
+When progress cannot be determined, caller passes `step_percent=None`. The dialog shows a Qt
+indeterminate progress bar (`setRange(0, 0)` — the pulsing animation). Dedup still works:
+`None == None` so repeated calls with the same step and `step_percent=None` are all dropped after
+the first. A caller scanning thousands of directories fires one IPC call and the rest are free.
+
+**Indeterminate → determinate transition and the "preparing" state:**
+
+These are the same problem. A task may start with an unknown amount of preparation (directory
+traversal, network probe, etc.) before switching to a countable loop.
+
+Use `step=0` as an explicit preparation sentinel and `total_steps=None` to mean "count not yet
+known":
+
+```
+# Phase 1 - traversal, count unknown
+context.report_step_progress(step=0, total_steps=None,
+                              step_title='Scanning...', step_percent=None)
+... traverse dirs, collect files ...
+
+# Phase 2 - processing, count now known
+for i, f in enumerate(files, start=1):
+    context.report_step_progress(step=i, total_steps=len(files),
+                                 step_title=basename(f), step_percent=0)
+    ... process f ...
+    context.report_step_progress(step=i, total_steps=len(files),
+                                 step_title=basename(f), step_percent=100)
+```
+
+Dialog behavior during transition:
+- `total_steps=None`: single indeterminate row with step_title, no step count shown
+- First call where `total_steps` becomes an int: dialog switches to step-list layout. The step=0
+  preparation row can be shown as a completed preamble or discarded.
+- Step transitions (step N → step N+1) always pass the dedup check since `step` changes.
 
 **Collector change:**
 - Update `btask_result_collector_i._handle_item` to recognize `btask_status_step_progress` and
