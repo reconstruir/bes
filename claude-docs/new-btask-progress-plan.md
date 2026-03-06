@@ -123,6 +123,48 @@ Dialog behavior during transition:
 
 ---
 
+## Phase 1b — Unit tests for new btask step progress interface
+
+Add tests to `tests/lib/bes/btask/test_btask_process.py`.
+
+**Test cases:**
+
+1. **`test_report_step_progress_basic`**
+   - Submit a task that calls `context.report_step_progress(step=1, total_steps=3, step_title='file.mp4', step_percent=50)`
+   - Assert a `btask_status_step_progress` item reaches the result queue
+   - Assert `step_progress.step == 1`, `total_steps == 3`, `step_title == 'file.mp4'`, `step_percent == 50`
+
+2. **`test_report_step_progress_indeterminate`**
+   - Call with `step_percent=None`
+   - Assert `step_progress.step_percent is None`
+
+3. **`test_report_step_progress_preparation_sentinel`**
+   - Call with `step=0, total_steps=None, step_title='Scanning...', step_percent=None`
+   - Assert `step_progress.step == 0` and `step_progress.total_steps is None`
+
+4. **`test_report_step_progress_throttle_drops_duplicates`**
+   - Submit a task that calls `report_step_progress` 50 times with identical `(step, total_steps, step_percent)` key
+   - Assert only 1 `btask_status_step_progress` item arrives (the rest are dropped before IPC)
+
+5. **`test_report_step_progress_throttle_passes_distinct`**
+   - Submit a task that calls `report_step_progress` with incrementing `step_percent` (0, 1, 2, ..., 10)
+   - Assert exactly 11 `btask_status_step_progress` items arrive
+
+6. **`test_report_step_progress_throttle_warn_threshold`**
+   - Submit a task that calls `report_step_progress` 101 times with identical key
+   - Assert only 1 item arrives and a warning was logged (capture via log or just assert item count)
+
+7. **`test_report_step_progress_indeterminate_to_determinate_transition`**
+   - Task calls `report_step_progress(step=0, total_steps=None, ...)` then later `report_step_progress(step=1, total_steps=5, ...)`
+   - Assert both items arrive (key changes so second is not dropped)
+
+**Test infrastructure notes:**
+- The existing tests use `btask_process` + Manager Queue directly. The new tests need to observe status items, not just final results, so they must drain the result queue and filter by type.
+- Create a helper `_collect_items(queue, count, timeout=2.0)` that drains up to `count` items within a timeout, separating `btask_result` from `_btask_status_queue_item`.
+- Tasks should return `{}` and the test should inspect the status items collected during task execution.
+
+---
+
 ## Phase 2 — New dialog widget in `rmt`
 
 Create `rui_step_progress_dialog` — a custom `QDialog`. Qt has no standard widget for a list of

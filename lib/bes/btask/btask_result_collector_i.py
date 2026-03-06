@@ -10,6 +10,7 @@ from abc import abstractmethod, ABCMeta
 from .btask_result import btask_result
 from .btask_status import btask_status
 from .btask_status_progress import btask_status_progress
+from .btask_status_step_progress import btask_status_step_progress
 from ._btask_status_queue_item import _btask_status_queue_item
 from .btask_error import btask_error
 
@@ -60,6 +61,8 @@ class btask_result_collector_i(object, metaclass = ABCMeta):
       drop = False
       if isinstance(item.status, btask_status_progress):
         drop = self._should_drop_progress(item.status.progress)
+      # btask_status_step_progress is never dropped here — throttling already
+      # happened in the worker process before IPC, so every item is worth delivering
       if not drop:
         self.handle_status(item.task_id, item.status)
       else:
