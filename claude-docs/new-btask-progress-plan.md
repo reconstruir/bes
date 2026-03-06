@@ -49,11 +49,38 @@ Add alongside existing `report_progress`, do not modify it.
 **New context method:**
 - `btask_function_context.report_step_progress(step, total_steps, step_title, step_percent=None)`
 
+**Auto-throttling in `btask_function_context` (worker process side):**
+
+The throttle must live in the worker process — in `report_step_progress` itself — not in the
+collector. Dropping at the collector side is too late: the expensive Manager Queue IPC `put()` has
+already happened. Dropping in the worker process costs nothing.
+
+Dedup rule: drop the call (zero IPC) if `(step, step_percent) == last_reported`. Always pass if
+either `step` or `step_percent` changed. Step transitions (N→N+1) always pass even when both
+start at `step_percent=0`.
+
+State added to `btask_function_context`:
+- `_last_step_report = None` — tuple `(step, step_percent)` of last call that was not dropped
+- `_step_drop_count = 0` — consecutive drop counter for warning
+
+Warning log: when `_step_drop_count` reaches a threshold (e.g. 100), log once:
+`"report_step_progress: auto-throttled {n} identical calls for step {step} — caller is reporting
+too frequently, consider reducing call frequency"`. Reset `_step_drop_count = 0` when a
+non-duplicate passes.
+
+This means callers can call `report_step_progress` on every ffmpeg frame (thousands/second) and
+the system remains efficient. The warning tells them when they are excessive, but the system never
+overloads regardless.
+
+**Rounding note:** Callers must normalize to integer percent (0-100) before calling, e.g.:
+`step_percent = min(100, int(current_ms / duration_ms * 100))`. Many frames will map to the same
+integer and be auto-dropped. This is the desired behavior — only distinct percent values cause IPC.
+
 **Collector change:**
 - Update `btask_result_collector_i._handle_item` to recognize `btask_status_step_progress` and
   pass it through to `handle_status` without applying `_should_drop_progress` (the 1% drop logic
-  only applies to the old type). The `_should_drop_progress` bug is inherently avoided by the new
-  interface since `step_percent` is always 0-100 or None.
+  only applies to the old type). Since auto-throttling already happened in the worker process,
+  every item that reaches the collector is worth delivering.
 
 ---
 
