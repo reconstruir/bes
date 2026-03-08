@@ -291,7 +291,7 @@ Handle `_btask_task_started_item` routing — pass it to `btask_process_pool` ra
 | File | Change |
 |---|---|
 | `btask_result_state.py` | Add `TIMED_OUT = 'timed_out'` |
-| `btask_config.py` | Add `timeout_seconds` (int), `kill_grace_seconds` (float) fields |
+| `btask_config.py` | Add `timeout_seconds` (int), `kill_grace_seconds` (int) fields |
 | `btask_process.py` | Put `_btask_task_started_item` on result queue before calling function |
 | `btask_process_pool.py` | Add watchdog thread, pid/start_time/config tracking, hard-kill, respawn, result interception |
 | `btask_processor.py` | Add `timeout(task_id)` method |
@@ -344,10 +344,10 @@ Single stuck task, `timeout_seconds=2`.  Assert that the task callback is called
 Task uses `_fn_sleep_with_cancel_check` (checks cancellation every 50 ms).  `timeout_seconds=2`.  Assert result state is `'timed_out'` (not `'cancelled'`) — confirms the soft-cancel-to-TIMED_OUT conversion works.  Assert task exits promptly after the timeout fires (well within the grace period), confirming no hard kill was needed.
 
 **`test_timeout_hard_kill`**
-Task uses `_fn_sleep_forever` (ignores cancellation).  `timeout_seconds=2`, `kill_grace_seconds=1.0`.  Assert result state is `'timed_out'`.  Assert wall time from task start to result callback is < `timeout_seconds + kill_grace_seconds + margin`.  Verifies the hard kill fires.
+Task uses `_fn_sleep_forever` (ignores cancellation).  `timeout_seconds=2`, `kill_grace_seconds=1`.  Assert result state is `'timed_out'`.  Assert wall time from task start to result callback is < `timeout_seconds + kill_grace_seconds + margin`.  Verifies the hard kill fires.
 
 **`test_pool_self_heals_after_timeout`**
-Submit a stuck task (`timeout_seconds=2`, `kill_grace_seconds=1.0`).  After it times out, submit a fast task to the same pool.  Assert fast task completes with state `'success'`.  Verifies pool respawned a worker.
+Submit a stuck task (`timeout_seconds=2`, `kill_grace_seconds=1`).  After it times out, submit a fast task to the same pool.  Assert fast task completes with state `'success'`.  Verifies pool respawned a worker.
 
 **`test_multiple_tasks_one_times_out`**
 Submit 3 tasks: two fast tasks and one stuck task (`timeout_seconds=2`).  Assert the two fast tasks succeed and the stuck task is `'timed_out'`.  Verifies timeout of one task does not interfere with others.
