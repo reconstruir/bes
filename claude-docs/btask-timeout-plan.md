@@ -32,13 +32,17 @@ Add two optional fields:
 ```python
 @dataclasses.dataclass
 class btask_config:
-  category:         str
-  priority:         str   = 'medium'
-  limit:            int   = 3
-  debug:            bool  = False
-  timeout_seconds:  Optional[float] = None   # ← new: None means no timeout
-  kill_grace_seconds: float = 5.0            # ← new: seconds between SIGTERM and SIGKILL
+  category:           str
+  priority:           str          = 'medium'
+  limit:              int          = 3
+  debug:              bool         = False
+  timeout_seconds:    Optional[int] = None   # ← new: None means no timeout; minimum 2
+  kill_grace_seconds: float         = 5.0    # ← new: seconds between SIGTERM and SIGKILL; minimum 1.0
 ```
+
+`timeout_seconds` is an `int` rather than a float.  The watchdog polls once per second, so sub-second precision is meaningless — a float would imply a precision that does not exist.  The minimum enforced value is **2 seconds**: a 1-second timeout falls within the margin of the 1-second poll cycle and could fire immediately or up to 2 seconds late.
+
+`kill_grace_seconds` is a float because the grace timer is a `threading.Timer` which is genuinely precise at sub-second intervals; 1.0 is the practical minimum.
 
 The 4-tuple shorthand `('category', 'priority', limit, debug)` used in tests and `add_task` continues to work; the new fields have defaults and are only set via keyword arguments or a 6-tuple.
 
@@ -96,8 +100,13 @@ No other changes to `btask_process`.
 self._task_pid_map: dict[int, int]              # task_id → worker pid
 self._task_start_time_map: dict[int, datetime]  # task_id → start time
 self._task_config_map: dict[int, btask_config]  # task_id → config (for timeout values)
+self._timed_out_task_ids: set[int]              # task_ids that have had a timeout triggered
 self._task_pid_map_lock: threading.Lock
 ```
+
+### Watchdog thread cost
+
+The watchdog thread blocks in `_stop_event.wait(timeout=1.0)` — it is parked by the OS and uses zero CPU while sleeping.  When it wakes each second it acquires a lock, iterates the start-time dict (skipping tasks with `timeout_seconds=None` or not yet expired), and goes back to sleep.  This is microseconds of work per second regardless of how many tasks are queued or whether any timeouts are ever configured.
 
 ### Handling `_btask_task_started_item`
 
@@ -117,6 +126,26 @@ with self._task_pid_map_lock:
   self._task_pid_map.pop(result.task_id, None)
   self._task_start_time_map.pop(result.task_id, None)
   self._task_config_map.pop(result.task_id, None)
+  self._timed_out_task_ids.discard(result.task_id)
+```
+
+### Result interception — always TIMED_OUT
+
+When a timeout is triggered for a task, `task_id` is added to `_timed_out_task_ids` immediately (before either the soft-cancel or hard-kill path completes).  In `_result_thread_main`, any result arriving for a task in that set is **converted to `TIMED_OUT`** before being forwarded to the callback, and any second result for the same task_id is suppressed.
+
+This means the result is always `TIMED_OUT` regardless of whether the worker exited cleanly via soft cancellation or was hard-killed — the distinction between the two exit mechanisms is an implementation detail that callers should not need to handle separately.
+
+```python
+# in _result_thread_main, after receiving a real result for a task_id:
+with self._task_pid_map_lock:
+  if result.task_id in self._timed_out_task_ids:
+    if result.state == btask_result_state.CANCELLED:
+      # soft cancel worked — convert to TIMED_OUT, cancel the pending grace timer
+      result = result._replace(state=btask_result_state.TIMED_OUT)
+      self._cancel_grace_timer(result.task_id)
+    # second result for a hard-killed task — suppress (TIMED_OUT already emitted)
+    elif result.state == btask_result_state.TIMED_OUT:
+      pass  # already handled by _emit_timed_out_result
 ```
 
 ### Storing config per task
@@ -130,7 +159,7 @@ with self._task_pid_map_lock:
 
 ### Timeout Watchdog Thread
 
-Runs every 1 second.  For each tracked in-progress task:
+Polls every 1 second.  Effective timeout granularity is ±1 second — a task with `timeout_seconds=5` fires between 5.0 and 6.0 seconds after it starts depending on where in the poll cycle the task began.  This is why `timeout_seconds` has a minimum of 2.
 
 ```python
 def _timeout_watchdog_main(self):
@@ -159,15 +188,18 @@ def _handle_timeout(self, task_id, config):
   if pid is None:
     return  # already completed
 
+  # Mark as timed out before releasing anything — ensures result interception is active
+  self._timed_out_task_ids.add(task_id)
+
   # 1. Soft cancel — set cancelled flag via the in-progress task's cancelled_value
-  #    (processor sets this; watchdog calls back into processor)
   self._timeout_callback(task_id)  # processor.timeout(task_id) — see below
 
-  # 2. Start a grace period timer that hard-kills if needed
+  # 2. Start a grace period timer that hard-kills if the worker does not exit cleanly
   grace = config.kill_grace_seconds
   timer = threading.Timer(grace, self._hard_kill, args=(task_id, pid))
   timer.daemon = True
   timer.start()
+  self._grace_timers[task_id] = timer
 ```
 
 ```python
@@ -175,7 +207,7 @@ def _hard_kill(self, task_id, pid):
   try:
     os.kill(pid, signal.SIGTERM)
   except ProcessLookupError:
-    return  # already exited during grace period — good
+    return  # already exited during grace period — soft cancel worked; result already converted
   time.sleep(0.5)
   try:
     os.kill(pid, signal.SIGKILL)
@@ -187,7 +219,17 @@ def _hard_kill(self, task_id, pid):
   self._respawn_worker()
 ```
 
+```python
+def _cancel_grace_timer(self, task_id):
+  # Called (with lock held) when soft cancel delivered the result first
+  timer = self._grace_timers.pop(task_id, None)
+  if timer is not None:
+    timer.cancel()
+```
+
 ### Synthesizing the TIMED_OUT Result
+
+Only reached via the hard-kill path (soft cancel already converted the worker's CANCELLED result in `_result_thread_main`).
 
 ```python
 def _emit_timed_out_result(self, task_id):
@@ -249,9 +291,9 @@ Handle `_btask_task_started_item` routing — pass it to `btask_process_pool` ra
 | File | Change |
 |---|---|
 | `btask_result_state.py` | Add `TIMED_OUT = 'timed_out'` |
-| `btask_config.py` | Add `timeout_seconds`, `kill_grace_seconds` fields |
+| `btask_config.py` | Add `timeout_seconds` (int), `kill_grace_seconds` (float) fields |
 | `btask_process.py` | Put `_btask_task_started_item` on result queue before calling function |
-| `btask_process_pool.py` | Add watchdog thread, pid/start_time/config tracking, hard-kill, respawn |
+| `btask_process_pool.py` | Add watchdog thread, pid/start_time/config tracking, hard-kill, respawn, result interception |
 | `btask_processor.py` | Add `timeout(task_id)` method |
 | `_btask_task_started_item.py` | New — namedtuple `(task_id, pid)` |
 | `btask_timeout_error.py` | New — exception class |
@@ -262,7 +304,7 @@ Handle `_btask_task_started_item` routing — pass it to `btask_process_pool` ra
 
 New test file: `tests/lib/bes/btask/test_btask_timeout.py`
 
-All tests use `btask_processor_tester_py` (the full stack) unless testing a layer directly.  Short sleep times (100–500 ms) and short timeouts (200–500 ms) keep the suite fast.
+All tests use `btask_processor_tester_py` (the full stack) unless testing a layer directly.  Timeouts must be `int` and at least 2 seconds; grace periods can be float.  Tests use the minimum viable values to keep the suite reasonably fast while respecting the 2-second minimum constraint.
 
 ### Helper task functions
 
@@ -290,49 +332,49 @@ def _fn_fast(clazz, context, args):
 ### Test cases
 
 **`test_timeout_result_state`**
-Single task that sleeps forever, timeout=0.3s.  Assert result state is `'timed_out'`.
+Single task that sleeps forever, `timeout_seconds=2`.  Assert result state is `'timed_out'`.
 
 **`test_timeout_completes_before_deadline`**
-Single task with a 100 ms sleep and timeout=2s.  Assert result state is `'success'`.  Verifies timeout does not fire on tasks that complete normally.
+Single task that sleeps 0.1s, `timeout_seconds=5`.  Assert result state is `'success'`.  Verifies timeout does not fire on tasks that complete normally.
 
 **`test_timeout_callback_called`**
-Single stuck task, timeout=0.3s.  Assert that the task callback is called exactly once with a `'timed_out'` result.
+Single stuck task, `timeout_seconds=2`.  Assert that the task callback is called exactly once with a `'timed_out'` result.
 
 **`test_timeout_soft_cancel_respected`**
-Task uses `_fn_sleep_with_cancel_check` (checks cancellation every 50 ms).  Timeout=0.2s.  Assert result state is `'timed_out'` and that the task exits within a reasonable time after the timeout fires (≤ 500 ms after deadline) — i.e., the soft signal worked and no hard kill was needed.
+Task uses `_fn_sleep_with_cancel_check` (checks cancellation every 50 ms).  `timeout_seconds=2`.  Assert result state is `'timed_out'` (not `'cancelled'`) — confirms the soft-cancel-to-TIMED_OUT conversion works.  Assert task exits promptly after the timeout fires (well within the grace period), confirming no hard kill was needed.
 
 **`test_timeout_hard_kill`**
-Task uses `_fn_sleep_forever` (ignores cancellation).  Timeout=0.3s, grace=0.3s.  Assert result state is `'timed_out'`.  Assert wall time from task start to result callback is < timeout + grace + margin (1.5s total).  Verifies the hard kill fires.
+Task uses `_fn_sleep_forever` (ignores cancellation).  `timeout_seconds=2`, `kill_grace_seconds=1.0`.  Assert result state is `'timed_out'`.  Assert wall time from task start to result callback is < `timeout_seconds + kill_grace_seconds + margin`.  Verifies the hard kill fires.
 
 **`test_pool_self_heals_after_timeout`**
-Submit a stuck task (timeout=0.3s, grace=0.3s).  After it times out, submit a fast task to the same pool.  Assert fast task completes with state `'success'`.  Verifies pool respawned a worker.
+Submit a stuck task (`timeout_seconds=2`, `kill_grace_seconds=1.0`).  After it times out, submit a fast task to the same pool.  Assert fast task completes with state `'success'`.  Verifies pool respawned a worker.
 
 **`test_multiple_tasks_one_times_out`**
-Submit 3 tasks: two fast tasks and one stuck task (timeout=0.3s).  Assert the two fast tasks succeed and the stuck task is `'timed_out'`.  Verifies timeout of one task does not interfere with others.
+Submit 3 tasks: two fast tasks and one stuck task (`timeout_seconds=2`).  Assert the two fast tasks succeed and the stuck task is `'timed_out'`.  Verifies timeout of one task does not interfere with others.
 
 **`test_multiple_tasks_all_time_out`**
-Submit 3 stuck tasks each with timeout=0.3s.  Assert all 3 results are `'timed_out'`.  Assert pool self-heals (submit a 4th fast task after, assert success).
+Submit 3 stuck tasks each with `timeout_seconds=2`.  Assert all 3 results are `'timed_out'`.  Assert pool self-heals (submit a 4th fast task after, assert success).
 
 **`test_timeout_metadata`**
-Stuck task, timeout=0.3s.  On `'timed_out'` result, assert `result.metadata.duration >= timedelta(seconds=0.3)`.
+Stuck task, `timeout_seconds=2`.  On `'timed_out'` result, assert `result.metadata.duration >= timedelta(seconds=2)`.
 
 **`test_no_timeout_set`**
-Task with no `timeout_seconds` (None) that runs for 500 ms.  Assert result is `'success'` — no timeout fires.
+Task with `timeout_seconds=None` that runs for 0.5s.  Assert result is `'success'` — no timeout fires.
 
 **`test_timeout_waiting_task`**
-Use a pool with `limit=1`.  Submit a stuck task followed by a second task with timeout=0.2s.  The second task is in the waiting queue when its timeout fires (it hasn't started yet).  Assert second task result is `'timed_out'`.  (This case is handled by `btask_processor.cancel(task_id)` via the same `timeout()` call — tasks in the waiting queue need no hard kill since no process is running them.)
+Use a pool with `limit=1`.  Submit a stuck task followed by a second task with `timeout_seconds=2`.  The second task is in the waiting queue when its timeout fires (it hasn't started yet).  Assert second task result is `'timed_out'`.  (Tasks in the waiting queue have no worker process; the `timeout()` method handles this via cancellation, and the result is converted to `TIMED_OUT` via the same interception path.)
 
 **`test_timeout_in_progress_multiple_pools`**
-Use dedicated categories to create two separate pools.  Submit a stuck task to each, each with timeout=0.3s.  Assert both come back `'timed_out'` and both pools self-heal.
+Use dedicated categories to create two separate pools.  Submit a stuck task to each, each with `timeout_seconds=2`.  Assert both come back `'timed_out'` and both pools self-heal.
 
 ---
 
 ## Notes and Edge Cases
 
-- **Task completes during grace period**: if the worker exits cleanly (soft cancel worked) between the SIGTERM and the grace period timer firing, `_hard_kill` catches `ProcessLookupError` and returns without emitting a duplicate result.  The result already in flight (CANCELLED from the worker) takes precedence.  The maps must be cleaned up when either result arrives first — use a lock and check-and-remove pattern to prevent double-emission.
+- **Always TIMED_OUT**: once a timeout is triggered for a task, the result is always `TIMED_OUT` regardless of how the task exits.  The `_timed_out_task_ids` set is the gate.  Any `CANCELLED` result arriving for a task in that set is converted to `TIMED_OUT` and the pending grace timer is cancelled.  Any second result (from the hard-kill path after the soft-cancel already delivered a result) is suppressed.
 
-- **Double result prevention**: since both the soft-cancel path (worker emits `CANCELLED`) and the hard-kill path (pool emits `TIMED_OUT`) could produce a result for the same task_id, the pool must track whether a result has already been emitted for a task_id and suppress duplicates.  A `_timed_out_task_ids: set` protected by the lock is sufficient.
+- **Waiting queue timeout**: tasks in the waiting queue have no worker process.  The `timeout()` method sets the cancelled flag, which causes the processor to emit a `CANCELLED` result when it dequeues the task.  That result is then converted to `TIMED_OUT` by the same interception in `_result_thread_main`.  No hard kill or respawn is needed.
 
-- **Waiting queue timeout**: tasks in the waiting queue have no worker process. The `timeout()` method calls `processor.cancel(task_id)` which handles this case already — the task is removed from the waiting queue and a CANCELLED result is emitted. For waiting-queue timeouts we emit `TIMED_OUT` instead of `CANCELLED` by adding a `timed_out=True` flag to the cancel call path, or by re-using cancel and overriding the state in the synthesized result.
+- **Process pool sizing**: after a hard kill the pool has one fewer worker until `_respawn_worker()` runs.  During the gap (SIGKILL to respawn), tasks may queue up — this is acceptable.  The respawn happens synchronously within `_hard_kill` before returning.
 
-- **Process pool sizing**: after a hard kill the pool has one fewer worker until `_respawn_worker()` runs.  During the gap (SIGKILL to respawn), tasks may queue up — this is acceptable.  The respawn should happen synchronously within `_hard_kill` before returning.
+- **Watchdog granularity**: the effective fire time for a timeout is between `timeout_seconds` and `timeout_seconds + 1` seconds after the task starts (the ±1 s poll window).  This is why `timeout_seconds` is an `int` with a minimum of 2 — a value of 1 would be within the noise of the poll cycle.
