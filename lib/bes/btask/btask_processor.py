@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import threading
 
 from collections import namedtuple
 from datetime import datetime
@@ -42,7 +43,7 @@ class btask_processor(object):
         sum_category_processes += config.num_processes
       if sum_category_processes > num_processes:
         raise ValueError(f'The sum of dedicated category number of process ({sum_category_processes}) is more than num_processes ({num_processes})')
-    
+
     self._name = name
     self._num_processes = num_processes
     self._dedicated_categories = dedicated_categories
@@ -83,6 +84,14 @@ class btask_processor(object):
     self._waiting_queue = btask_processor_queue()
     self._in_status_queue = btask_processor_queue()
     self._category_limits = {}
+
+    # timeout support
+    self._task_timeout_map = {}     # task_id → timeout_seconds
+    self._task_add_time_map = {}    # task_id → add_time (for elapsed calculation)
+    self._timed_out_task_ids = set()
+    self._watchdog_stop_event = threading.Event()
+    self._watchdog_thread = None
+
     self._start()
 
   @classmethod
@@ -95,11 +104,11 @@ class btask_processor(object):
       config = check.check_btask_dedicated_category_config(v)
       result[category] = config
     return result
-  
+
   @property
   def num_processes(self):
     return self._num_processes
-    
+
   @property
   def result_queue(self):
     return self._result_queue
@@ -124,15 +133,21 @@ class btask_processor(object):
       return
     for _, pool in self._pools.items():
       pool.start()
-    import time
-#    time.sleep(5)
-      
+    self._watchdog_thread = threading.Thread(target = self._watchdog_thread_main,
+                                             name = f'{self._name}_watchdog',
+                                             daemon = True)
+    self._watchdog_thread.start()
+
   def stop(self):
+    self._watchdog_stop_event.set()
+    if self._watchdog_thread:
+      self._watchdog_thread.join()
+      self._watchdog_thread = None
     if not self._pools:
       return
     for _, pool in self._pools.items():
       pool.stop()
-      
+
   def _pool_for_category(self, category):
     if self._dedicated_categories and category in self._dedicated_categories:
       target_category = category
@@ -142,7 +157,7 @@ class btask_processor(object):
     result = self._pools[target_category]
     self._log.log_i(f'_pool_for_category: category={category} result={target_category}')
     return result
-    
+
   _task_id = 1
   def add_task(self, function, callback = None, status_callback = None, config = None, args = None):
     check.check_callable(function)
@@ -176,6 +191,9 @@ class btask_processor(object):
                         status_callback,
                         cancelled)
       self._waiting_queue.add(item)
+      if config.timeout_seconds is not None:
+        self._task_timeout_map[task_id] = config.timeout_seconds
+        self._task_add_time_map[task_id] = add_time
     self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
     return task_id
@@ -208,20 +226,24 @@ class btask_processor(object):
     assert pool
     pool.add_task(task, self._callback)
     return True
-          
+
   def _callback(self, result):
-    check.check(result, ( btask_result, _btask_status_queue_item ))
+    if isinstance(result, btask_result):
+      if result.state == btask_result_state.CANCELLED:
+        with self._lock as lock:
+          if result.task_id in self._timed_out_task_ids:
+            result = result.clone(mutations = {'state': btask_result_state.TIMED_OUT})
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
     self._log.log_d(f'_callback: calling pump for task_id={result.task_id}')
     self._pump()
-    
+
   def complete(self, result):
     check.check_btask_result(result)
 
     self._log.log_d(f'complete: task_id={result.task_id}')
-    
+
     btask_threading.check_main_process(label = 'btask.complete')
 
     callback = None
@@ -234,6 +256,9 @@ class btask_processor(object):
         return
       self._log.log_d(f'pump: removed task_id={result.task_id}')
       callback = item.callback
+      self._task_timeout_map.pop(result.task_id, None)
+      self._task_add_time_map.pop(result.task_id, None)
+      self._timed_out_task_ids.discard(result.task_id)
       self._pump_i()
     callback_name = callback.__name__ if callback else 'None'
     self._log.log_d(f'CACA: complete: callback_name={callback_name} result={result}')
@@ -244,7 +269,7 @@ class btask_processor(object):
 
   def cancel(self, task_id):
     check.check_int(task_id)
-    
+
     btask_threading.check_main_process(label = 'btask.cancel')
 
     cancelled = None
@@ -266,15 +291,70 @@ class btask_processor(object):
       self._log.log_d(f'cancel: task {task_id} removed from in_progress queue')
       in_progress_item.cancelled_value.value = True
 
+  def timeout(self, task_id):
+    'Trigger a timeout for a task. Exposed for external use; normally called by the watchdog.'
+    check.check_int(task_id)
+    with self._lock as lock:
+      if task_id not in self._timed_out_task_ids:
+        self._trigger_timeout_i(task_id)
+
+  def _trigger_timeout_i(self, task_id):
+    'Trigger timeout for task_id. Must be called with self._lock held.'
+    self._log.log_d(f'_trigger_timeout_i: task_id={task_id}')
+    self._timed_out_task_ids.add(task_id)
+
+    # waiting task — emit TIMED_OUT directly; complete() will remove from waiting queue
+    waiting_item = self._waiting_queue.find_by_task_id(task_id)
+    if waiting_item:
+      self._log.log_d(f'_trigger_timeout_i: task {task_id} is waiting, emitting TIMED_OUT directly')
+      metadata = btask_result_metadata(None, waiting_item.add_time, None, datetime.now())
+      result = btask_result(task_id, btask_result_state.TIMED_OUT, None, metadata, None, waiting_item.args)
+      self._result_queue.put(result)
+      return
+
+    # in-progress task — soft cancel + start grace timer
+    in_progress_item = self._in_status_queue.find_by_task_id(task_id)
+    if in_progress_item:
+      self._log.log_d(f'_trigger_timeout_i: task {task_id} is in-progress, soft cancel + grace timer')
+      in_progress_item.cancelled_value.value = True
+      grace = in_progress_item.config.kill_grace_seconds
+      pool = self._pool_for_category(in_progress_item.config.category)
+      pool.start_grace_timer(task_id, grace)
+      return
+
+    # task already completed between check and trigger — clean up
+    self._log.log_d(f'_trigger_timeout_i: task {task_id} already completed, ignoring')
+    self._timed_out_task_ids.discard(task_id)
+
+  def _watchdog_thread_main(self):
+    self._log.log_d(f'_watchdog_thread_main: starting')
+    while not self._watchdog_stop_event.is_set():
+      self._watchdog_stop_event.wait(timeout = 1.0)
+      self._check_timeouts()
+    self._log.log_d(f'_watchdog_thread_main: stopping')
+
+  def _check_timeouts(self):
+    now = datetime.now()
+    with self._lock as lock:
+      for task_id, timeout_secs in list(self._task_timeout_map.items()):
+        if task_id in self._timed_out_task_ids:
+          continue
+        add_time = self._task_add_time_map.get(task_id)
+        if add_time is None:
+          continue
+        elapsed = (now - add_time).total_seconds()
+        if elapsed >= timeout_secs:
+          self._trigger_timeout_i(task_id)
+
   def report_status(self, task_id, status, raise_error = True):
     check.check_int(task_id)
     check.check_btask_status(status)
     check.check_bool(raise_error)
 
     self._log.log_d(f'report_status: task_id={task_id}')
-    
+
     btask_threading.check_main_process(label = 'btask.report_status')
-    
+
     with self._lock as lock:
       item = self._in_status_queue.find_by_task_id(task_id)
       if not item:
@@ -284,13 +364,13 @@ class btask_processor(object):
       status_callback = item.status_callback
       if status_callback:
         status_callback(task_id, status)
-      
+
   def is_cancelled(self, task_id, raise_error = True):
     check.check_int(task_id)
     check.check_bool(raise_error)
 
     self._log.log_d(f'is_cancelled: task_id={task_id}')
-    
+
     with self._lock as lock:
       item = self._in_status_queue.find_by_task_id(task_id)
       if not item:
@@ -298,5 +378,5 @@ class btask_processor(object):
           return False
         btask_error(f'No task_id "{task_id}" found to check for interruption')
       return item.cancelled_value.value
-      
+
 check.register_class(btask_processor, include_seq = False)

@@ -6,5 +6,6 @@ class btask_result_state(checked_enum):
   CANCELLED = 'cancelled'
   FAILED = 'failed'
   SUCCESS = 'success'
+  TIMED_OUT = 'timed_out'
 
 btask_result_state.register_check_class()

@@ -19,6 +19,7 @@ from bes.btask.btask_process import btask_process
 from bes.btask.btask_process_task import btask_process_task
 from bes.btask.btask_result import btask_result
 from bes.btask._btask_status_queue_item import _btask_status_queue_item
+from bes.btask._btask_task_started_item import _btask_task_started_item
 from bes.btask.btask_status_step_progress import btask_status_step_progress
 
 class test_btask_process(unit_test):
@@ -113,7 +114,10 @@ class test_btask_process(unit_test):
                               cancelled_value)
     input_queue.put(task)
 
-    result = result_queue.get()
+    while True:
+      item = result_queue.get()
+      if isinstance(item, btask_result):
+        break
     input_queue.put(None)
     process.join()
 
@@ -147,9 +151,10 @@ class test_btask_process(unit_test):
       input_queue.put(task)
 
     results = []
-    for i in range(1, num_tasks + 1):
-      result = result_queue.get()
-      results.append(result)
+    while len(results) < num_tasks:
+      item = result_queue.get()
+      if isinstance(item, btask_result):
+        results.append(item)
 
     for i in range(1, num_processes + 1):
       input_queue.put(None)

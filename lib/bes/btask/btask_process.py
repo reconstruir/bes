@@ -12,6 +12,7 @@ from bes.system.log import logger
 from bes.system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
+from ._btask_task_started_item import _btask_task_started_item
 from .btask_function_context import btask_function_context
 from .btask_initializer import btask_initializer
 from .btask_process_task import btask_process_task
@@ -121,6 +122,7 @@ class btask_process(object):
     context = btask_function_context(task.task_id, result_queue, task.cancelled_value)
     debug = task.config.debug
     try:
+      result_queue.put(_btask_task_started_item(task.task_id, os.getpid()))
       result_data = task.function(context, task.args)
       if result_data != None:
         #clazz._log.log_d(f'{name}: _task_handle:: task_id={task.task_id} data={result_data}')
