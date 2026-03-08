@@ -37,12 +37,12 @@ class btask_config:
   limit:              int          = 3
   debug:              bool         = False
   timeout_seconds:    Optional[int] = None   # ← new: None means no timeout; minimum 2
-  kill_grace_seconds: float         = 5.0    # ← new: seconds between SIGTERM and SIGKILL; minimum 1.0
+  kill_grace_seconds: int           = 5      # ← new: seconds between SIGTERM and SIGKILL; minimum 1
 ```
 
-`timeout_seconds` is an `int` rather than a float.  The watchdog polls once per second, so sub-second precision is meaningless — a float would imply a precision that does not exist.  The minimum enforced value is **2 seconds**: a 1-second timeout falls within the margin of the 1-second poll cycle and could fire immediately or up to 2 seconds late.
+Both fields are `int`.  Sub-second precision is unnecessary: `timeout_seconds` is bounded by the 1-second watchdog poll window, and `kill_grace_seconds` is a coarse human-scale delay — if a process has not responded to SIGTERM within a whole number of seconds it is not going to.  Float would imply a precision that serves no practical purpose.
 
-`kill_grace_seconds` is a float because the grace timer is a `threading.Timer` which is genuinely precise at sub-second intervals; 1.0 is the practical minimum.
+The minimum enforced value for `timeout_seconds` is **2 seconds**: a value of 1 falls within the margin of the 1-second poll cycle and could fire immediately or up to 2 seconds late.  The minimum for `kill_grace_seconds` is **1 second**.
 
 The 4-tuple shorthand `('category', 'priority', limit, debug)` used in tests and `add_task` continues to work; the new fields have defaults and are only set via keyword arguments or a 6-tuple.
 
