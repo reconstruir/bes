@@ -96,9 +96,9 @@ class btask_process(object):
     
   @classmethod
   def _process_main(clazz, encoded_task_data):
-    #import signal
-    #signal.signal(signal.SIGINT, signal.SIG_IGN)
-    
+    import signal
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     check.check_bytes(encoded_task_data)
     
     task_data = pickle.loads(encoded_task_data)
@@ -160,14 +160,20 @@ class btask_process(object):
     encoded_task_data = pickle.dumps(self._data)
     self._process = multiprocessing.Process(target = self._process_main,
                                             name = self._data.name,
-                                            args = ( encoded_task_data, ))
+                                            args = ( encoded_task_data, ),
+                                            daemon = True)
     self._process.start()
 
-  def join(self):
+  def join(self, timeout = None):
     if not self._process:
       self._log.log_d(f'join: process not started')
       return
-    self._process.join()
+    self._process.join(timeout = timeout)
+
+  def is_alive(self):
+    if not self._process:
+      return False
+    return self._process.is_alive()
     
   def terminate(self):
     if not self._process:

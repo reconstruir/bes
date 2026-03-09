@@ -117,13 +117,16 @@ class btask_process_pool(object):
       process.start()
     return processes
 
-  @classmethod
-  def _processes_stop(self, processes, input_queue):
+  def _processes_stop(self, processes, input_queue, grace_seconds):
     for _ in processes:
       input_queue.put(None)
     for process in processes:
       self._log.log_i(f'_processes_stop: joining process {process.name}')
-      process.join()
+      process.join(timeout = grace_seconds)
+      if process.is_alive():
+        self._log.log_i(f'_processes_stop: killing process {process.name} after grace period')
+        process.kill()
+        process.join()
 
   def start(self):
     if self._processes:
@@ -135,14 +138,14 @@ class btask_process_pool(object):
                                            daemon = True)
     self._result_thread.start()
 
-  def stop(self):
+  def stop(self, grace_seconds = 5):
     if not self._processes:
       self._log.log_d(f'stop: pool not started')
       return
     self._process_result_queue.put(None)
     self._result_thread.join()
     self._result_thread = None
-    self._processes_stop(self._processes, self._input_queue)
+    self._processes_stop(self._processes, self._input_queue, grace_seconds)
     self._processes = None
 
   @property

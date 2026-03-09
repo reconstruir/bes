@@ -138,15 +138,28 @@ class btask_processor(object):
                                              daemon = True)
     self._watchdog_thread.start()
 
-  def stop(self):
+  def stop(self, grace_seconds = 5):
+    # 1. stop watchdog
     self._watchdog_stop_event.set()
     if self._watchdog_thread:
       self._watchdog_thread.join()
       self._watchdog_thread = None
     if not self._pools:
+      self._manager.shutdown()
       return
+    # 2. discard waiting tasks silently (no results emitted; we're shutting down)
+    # 3. soft-cancel all in-progress tasks
+    with self._lock as lock:
+      for item_list in self._waiting_queue._tasks.values():
+        item_list.clear()
+      for item_list in self._in_status_queue._tasks.values():
+        for item in item_list:
+          item.cancelled_value.value = True
+    # 4. stop pools (join with grace period, hard-kill survivors)
     for _, pool in self._pools.items():
-      pool.stop()
+      pool.stop(grace_seconds = grace_seconds)
+    # 5. shut down manager
+    self._manager.shutdown()
 
   def _pool_for_category(self, category):
     if self._dedicated_categories and category in self._dedicated_categories:
