@@ -174,6 +174,11 @@ class btask_process(object):
     if not self._process:
       return False
     return self._process.is_alive()
+
+  def kill(self):
+    if not self._process:
+      return
+    self._process.kill()
     
   def terminate(self):
     if not self._process:
