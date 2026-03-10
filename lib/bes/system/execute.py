@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
 
 from .check import check
 from .command_line import command_line
@@ -26,6 +27,9 @@ class execute(object):
   'Class to execute system commands with help for common usages.'
 
   _log = logger('execute')
+
+  # Matches \r\n, \r, or \n as line separators (used by execute_with_progress).
+  _LINE_SEP = re.compile(rb'\r\n|\r|\n')
 
   _output = namedtuple('_output', 'stdout, stderr')
   @classmethod
@@ -139,16 +143,18 @@ class execute(object):
             print_error = False,
             quote = False,
             check_python_script = True,
-            env_options = None):
-    'Call subprocess.Popen'
+            env_options = None,
+            popen_fn = None):
+    'Call subprocess.Popen (or popen_fn if provided, for testing injection).'
     check.check_bytes(input_data, allow_none = True)
     check.check_bool(print_error)
     check.check_bool(quote)
     check.check_bool(check_python_script)
     check.check_env_override_options(env_options, allow_none = True)
+    check.check_callable(popen_fn, allow_none = True)
 
     clazz._log.log_method_d()
-    
+
     parsed_args = command_line.parse_args(args, quote = quote)
     stdout_pipe = subprocess.PIPE
     if not stderr_to_stdout:
@@ -171,18 +177,19 @@ class execute(object):
     if shell:
       parsed_args = ' '.join(parsed_args)
       # FIXME: quoting ?
-      
+
     clazz._log.log_d('parsed_args={}'.format(parsed_args))
 
+    _spawn = popen_fn or subprocess.Popen
     with env_override(options = env_options) as _:
       try:
-        return subprocess.Popen(parsed_args,
-                                stdout = stdout_pipe,
-                                stderr = stderr_pipe,
-                                stdin = stdin_pipe,
-                                shell = shell,
-                                cwd = cwd,
-                                env = env)
+        return _spawn(parsed_args,
+                      stdout = stdout_pipe,
+                      stderr = stderr_pipe,
+                      stdin = stdin_pipe,
+                      shell = shell,
+                      cwd = cwd,
+                      env = env)
       except OSError as ex:
         if print_error:
           message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
@@ -238,21 +245,132 @@ class execute(object):
     return stdout_lines, stderr_lines
     
   @classmethod
-  def execute_with_progress(clazz, args, line_parser, progress_cb=None, **kwargs):
+  def execute_with_progress(clazz,
+                            args,
+                            line_parser,
+                            progress_cb = None,
+                            progress_source = 'both',
+                            raise_error = False,
+                            popen_fn = None,
+                            **kwargs):
+    '''Run a command and parse its output line-by-line for progress events.
+
+    line_parser(stdout_line, stderr_line) -> event or None
+      Called for each line from the stream(s) selected by progress_source.
+      stdout_line is the line string when the line came from stdout, else None.
+      stderr_line is the line string when the line came from stderr, else None.
+      Return a non-None value to capture it as an event.
+
+    progress_cb(event) -> None
+      Called live (in the reader thread) for each non-None event.
+
+    progress_source: 'stdout' | 'stderr' | 'both'
+      Which stream triggers line_parser.  The other stream is captured silently
+      and still included in the returned execute_result.  Default 'both'.
+
+    raise_error: if True, raises RuntimeError on non-zero exit code.
+
+    popen_fn: optional replacement for subprocess.Popen; used for test injection.
+
+    Lines are split on \\r\\n, \\r, or \\n so tools that use \\r for in-place
+    progress updates (e.g. whipper, cdparanoia) are handled correctly.
+
+    Two threads read stdout and stderr concurrently, eliminating the deadlock
+    that would occur if one pipe fills while the other is being read.
+
+    The subprocess is always killed if an exception escapes from a callback.
+
+    Returns _execute_progress_result(result, events).
+    '''
     check.check_callable(line_parser)
-    check.check_callable(progress_cb, allow_none=True)
+    check.check_callable(progress_cb, allow_none = True)
+    check.check_callable(popen_fn, allow_none = True)
     if 'non_blocking' in kwargs:
       raise ValueError('non_blocking is set internally by execute_with_progress')
 
     events = []
-    def _output_function(output):
-      event = line_parser(output.stdout, output.stderr)
-      if event is not None:
-        events.append(event)
-        if progress_cb:
-          progress_cb(event)
+    _lock = threading.Lock()
 
-    result = clazz.execute(args, non_blocking=True, output_function=_output_function, **kwargs)
+    def _handle(stdout_line, stderr_line):
+      with _lock:
+        event = line_parser(stdout_line, stderr_line)
+        if event is not None:
+          events.append(event)
+          if progress_cb:
+            progress_cb(event)
+
+    def _reader(pipe, raw_chunks, source_name):
+      parse_buf = b''
+      while True:
+        data = pipe.read(4096)
+        if not data:
+          if parse_buf:
+            line = parse_buf.decode('utf-8', errors = 'replace')
+            if progress_source in (source_name, 'both'):
+              stdout_arg = line if source_name == 'stdout' else None
+              stderr_arg = line if source_name == 'stderr' else None
+              _handle(stdout_arg, stderr_arg)
+          break
+        raw_chunks.append(data)
+        parse_buf += data
+        parts = clazz._LINE_SEP.split(parse_buf)
+        for part in parts[:-1]:
+          line = part.decode('utf-8', errors = 'replace')
+          if progress_source in (source_name, 'both'):
+            stdout_arg = line if source_name == 'stdout' else None
+            stderr_arg = line if source_name == 'stderr' else None
+            _handle(stdout_arg, stderr_arg)
+        parse_buf = parts[-1]
+
+    stderr_to_stdout = kwargs.pop('stderr_to_stdout', False)
+    popen_kwargs = {k: v for k, v in kwargs.items()
+                   if k in ('cwd', 'env', 'shell', 'quote',
+                            'check_python_script', 'env_options', 'print_error')}
+    popen_kwargs['stderr_to_stdout'] = stderr_to_stdout
+
+    stdout_chunks = []
+    stderr_chunks = []
+
+    process = clazz.popen(args, popen_fn = popen_fn, **popen_kwargs)
+
+    t_stdout = threading.Thread(
+      target = _reader,
+      args = (process.stdout, stdout_chunks, 'stdout'),
+      daemon = True,
+    )
+    t_stderr = None
+    if not stderr_to_stdout and process.stderr:
+      t_stderr = threading.Thread(
+        target = _reader,
+        args = (process.stderr, stderr_chunks, 'stderr'),
+        daemon = True,
+      )
+
+    try:
+      t_stdout.start()
+      if t_stderr:
+        t_stderr.start()
+      t_stdout.join()
+      if t_stderr:
+        t_stderr.join()
+      exit_code = process.wait()
+    except BaseException:
+      try:
+        process.kill()
+        process.wait()
+      except OSError:
+        pass
+      raise
+
+    parsed_args = command_line.parse_args(args)
+    result = execute_result(
+      b''.join(stdout_chunks),
+      b''.join(stderr_chunks),
+      exit_code,
+      parsed_args,
+    )
+    if raise_error and exit_code != 0:
+      result.raise_error()
     return _execute_progress_result(result, events)
 
   @classmethod
