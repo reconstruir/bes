@@ -20,6 +20,8 @@ from .log import logger
 #from .os_env import os_env
 from .python import python
 
+_execute_progress_result = namedtuple('_execute_progress_result', 'result, events')
+
 class execute(object):
   'Class to execute system commands with help for common usages.'
 
@@ -235,6 +237,24 @@ class execute(object):
         output_function(clazz._output(output_function_stdout, output_function_stderr))
     return stdout_lines, stderr_lines
     
+  @classmethod
+  def execute_with_progress(clazz, args, line_parser, progress_cb=None, **kwargs):
+    check.check_callable(line_parser)
+    check.check_callable(progress_cb, allow_none=True)
+    if 'non_blocking' in kwargs:
+      raise ValueError('non_blocking is set internally by execute_with_progress')
+
+    events = []
+    def _output_function(output):
+      event = line_parser(output.stdout, output.stderr)
+      if event is not None:
+        events.append(event)
+        if progress_cb:
+          progress_cb(event)
+
+    result = clazz.execute(args, non_blocking=True, output_function=_output_function, **kwargs)
+    return _execute_progress_result(result, events)
+
   @classmethod
   def parse_args(clazz, args, quote = False):
     'Parse arguments to use for execute.'

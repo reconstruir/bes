@@ -6,7 +6,8 @@
       "Bash(uv run python -m pytest:*)",
       "Bash(./t:*)",
       "Bash(bash /Users/test1/proj/bes/t tests/lib/bes/files/test_bf_filename.py)",
-      "Bash(PYTHONPATH=/Users/test1/proj/bes/lib uv run:*)"
+      "Bash(PYTHONPATH=/Users/test1/proj/bes/lib uv run:*)",
+      "Bash(bash t:*)"
     ]
   }
 }
