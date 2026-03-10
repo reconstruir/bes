@@ -10,6 +10,7 @@ from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
 from bes.btask.btask_cancelled_error import btask_cancelled_error
+from bes.btask.btask_processor import btask_processor
 from bes.btask.btask_processor_tester_py import btask_processor_tester_py
 from bes.btask.btask_progress import btask_progress
 from bes.btask.btask_status_progress import btask_status_progress
@@ -445,6 +446,25 @@ class test_btask_processor_py(unit_test):
     tester.stop()
 
     self.assertEqual( len(task_ids), len(results) )
-    
+
+  @classmethod
+  def _fn_sleep_forever(clazz, context, args):
+    time.sleep(3600)
+    return {}
+
+  def test_stop_kills_stuck_worker(self):
+    'stop(grace_seconds) hard-kills a stuck worker and returns within the grace period.'
+    processor = btask_processor('test', 1)
+    processor.add_task(self._fn_sleep_forever,
+                       callback = lambda r: None,
+                       config = ('rip', 'low', 1, False))
+    time.sleep(0.5)  # give worker time to pick up the task
+
+    start = time.time()
+    processor.stop(grace_seconds = 2)
+    elapsed = time.time() - start
+
+    self.assertLess(elapsed, 6.0)  # grace(2) + kill overhead + margin
+
 if __name__ == '__main__':
   unit_test.main()
