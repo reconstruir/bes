@@ -22,19 +22,21 @@ class command_line(object):
   @classmethod
   def _parse_args_unix(clazz, args, quote = False):
     assert args != None
-    flat_args = None
-    if compat.is_string(args):
-      flat_args = args
-    elif isinstance(args, ( list, tuple )):
+    if isinstance(args, ( list, tuple )):
       for i, arg in enumerate(args, start = 1):
         if arg == None:
           raise TypeError(f'arg {i} cannot be "None"')
         if not compat.is_string(arg):
           raise TypeError(f'arg should be a string instead of: "{arg}" - {type(arg)}')
+      if not quote:
+        # Return the list as-is — joining then re-splitting would destroy
+        # arguments that contain spaces (e.g. paths like "/Music/OK Computer").
+        return list(args)
       flat_args = ' '.join(args)
+    elif compat.is_string(args):
+      flat_args = args
     else:
       raise TypeError('args should be a string or list of strings instead of: "{}" - {}'.format(args, type(args)))
-    assert flat_args != None
 
     if quote:
       #assert False
