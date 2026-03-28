@@ -78,6 +78,14 @@ class bcli_parser_manager(object):
   def format_main_help(self):
     return self._parser_factories.format_help()
 
+  def children_at(self, path):
+    '''Return names of child nodes at path, or [] if path doesn't exist.'''
+    return self._parser_factories.children_at(path)
+
+  def all_factory_classes(self):
+    '''Return list of (path, factory_class) for every registered factory.'''
+    return list(self._parser_factories.all_leaves())
+
   def _make_parser_context(self, s):
     self._log.log_d(f'_make_parser_context: s="{s}"')
     path, args = self._split_path_and_args(s)

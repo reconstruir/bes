@@ -1,6 +1,7 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
+import os
 import pprint
 import sys
 
@@ -13,6 +14,7 @@ from .bcli_parser_manager import bcli_parser_manager
 from .bcli_parser_error import bcli_parser_error
 from .bcli_options import bcli_options
 from .bcli_application_i import bcli_application_i
+from . import bcli_completer
 
 class bcli_application(bcli_application_i):
 
@@ -32,6 +34,27 @@ class bcli_application(bcli_application_i):
   def run(self, args):
     self._log.log_d(f'run: tree=\n-----\n{repr(self._parser_manager)}\n------')
     self._log.log_d(f'run: args="{args}"')
+
+    if args and args[0] == '--bcli-generate-completion':
+      shell = args[1] if len(args) > 1 else 'bash'
+      wrapper = args[2] if len(args) > 2 else None
+      if shell == 'bash':
+        prog_name = os.path.basename(sys.argv[0])
+        script = bcli_completer.generate_script(self._parser_manager, prog_name, wrapper)
+        print(script)
+      return 0
+
+    if args and args[0] == '--bcli-complete':
+      try:
+        cword = int(args[1])
+        words = list(args[2:])
+      except (IndexError, ValueError):
+        return 0
+      candidates = bcli_completer.complete(self._parser_manager, cword, words)
+      for candidate in candidates:
+        print(candidate)
+      return 0
+
     if not args:
       print(f'No commands given.  Choices are:\n')
       print(self._parser_manager.format_main_help())

@@ -169,6 +169,24 @@ class bcli_parser_tree:
       return lines
     return "\n".join(repr_node(self._root))
 
+  def children_at(self, path):
+    '''Return names of child nodes at path, or [] if path doesn't exist.'''
+    node = self._root
+    for part in path:
+      if part not in node.children:
+        return []
+      node = node.children[part]
+    return list(node.children.keys())
+
+  def all_leaves(self):
+    '''Yield (path, value) for all nodes with a non-None value.'''
+    def _walk(node, path):
+      if node.value is not None:
+        yield list(path), node.value
+      for key, child in node.children.items():
+        yield from _walk(child, path + [key])
+    yield from _walk(self._root, [])
+
   def format_help(self):
     def _collect(node, indent=0):
       entries = []
