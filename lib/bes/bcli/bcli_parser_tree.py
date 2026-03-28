@@ -170,12 +170,22 @@ class bcli_parser_tree:
     return "\n".join(repr_node(self._root))
 
   def format_help(self):
-    def _help_node(node, indent=0):
-      lines = []
+    def _collect(node, indent=0):
+      entries = []
       for key, child in node.children.items():
-        value_part = f" - {child.value.description()}" if child.value is not None else ""
-        lines.append("  " * indent + f"{key}{value_part}")
-        lines.extend(_help_node(child, indent + 1))
-      return lines
-    return "\n".join(_help_node(self._root))
+        desc = child.value.description() if child.value is not None else ''
+        entries.append(('  ' * indent + key, desc))
+        entries.extend(_collect(child, indent + 1))
+      return entries
+    entries = _collect(self._root)
+    if not entries:
+      return ''
+    max_key_len = max(len(k) for k, _ in entries)
+    lines = []
+    for key, desc in entries:
+      if desc:
+        lines.append(f'{key:<{max_key_len}} - {desc}')
+      else:
+        lines.append(key)
+    return '\n'.join(lines)
   
