@@ -174,8 +174,6 @@ class btask_processor(object):
 
   _task_id = 1
   def add_task(self, function, callback = None, status_callback = None, config = None, args = None):
-    import time as _time
-    _t0 = _time.time()
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
     check.check_callable(status_callback, allow_none = True)
@@ -193,12 +191,9 @@ class btask_processor(object):
       if old_limit != config.limit:
         raise btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
 
-    _t1 = _time.time()
     add_time = datetime.now()
     cancelled = self._manager.Value(bool, False)
-    _t2 = _time.time()
     with self._lock as lock:
-      _t3 = _time.time()
       task_id = self._task_id
       self._task_id += 1
       item = btask_task(task_id,
@@ -213,12 +208,8 @@ class btask_processor(object):
       if config.timeout_seconds is not None:
         self._task_timeout_map[task_id] = config.timeout_seconds
         self._task_add_time_map[task_id] = add_time
-    _t4 = _time.time()
     self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
-    _t5 = _time.time()
-    if _t5 - _t0 > 0.1:
-      print(f'SLOW add_task [{function.__name__}]: total={_t5-_t0:.3f}s  checks={_t1-_t0:.3f}s  manager.Value={_t2-_t1:.3f}s  lock_wait={_t3-_t2:.3f}s  lock_body={_t4-_t3:.3f}s  pump={_t5-_t4:.3f}s', flush=True)
     return task_id
 
   _pump_iteration = 0
