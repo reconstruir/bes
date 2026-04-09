@@ -38,8 +38,8 @@ class btask_process_pool(object):
     self._num_processes = num_processes
     self._initializer = initializer
     self._manager = manager
-    self._input_queue = self._manager.Queue()
-    self._process_result_queue = self._manager.Queue()
+    self._input_queue = multiprocessing.Queue()
+    self._process_result_queue = multiprocessing.Queue()
     self._worker_number_lock = self._manager.Lock()
     self._worker_number_value = self._manager.Value(int, 1)
     self._processes = None

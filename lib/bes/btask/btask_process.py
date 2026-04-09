@@ -3,7 +3,6 @@
 from datetime import datetime
 from collections import namedtuple
 
-import pickle
 import multiprocessing
 import os
 import time
@@ -95,19 +94,15 @@ class btask_process(object):
     return 0
     
   @classmethod
-  def _process_main(clazz, encoded_task_data):
+  def _process_main(clazz, name, input_queue, result_queue, nice_level, initializer):
     import signal
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    check.check_bytes(encoded_task_data)
-    
-    task_data = pickle.loads(encoded_task_data)
-    name = task_data.name
-    clazz._log.log_d(f'{name}: task_data={task_data}')
+    clazz._log.log_d(f'{name}: starting')
     clazz._process_set_name(name)
-    clazz._process_set_nice_level(name, task_data.nice_level)
-    clazz._process_run_initializer(name, task_data.initializer)
-    clazz._process_main_loop(name, task_data.input_queue, task_data.result_queue)
+    clazz._process_set_nice_level(name, nice_level)
+    clazz._process_run_initializer(name, initializer)
+    clazz._process_main_loop(name, input_queue, result_queue)
     return 0
 
   @classmethod
@@ -157,10 +152,13 @@ class btask_process(object):
       self._log.log_d(f'start: process already started')
       return
 
-    encoded_task_data = pickle.dumps(self._data)
     self._process = multiprocessing.Process(target = self._process_main,
                                             name = self._data.name,
-                                            args = ( encoded_task_data, ),
+                                            args = (self._data.name,
+                                                    self._data.input_queue,
+                                                    self._data.result_queue,
+                                                    self._data.nice_level,
+                                                    self._data.initializer),
                                             daemon = True)
     self._process.start()
 
