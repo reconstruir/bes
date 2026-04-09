@@ -7,8 +7,6 @@ from bes.system.check import check
 
 from ..match.bf_file_matcher import bf_cli_file_matcher
 
-from ..bf_path_type import bf_cli_path_type
-
 from .bf_file_finder_mode import bf_cli_file_finder_mode
 from .bf_file_finder_progress import bf_file_finder_progress
 from .bf_file_finder_progress_state import bf_file_finder_progress_state
@@ -22,7 +20,6 @@ class _bf_file_finder_options_desc(_bf_file_scanner_options_desc):
   def _types(self):
     return super()._types() + [
       bf_cli_file_finder_mode,
-      bf_cli_path_type,
     ]
 
   #@abstractmethod
