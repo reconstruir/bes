@@ -81,7 +81,8 @@ class btask_processor(object):
       pool = btask_process_pool(f'{name}_main_pool', count, self._manager, initializer = initializer)
       self._pools['__main'] = pool
     self._result_queue = _queue_module.Queue()
-    self._lock = threading.Lock()
+#    self._lock = threading.Lock()
+    self._lock = multiprocessing.Lock()
     self._waiting_queue = btask_processor_queue()
     self._in_status_queue = btask_processor_queue()
     self._category_limits = {}
@@ -262,6 +263,7 @@ class btask_processor(object):
 
     callback = None
     with self._lock as lock:
+      self._log.log_d(f'complete: acquired lock: task_id={result.task_id}')
       item = self._in_status_queue.remove_by_task_id(result.task_id)
       if not item:
         item = self._waiting_queue.remove_by_task_id(result.task_id)
@@ -274,12 +276,13 @@ class btask_processor(object):
       self._task_add_time_map.pop(result.task_id, None)
       self._timed_out_task_ids.discard(result.task_id)
       self._pump_i()
+      self._log.log_d(f'complete: releasing lock: task_id={result.task_id}')
     callback_name = callback.__name__ if callback else 'None'
-    self._log.log_d(f'CACA: complete: callback_name={callback_name} result={result}')
+    self._log.log_d(f'complete: callback_name={callback_name} result={result}')
     if callback:
-      self._log.log_d(f'CACA: complete: calling callback')
+      self._log.log_d(f'complete: calling callback')
       callback(result)
-      self._log.log_d(f'CACA: complete: calling returns')
+      self._log.log_d(f'complete: calling returns')
 
   def cancel(self, task_id):
     check.check_int(task_id)
