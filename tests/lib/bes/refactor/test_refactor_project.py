@@ -99,7 +99,7 @@ tests/lib/cheesey/test_lemonb.py
 xdata
 xdata/kiwi_stuff
 xdata/kiwi_stuff/kiwi.png
-''', r.find_all_files_as_string(file_type = file_find.ANY) )
+''', r.find_all_files_as_string(file_type = file_find.ANY).replace(path.sep, '/') )
 
   @git_temp_home_func()
   def test_rename_with_gitignore(self):
@@ -178,7 +178,7 @@ tests/lib/cheesey/test_lemonb.py
 xdata
 xdata/kiwi_stuff
 xdata/kiwi_stuff/kiwi.png
-''', r.find_all_files_as_string(file_type = file_find.ANY) )
+''', r.find_all_files_as_string(file_type = file_find.ANY).replace(path.sep, '/') )
     
   @git_temp_home_func()
   def test_copy(self):

@@ -143,8 +143,7 @@ class git_repo(object):
                                               file_type = file_type,
                                               match_type = 'all',
                                               walk_dir_matcher = walk_dir_matcher)
-    filenames = result.entries.relative_filenames(sort = True)
-    return [ f.replace(os.sep, '/') for f in filenames ]
+    return result.entries.relative_filenames(sort = True)
   
   def find_all_files_as_string(self, file_type = bf_file_type.FILE_OR_LINK):
     return os.linesep.join(self.find_all_files(file_type = file_type))
