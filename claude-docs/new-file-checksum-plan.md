@@ -102,8 +102,8 @@ The `fingerprint_version` integer is also stored as its own column in the databa
 ### 4.1 Xattr / ADS Backend (existing, unchanged)
 
 Already implemented in `bf_attr_getter_mixin._do_get_cached_bytes`. Stores:
-- `bes__checksum__{algorithm}__1.0` → hex checksum bytes
-- `__bes_mtime_bes__checksum__{algorithm}__1.0__` → mtime datetime bytes
+- `bes__checksum__{algorithm}__0.0` → hex checksum bytes
+- `__bes_mtime_bes__checksum__{algorithm}__0.0__` → mtime datetime bytes
 
 Requires: xattr/ADS support on filesystem + file is writable.
 
@@ -283,7 +283,7 @@ Replace the direct `bf_checksum.checksum(f, algorithm)` calls with `bf_checksum_
 
 ```
 bf_entry.checksum_sha256
-  └── bf_metadata['bes__checksum__sha256__1.0']               ← L1: in-process dict (mtime-gated)
+  └── bf_metadata['bes__checksum__sha256__0.0']               ← L1: in-process dict (mtime-gated)
         └── bf_metadata_factory_checksum.getter(f)
               └── bf_checksum_cache.get_checksum(f, 'sha256')
                     ├── xattr/ADS backend                     ← L2a: on-file (writable files)
@@ -373,3 +373,400 @@ Neither version is ever stored in a filename. Version detection is always done b
 - **`invalidate()` for the SQLite backend**: Compute the fingerprint key from the current file state and delete all rows with that key (`DELETE FROM checksums_v1 WHERE fingerprint_key = ?`), which removes all cached algorithms at once. If `algorithm` is specified, add `AND algorithm = ?`. If the file no longer exists, do nothing — the row is orphaned and will be removed by the next vacuum.
 
 - **`bf_checksum_database_locator` cache after remount**: Not a problem. After a remount, the new `st_dev` value gets a fresh cache entry pointing to the correct database. The old entry for the previous `st_dev` is simply never accessed again.
+
+---
+
+## 15. Unit Tests
+
+All test files live under `tests/lib/bes/files/checksum/`. Each class gets its own test file named `test_{class_name}.py`.
+
+---
+
+### 15.1 `test_bf_checksum_algorithm`
+
+```
+test_constants_exist
+  assert bf_checksum_algorithm.MD5   == 'md5'
+  assert bf_checksum_algorithm.SHA1  == 'sha1'
+  assert bf_checksum_algorithm.SHA256 == 'sha256'
+
+test_all_list_contains_all_three
+  assert set(bf_checksum_algorithm.ALL) == {'md5', 'sha1', 'sha256'}
+```
+
+---
+
+### 15.2 `test_bf_checksum_fingerprint`
+
+```
+test_key_is_deterministic
+  write temp file with fixed content
+  key1 = bf_checksum_fingerprint.make_key(tmp)
+  key2 = bf_checksum_fingerprint.make_key(tmp)
+  assert key1 == key2
+
+test_key_is_path_independent
+  write temp file with fixed content
+  compute key at original path
+  copy file to a second temp path (same content, same mtime — use os.utime to clone mtime)
+  assert keys are equal
+
+test_content_change_invalidates_key
+  write temp file with content A
+  key_a = bf_checksum_fingerprint.make_key(tmp)
+  overwrite same file with content B (different size)
+  key_b = bf_checksum_fingerprint.make_key(tmp)
+  assert key_a != key_b
+
+test_mtime_change_invalidates_key
+  write temp file
+  key_before = bf_checksum_fingerprint.make_key(tmp)
+  advance mtime by 1 second with os.utime
+  key_after = bf_checksum_fingerprint.make_key(tmp)
+  assert key_before != key_after
+
+test_basename_change_invalidates_key
+  write temp file named 'alpha.txt'
+  copy to 'beta.txt' in same dir (clone mtime)
+  assert keys differ despite identical content and mtime
+
+test_version_change_invalidates_key
+  compute key normally (VERSION == 1)
+  monkeypatch bf_checksum_fingerprint.VERSION = 2
+  assert key differs from VERSION-1 key
+  restore VERSION
+
+test_empty_file
+  write empty temp file
+  key = bf_checksum_fingerprint.make_key(tmp)
+  assert isinstance(key, str) and len(key) == 64  # sha256 hex
+
+test_small_file_under_probe_size
+  write temp file with 100 bytes
+  key = bf_checksum_fingerprint.make_key(tmp)
+  assert head_hash == tail_hash (confirmed by inspecting _compute_head_tail directly)
+
+test_large_file_over_probe_size
+  write temp file with 10 KB of data
+  key = bf_checksum_fingerprint.make_key(tmp)
+  assert key is a 64-char hex string
+  assert head_hash != tail_hash (they cover different regions)
+
+test_pre_epoch_mtime
+  write temp file
+  set mtime to -1 nanosecond before epoch via os.utime(tmp, ns=(-1, -1))
+  key = bf_checksum_fingerprint.make_key(tmp)
+  assert isinstance(key, str) and len(key) == 64
+
+test_head_tail_probe_bytes_constant
+  assert bf_checksum_fingerprint.HEAD_TAIL_PROBE_BYTES == 4096
+```
+
+---
+
+### 15.3 `test_bf_checksum_database`
+
+All tests use an in-memory SQLite path (`:memory:`) or a temp-file path — never a real on-disk location.
+
+```
+test_create_empty_database
+  db = bf_checksum_database(':memory:')
+  assert db.row_count() == 0
+
+test_schema_version_in_metadata
+  db = bf_checksum_database(':memory:')
+  assert db.schema_version() == bf_checksum_database.SCHEMA_VERSION
+
+test_set_and_get_checksum
+  db = bf_checksum_database(':memory:')
+  db.set_checksum('key1', 1, 'md5', 'deadbeef' * 4)
+  result = db.get_checksum('key1', 'md5')
+  assert result == 'deadbeef' * 4
+
+test_get_missing_key_returns_none
+  db = bf_checksum_database(':memory:')
+  assert db.get_checksum('no_such_key', 'md5') is None
+
+test_set_overwrites_existing
+  db = bf_checksum_database(':memory:')
+  db.set_checksum('key1', 1, 'md5', 'aaaa')
+  db.set_checksum('key1', 1, 'md5', 'bbbb')
+  assert db.get_checksum('key1', 'md5') == 'bbbb'
+
+test_multiple_algorithms_same_key
+  db = bf_checksum_database(':memory:')
+  db.set_checksum('key1', 1, 'md5',    'aaa')
+  db.set_checksum('key1', 1, 'sha256', 'bbb')
+  assert db.get_checksum('key1', 'md5')    == 'aaa'
+  assert db.get_checksum('key1', 'sha256') == 'bbb'
+
+test_delete_by_key_removes_all_algorithms
+  db = bf_checksum_database(':memory:')
+  db.set_checksum('key1', 1, 'md5',    'aaa')
+  db.set_checksum('key1', 1, 'sha256', 'bbb')
+  db.delete_checksum('key1')
+  assert db.get_checksum('key1', 'md5')    is None
+  assert db.get_checksum('key1', 'sha256') is None
+
+test_delete_by_key_and_algorithm
+  db = bf_checksum_database(':memory:')
+  db.set_checksum('key1', 1, 'md5',    'aaa')
+  db.set_checksum('key1', 1, 'sha256', 'bbb')
+  db.delete_checksum('key1', algorithm='md5')
+  assert db.get_checksum('key1', 'md5')    is None
+  assert db.get_checksum('key1', 'sha256') == 'bbb'
+
+test_schema_version_mismatch_recreates_database
+  db_path = make_temp_file(suffix='.sqlite')
+  db_v1 = bf_checksum_database(db_path)
+  db_v1.set_checksum('key1', 1, 'md5', 'aaa')
+  db_v1.close()
+  # Write a schema_version > SCHEMA_VERSION into database_metadata to simulate a future schema
+  # (inject directly with sqlite3)
+  connection = sqlite3.connect(db_path)
+  connection.execute("UPDATE database_metadata SET value = '999' WHERE key = 'schema_version'")
+  connection.commit()
+  connection.close()
+  # Re-open: should detect mismatch, drop tables, recreate at current version
+  db_v2 = bf_checksum_database(db_path)
+  assert db_v2.schema_version() == bf_checksum_database.SCHEMA_VERSION
+  assert db_v2.get_checksum('key1', 'md5') is None  # old data gone
+
+test_vacuum_not_triggered_below_row_threshold
+  db = bf_checksum_database(':memory:')
+  # Insert 5000 rows all older than 91 days
+  past_time = int(time.time()) - 91 * 86400
+  for i in range(5000):
+    db._connection.execute(
+      "INSERT OR REPLACE INTO checksums_v1 VALUES (?, ?, ?, ?, ?)",
+      (f'key{i}', 1, 'md5', 'aaa', past_time)
+    )
+  db._connection.commit()
+  db._vacuum_if_needed()
+  assert db.row_count() == 5000  # vacuum not triggered (< 10000 rows)
+
+test_vacuum_triggered_when_both_conditions_met
+  db = bf_checksum_database(':memory:')
+  past_time = int(time.time()) - 91 * 86400
+  recent_time = int(time.time())
+  # Insert 10001 rows: 5000 old + 5001 recent
+  for i in range(5000):
+    db._connection.execute(
+      "INSERT OR REPLACE INTO checksums_v1 VALUES (?, ?, ?, ?, ?)",
+      (f'old_key{i}', 1, 'md5', 'aaa', past_time)
+    )
+  for i in range(5001):
+    db._connection.execute(
+      "INSERT OR REPLACE INTO checksums_v1 VALUES (?, ?, ?, ?, ?)",
+      (f'new_key{i}', 1, 'md5', 'bbb', recent_time)
+    )
+  db._connection.commit()
+  db._vacuum_if_needed()
+  assert db.row_count() == 5001  # only old rows removed
+
+test_wal_mode_enabled
+  db_path = make_temp_file(suffix='.sqlite')
+  db = bf_checksum_database(db_path)
+  cursor = db._connection.execute("PRAGMA journal_mode")
+  assert cursor.fetchone()[0] == 'wal'
+
+test_thread_safety_concurrent_writes
+  db = bf_checksum_database(':memory:')
+  errors = []
+  def write_row(index):
+    try:
+      db.set_checksum(f'key{index}', 1, 'md5', f'value{index}')
+    except Exception as exception:
+      errors.append(exception)
+  threads = [threading.Thread(target=write_row, args=(i,)) for i in range(50)]
+  [thread.start() for thread in threads]
+  [thread.join() for thread in threads]
+  assert errors == []
+  assert db.row_count() == 50
+```
+
+---
+
+### 15.4 `test_bf_checksum_database_locator`
+
+```
+test_returns_path_for_writable_directory
+  tmp_dir = make_temp_dir()
+  db_path = bf_checksum_database_locator.get_database_path(tmp_dir + '/dummy_file.txt')
+  assert db_path is not None
+  assert isinstance(db_path, str)
+
+test_same_filesystem_returns_same_path
+  tmp_dir = make_temp_dir()
+  file_a = make_temp_file(dir=tmp_dir)
+  file_b = make_temp_file(dir=tmp_dir)
+  path_a = bf_checksum_database_locator.get_database_path(file_a)
+  path_b = bf_checksum_database_locator.get_database_path(file_b)
+  assert path_a == path_b  # same st_dev → same database
+
+test_result_is_cached_per_st_dev
+  # Call get_database_path twice for the same file; the second call must not re-probe xattr
+  tmp_file = make_temp_file()
+  bf_checksum_database_locator._clear_cache()
+  path1 = bf_checksum_database_locator.get_database_path(tmp_file)
+  path2 = bf_checksum_database_locator.get_database_path(tmp_file)
+  assert path1 == path2
+
+test_on_volume_tier_used_when_directory_writable
+  # On a normal writable temp dir the result is the on-volume .bes_cache/checksums.sqlite path
+  tmp_file = make_temp_file()
+  db_path = bf_checksum_database_locator.get_database_path(tmp_file)
+  assert '.bes_cache' in db_path
+  assert db_path.endswith('checksums.sqlite')
+
+test_home_tier_used_when_directory_not_writable
+  # Make parent directory read-only, expect fallback to home-tier path
+  tmp_dir = make_temp_dir()
+  tmp_file = make_temp_file(dir=tmp_dir)
+  os.chmod(tmp_dir, 0o555)
+  try:
+    db_path = bf_checksum_database_locator.get_database_path(tmp_file)
+    assert '.bes' in db_path
+    assert '.bes_cache' not in db_path
+  finally:
+    os.chmod(tmp_dir, 0o755)
+```
+
+---
+
+### 15.5 `test_bf_checksum_cache`
+
+These are integration tests — they write real files, use real xattr (where available), and hit real SQLite.
+
+```
+test_get_checksum_md5
+  tmp_file = make_temp_file(content=b'hello world')
+  result = bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  assert result == '5eb63bbbe01eeed093cb22bb8f5acdc3'
+
+test_get_checksum_sha256
+  tmp_file = make_temp_file(content=b'hello world')
+  result = bf_checksum_cache.get_checksum(tmp_file, 'sha256')
+  assert result == 'b94d27b9934d3e08a52e52d7da7dabfac484efe04294e576fb246a79069d4ef7' (known sha256)
+
+test_second_call_returns_cached_value_without_file_read
+  tmp_file = make_temp_file(content=b'hello world')
+  result1 = bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  # Replace file content without changing mtime to simulate a stale-read scenario
+  # (verifies cache hit does not re-read file)
+  with open(tmp_file, 'wb') as file_handle:
+    file_handle.write(b'different')
+  os.utime(tmp_file, ns=(original_mtime_ns, original_mtime_ns))
+  result2 = bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  assert result1 == result2  # served from cache, not re-read
+
+test_file_change_invalidates_xattr_cache
+  tmp_file = make_temp_file(content=b'version1')
+  result1 = bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  # Overwrite with different content and advance mtime
+  time.sleep(0.01)
+  with open(tmp_file, 'wb') as file_handle:
+    file_handle.write(b'version2')
+  result2 = bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  assert result1 != result2
+
+test_has_cached_false_before_first_call
+  tmp_file = make_temp_file(content=b'data')
+  bf_checksum_cache.invalidate(tmp_file)
+  assert bf_checksum_cache.has_cached(tmp_file, 'md5') is False
+
+test_has_cached_true_after_get
+  tmp_file = make_temp_file(content=b'data')
+  bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  assert bf_checksum_cache.has_cached(tmp_file, 'md5') is True
+
+test_invalidate_single_algorithm
+  tmp_file = make_temp_file(content=b'data')
+  bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  bf_checksum_cache.get_checksum(tmp_file, 'sha256')
+  bf_checksum_cache.invalidate(tmp_file, algorithm='md5')
+  assert bf_checksum_cache.has_cached(tmp_file, 'md5')    is False
+  assert bf_checksum_cache.has_cached(tmp_file, 'sha256') is True
+
+test_invalidate_all_algorithms
+  tmp_file = make_temp_file(content=b'data')
+  bf_checksum_cache.get_checksum(tmp_file, 'md5')
+  bf_checksum_cache.get_checksum(tmp_file, 'sha256')
+  bf_checksum_cache.invalidate(tmp_file)
+  assert bf_checksum_cache.has_cached(tmp_file, 'md5')    is False
+  assert bf_checksum_cache.has_cached(tmp_file, 'sha256') is False
+
+test_invalidate_nonexistent_file_does_nothing
+  nonexistent = '/tmp/no_such_file_abc123.txt'
+  bf_checksum_cache.invalidate(nonexistent)  # must not raise
+
+test_sqlite_fallback_used_on_readonly_file
+  # Mark file read-only so xattr set will fail → falls back to SQLite
+  tmp_file = make_temp_file(content=b'readonly data')
+  os.chmod(tmp_file, 0o444)
+  try:
+    result = bf_checksum_cache.get_checksum(tmp_file, 'md5')
+    assert isinstance(result, str) and len(result) == 32
+    assert bf_checksum_cache.has_cached(tmp_file, 'md5') is True
+  finally:
+    os.chmod(tmp_file, 0o644)
+```
+
+---
+
+### 15.6 `test_bf_metadata_factory_checksum`
+
+These verify that the factory delegates correctly to `bf_checksum_cache` instead of calling `bf_checksum` directly.
+
+```
+test_md5_via_metadata
+  tmp_file = make_temp_file(content=b'hello world')
+  entry = bf_entry(tmp_file)
+  assert entry.checksum_md5 == '5eb63bbbe01eeed093cb22bb8f5acdc3'
+
+test_sha1_via_metadata
+  tmp_file = make_temp_file(content=b'hello world')
+  entry = bf_entry(tmp_file)
+  assert entry.checksum_sha1 == '2aae6c69ec0bdd100a6b9a0fcd7a1b7e3e5e6a58' (known sha1)
+
+test_sha256_via_metadata
+  tmp_file = make_temp_file(content=b'hello world')
+  entry = bf_entry(tmp_file)
+  assert entry.checksum_sha256 == known_sha256_value
+
+test_has_checksum_true_after_access
+  tmp_file = make_temp_file(content=b'hello world')
+  entry = bf_entry(tmp_file)
+  _ = entry.checksum_md5
+  assert entry.has_checksum_md5 is True
+
+test_factory_calls_cache_not_raw_checksum
+  # Confirm bf_checksum_cache.get_checksum is invoked rather than bf_checksum.checksum
+  tmp_file = make_temp_file(content=b'data')
+  with unittest.mock.patch('bes.files.checksum.bf_checksum_cache.get_checksum') as mock_get:
+    mock_get.return_value = 'mock_md5_value'
+    entry = bf_entry(tmp_file)
+    _ = entry.checksum_md5
+    mock_get.assert_called_once_with(tmp_file, 'md5')
+```
+
+---
+
+### 15.7 Changes to existing `_file_attributes_xattr.py` and related tests
+
+The `com.apple.provenance` system key filter was already added (earlier in this session). Tests for it belong in the existing xattr test files. The key requirement to verify:
+
+```
+test_keys_does_not_include_com_apple_system_keys
+  tmp_file = make_temp_file()
+  xattr_instance.set(tmp_file, 'user_key', b'value')
+  keys = xattr_instance.keys(tmp_file)
+  for key in keys:
+    assert not key.startswith('com.apple.')
+  assert 'user_key' in keys
+```
+
+This applies to:
+- `test_file_attributes_xattr.py` (the `_file_attributes_xattr` classmethod-style class)
+- `test_bf_attr_getter_xattr.py` (the `_bf_attr_getter_xattr` instance-style class)
+- `test_xattr_exe.py` (the `xattr_exe` CLI wrapper class)

@@ -8,6 +8,7 @@ from bes.system.log import logger
 
 from ..bf_check import bf_check
 from ..bf_date import bf_date
+from ..bf_permission_error import bf_permission_error
 
 from ._detail._bf_attr_getter_i import _bf_attr_getter_i
 
@@ -211,12 +212,15 @@ class bf_attr_getter_mixin:
       raise bf_attr_error(f'value should never be None')
 
     self._log.log_d(f'{label}: 3: value={value}')
-    self.set_bytes(filename, key, value)
-    self._log.log_d(f'{label}: 3: file_mtime={file_mtime}')
-    self.set_date(filename, mtime_key, file_mtime)
-    # Restore the mtime to what it was before any ADS writes (which can
-    # alter the file's mtime on some filesystems such as Windows NTFS).
-    bf_date.set_modification_date(filename, file_mtime)
+    try:
+      self.set_bytes(filename, key, value)
+      self._log.log_d(f'{label}: 3: file_mtime={file_mtime}')
+      self.set_date(filename, mtime_key, file_mtime)
+      # Restore the mtime to what it was before any ADS writes (which can
+      # alter the file's mtime on some filesystems such as Windows NTFS).
+      bf_date.set_modification_date(filename, file_mtime)
+    except bf_permission_error:
+      self._log.log_d(f'{label}: skipping xattr write — file is not writable')
     return self._get_cached_bytes_result(value, file_mtime)
 
   def remove_mtime_key(self, filename, key):

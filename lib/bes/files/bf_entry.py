@@ -410,7 +410,7 @@ class bf_entry(object):
   @property
   def checksum_md5(self):
     return self.metadata['bes__checksum__md5__0.0']
-  
+
   @property
   def checksum_sha1(self):
     return self.metadata['bes__checksum__sha1__0.0']
@@ -426,7 +426,7 @@ class bf_entry(object):
   @property
   def has_checksum_sha1(self):
     return 'bes__checksum__sha1__0.0' in self.metadata
-  
+
   @property
   def has_checksum_sha256(self):
     return 'bes__checksum__sha256__0.0' in self.metadata

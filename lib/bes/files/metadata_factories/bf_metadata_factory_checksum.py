@@ -3,14 +3,14 @@
 from bes.system.check import check
 from bes.system.log import logger
 
-from ..checksum.bf_checksum import bf_checksum
+from ..checksum.bf_checksum_cache import bf_checksum_cache
 
 from ..metadata.bf_metadata_factory_base import bf_metadata_factory_base
 
 from ..attr.bf_attr_type_desc_string import bf_attr_type_desc_string
 
 class bf_metadata_factory_checksum(bf_metadata_factory_base):
-      
+
   @classmethod
   #@abstractmethod
   def descriptions(clazz):
@@ -18,21 +18,21 @@ class bf_metadata_factory_checksum(bf_metadata_factory_base):
       (
         'bes__checksum__md5__0.0',
         'MD5 Checksum',
-        lambda f: bf_checksum.checksum(f, 'md5'),
+        lambda f: bf_checksum_cache.get_checksum(f, 'md5'),
         bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_md5')
       ),
       (
         'bes__checksum__sha1__0.0',
         'SHA1 Checksum',
-        lambda f: bf_checksum.checksum(f, 'sha1'),
+        lambda f: bf_checksum_cache.get_checksum(f, 'sha1'),
         bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha1')
       ),
       (
         'bes__checksum__sha256__0.0',
         'SHA256 Checksum',
-        lambda f: bf_checksum.checksum(f, 'sha256'),
+        lambda f: bf_checksum_cache.get_checksum(f, 'sha256'),
         bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha256')
       ),
