@@ -44,23 +44,50 @@ The **file fingerprint** is a compact, path-independent descriptor used as the p
 - Be cheap to compute (no full-file read).
 - Be stable across remounts (no absolute path component).
 
+### Fingerprint Version
+
+`bf_checksum_fingerprint` carries an integer class constant `VERSION` (currently `1`). This version is the first field in the serialised form, so any change to the fingerprint algorithm, field set, or probe size produces a different `fingerprint_key` automatically — no explicit migration is needed.
+
 ### Fingerprint Fields
 
-| Field | Type | Notes |
+| Field | Serialised as | Notes |
 |---|---|---|
-| `basename` | string | `os.path.basename(filename)` |
-| `size` | int64 | `stat.st_size` |
-| `mtime_ns` | int64 | `stat.st_mtime_ns` — nanosecond precision avoids false cache hits from FAT's 2-second granularity when combined with size |
+| `version` | uint64 hex | Always `bf_checksum_fingerprint.VERSION`; currently `1` → `"0000000000000001"` |
+| `basename` | raw string | `os.path.basename(filename)` — kept as-is, not encoded |
+| `size` | uint64 hex | `stat.st_size` — always non-negative |
+| `mtime_ns` | uint64 hex | `stat.st_mtime_ns` masked to unsigned 64-bit (see below) |
 | `head_hash` | hex string | md5 of first 4096 bytes (or full file if smaller) |
-| `tail_hash` | hex string | md5 of last 4096 bytes; omitted / same as head if file ≤ 4096 bytes |
+| `tail_hash` | hex string | md5 of last 4096 bytes; same as `head_hash` if file ≤ 4096 bytes |
 
-The fingerprint is serialised to a canonical string:
+### Delimiter
+
+`\x00` (null byte) is used between every field. It is the one byte that cannot appear in a filename on any OS — the kernel rejects it as a path component on Linux, macOS, and Windows. Common characters like `_` and `-` appear frequently in basenames and would create ambiguity (e.g., `report_2024_final` is indistinguishable from basename `report` with size `2024` and mtime `final`). `\x00` has no such ambiguity.
+
+### Integer encoding
+
+All integer fields are formatted as **16 lowercase hex digits** of their unsigned 64-bit two's complement representation:
+
+```python
+f'{value & 0xFFFF_FFFF_FFFF_FFFF:016x}'
+```
+
+This means:
+- Positive values and zero are unchanged (leading-zero padded to 16 digits).
+- Negative values — theoretically possible for `mtime_ns` on files with a modification time before 1970-01-01 (the Unix epoch) — map cleanly to their bitwise representation with no sign character. For example, `mtime_ns = -1` → `"ffffffffffffffff"`.
+- The output is always exactly 16 characters, containing only `0–9` and `a–f`, which cannot collide with `\x00` or with `basename`.
+- No sign ambiguity exists anywhere in the serialised string.
+
+`size` is always non-negative (`stat.st_size` ≥ 0 by definition), so the masking has no practical effect there. It is applied uniformly for simplicity.
+
+### Serialised form (hash input only — never stored)
 
 ```
-{basename}\x00{size}\x00{mtime_ns}\x00{head_hash}\x00{tail_hash}
+{version}\x00{basename}\x00{size}\x00{mtime_ns}\x00{head_hash}\x00{tail_hash}
 ```
 
-and then sha256-hashed to produce a fixed-length `fingerprint_key`.
+where `version`, `size`, and `mtime_ns` are 16-digit hex strings, and `head_hash` / `tail_hash` are 32-character md5 hex strings. This string is sha256-hashed to produce the fixed-length `fingerprint_key` and then discarded. The `\x00`-delimited form never touches the database.
+
+The `fingerprint_version` integer is also stored as its own column in the database (see Section 4.2) so that stale rows from an old fingerprint version can be identified and removed during vacuum without recomputing keys.
 
 **Why md5 for head/tail?** It is fast and the purpose here is cache invalidation, not security. Collision probability for this use case is negligible.
 
@@ -82,21 +109,48 @@ Requires: xattr/ADS support on filesystem + file is writable.
 
 ### 4.2 New: SQLite Fingerprint Backend
 
-Stores checksums keyed on the fingerprint_key. The database schema:
+#### Schema versioning
+
+The database carries its own schema version, stored in a `database_metadata` table that is always the first table created:
 
 ```sql
+CREATE TABLE database_metadata (
+  key    TEXT PRIMARY KEY NOT NULL,
+  value  TEXT NOT NULL
+);
+-- Populated on creation:
+-- INSERT INTO database_metadata VALUES ('schema_version', '1');
+```
+
+`bf_checksum_database` defines `SCHEMA_VERSION = 1` as a class constant. On every open:
+
+1. Read `schema_version` from `database_metadata`.
+2. If equal to `SCHEMA_VERSION`: proceed normally.
+3. If less than `SCHEMA_VERSION` (upgrade needed) or greater (downgrade — someone ran a newer binary then reverted): drop all non-metadata tables, recreate them at `SCHEMA_VERSION`, update the stored version. Since this is a cache, discarding rows is always safe — they will be recomputed on next access.
+
+This avoids complex migration logic while still detecting schema mismatches correctly.
+
+#### Schema
+
+```sql
+CREATE TABLE database_metadata (
+  key    TEXT PRIMARY KEY NOT NULL,
+  value  TEXT NOT NULL
+);
+
 CREATE TABLE checksums_v1 (
-  fingerprint_key  TEXT NOT NULL,
-  algorithm        TEXT NOT NULL,
-  checksum         TEXT NOT NULL,
-  cached_at        INTEGER NOT NULL,   -- unix timestamp
+  fingerprint_key      TEXT NOT NULL,
+  fingerprint_version  INTEGER NOT NULL,
+  algorithm            TEXT NOT NULL,
+  checksum             TEXT NOT NULL,
+  cached_at            INTEGER NOT NULL,
   PRIMARY KEY (fingerprint_key, algorithm)
 );
 
-CREATE INDEX idx_fingerprint ON checksums_v1(fingerprint_key);
+CREATE INDEX idx_fingerprint_version ON checksums_v1(fingerprint_version);
 ```
 
-The `algorithm` column allows any algorithm to be added without a schema change.
+The `algorithm` column allows any algorithm to be added without a schema change. The `fingerprint_version` column enables targeted vacuum: `DELETE FROM checksums_v1 WHERE fingerprint_version < {current_version}` removes all orphaned rows from old fingerprint formats without recomputing any keys. The index on `fingerprint_key` is omitted — it is the leading part of the primary key and SQLite indexes it implicitly.
 
 ---
 
@@ -266,7 +320,28 @@ The old attribute keys (`bes_checksum_md5`, `bes_checksum_sha1`) are already han
 
 ---
 
-## 12. Implementation Order
+## 12. Versioning Summary
+
+Two independent version numbers, each evolving separately:
+
+| Version | Constant | Location | What it guards |
+|---|---|---|---|
+| `fingerprint_version` | `bf_checksum_fingerprint.VERSION = 1` | class constant | The fingerprint serialisation format (fields, probe size, hash algorithm for head/tail) |
+| `schema_version` | `bf_checksum_database.SCHEMA_VERSION = 1` | class constant | The SQLite table layout |
+
+**How they interact on a version bump:**
+
+- *Fingerprint version bumps* (e.g., probe size changes from 4096 to 8192): all old `fingerprint_key` values are different from the new ones, so lookups naturally miss and recompute. Old rows are orphaned but harmless; the `fingerprint_version` index makes the next vacuum cheap (`DELETE … WHERE fingerprint_version < N`).
+
+- *Schema version bumps* (e.g., a new column is added): the `database_metadata` check on open detects the mismatch, drops and recreates all data tables at the new version, and resets `schema_version`. All cached values are lost and will be recomputed on next access.
+
+- *Both bump together*: the schema upgrade runs first (on open), producing an empty database at the new schema, into which new fingerprint-versioned rows are then written.
+
+Neither version is ever stored in a filename. Version detection is always done by reading the database itself.
+
+---
+
+## 13. Implementation Order
 
 1. `bf_checksum_algorithm` — trivial, unblocks everything else.
 2. `bf_checksum_fingerprint` — pure function, easy to unit-test.
@@ -279,7 +354,7 @@ The old attribute keys (`bes_checksum_md5`, `bes_checksum_sha1`) are already han
 
 ---
 
-## 13. Open Questions
+## 14. Open Questions
 
 - **Fingerprint probe size**: 4096 bytes (one filesystem block) is a reasonable default. Should this be configurable? Recommend: expose as a class-level constant initially, make it configurable only if there is a real need.
 - **Stale database entries**: The SQLite database will accumulate rows for deleted or renamed files. Recommend a periodic vacuum: if the database exceeds N rows and a row's `cached_at` is older than 30 days, DELETE it. Triggered lazily on open.

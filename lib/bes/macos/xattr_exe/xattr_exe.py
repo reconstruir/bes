@@ -29,6 +29,10 @@ class xattr_exe(object):
     rv = clazz._call_xattr_exe(args)
     return rv.exit_code == 0
   
+  # macOS stamps these onto files automatically; they are protected and cannot
+  # be removed by user code, so they must not be reported as user attributes.
+  _SYSTEM_KEY_PREFIXES = ( 'com.apple.', )
+
   @classmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
@@ -38,7 +42,12 @@ class xattr_exe(object):
     rv = clazz._call_xattr_exe(args)
     xattr_exe_command.check_result(rv, message = 'Failed to get keys for {}'.format(filename))
     keys = [ clazz._parse_key(line) for line in rv.stdout_lines() ]
+    keys = [ k for k in keys if k and not clazz._is_system_key(k) ]
     return sorted(keys)
+
+  @classmethod
+  def _is_system_key(clazz, key):
+    return any(key.startswith(prefix) for prefix in clazz._SYSTEM_KEY_PREFIXES)
 
   @classmethod
   def _check_permission_error(clazz, result, message):
