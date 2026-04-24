@@ -470,3 +470,152 @@ file_store = bf_metadata_file_store(database_path=self.make_temp_file(suffix='.d
 - `test_command_get_missing` — get on unknown key exits non-zero.
 - `test_command_keys` — set two keys, keys command prints both.
 - `test_command_clear` — set keys, clear, list shows nothing.
+
+---
+
+## 13. Wiring `bf_metadata_factory_registry` to the SQLite Store
+
+### 13.1 What `bf_metadata.get_metadata` does today
+
+The call chain is:
+
+1. Registry lookup: `bf_metadata_factory_registry.get_description(key)` → `bf_metadata_desc`
+2. In-process `_items` cache check — if `last_mtime` matches current file mtime, return cached value without any I/O
+3. On cache miss: call `desc.encode(desc.getter(filename))` → compute raw bytes
+4. Persist via `_attr_instance._do_get_cached_bytes` → writes bytes to xattr under `key.as_string`, writes the file's current mtime to a paired xattr `__bes_mtime_{key}__`
+5. Decode bytes back to a Python value, update `_items`, return
+
+`has_metadata`, `metadata_delete`, and `keys` also all delegate to `_attr_instance` (xattr).
+
+### 13.2 Injectable File Store
+
+`bf_metadata` needs a file store that tests can swap out so they never touch `~/.bes/metadata/metadata.db`. `cached_class_property` cannot be used because it caches on first access and cannot be replaced. Instead use a lazy class-level slot with an explicit setter:
+
+```python
+_file_store_instance = None
+
+@classmethod
+def _get_file_store(clazz):
+    if clazz._file_store_instance is None:
+        clazz._file_store_instance = bf_metadata_file_store()
+    return clazz._file_store_instance
+
+@classmethod
+def _set_file_store(clazz, store):
+    clazz._file_store_instance = store
+```
+
+`_set_file_store` is for tests and custom apps only. Production code never calls it.
+
+### 13.3 Changes to `get_metadata`
+
+Replace the xattr persistence block:
+
+```python
+# old — writes encoded bytes to xattr, reads mtime xattr back
+value_bytes, mtime = clazz._attr_instance._do_get_cached_bytes(
+    filename, key.as_string, value_maker)
+
+# new — tries SQLite store, falls back to computing via value_maker
+file_store = clazz._get_file_store()
+stored = file_store.get(filename, key.as_string)
+if stored is not None:
+    value_bytes = stored.encode('utf-8')
+else:
+    value_bytes = value_maker(filename)
+    file_store.set(filename, key.as_string, value_bytes.decode('utf-8'))
+mtime = bf_date.get_modification_date(filename)
+```
+
+The `_items` in-process cache is kept as-is. It uses mtime as a within-process freshness signal, which remains correct: if content changes, mtime changes, `_items` misses, we re-query SQLite (which also misses because the sha256 changed), and recompute.
+
+The `old_getter` check changes from testing whether the xattr key exists to testing whether the SQLite store has the key:
+
+```python
+# old
+if not clazz._attr_instance.has_key(filename, key.as_string) and desc.old_getter:
+
+# new
+if file_store.get(filename, key.as_string) is None and desc.old_getter:
+```
+
+### 13.4 Changes to `has_metadata`, `metadata_delete`, `keys`
+
+```python
+def has_metadata(clazz, filename, key):
+    return clazz._get_file_store().get(filename, key.as_string) is not None
+
+def metadata_delete(clazz, filename, key):
+    clazz._get_file_store().delete(filename, key.as_string)
+    # also clean up any residual xattr from the old path
+    clazz._attr_instance.remove_mtime_key(filename, key.as_string)
+    if clazz._attr_instance.has_key(filename, key.as_string):
+        clazz._attr_instance.remove(filename, key.as_string)
+
+def keys(clazz, filename):
+    return clazz._get_file_store().keys(filename)
+```
+
+`set_int`, `get_int`, `set_date`, `get_date`, and `get_cached_bytes_if_fresh` keep delegating to `_attr_instance` — they are used by the `old_getter` migration path and are not part of the new metadata surface.
+
+### 13.5 Value Encoding Across the Boundary
+
+`bf_metadata_file_store` stores `str`. All existing `bf_attr_type_desc_*` implementations encode to UTF-8 bytes and decode from UTF-8 bytes, so `encoded_bytes.decode('utf-8')` going in and `stored_str.encode('utf-8')` coming out is lossless for every current descriptor (int, float, bool, string, datetime).
+
+### 13.6 What Does Not Change
+
+- `bf_metadata_factory_base`, `bf_metadata_factory_registry`, `bf_metadata_desc`, `bf_metadata_key` — untouched
+- `bf_metadata_file` — untouched; it delegates to `bf_metadata`
+- `example_metadata_fruits_factory` — untouched
+- `bf_attr`, `bf_attr_getter_mixin`, all xattr infrastructure — left in place
+- `test_bf_metadata_factory_registry` — untouched
+
+### 13.7 Changes to Existing Tests
+
+**`test_bf_metadata.test_get_metadata`:**
+
+- Remove `setUpClass` / `bdocker.raise_skip_if_running_under_docker()` — SQLite works in Docker.
+- Add `setUp` / `tearDown` to install a temp-path file store and clear the `_items` cache:
+
+  ```python
+  def setUp(self):
+      db_path = self.make_temp_file(suffix = '.db', non_existent = True)
+      bf_metadata._set_file_store(bf_metadata_file_store(database_path = db_path))
+      bf_metadata._items.clear()
+
+  def tearDown(self):
+      bf_metadata._set_file_store(None)
+      bf_metadata._items.clear()
+  ```
+
+- Remove the two `bf_metadata.keys(tmp)` assertions that check for `__bes_mtime_*__` xattr keys — those keys no longer appear in the output. Replace with assertions that check only for the registered metadata keys (`acme__fruit__kiwi__1.0`, `acme__fruit__cherry__2.0`).
+- All getter-count assertions and the "file changed → getter called again" logic remain valid and unchanged.
+
+**`test_bf_metadata.test_get_metadata_old_getter`:**
+
+Keep as-is — the old_getter path still works because it reads from xattr via `get_cached_bytes_if_fresh`, and that call path is preserved.
+
+### 13.8 New Tests (`test_bf_metadata_with_store`)
+
+All new tests use `example_metadata_fruits_factory` and install a temp-path file store in `setUp`:
+
+```python
+def setUp(self):
+    db_path = self.make_temp_file(suffix = '.db', non_existent = True)
+    bf_metadata._set_file_store(bf_metadata_file_store(database_path = db_path))
+    bf_metadata._items.clear()
+
+def tearDown(self):
+    bf_metadata._set_file_store(None)
+    bf_metadata._items.clear()
+```
+
+- `test_get_metadata_basic` — get a metadata key, value matches expected (file size for `acme__fruit__kiwi__1.0`).
+- `test_get_metadata_cached_in_process` — get same key twice; getter count stays at 1 (in-process `_items` hit on second call).
+- `test_get_metadata_recomputes_on_content_change` — write file, get metadata, overwrite file content, get again; getter count becomes 2, value reflects new content.
+- `test_get_metadata_survives_rename` — write file, get metadata, rename file to new path, get via new path; returns same value (same sha256), getter count stays at 1.
+- `test_has_metadata_true` — after calling `get_metadata`, `has_metadata` returns `True`.
+- `test_has_metadata_false` — on a fresh file before any `get_metadata`, `has_metadata` returns `False`.
+- `test_metadata_delete` — call `get_metadata`, delete the key, `has_metadata` returns `False`.
+- `test_keys_empty` — fresh file, `keys()` returns `[]`.
+- `test_keys_after_get` — after getting two different metadata keys, `keys()` returns both.

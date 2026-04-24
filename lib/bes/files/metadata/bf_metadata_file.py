@@ -46,5 +46,8 @@ class bf_metadata_file(bf_attr_file):
     except bf_metadata_error as ex:
       raise bf_metadata_key_error(f'No key "{key}" found for "{self.filename}"')
 
+  def keys(self):
+    return bf_metadata.keys(self._filename)
+
   def __setitem__(self, key, value):
     raise bf_metadata_error(f'metadata "{key}" is read-only.')
