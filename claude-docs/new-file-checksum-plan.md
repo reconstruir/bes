@@ -354,10 +354,22 @@ Neither version is ever stored in a filename. Version detection is always done b
 
 ---
 
-## 14. Open Questions
+## 14. Resolved Design Decisions
 
-- **Fingerprint probe size**: 4096 bytes (one filesystem block) is a reasonable default. Should this be configurable? Recommend: expose as a class-level constant initially, make it configurable only if there is a real need.
-- **Stale database entries**: The SQLite database will accumulate rows for deleted or renamed files. Recommend a periodic vacuum: if the database exceeds N rows and a row's `cached_at` is older than 30 days, DELETE it. Triggered lazily on open.
-- **Thread safety**: `sqlite` wrapper should use `check_same_thread=False` with a per-connection lock, or use one connection per thread. Check existing `bes.sqlite.sqlite` implementation before deciding.
-- **FAT mtime granularity**: FAT32 stores mtime with 2-second granularity; exFAT with 10ms. The `head_hash` field in the fingerprint compensates for coarse mtime when content changes within the same 2-second window.
-- **Network filesystems**: NFS/SMB may have stale mtime (client-side caching). The fingerprint's `head_hash` provides a second level of change detection at the cost of a small read. For NFS this is acceptable; for very large files over slow networks, consider making the head/tail read optional via a flag.
+- **Fingerprint probe size**: `bf_checksum_fingerprint.HEAD_TAIL_PROBE_BYTES = 4096` as a class-level constant. Not configurable until there is a demonstrated need; fingerprint version bump handles cache invalidation automatically if the value ever changes.
+
+- **Stale database entries**: Vacuum triggers lazily on open when BOTH conditions are true: total row count exceeds 10,000 AND at least one row has `cached_at` older than 90 days. When triggered, delete all rows with `cached_at` older than 90 days. Both conditions required to avoid vacuuming small active databases on every open.
+
+- **Thread safety**: Open each database connection with `check_same_thread=False` and protect it with a per-instance `threading.Lock`. One shared connection per database file path. WAL mode handles concurrent readers from separate processes.
+
+- **FAT mtime granularity**: Handled by `head_hash`. No special-casing needed.
+
+- **Network filesystem head/tail read**: No flag. The head/tail read is at most 8 KB and only occurs on a fingerprint cache miss, which itself only occurs when `mtime_ns` changes. The common path over slow NFS reads nothing.
+
+- **xattr availability probe**: Create a small temp file in the same directory as the target file, attempt xattr set/get/remove, delete the temp file immediately. If the temp file cannot be created (directory not writable or filesystem read-only), treat the probe result as "xattr unavailable — use SQLite." Cache result per `st_dev`.
+
+- **Network mount volume identifier**: For network mounts with no stable UUID, extract server hostname from `/proc/mounts` or `mount` output and use `sha256(hostname)` as the volume identifier. If hostname extraction fails, fall back to `~/.bes/checksums/unknown.sqlite` — one shared database for all unidentifiable volumes, relying on the fingerprint's path-independence for correctness.
+
+- **`invalidate()` for the SQLite backend**: Compute the fingerprint key from the current file state and delete all rows with that key (`DELETE FROM checksums_v1 WHERE fingerprint_key = ?`), which removes all cached algorithms at once. If `algorithm` is specified, add `AND algorithm = ?`. If the file no longer exists, do nothing — the row is orphaned and will be removed by the next vacuum.
+
+- **`bf_checksum_database_locator` cache after remount**: Not a problem. After a remount, the new `st_dev` value gets a fresh cache entry pointing to the correct database. The old entry for the previous `st_dev` is simply never accessed again.
