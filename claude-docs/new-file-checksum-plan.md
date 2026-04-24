@@ -15,7 +15,7 @@
 ### Non-Functional
 - R9: Cache lookup is fast — must not read the full file on a cache hit.
 - R10: Computing the cache key (file fingerprint) reads at most a small fixed number of bytes from the file.
-- R11: Concurrent access from multiple processes must not corrupt the SQLite DB (WAL mode).
+- R11: Concurrent access from multiple processes must not corrupt the SQLite database (WAL mode).
 - R12: The system integrates cleanly with the existing `bf_metadata` / `bf_attr` layered architecture.
 
 ---
@@ -33,7 +33,7 @@
 ### Problems with `bf_checksum_db`
 - The `_make_hash_key` is `sha256(mtime_size_absolutepath)` — absolute path changes when a volume is remounted at a different mount point.
 - Only stores sha256; adding new algorithms requires schema changes.
-- No read-only-file fallback — relies only on the SQLite DB without integrating with the xattr layer.
+- No read-only-file fallback — relies only on the SQLite database without integrating with the xattr layer.
 
 ---
 
@@ -75,35 +75,35 @@ and then sha256-hashed to produce a fixed-length `fingerprint_key`.
 ### 4.1 Xattr / ADS Backend (existing, unchanged)
 
 Already implemented in `bf_attr_getter_mixin._do_get_cached_bytes`. Stores:
-- `bes__checksum__{algo}__1.0` → hex checksum bytes
-- `__bes_mtime_bes__checksum__{algo}__1.0__` → mtime datetime bytes
+- `bes__checksum__{algorithm}__1.0` → hex checksum bytes
+- `__bes_mtime_bes__checksum__{algorithm}__1.0__` → mtime datetime bytes
 
 Requires: xattr/ADS support on filesystem + file is writable.
 
 ### 4.2 New: SQLite Fingerprint Backend
 
-Stores checksums keyed on the fingerprint_key. The DB schema:
+Stores checksums keyed on the fingerprint_key. The database schema:
 
 ```sql
 CREATE TABLE checksums_v1 (
   fingerprint_key  TEXT NOT NULL,
-  algo             TEXT NOT NULL,
+  algorithm        TEXT NOT NULL,
   checksum         TEXT NOT NULL,
   cached_at        INTEGER NOT NULL,   -- unix timestamp
-  PRIMARY KEY (fingerprint_key, algo)
+  PRIMARY KEY (fingerprint_key, algorithm)
 );
 
 CREATE INDEX idx_fingerprint ON checksums_v1(fingerprint_key);
 ```
 
-The `algo` column allows any algorithm to be added without a schema change.
+The `algorithm` column allows any algorithm to be added without a schema change.
 
 ---
 
 ## 5. Backend Selection Logic
 
 ```
-for a given (filename, algo):
+for a given (filename, algorithm):
 
 1. Is the file writable by the current user?
    AND does the filesystem support xattr/ADS?
@@ -111,36 +111,36 @@ for a given (filename, algo):
 
 2. Otherwise:
    → use SQLite fingerprint backend
-      → pick DB file (see Section 6)
+      → pick database file (see Section 6)
       → compute fingerprint_key (cheap)
-      → look up (fingerprint_key, algo) in DB
+      → look up (fingerprint_key, algorithm) in database
          → HIT: return cached value
-         → MISS: compute full checksum, INSERT into DB, return value
+         → MISS: compute full checksum, INSERT into database, return value
 ```
 
 The writability check uses `os.access(filename, os.W_OK)`. The xattr availability check attempts a probe xattr set/get/remove on a temp file on the same filesystem (cached per `st_dev`).
 
 ---
 
-## 6. SQLite DB Placement Strategy
+## 6. SQLite Database Placement Strategy
 
 This is the hardest problem. Requirements:
-- The DB must be findable given only a file path.
-- The DB must survive volume remounts at different mount points.
+- The database must be findable given only a file path.
+- The database must survive volume remounts at different mount points.
 - Works for removable volumes (USB drives, SD cards, network mounts).
 - Works when the user has no write access to the volume root.
 
 ### Strategy: Tiered placement
 
-**Tier 1 — On-volume DB** (preferred for removable/external volumes):
+**Tier 1 — On-volume database** (preferred for removable/external volumes):
 
 Try to create `.bes_cache/checksums.sqlite` in the root of the volume that contains the file. To find the volume root:
 - Linux/macOS: walk up from `dirname(filename)` until `os.stat(parent).st_dev != os.stat(current).st_dev`, then use `current` as the volume root.
 - Windows: `os.path.splitdrive(filename)[0] + '\\'`
 
-If the volume root is writable: place DB at `{volume_root}/.bes_cache/checksums.sqlite`.
+If the volume root is writable: place database at `{volume_root}/.bes_cache/checksums.sqlite`.
 
-**Tier 2 — Global user DB** (fallback for read-only volumes, network mounts):
+**Tier 2 — Global user database** (fallback for read-only volumes, network mounts):
 
 `~/.bes/checksums/{volume_id}.sqlite`
 
@@ -152,13 +152,13 @@ where `volume_id` is a stable identifier for the volume:
 If the volume cannot be identified stably (e.g., network mounts with no UUID), fall back to:
 `~/.bes/checksums/net_{sha256(first_256_chars_of_mountpoint)}.sqlite`
 
-### DB Locator Class: `bf_checksum_db_locator`
+### Database Locator Class: `bf_checksum_database_locator`
 
 ```python
-class bf_checksum_db_locator:
+class bf_checksum_database_locator:
   @classmethod
-  def db_path_for_file(clazz, filename) -> str:
-    'Return the path to the SQLite DB that should store checksums for filename.'
+  def database_path_for_file(clazz, filename) -> str:
+    'Return the path to the SQLite database that should store checksums for filename.'
 ```
 
 Caches results per `st_dev` to avoid repeated filesystem walks.
@@ -167,17 +167,17 @@ Caches results per `st_dev` to avoid repeated filesystem walks.
 
 ## 7. Hash Algorithm Registry
 
-New class `bf_checksum_algo` (enum-like, extensible):
+New class `bf_checksum_algorithm` (enum-like, extensible):
 
 ```python
-class bf_checksum_algo:
+class bf_checksum_algorithm:
   MD5    = 'md5'
   SHA1   = 'sha1'
   SHA256 = 'sha256'
-  # new entries added here; no DB migration needed
+  # new entries added here; no database migration needed
 ```
 
-The `bf_checksum.checksum(filename, algo)` method already uses `hashlib.new(algo)` so it is already open to any hashlib-supported algorithm.
+The `bf_checksum.checksum(filename, algorithm)` method already uses `hashlib.new(algorithm)` so it is already open to any hashlib-supported algorithm.
 
 ---
 
@@ -190,15 +190,15 @@ New class in `lib/bes/files/checksum/bf_checksum_cache.py`:
 ```python
 class bf_checksum_cache:
   @classmethod
-  def get_checksum(clazz, filename, algo) -> str:
-    'Return cached checksum for filename/algo, computing it if needed.'
+  def get_checksum(clazz, filename, algorithm) -> str:
+    'Return cached checksum for filename and algorithm, computing it if needed.'
 
   @classmethod
-  def invalidate(clazz, filename, algo=None):
-    'Remove cached checksum(s) for filename. If algo is None, remove all.'
+  def invalidate(clazz, filename, algorithm=None):
+    'Remove cached checksum(s) for filename. If algorithm is None, remove all.'
 
   @classmethod
-  def has_cached(clazz, filename, algo) -> bool:
+  def has_cached(clazz, filename, algorithm) -> bool:
     'Return True if a fresh cached checksum exists without computing it.'
 ```
 
@@ -221,7 +221,7 @@ These continue to work via `bf_metadata` → `bf_metadata_factory_checksum`, whi
 
 ### 8.3 `bf_metadata_factory_checksum` (updated)
 
-Replace the direct `bf_checksum.checksum(f, algo)` calls with `bf_checksum_cache.get_checksum(f, algo)`. The metadata layer's own mtime-caching on top of xattr continues to work as a fast in-process L1 cache; `bf_checksum_cache` becomes the L2 persistent cache.
+Replace the direct `bf_checksum.checksum(f, algorithm)` calls with `bf_checksum_cache.get_checksum(f, algorithm)`. The metadata layer's own mtime-caching on top of xattr continues to work as a fast in-process L1 cache; `bf_checksum_cache` becomes the L2 persistent cache.
 
 ---
 
@@ -229,11 +229,11 @@ Replace the direct `bf_checksum.checksum(f, algo)` calls with `bf_checksum_cache
 
 ```
 bf_entry.checksum_sha256
-  └── bf_metadata['bes__checksum__sha256__1.0']          ← L1: in-process dict (mtime-gated)
+  └── bf_metadata['bes__checksum__sha256__1.0']               ← L1: in-process dict (mtime-gated)
         └── bf_metadata_factory_checksum.getter(f)
               └── bf_checksum_cache.get_checksum(f, 'sha256')
-                    ├── xattr/ADS backend                ← L2a: on-file (writable files)
-                    └── SQLite fingerprint backend        ← L2b: DB (read-only or no xattr)
+                    ├── xattr/ADS backend                     ← L2a: on-file (writable files)
+                    └── SQLite fingerprint backend             ← L2b: database (read-only or no xattr)
                           └── bf_checksum.checksum(f, 'sha256')  ← L3: full read (cache miss)
 ```
 
@@ -243,13 +243,13 @@ bf_entry.checksum_sha256
 
 ```
 lib/bes/files/checksum/
-  bf_checksum.py                   (existing, unchanged)
-  bf_checksum_algo.py              (NEW: algorithm constants)
-  bf_checksum_cache.py             (NEW: unified get/invalidate API)
-  bf_checksum_db.py                (REPLACE: new schema, multi-algo, fingerprint key)
-  bf_checksum_db_locator.py        (NEW: finds DB path for a given file)
-  bf_checksum_fingerprint.py       (NEW: computes the file fingerprint key)
-  bf_global_checksum_db.py         (REMOVE: replaced by bf_checksum_db_locator)
+  bf_checksum.py                        (existing, unchanged)
+  bf_checksum_algorithm.py              (NEW: algorithm name constants)
+  bf_checksum_cache.py                  (NEW: unified get/invalidate API)
+  bf_checksum_database.py               (REPLACE: new schema, multi-algorithm, fingerprint key)
+  bf_checksum_database_locator.py       (NEW: finds database path for a given file)
+  bf_checksum_fingerprint.py            (NEW: computes the file fingerprint key)
+  bf_global_checksum_db.py              (REMOVE: replaced by bf_checksum_database_locator)
 ```
 
 Existing files that change:
@@ -260,7 +260,7 @@ Existing files that change:
 
 ## 11. Migration from Old `bf_checksum_db`
 
-`bf_global_checksum_db` / `bf_checksum_db` are used in a small number of places. Replace call sites with `bf_checksum_cache.get_checksum(filename, 'sha256')`. Old DBs at `~/.bes/bes_global_checksum_db.sqlite` can be ignored (they will simply not be read; entries expire on next access).
+`bf_global_checksum_db` / `bf_checksum_db` are used in a small number of places. Replace call sites with `bf_checksum_cache.get_checksum(filename, 'sha256')`. Old databases at `~/.bes/bes_global_checksum_db.sqlite` can be ignored (they will simply not be read; entries expire on next access).
 
 The old attribute keys (`bes_checksum_md5`, `bes_checksum_sha1`) are already handled by `bf_metadata_factory_checksum`'s `old_getter` lambda — no change needed there.
 
@@ -268,10 +268,10 @@ The old attribute keys (`bes_checksum_md5`, `bes_checksum_sha1`) are already han
 
 ## 12. Implementation Order
 
-1. `bf_checksum_algo` — trivial, unblocks everything else.
+1. `bf_checksum_algorithm` — trivial, unblocks everything else.
 2. `bf_checksum_fingerprint` — pure function, easy to unit-test.
-3. `bf_checksum_db` — new schema; test with in-memory SQLite.
-4. `bf_checksum_db_locator` — test with temp dirs on different mock `st_dev` values.
+3. `bf_checksum_database` — new schema; test with in-memory SQLite.
+4. `bf_checksum_database_locator` — test with temp dirs on different mock `st_dev` values.
 5. `bf_checksum_cache` — wire fingerprint + locator + xattr selection logic.
 6. Update `bf_metadata_factory_checksum`.
 7. Remove `bf_global_checksum_db`, update call sites.
@@ -282,7 +282,7 @@ The old attribute keys (`bes_checksum_md5`, `bes_checksum_sha1`) are already han
 ## 13. Open Questions
 
 - **Fingerprint probe size**: 4096 bytes (one filesystem block) is a reasonable default. Should this be configurable? Recommend: expose as a class-level constant initially, make it configurable only if there is a real need.
-- **Stale DB entries**: The SQLite DB will accumulate rows for deleted or renamed files. Recommend a periodic vacuum: if the DB exceeds N rows and a row's `cached_at` is older than 30 days, DELETE it. Triggered lazily on open.
+- **Stale database entries**: The SQLite database will accumulate rows for deleted or renamed files. Recommend a periodic vacuum: if the database exceeds N rows and a row's `cached_at` is older than 30 days, DELETE it. Triggered lazily on open.
 - **Thread safety**: `sqlite` wrapper should use `check_same_thread=False` with a per-connection lock, or use one connection per thread. Check existing `bes.sqlite.sqlite` implementation before deciding.
 - **FAT mtime granularity**: FAT32 stores mtime with 2-second granularity; exFAT with 10ms. The `head_hash` field in the fingerprint compensates for coarse mtime when content changes within the same 2-second window.
 - **Network filesystems**: NFS/SMB may have stale mtime (client-side caching). The fingerprint's `head_hash` provides a second level of change detection at the cost of a small read. For NFS this is acceptable; for very large files over slow networks, consider making the head/tail read optional via a flag.
