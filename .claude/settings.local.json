@@ -13,7 +13,8 @@
       "Read(//tmp/**)",
       "Skill(keybindings-help)",
       "Bash(bash *)",
-      "PowerShell(uv run *)"
+      "PowerShell(uv run *)",
+      "Bash(./r *)"
     ]
   }
 }

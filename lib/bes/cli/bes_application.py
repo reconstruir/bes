@@ -4,6 +4,7 @@ from bes.system.check import check
 
 from bes.bcli.bcli_application import bcli_application
 
+from ..files.checksum.bf_checksum_command_factory import bf_checksum_command_factory
 from ..files.duplicates.bf_file_duplicates_command_factory import bf_file_duplicates_command_factory
 from ..files.resolve.bf_file_resolver_command_factory import bf_file_resolver_command_factory
 
@@ -12,10 +13,11 @@ class bes_application(bcli_application):
   #@abstractmethod
   def name(self):
     return 'bes'
-  
+
   #@abstractmethod
   def parser_factories(self):
     return [
+      bf_checksum_command_factory,
       bf_file_duplicates_command_factory,
       bf_file_resolver_command_factory,
     ]
