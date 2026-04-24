@@ -30,6 +30,7 @@ The new system stores all metadata in an SQLite database keyed on the **sha256 c
 
 - Do not remove or modify the existing xattr-based metadata infrastructure yet. Leave `bf_attr`, `bf_metadata`, `bf_metadata_factory_base`, and related classes in place. Migration and cleanup is a separate task.
 - Do not change existing `bf_metadata_key` naming convention (`domain__group__name__version`).
+- Do not import anything from `lib/bes/fs/` — that package is old and obsolete. All new code lives under `lib/bes/files/` and uses `lib/bes/sqlite/sqlite`.
 
 ---
 
@@ -174,16 +175,15 @@ Threading: `threading.Lock()` per instance; `sqlite` wrapper instantiated with `
 
 ### 5.2 `bf_metadata_database_locator`
 
-Decides which database file to open. Phase 1 is trivial; Phase 2 adds per-filesystem selection.
+A single place that owns the default database path and (in Phase 2) the per-filesystem selection logic. Not called by all code paths — callers that receive an explicit `database_path` bypass it entirely.
 
 ```python
 class bf_metadata_database_locator:
 
-  # Phase 1 — single global database
   DEFAULT_DATABASE_PATH = '~/.bes/metadata/metadata.db'
 
   @classmethod
-  def database_path_for_file(clazz, filename):
+  def default_database_path(clazz):
     # Phase 1: always returns expanduser(DEFAULT_DATABASE_PATH)
     # Phase 2: returns per-filesystem path (see Section 6)
     return path.expanduser(clazz.DEFAULT_DATABASE_PATH)
@@ -191,72 +191,85 @@ class bf_metadata_database_locator:
 
 ### 5.3 `bf_metadata_store`
 
-Checksum-key layer. Accepts a sha256 hex string as the file identity. Manages a pool of `bf_metadata_database` instances (one per database path).
+Checksum-key layer. Accepts a sha256 hex string as the file identity. **Instance-based** so that the database path is configurable — unit tests and custom applications pass their own path; production code uses the default.
 
 ```python
 class bf_metadata_store:
-  _shared_databases = {}
-  _shared_databases_lock = threading.Lock()
 
-  @classmethod
-  def get(clazz, checksum, key):
+  DEFAULT_DATABASE_PATH = bf_metadata_database_locator.DEFAULT_DATABASE_PATH
+
+  def __init__(self, database_path=None):
+    # database_path defaults to bf_metadata_database_locator.default_database_path()
+    # Stores path, creates bf_metadata_database lazily or eagerly (TBD at implementation time)
+    resolved = database_path or bf_metadata_database_locator.default_database_path()
+    self._database = bf_metadata_database(resolved)
+
+  def get(self, checksum, key):
     # returns value string or None
 
-  @classmethod
-  def set(clazz, checksum, key, value):
-    # upserts into the single global database (Phase 1)
+  def set(self, checksum, key, value):
+    # upsert; sets stored_at = now
 
-  @classmethod
-  def delete(clazz, checksum, key=None):
-    # deletes row or all rows for checksum
+  def delete(self, checksum, key=None):
+    # if key is None: delete all rows for checksum
+    # if key given: delete that specific (checksum, key) row
 
-  @classmethod
-  def keys(clazz, checksum):
-    # returns list of key strings
+  def keys(self, checksum):
+    # returns list of key strings for this checksum
 
-  @classmethod
-  def get_all(clazz, checksum):
-    # returns dict
-
-  @classmethod
-  def _get_database(clazz, database_path):
-    # returns shared bf_metadata_database instance, creating if needed
+  def get_all(self, checksum):
+    # returns dict {key: value} for this checksum
 ```
 
-Phase 1: `_get_database` always resolves to `DEFAULT_DATABASE_PATH`.  
-Phase 2: `database_path` will vary per filesystem; the pool handles one instance per path.
+Production use — default database:
+```python
+store = bf_metadata_store()
+```
+
+Unit test or custom app — explicit database:
+```python
+store = bf_metadata_store(database_path='/tmp/test_metadata.db')
+```
 
 ### 5.4 `bf_metadata_file_store`
 
-File layer. Accepts a filename, resolves its sha256 via `bf_checksum_cache`, then delegates to `bf_metadata_store`.
+File layer. Accepts a filename, resolves its sha256 via `bf_checksum_cache`, then delegates to an owned `bf_metadata_store`. **Instance-based** for the same reason: tests pass a temp database path; production uses the default.
 
 ```python
 class bf_metadata_file_store:
 
-  @classmethod
-  def get(clazz, filename, key):
-    checksum = bf_checksum_cache.get_checksum(filename, 'sha256')
-    return bf_metadata_store.get(checksum, key)
+  def __init__(self, database_path=None):
+    self._store = bf_metadata_store(database_path=database_path)
 
-  @classmethod
-  def set(clazz, filename, key, value):
+  def get(self, filename, key):
     checksum = bf_checksum_cache.get_checksum(filename, 'sha256')
-    bf_metadata_store.set(checksum, key, value)
+    return self._store.get(checksum, key)
 
-  @classmethod
-  def delete(clazz, filename, key=None):
+  def set(self, filename, key, value):
     checksum = bf_checksum_cache.get_checksum(filename, 'sha256')
-    bf_metadata_store.delete(checksum, key)
+    self._store.set(checksum, key, value)
 
-  @classmethod
-  def keys(clazz, filename):
+  def delete(self, filename, key=None):
     checksum = bf_checksum_cache.get_checksum(filename, 'sha256')
-    return bf_metadata_store.keys(checksum)
+    self._store.delete(checksum, key)
 
-  @classmethod
-  def get_all(clazz, filename):
+  def keys(self, filename):
     checksum = bf_checksum_cache.get_checksum(filename, 'sha256')
-    return bf_metadata_store.get_all(checksum)
+    return self._store.keys(checksum)
+
+  def get_all(self, filename):
+    checksum = bf_checksum_cache.get_checksum(filename, 'sha256')
+    return self._store.get_all(checksum)
+```
+
+Production use — default database:
+```python
+file_store = bf_metadata_file_store()
+```
+
+Unit test or custom app — explicit database:
+```python
+file_store = bf_metadata_file_store(database_path='/tmp/test_metadata.db')
 ```
 
 ---
@@ -366,7 +379,7 @@ def _command_get(self, key, file, options): ...
 def _command_keys(self, file, options): ...
 ```
 
-Each resolves the filename to an absolute path, then delegates to `bf_metadata_file_store`.
+Each resolves the filename to an absolute path, then instantiates `bf_metadata_file_store()` with no arguments (production default database) and delegates to it.
 
 ---
 
@@ -397,7 +410,14 @@ A: Phase 1 (single global database) is sufficient for the immediate goal of repl
 
 ## 12. Unit Tests
 
+All tests that exercise `bf_metadata_database`, `bf_metadata_store`, or `bf_metadata_file_store` pass an explicit `database_path` pointing to a temp file so they never touch `~/.bes/metadata/metadata.db`. The temp file is created by `self.make_temp_file(suffix='.db', non_existent=True)` (the standard `unit_test` helper).
+
 ### 12.1 `bf_metadata_database`
+
+Each test opens a fresh instance:
+```python
+database = bf_metadata_database(self.make_temp_file(suffix='.db', non_existent=True))
+```
 
 - `test_set_and_get` — set a key, get it back.
 - `test_get_missing` — get a key that was never set returns `None`.
@@ -408,12 +428,17 @@ A: Phase 1 (single global database) is sufficient for the immediate goal of repl
 - `test_get_all` — set three keys, `get_all()` returns correct dict.
 - `test_row_count` — set N rows, `row_count()` returns N.
 - `test_schema_version` — open fresh database, schema version matches `SCHEMA_VERSION`.
-- `test_schema_migration` — manually write wrong version into `__bes_table_version__`, reopen; tables recreated cleanly.
+- `test_schema_migration` — manually write wrong version into `__bes_table_version__`, reopen same path; tables recreated cleanly.
 - `test_vacuum_skips_small_db` — row count below threshold, vacuum does not delete anything.
-- `test_vacuum_deletes_old_rows` — insert rows with artificially old `stored_at`, row count above threshold; after vacuum old rows are gone.
+- `test_vacuum_deletes_old_rows` — insert rows with artificially old `stored_at`, row count above threshold; after reopening (vacuum runs on open) old rows are gone.
 - `test_vacuum_skips_no_old_rows` — all rows recent, vacuum does nothing even above threshold.
 
 ### 12.2 `bf_metadata_store`
+
+Each test opens a fresh instance with a temp database:
+```python
+store = bf_metadata_store(database_path=self.make_temp_file(suffix='.db', non_existent=True))
+```
 
 - `test_set_and_get` — set via checksum key, get back.
 - `test_get_missing_checksum` — unknown checksum returns `None`.
@@ -423,6 +448,11 @@ A: Phase 1 (single global database) is sufficient for the immediate goal of repl
 - `test_get_all` — returns all key/value pairs for a checksum.
 
 ### 12.3 `bf_metadata_file_store`
+
+Each test opens a fresh instance with a temp database:
+```python
+file_store = bf_metadata_file_store(database_path=self.make_temp_file(suffix='.db', non_existent=True))
+```
 
 - `test_set_and_get` — write a file, set a key, get it back.
 - `test_survives_rename` — write file, set key, rename file to a new path, get key via new path; should return same value (same sha256).
