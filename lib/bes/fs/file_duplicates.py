@@ -113,8 +113,9 @@ class file_duplicates(object):
   def _sort_criteria_by_prefer_prefixes(clazz, filename, prefer_prefixes):
     if not prefer_prefixes:
       return None
+    filename = path.normpath(filename)
     for p in prefer_prefixes:
-      if filename.startswith(p):
+      if filename.startswith(path.normpath(p)):
         return 0
     return 1
 

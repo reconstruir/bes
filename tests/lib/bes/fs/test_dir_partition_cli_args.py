@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.dir_partition_defaults import dir_partition_defaults
@@ -88,15 +90,15 @@ class test_dir_partition_cli_args(program_unit_test):
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
 
-    self.assert_string_equal_fuzzy(f'''\
-{t.src_dir}/a/kiwi-10.jpg => {t.dst_dir}/kiwi/kiwi-10.jpg
-{t.src_dir}/a/kiwi-20.jpg => {t.dst_dir}/kiwi/kiwi-20.jpg
-{t.src_dir}/a/kiwi-30.jpg => {t.dst_dir}/kiwi/kiwi-30.jpg 
-{t.src_dir}/b/lemon-10.jpg => {t.dst_dir}/lemon/lemon-10.jpg 
-{t.src_dir}/b/lemon-20.jpg => {t.dst_dir}/lemon/lemon-20.jpg 
-{t.src_dir}/b/lemon-30.jpg => {t.dst_dir}/lemon/lemon-30.jpg 
-{t.src_dir}/c/cheese-10.jpg => {t.dst_dir}/cheese/cheese-10.jpg
-''', t.result.output )
+    self.assert_string_equal_fuzzy(
+      f'{path.join(t.src_dir, "a", "kiwi-10.jpg")} => {path.join(t.dst_dir, "kiwi", "kiwi-10.jpg")}\n'
+      f'{path.join(t.src_dir, "a", "kiwi-20.jpg")} => {path.join(t.dst_dir, "kiwi", "kiwi-20.jpg")}\n'
+      f'{path.join(t.src_dir, "a", "kiwi-30.jpg")} => {path.join(t.dst_dir, "kiwi", "kiwi-30.jpg")}\n'
+      f'{path.join(t.src_dir, "b", "lemon-10.jpg")} => {path.join(t.dst_dir, "lemon", "lemon-10.jpg")}\n'
+      f'{path.join(t.src_dir, "b", "lemon-20.jpg")} => {path.join(t.dst_dir, "lemon", "lemon-20.jpg")}\n'
+      f'{path.join(t.src_dir, "b", "lemon-30.jpg")} => {path.join(t.dst_dir, "lemon", "lemon-30.jpg")}\n'
+      f'{path.join(t.src_dir, "c", "cheese-10.jpg")} => {path.join(t.dst_dir, "cheese", "cheese-10.jpg")}\n',
+      t.result.output )
     
   def _partition_test(self,
                       extra_content_items = None,

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.testing.temp_content import multiplied_temp_content
@@ -87,11 +89,11 @@ class test_dirs_cli_args(program_unit_test):
     ]
     self.assertEqual( 0, t.result.exit_code )
     self.assert_filename_list_equal( expected, t.src_dirs )
-    self.assert_string_equal_fuzzy( f'''
-DRY_RUN: would remove {t.src_dir}/a/empty2
-DRY_RUN: would remove {t.src_dir}/empty1
-DRY_RUN: would remove {t.src_dir}/foo/bar/baz/empty3
-''', t.result.output )
+    self.assert_string_equal_fuzzy(
+      f'\nDRY_RUN: would remove {path.join(t.src_dir, "a", "empty2")}\n'
+      f'DRY_RUN: would remove {path.join(t.src_dir, "empty1")}\n'
+      f'DRY_RUN: would remove {path.join(t.src_dir, "foo", "bar", "baz", "empty3")}\n',
+      t.result.output )
     
   def _test(self, items, recursive = False, dry_run = False):
     with dir_operation_tester(extra_content_items = items) as test:

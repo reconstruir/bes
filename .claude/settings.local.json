@@ -10,7 +10,10 @@
       "Bash(bash t:*)",
       "Bash(python *)",
       "Bash(./r bin/best.py btl lexer_make_diagram --format svg tests/lib/bes/btl/_test_simple_lexer.bld /tmp/test_diagram.svg)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Skill(keybindings-help)",
+      "Bash(bash *)",
+      "PowerShell(uv run *)"
     ]
   }
 }

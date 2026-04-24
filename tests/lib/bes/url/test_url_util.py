@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys
+
 from bes.testing.unit_test import unit_test
 from bes.url.url_util import url_util
 
@@ -17,6 +19,8 @@ class test_url_util(unit_test):
     self.assertEqual( 'http://www.example.com/', f('http://www.example.com/') )
 
   def test_make_file_url(self):
+    if self._HOST == 'windows':
+      self.raise_skip('Unix-absolute path test not applicable on Windows')
     f = url_util.make_file_url
 #    self.assertEqual( 'file:///foo/bar/kiwi.txt', f(self.xp_filename(self.make_abspath('/foo/bar/kiwi.txt'))) )
     self.assertEqual( 'file:///foo/bar/kiwi.txt', f('/foo/bar/kiwi.txt') )

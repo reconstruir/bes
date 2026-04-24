@@ -66,9 +66,9 @@ class file_util(object):
 
   @classmethod
   def _cross_device_safe_rename(clazz, src, dst):
-    'Rename that deals with cross device link issues.' 
+    'Rename that deals with cross device link issues.'
     try:
-      os.rename(src, dst)
+      os.replace(src, dst)
     except OSError as ex:
       if ex.errno == errno.EXDEV:
         shutil.move(src, dst)

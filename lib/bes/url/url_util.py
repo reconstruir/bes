@@ -192,4 +192,4 @@ class url_util(object):
     
     if not path.isabs(filename):
       filename = path.abspath(filename)
-    return 'file://' + urllib_request.pathname2url(filename)
+    return 'file:///' + urllib_request.pathname2url(filename).lstrip('/')

@@ -87,7 +87,7 @@ class log(object):
       messages = [ clazz._make_message_i(tag, level, message, timestamp) ]
     for m in messages:
       m = clazz._filter_string_i(m, clazz._filters)
-      clazz._log_writer.write(m + os.linesep)
+      clazz._log_writer.write(m + '\n')
     clazz._log_writer.flush()
       
   @classmethod

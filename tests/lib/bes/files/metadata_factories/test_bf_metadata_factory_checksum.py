@@ -47,10 +47,10 @@ class test_bf_metadata_factory_checksum(unit_test):
                         bf_metadata.get_metadata(tmp, 'bes__checksum__sha1__0.0') )
       self.assertEqual( hash_util.hash_string_sha256('lemon'),
                         bf_metadata.get_metadata(tmp, 'bes__checksum__sha256__0.0') )
-      
-      bf_file_ops.remove(tmp)
-      
-      return
+
+    bf_file_ops.remove(tmp)
+
+    return
 
      # FIXME: wtf
 #    hash_util.hash_string_md5()

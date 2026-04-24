@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.testing.temp_content import temp_content
 
@@ -20,11 +22,11 @@ class test_file_duplicates_cli_args(program_unit_test):
     ]
     t = self._find_dups_test(extra_content_items = items,
                              recursive = True)
-    self.assert_string_equal_fuzzy(f'''\
-{t.src_dir}/a/kiwi.jpg:
-  {t.src_dir}/b/kiwi_dup1.jpg
-  {t.src_dir}/c/kiwi_dup2.jpg
-''', t.result.output )
+    self.assert_string_equal_fuzzy(
+      f'{path.join(t.src_dir, "a", "kiwi.jpg")}:\n'
+      f'  {path.join(t.src_dir, "b", "kiwi_dup1.jpg")}\n'
+      f'  {path.join(t.src_dir, "c", "kiwi_dup2.jpg")}\n',
+      t.result.output )
 
   def test_find_duplicates_delete(self):
     items = [
@@ -37,11 +39,11 @@ class test_file_duplicates_cli_args(program_unit_test):
     t = self._find_dups_test(extra_content_items = items,
                              recursive = True,
                              delete = True)
-    self.assert_string_equal_fuzzy(f'''\
-{t.src_dir}/a/kiwi.jpg:
-  {t.src_dir}/b/kiwi_dup1.jpg
-  {t.src_dir}/c/kiwi_dup2.jpg
-''', t.result.output )
+    self.assert_string_equal_fuzzy(
+      f'{path.join(t.src_dir, "a", "kiwi.jpg")}:\n'
+      f'  {path.join(t.src_dir, "b", "kiwi_dup1.jpg")}\n'
+      f'  {path.join(t.src_dir, "c", "kiwi_dup2.jpg")}\n',
+      t.result.output )
 
     src_after_expected = [
       'a',
@@ -63,11 +65,11 @@ class test_file_duplicates_cli_args(program_unit_test):
                              recursive = True,
                              delete = True,
                              keep_empty_dirs = True)
-    self.assert_string_equal_fuzzy(f'''\
-{t.src_dir}/a/kiwi.jpg:
-  {t.src_dir}/b/kiwi_dup1.jpg
-  {t.src_dir}/c/kiwi_dup2.jpg
-''', t.result.output )
+    self.assert_string_equal_fuzzy(
+      f'{path.join(t.src_dir, "a", "kiwi.jpg")}:\n'
+      f'  {path.join(t.src_dir, "b", "kiwi_dup1.jpg")}\n'
+      f'  {path.join(t.src_dir, "c", "kiwi_dup2.jpg")}\n',
+      t.result.output )
     
     src_after_expected = [
       'a',

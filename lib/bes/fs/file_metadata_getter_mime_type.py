@@ -20,6 +20,8 @@ class file_metadata_getter_mime_type(file_metadata_getter_base):
     filename = file_check.check_file(filename)
 
     value = file_mime.mime_type(filename)
+    if value is None:
+      return None
     return value.encode('utf-8')
 
   #@abstractmethod

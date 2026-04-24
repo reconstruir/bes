@@ -235,9 +235,10 @@ class refactor_files(object):
     affected_dirs = sorted(algorithm.unique(affected_dirs))
     decomposed_affected_items = []
     for f in affected_dirs:
-      next_paths = bf_path.decompose(path.sep + f.dirname)
-      for next_path in next_paths:
-        item = clazz._affected_dir(f.root_dir, file_util.lstrip_sep(next_path))
+      parts = bf_path.split(f.dirname)
+      for i in range(1, len(parts) + 1):
+        rel_prefix = path.join(*parts[:i])
+        item = clazz._affected_dir(f.root_dir, rel_prefix)
         decomposed_affected_items.append(item)
     decomposed_affected_items = sorted(decomposed_affected_items, key = lambda item: bf_path.depth(item.dirname), reverse = True)
     decomposed_affected_dirs = [ path.join(item.root_dir, item.dirname) for item in decomposed_affected_items ]

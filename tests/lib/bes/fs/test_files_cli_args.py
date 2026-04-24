@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.file_util import file_util
 
@@ -155,17 +157,17 @@ class test_files_cli_args(program_unit_test):
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
 
-    self.assert_string_equal_fuzzy(f'''\
-DRY_RUN: {t.src_dir}/a/kiwi-10.txt => {t.dst_dir}/a/kiwi-10.txt
-DRY_RUN: {t.src_dir}/a/kiwi-20.txt => {t.dst_dir}/a/kiwi-20.txt
-DRY_RUN: {t.src_dir}/a/kiwi-30.txt => {t.dst_dir}/a/kiwi-30.txt
-DRY_RUN: {t.src_dir}/b/lemon-10.txt => {t.dst_dir}/b/lemon-10.txt
-DRY_RUN: {t.src_dir}/b/lemon-20.txt => {t.dst_dir}/b/lemon-20.txt
-DRY_RUN: {t.src_dir}/b/lemon-30.txt => {t.dst_dir}/b/lemon-30.txt
-DRY_RUN: {t.src_dir}/c/cheese-10.txt => {t.dst_dir}/c/cheese-10.txt
-DRY_RUN: {t.src_dir}/icons/foo.note => {t.dst_dir}/icons/foo.note
-DRY_RUN: {t.src_dir}/readme.md => {t.dst_dir}/readme.md
-''', t.result.output )
+    self.assert_string_equal_fuzzy(
+      f'DRY_RUN: {path.join(t.src_dir, "a", "kiwi-10.txt")} => {path.join(t.dst_dir, "a", "kiwi-10.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "a", "kiwi-20.txt")} => {path.join(t.dst_dir, "a", "kiwi-20.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "a", "kiwi-30.txt")} => {path.join(t.dst_dir, "a", "kiwi-30.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "b", "lemon-10.txt")} => {path.join(t.dst_dir, "b", "lemon-10.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "b", "lemon-20.txt")} => {path.join(t.dst_dir, "b", "lemon-20.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "b", "lemon-30.txt")} => {path.join(t.dst_dir, "b", "lemon-30.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "c", "cheese-10.txt")} => {path.join(t.dst_dir, "c", "cheese-10.txt")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "icons", "foo.note")} => {path.join(t.dst_dir, "icons", "foo.note")}\n'
+      f'DRY_RUN: {path.join(t.src_dir, "readme.md")} => {path.join(t.dst_dir, "readme.md")}\n',
+      t.result.output )
     
   def xtest_partition_with_prefix_dry_run(self):
     items = [

@@ -212,14 +212,10 @@ class bf_attr_getter_mixin:
 
     self._log.log_d(f'{label}: 3: value={value}')
     self.set_bytes(filename, key, value)
-    file_mtime = bf_date.get_modification_date(filename)
     self._log.log_d(f'{label}: 3: file_mtime={file_mtime}')
     self.set_date(filename, mtime_key, file_mtime)
-    # setting the date in the line above has the side effect
-    # of changing the mtime in some implementations.  so we
-    # force it to be what it was right after setting the value
-    # which is in the past (usually microseconds) but guaranteed
-    # to match what what was set in set_date()
+    # Restore the mtime to what it was before any ADS writes (which can
+    # alter the file's mtime on some filesystems such as Windows NTFS).
     bf_date.set_modification_date(filename, file_mtime)
     return self._get_cached_bytes_result(value, file_mtime)
 

@@ -12,6 +12,8 @@ from bes.fs.testing.temp_content import temp_content
 class test_file_copy(unit_test):
 
   def test_copy_tree_basic(self):
+    if self._HOST == 'windows':
+      self.raise_skip('symlinks require elevated privileges on Windows')
     src_tmp_dir = temp_content.write_items_to_temp_dir([
       'file 1/2/3/4/5/apple.txt "apple.txt\n" 644',
       'file 1/2/3/4/5/kiwi.txt "kiwi.txt\n" 644',
@@ -41,6 +43,8 @@ class test_file_copy(unit_test):
     self.assertEqual( expected_files, actual_files )
 
   def test_copy_tree_with_excludes(self):
+    if self._HOST == 'windows':
+      self.raise_skip('symlinks require elevated privileges on Windows')
     self.maxDiff = None
     src_tmp_dir = temp_content.write_items_to_temp_dir([
       'file 1/2/3/4/5/apple.txt "apple.txt\n" 644',
@@ -69,6 +73,8 @@ class test_file_copy(unit_test):
     self.assertEqual( expected_files, actual_files )
 
   def test_copy_tree_spaces_in_filenames(self):
+    if self._HOST == 'windows':
+      self.raise_skip('symlinks require elevated privileges on Windows')
     self.maxDiff = None
     src_tmp_dir = temp_content.write_items_to_temp_dir([
       'file 1/2/3/4/5/apple.txt "apple.txt\n" 644',

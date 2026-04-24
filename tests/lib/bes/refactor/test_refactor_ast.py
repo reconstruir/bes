@@ -183,7 +183,9 @@ class orange(kiwi):
     result = []
     for item in real_result:
       filename = file_util.remove_head(item.filename, tmp_dir + os.sep)
-      t = ( filename, item.snippet, item.snippet_lines )
+      filename = filename.replace(path.sep, '/')
+      snippet = item.snippet.replace('\r\n', '\n')
+      t = ( filename, snippet, item.snippet_lines )
       result.append(t)
     json = json_util.to_json(result, indent = 2)
     return self._test_grep_result(tmp_dir, real_result, json)
