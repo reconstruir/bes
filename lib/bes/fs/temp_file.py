@@ -6,7 +6,13 @@ from ..system.filesystem import filesystem
 from ..system.check import check
 
 import os, os.path as path, sys, tempfile
-import pty
+
+_HAS_PTY = False
+try:
+  import pty
+  _HAS_PTY = True
+except ModuleNotFoundError:
+  pass
 
 from .file_util import file_util
 
@@ -104,6 +110,8 @@ class temp_file(object):
 
   @classmethod
   def make_temp_chardev(clazz):
+    if not _HAS_PTY:
+      raise NotImplementedError('make_temp_chardev is not supported on this platform')
     master_fd, slave_fd = pty.openpty()
     real_path = os.ttyname(slave_fd)
     return real_path
