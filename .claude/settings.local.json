@@ -7,7 +7,10 @@
       "Bash(./t:*)",
       "Bash(bash /Users/test1/proj/bes/t tests/lib/bes/files/test_bf_filename.py)",
       "Bash(PYTHONPATH=/Users/test1/proj/bes/lib uv run:*)",
-      "Bash(bash t:*)"
+      "Bash(bash t:*)",
+      "Bash(python *)",
+      "Bash(./r bin/best.py btl lexer_make_diagram --format svg tests/lib/bes/btl/_test_simple_lexer.bld /tmp/test_diagram.svg)",
+      "Read(//tmp/**)"
     ]
   }
 }

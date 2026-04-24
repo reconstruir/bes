@@ -63,6 +63,10 @@ class _bf_attr_getter_xattr(_bf_attr_getter_i, bf_attr_getter_mixin):
     encoded_key = self._encode_key(key)
     xattr.removexattr(filename, encoded_key)
   
+  # macOS stamps these onto files automatically; they are protected and cannot
+  # be removed by user code, so they must not be reported as user attributes.
+  _SYSTEM_KEY_PREFIXES = ( 'com.apple.', )
+
   #@abstractmethod
   def keys(self, filename):
     'Return all the keys set for filename.'
@@ -70,7 +74,11 @@ class _bf_attr_getter_xattr(_bf_attr_getter_i, bf_attr_getter_mixin):
     bf_check.check_file_is_readable(filename)
 
     raw_keys = [ key for key in xattr.xattr(filename).iterkeys() ]
-    return sorted([ self._decode_key(key) for key in raw_keys ])
+    decoded = [ self._decode_key(key) for key in raw_keys ]
+    return sorted([ k for k in decoded if not self._is_system_key(k) ])
+
+  def _is_system_key(self, key):
+    return any(key.startswith(prefix) for prefix in self._SYSTEM_KEY_PREFIXES)
     
   #@abstractmethod
   def clear(self, filename):

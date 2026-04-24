@@ -68,6 +68,10 @@ class _file_attributes_xattr(file_attributes_base):
     encoded_key = clazz._encode_key(key)
     xattr.removexattr(filename, encoded_key)
   
+  # macOS stamps these onto files automatically; they are protected and cannot
+  # be removed by user code, so they must not be reported as user attributes.
+  _SYSTEM_KEY_PREFIXES = ( 'com.apple.', )
+
   @classmethod
   #@abstractmethod
   def keys(clazz, filename):
@@ -76,7 +80,12 @@ class _file_attributes_xattr(file_attributes_base):
     clazz.check_file_is_readable(filename)
 
     raw_keys = [ key for key in xattr.xattr(filename).iterkeys() ]
-    return sorted([ clazz._decode_key(key) for key in raw_keys ])
+    decoded = [ clazz._decode_key(key) for key in raw_keys ]
+    return sorted([ k for k in decoded if not clazz._is_system_key(k) ])
+
+  @classmethod
+  def _is_system_key(clazz, key):
+    return any(key.startswith(prefix) for prefix in clazz._SYSTEM_KEY_PREFIXES)
     
   @classmethod
   #@abstractmethod
