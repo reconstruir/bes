@@ -6,6 +6,7 @@ from bes.bcli.bcli_application import bcli_application
 
 from ..files.checksum.bf_checksum_command_factory import bf_checksum_command_factory
 from ..files.duplicates.bf_file_duplicates_command_factory import bf_file_duplicates_command_factory
+from ..files.metadata.bf_metadata_command_factory import bf_metadata_command_factory
 from ..files.resolve.bf_file_resolver_command_factory import bf_file_resolver_command_factory
 
 class bes_application(bcli_application):
@@ -19,5 +20,6 @@ class bes_application(bcli_application):
     return [
       bf_checksum_command_factory,
       bf_file_duplicates_command_factory,
+      bf_metadata_command_factory,
       bf_file_resolver_command_factory,
     ]
