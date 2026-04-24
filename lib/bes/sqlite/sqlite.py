@@ -24,21 +24,22 @@ class sqlite(object):
     _row_class = namedtuple('_row', fields)
     return _row_class(*row)
 
-  def __init__(self, filename, log_tag = None, factory = None):
+  def __init__(self, filename, log_tag = None, factory = None, check_same_thread = True):
     factory = factory or sqlite_connection
-    
+
     log.add_logging(self, tag = log_tag or 'sqlite')
-    
+
     self.log_i('sqlite(filename=%s)' % (filename))
     self._filename = filename
     if self._filename != ':memory:':
       file_util.ensure_file_dir(self._filename)
     self._filename_log_label = path.basename(self._filename)
-    
+
     self._connection = sqlite3.connect(self._filename,
                                        isolation_level = 'IMMEDIATE',
                                        factory = factory,
-                                       detect_types = sqlite3.PARSE_DECLTYPES)
+                                       detect_types = sqlite3.PARSE_DECLTYPES,
+                                       check_same_thread = check_same_thread)
     self._cursor = self._connection.cursor()
 
   @property
