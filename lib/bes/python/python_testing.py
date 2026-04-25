@@ -234,8 +234,8 @@ exit /b 0
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
     path.join(tmp_dir, filename)
     tmp_exe = clazz.make_fake_python(path.join(tmp_dir, filename), version)
-    if mode:
-      os.chmod(tmp_exe, mode)
+    if perm:
+      os.chmod(tmp_exe, perm)
     return tmp_exe
       
   @classmethod

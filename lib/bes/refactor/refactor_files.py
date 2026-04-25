@@ -13,6 +13,7 @@ from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.file_search import file_search
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
 from bes.fs.filename_util import filename_util
 from bes.system.check import check
 from bes.system.log import logger
@@ -52,7 +53,7 @@ class refactor_files(object):
     def _match_text_files(filename):
       if path.islink(filename):
         return False
-      if bf_file_ops.is_empty(filename):
+      if bf_entry(filename).is_empty:
         return False
       return text_detect.file_is_text(filename)
     resolver_options = file_resolver_options(recursive = True,

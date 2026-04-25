@@ -12,6 +12,7 @@ from bes.system.log import logger
 
 from .file_attributes_metadata import file_attributes_metadata
 from bes.files.bf_check import bf_check
+from bes.files.bf_entry import bf_entry
 from .file_duplicates_options import file_duplicates_options
 from .file_duplicates_setup import file_duplicates_setup
 from bes.files.bf_file_ops import bf_file_ops
@@ -132,7 +133,7 @@ class file_duplicates(object):
   def _match_function(clazz, filename, options):
     try:
       if not options.include_empty_files:
-        if bf_file_ops.is_empty(filename):
+        if bf_entry(filename).is_empty:
           return False
       if options.should_ignore_file(filename):
         return False

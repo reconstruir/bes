@@ -157,12 +157,15 @@ class bf_file_ops(object):
   @classmethod
   def same_device_id(clazz, src, dst):
     'Return True if src and dst have the same device id.'
+    src_entry = bf_entry(src)
+    dst_entry = bf_entry(dst)
+    
     dst_dir = path.dirname(dst)
     created_dst_dir = False
     if not path.exists(dst_dir):
       created_dst_dir = True
       clazz.mkdir(dst_dir)
-    result = clazz.device_id(src) == clazz.device_id(dst_dir)
+    result = src_entry.device_id == dst_entry.device_id
     if created_dst_dir:
       os.removedirs(dst_dir)
     return result

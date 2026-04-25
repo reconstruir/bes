@@ -12,6 +12,7 @@ from bes.system.log import logger
 
 from bes.files.bf_check import bf_check
 from bes.files.bf_path import bf_path
+from bes.files.bf_entry import bf_entry
 
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
@@ -188,7 +189,7 @@ class file_resolver(object):
     for f in resolved_files:
       should_ignore = False
       if file_ignorer:
-        should_ignore = file_ignorer.should_ignore(f.filename_abs) or bf_file_ops.is_empty(f.filename_abs)
+        should_ignore = file_ignorer.should_ignore(f.filename_abs) or bf_entry(f.filename_abs).is_empty
       if not should_ignore:
         result.append(f.filename_abs)
     return sorted(result)
