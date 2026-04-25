@@ -10,7 +10,6 @@ from .bf_filename import bf_filename
 from .bf_check import bf_check
 from .bf_entry import bf_entry
 from .bf_entry_list import bf_entry_list
-from .bf_path_type import bf_path_type
 
 class bf_dir(object):
     
@@ -39,14 +38,13 @@ class bf_dir(object):
     return result
 
   @classmethod
-  def list_dirs(clazz, where, relative = False, patterns = None, path_type = 'basename'):
+  def list_dirs(clazz, where, relative = False, patterns = None):
     'Like list() but only returns dirs only.'
     where = bf_check.check_dir(where)
     check.check_bool(relative)
     patterns = check.check_string_seq(patterns, allow_none = True, default_value = [])
-    path_type = check.check_bf_path_type(path_type)
     
-    match = bf_file_matcher(patterns = patterns, path_type = path_type)
+    match = bf_file_matcher(patterns = patterns)
     match.add_item_callable(path.isdir)
     return clazz.list(where, relative = relative, file_match = match)
 
@@ -54,7 +52,7 @@ class bf_dir(object):
   def list_files(clazz, where, relative = False, patterns = None, basename = False):
     'Like list() but only returns files.'
     matcher = bf_file_matcher(patterns = patterns)
-    matcher.add_item_callable(path.isfile, path_type = 'absolute')
+    matcher.add_item_callable(path.isfile)
     return clazz.list(where, relative = relative, matcher = matcher)
   
   @classmethod
