@@ -4,7 +4,7 @@ import os
 import os.path as path
 from ..system.check import check
 from bes.sqlite.sqlite import sqlite
-from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 
 from ._detail.file_metadata_db import file_metadata_db
 
@@ -30,33 +30,33 @@ class file_metadata(object):
   def get_values(self, what, filename):
     check.check_string(what)
     check.check_string(filename)
-    filename = bf_file_ops.lstrip_sep(filename)
+    filename = bf_filename.lstrip_sep(filename)
     return self._db.get_values(what, filename)
 
   def replace_values(self, what, filename, values):
     check.check_string(what)
     check.check_string(filename)
-    filename = bf_file_ops.lstrip_sep(filename)
+    filename = bf_filename.lstrip_sep(filename)
     self._db.replace_values(what, filename, values)
 
   def set_value(self, what, filename, key, value):
     check.check_string(what)
     check.check_string(filename)
-    filename = bf_file_ops.lstrip_sep(filename)
+    filename = bf_filename.lstrip_sep(filename)
     self._db.set_value(what, filename, key, value)
 
   def get_value(self, what, filename, key):
     check.check_string(what)
     check.check_string(filename)
-    filename = bf_file_ops.lstrip_sep(filename)
+    filename = bf_filename.lstrip_sep(filename)
     return self._db.get_value(what, filename, key)
 
   def clear(self, what, filename):
     check.check_string(what)
     check.check_string(filename)
-    filename = bf_file_ops.lstrip_sep(filename)
+    filename = bf_filename.lstrip_sep(filename)
     self._db.clear(what, filename)
 
   def _table_name(self, what, filename):
-    filename = bf_file_ops.lstrip_sep(filename)
+    filename = bf_filename.lstrip_sep(filename)
     return self._db._table_name(what, filename)

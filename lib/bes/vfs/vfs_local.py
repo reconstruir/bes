@@ -9,13 +9,18 @@ from bes.factory.factory_field import factory_field
 from bes.fs.checksum import checksum
 from bes.fs.checksum_set import checksum_set
 from bes.fs.file_attributes import file_attributes
-from bes.fs.file_checksum_db import file_checksum_db
 from bes.fs.file_metadata import file_metadata
-from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
 
+from ..system.filesystem import filesystem
+
+from ..files.bf_date import bf_date
+from ..files.bf_entry import bf_entry
+from ..files.bf_file_ops import bf_file_ops
+from ..files.bf_filename import bf_filename
 from ..files.find.bf_file_finder import bf_file_finder
+from ..files.checksum.bf_checksum_cache import bf_checksum_cache
 
 from .vfs_base import vfs_base
 from .vfs_error import vfs_error
@@ -92,7 +97,7 @@ class vfs_local(vfs_base):
       if root == local_dir_path:
         rel = os.sep
       else:
-        rel = bf_file_ops.ensure_lsep(bf_file_ops.remove_head(root, local_dir_path))
+        rel = bf_filename.ensure_lsep(bf_filename.remove_head(root, local_dir_path))
       self.log.log_d('list_dir: next: root={} dirs={} files={} rel={}'.format(root, dirs, files, rel))
       files_set = set(files)
       if not self._should_include_file(rel):
@@ -138,7 +143,7 @@ class vfs_local(vfs_base):
     return entry
 
   def _should_include_file(clazz, filename):
-    return not bf_file_ops.is_hidden(filename)
+    return not bf_entry(filename).is_hidden
   
   #@abstractmethod
   def has_file(self, remote_filename):
@@ -187,7 +192,7 @@ class vfs_local(vfs_base):
     if not path.exists(local_filename):
       raise vfs_error('local_filename not found: {}'.format(local_filename))
     bf_file_ops.copy(local_filename, p)
-    bf_file_ops.sync()
+    filesystem.sync()
 
   #@abstractmethod
   def download_to_file(self, remote_filename, local_filename):
@@ -225,14 +230,14 @@ class vfs_local(vfs_base):
   
   def _make_local_file_path(self, remote_filename):
     'Make a local path for remote_filename.'
-    return path.join(self._local_root_dir, bf_file_ops.lstrip_sep(remote_filename))
+    return path.join(self._local_root_dir, bf_filename.lstrip_sep(remote_filename))
 
   def _make_local_dir_path(self, remote_dir):
     'Make a local dir path.'
     if remote_dir == self.SEP:
       return self._local_root_dir
     else:
-      return bf_file_ops.rstrip_sep(path.join(self._local_root_dir, bf_file_ops.lstrip_sep(remote_dir)))
+      return bf_filename.rstrip_sep(path.join(self._local_root_dir, bf_filename.lstrip_sep(remote_dir)))
 
   def _file_type(self, file_path):
     if path.isdir(file_path):
@@ -246,7 +251,7 @@ class vfs_local(vfs_base):
       chk = checksum_set(checksum(checksum.SHA256, self._get_checksum(local_filename)))
       db = file_metadata(self._metadata_db_filename)    
       attributes = db.get_values('attributes', local_filename).to_dict()
-      size = bf_file_ops.size(local_filename)
+      size = bf_entry(local_filename).size
     else:
       chk = None
       attributes = None
@@ -254,7 +259,7 @@ class vfs_local(vfs_base):
     if options.hardcode_modification_date:
       modification_date = options.hardcode_modification_date
     else:
-      modification_date = bf_file_ops.get_modification_date(local_filename)
+      modification_date = bf_date.get_modification_date(local_filename)
     return vfs_file_info(remote_filename,
                          ftype,
                          modification_date,
@@ -264,9 +269,7 @@ class vfs_local(vfs_base):
                          children)
     
   def _get_checksum(self, local_filename):
-    db = file_checksum_db(self._checksum_db_filename)
-    checksum = db.checksum('sha256', local_filename)
-    return checksum
+    return bf_checksum_cache.get_checksum(local_filename, 'sha256')
 
   #@abstractmethod
   def mkdir(self, remote_dir):

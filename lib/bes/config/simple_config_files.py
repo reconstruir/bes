@@ -213,10 +213,10 @@ class simple_config_files(object):
       return None
     i = clazz._find_section_delimiter_index(config)
     if i < 0:
-      return clazz._parsed_config(config, None, bf_file_ops.extension(config))
+      return clazz._parsed_config(config, None, bf_filename.extension(config))
     filename = config[0:i]
     section = config[i+1:]
-    return clazz._parsed_config(filename, section, bf_file_ops.extension(filename))
+    return clazz._parsed_config(filename, section, bf_filename.extension(filename))
 
   @classmethod
   def _find_section_delimiter_index(clazz, config):

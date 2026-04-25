@@ -13,6 +13,7 @@ from bes.archive.archiver import archiver
 from bes.archive.temp_archive import temp_archive
 from bes.fs.file_mime import file_mime
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.fs.temp_file import temp_file
 from bes.url.url_util import url_util
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -83,7 +84,7 @@ class test_web_server(unit_test):
       self.log_i('handle_request(%s)' % (path_info))
       if path_info not in self._known_tarballs:
         return self.response_error(start_response, 404)
-      extension = bf_file_ops.extension(path_info)
+      extension = bf_filename.extension(path_info)
       if 'large' in path_info:
         items = [
           temp_archive.item('kiwi.bin', content = self._make_large_content()),

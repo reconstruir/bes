@@ -222,7 +222,7 @@ exit /b 0
     if host.is_unix():
       return clazz._make_fake_python_unix(filename, version)
     elif host.is_windows():
-      assert bf_file_ops.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+      assert bf_filename.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
       return clazz._make_fake_python_windows(filename + '.cmd', version)
     else:
       host.raise_unsupported_system()
@@ -259,7 +259,7 @@ exit /b 0
     if host.is_unix():
       return clazz._make_fake_pip_unix(filename, version, py_version)
     elif host.is_windows():
-      assert bf_file_ops.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+      assert bf_filename.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
       return clazz._make_fake_pip_windows(filename + '.cmd', version, py_version)
     else:
       host.raise_unsupported_system()

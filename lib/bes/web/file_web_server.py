@@ -49,6 +49,6 @@ class file_web_server(web_server):
     p = self.file_path(filename)
     if path.exists(p):
       raise IOError('already existsL {}'.format(filename))
-    extension = bf_file_ops.extension(filename)
+    extension = bf_filename.extension(filename)
     tmp_archive = temp_archive.make_temp_archive(items, extension)
     bf_file_ops.rename(tmp_archive, p)

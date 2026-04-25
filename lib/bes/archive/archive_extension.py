@@ -71,23 +71,23 @@ class archive_extension(object):
   @classmethod
   def write_format_for_filename(clazz, filename):
     clazz._log.log_method_d()
-    return clazz.write_format(bf_file_ops.extension(filename))
+    return clazz.write_format(bf_filename.extension(filename))
 
   @classmethod
   def is_valid_zip_filename(clazz, filename):
-    return clazz.is_valid_zip_ext(bf_file_ops.extension(filename))
+    return clazz.is_valid_zip_ext(bf_filename.extension(filename))
 
   @classmethod
   def is_valid_xz_filename(clazz, filename):
-    return clazz.is_valid_xz_ext(bf_file_ops.extension(filename))
+    return clazz.is_valid_xz_ext(bf_filename.extension(filename))
 
   @classmethod
   def is_valid_dmg_filename(clazz, filename):
-    return clazz.is_valid_dmg_ext(bf_file_ops.extension(filename))
+    return clazz.is_valid_dmg_ext(bf_filename.extension(filename))
 
   @classmethod
   def is_valid_tar_filename(clazz, filename):
-    return clazz.is_valid_tar_ext(bf_file_ops.extension(filename))
+    return clazz.is_valid_tar_ext(bf_filename.extension(filename))
 
   @classmethod
   def extension_for_filename(clazz, filename):

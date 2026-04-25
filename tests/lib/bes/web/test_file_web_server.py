@@ -37,12 +37,12 @@ class test_file_web_server(unit_test):
     url = tester.make_url('foo.txt')
     download_tmp = url_util.download_to_temp_file(url, suffix = '.txt')
     self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
-    self.assertEqual( 'this is foo.txt\n', bf_file_ops.read(download_tmp, codec = 'utf8') )
+    self.assertEqual( 'this is foo.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     url = tester.make_url('subdir/subberdir/baz.txt')
     download_tmp = url_util.download_to_temp_file(url, suffix = '.txt')
     self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
-    self.assertEqual( 'this is baz.txt\n', bf_file_ops.read(download_tmp, codec = 'utf8') )
+    self.assertEqual( 'this is baz.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:
       url = tester.make_url('notthere.txt')
@@ -64,12 +64,12 @@ class test_file_web_server(unit_test):
     url = tester.make_url('foo.txt')
     download_tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'), suffix = '.txt')
     self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
-    self.assertEqual( 'this is foo.txt\n', bf_file_ops.read(download_tmp, codec = 'utf8') )
+    self.assertEqual( 'this is foo.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     url = tester.make_url('subdir/subberdir/baz.txt')
     download_tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'), suffix = '.txt')
     self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
-    self.assertEqual( 'this is baz.txt\n', bf_file_ops.read(download_tmp, codec = 'utf8') )
+    self.assertEqual( 'this is baz.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:
       url = tester.make_url('notthere.txt')

@@ -9,6 +9,7 @@ from ..system.check import check
 from bes.system.compat import compat
 from bes.compat import url_compat
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.fs.temp_file import temp_file
 
 from urllib import parse as urllib_parse
@@ -68,7 +69,7 @@ class url_util(object):
   def download_to_temp_file(clazz, url, chunk_size = None, basename = None, delete = True, cookies = None, auth = None, suffix = None):
     'Download url to a temporary file.'
     if basename:
-      assert bf_file_ops.is_basename(basename)
+      assert bf_filename.is_basename(basename)
       tmp = path.join(temp_file.make_temp_dir(delete = delete), basename)
     else:  
       tmp = temp_file.make_temp_file(suffix = suffix)
