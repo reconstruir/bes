@@ -164,7 +164,7 @@ class test_archiver(unit_test):
       'files/baz.txt',
       'new/new_file.txt',
     ], archiver.members(tmp_archive) )
-    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt', codec = 'utf8') )
+    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt', encoding = 'utf8') )
 
   def test_create_with_exclude(self):
     tmp_dir = temp_content.write_items_to_temp_dir([

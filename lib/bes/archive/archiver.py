@@ -6,9 +6,11 @@ from ..system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_cache import file_cache
 from bes.fs.file_find import file_find
-from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
+
+from ..files.bf_file_ops import bf_file_ops
+from ..files.checksum.bf_checksum_cache import bf_checksum_cache
 
 from .archive_base import archive_base
 from .archive_dmg import archive_dmg
@@ -129,7 +131,7 @@ class archiver(object):
   @classmethod
   def member_checksum(clazz, archive, member):
     tmp_file = clazz.extract_member_to_temp_file(archive, member)
-    chk = bf_file_ops.checksum('sha256', tmp_file)
+    chk = bf_checksum_cache.get_checksum(tmp_file, 'sha256')
     bf_file_ops.remove(tmp_file)
     return chk
     
