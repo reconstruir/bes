@@ -10,6 +10,7 @@ from bes.fs.file_duplicates import file_duplicates
 from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_date import bf_date
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -136,11 +137,11 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
     ]
     def _ptf(test):
-      bf_file_ops.set_modification_date(f'{test.src_dir}/c/kiwi_01.jpg',
+      bf_date.set_modification_date(f'{test.src_dir}/c/kiwi_01.jpg',
                                       datetime.now())
-      bf_file_ops.set_modification_date(f'{test.src_dir}/b/kiwi_02.jpg',
+      bf_date.set_modification_date(f'{test.src_dir}/b/kiwi_02.jpg',
                                       datetime.now() - timedelta(days = 1))
-      bf_file_ops.set_modification_date(f'{test.src_dir}/a/kiwi_03.jpg',
+      bf_date.set_modification_date(f'{test.src_dir}/a/kiwi_03.jpg',
                                       datetime.now() - timedelta(days = 2))
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,

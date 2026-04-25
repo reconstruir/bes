@@ -11,6 +11,7 @@ from bes.refactor.refactor_ast import refactor_ast
 from bes.refactor.refactor_options import refactor_options
 from bes.testing.unit_test import unit_test
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.common.json_util import json_util
 
 class test_refactor_ast(unit_test):
@@ -182,7 +183,7 @@ class orange(kiwi):
     real_result = refactor_ast.grep([ tmp_dir ], text, node_type, options = options)
     result = []
     for item in real_result:
-      filename = bf_file_ops.remove_head(item.filename, tmp_dir + os.sep)
+      filename = bf_filename.remove_head(item.filename, tmp_dir + os.sep)
       filename = filename.replace(path.sep, '/')
       snippet = item.snippet.replace('\r\n', '\n')
       t = ( filename, snippet, item.snippet_lines )

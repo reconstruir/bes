@@ -12,6 +12,8 @@ from bes.fs.file_split_options import file_split_options
 from bes.fs.file_split_error import file_split_error
 from bes.fs.file_split import file_split
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 from bes.archive.temp_archive import temp_archive
@@ -204,7 +206,7 @@ class test_file_split(unit_test, unit_test_media_files):
       temp_archive.item('kiwi.mp4', filename = self.mp4_file),
     ], 'zip')
     tmp_dir = self.make_temp_dir()
-    files = file_split.split_file(tmp, int(bf_file_ops.size(tmp) / 3),
+    files = file_split.split_file(tmp, int(bf_entry(tmp).size / 3),
                                   output_directory = tmp_dir,
                                   zfill_length = 3)
     self.assertEqual( 4, len(files) )
@@ -228,7 +230,7 @@ class test_file_split(unit_test, unit_test_media_files):
       temp_archive.item('lemon.jpg', filename = self.jpg_file),
     ], 'zip')
     tmp_dir = self.make_temp_dir()
-    files = file_split.split_file(tmp, int(bf_file_ops.size(tmp) / 3),
+    files = file_split.split_file(tmp, int(bf_entry(tmp).size / 3),
                                   output_directory = tmp_dir,
                                   zfill_length = 3)
     self.assertEqual( 4, len(files) )
@@ -254,34 +256,34 @@ class test_file_split(unit_test, unit_test_media_files):
       items.append(item)
     tmp_archive = temp_archive.make_temp_archive(items, 'zip')
 
-    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 1)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_entry(tmp_archive).size / 1)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    self.assertEqual( bf_checksum.checksum(tmp_archive, 'sha256'), bf_checksum.checksum(unsplit_tmp_archive, 'sha256') )
     bf_file_ops.remove(files)
     
-    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 2)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_entry(tmp_archive).size / 2)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    self.assertEqual( bf_checksum.checksum(tmp_archive, 'sha256'), bf_checksum.checksum(unsplit_tmp_archive, 'sha256') )
     bf_file_ops.remove(files)
 
-    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 3)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_entry(tmp_archive).size / 3)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    self.assertEqual( bf_checksum.checksum(tmp_archive, 'sha256'), bf_checksum.checksum(unsplit_tmp_archive, 'sha256') )
     bf_file_ops.remove(files)
     
-    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 4)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_entry(tmp_archive).size / 4)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    self.assertEqual( bf_checksum.checksum(tmp_archive, 'sha256'), bf_checksum.checksum(unsplit_tmp_archive, 'sha256') )
     bf_file_ops.remove(files)
     
-    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 5)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_entry(tmp_archive).size / 5)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    self.assertEqual( bf_checksum.checksum(tmp_archive, 'sha256'), bf_checksum.checksum(unsplit_tmp_archive, 'sha256') )
     bf_file_ops.remove(files)
 
   @classmethod

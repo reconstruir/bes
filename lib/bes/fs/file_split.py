@@ -17,6 +17,7 @@ from .file_resolver_options import file_resolver_options
 from .file_split_error import file_split_error
 from .file_split_options import file_split_options
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
 from .file_match import file_match
 from .filename_util import filename_util
 from .temp_file import temp_file
@@ -186,7 +187,7 @@ class file_split(object):
     check.check_int(chunk_size)
     check.check_int(zfill_length, allow_none = True)
     
-    file_size = bf_file_ops.size(filename)
+    file_size = bf_entry(filename).size
     
     clazz._log.log_method_d()
     

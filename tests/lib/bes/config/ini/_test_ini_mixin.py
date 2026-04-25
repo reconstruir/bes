@@ -13,4 +13,4 @@ class _test_ini_mixin:
     return path.abspath(filename)
   
   def demo_text(clazz, filename):
-    return bf_file_ops.read(clazz.demo_filename(filename), codec = 'utf-8')
+    return bf_file_ops.read(clazz.demo_filename(filename), encoding = 'utf-8')

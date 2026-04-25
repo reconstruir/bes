@@ -51,7 +51,7 @@ class _bes_project_tester(object):
     tmp = self._unit_test.make_temp_file()
     rv = self.run(self.make_args(command, '--style', 'brief', '--output', tmp))
     self._unit_test.assertEqual( 0, rv.exit_code )
-    return system_command.split_lines(bf_file_ops.read(tmp, codec = 'utf-8'))
+    return system_command.split_lines(bf_file_ops.read(tmp, encoding = 'utf-8'))
 
   def _json_command(self, command):
     tmp = self._unit_test.make_temp_file()

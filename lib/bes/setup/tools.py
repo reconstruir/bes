@@ -3,7 +3,8 @@
 
 import os, subprocess
 from bes.testing.egg_unit_test import egg_unit_test
-from bes.fs import file_util
+
+from bes.files.bf_filename import bf_filename
 
 class tools(object):
   'Tools to help deal with setup.py'
@@ -16,7 +17,7 @@ class tools(object):
     rv = subprocess.check_output(cmd, shell = False)
     files = [ f.strip() for f in rv.split('\n') if f.strip() ]
     tests = [ f for f in files if egg_unit_test.is_test_file(f) ]
-    return sorted([ bf_file_ops.remove_head(f, d) for f in tests ])
+    return sorted([ bf_filename.remove_head(f, d) for f in tests ])
   
   @classmethod
   def want_tests(clazz):

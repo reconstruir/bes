@@ -101,7 +101,7 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
   @classmethod
   def parse_file(clazz, filename):
     filename = bf_check.check_file(filename)
-    text = bf_file_ops.read(filename, codec = 'utf-8')
+    text = bf_file_ops.read(filename, encoding = 'utf-8')
     return clazz.parse_text(text, os.path.basename(filename))
 
   def generate_code(self, buf, namespace, name):

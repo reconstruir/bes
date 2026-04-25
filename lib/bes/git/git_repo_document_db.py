@@ -18,7 +18,7 @@ class git_repo_document_db(object):
     self.repo.clone_or_pull()
     self.repo.checkout(branch)
 
-  def update_document(self, filename, update_func, commit_msg, codec = 'utf-8'):
+  def update_document(self, filename, update_func, commit_msg, encoding = 'utf-8'):
     """
     Runs the update function (minimally 'lambda old_content: new_content') to update the document.
     Creates a file with the given name at the repo address that was provided on init.
@@ -38,10 +38,10 @@ class git_repo_document_db(object):
       # distinguish the true first time from a later time where it happened to become empty. On the
       # other hand, None would make the update_func more complex if all you want to do is
       # concatenate.
-      contents = '' if first_time else bf_file_ops.read(fp, codec = codec)
+      contents = '' if first_time else bf_file_ops.read(fp, encoding = encoding)
 
       updated_contents = update_func(contents)
-      bf_file_ops.save(fp, updated_contents, codec = codec)
+      bf_file_ops.save(fp, updated_contents, encoding = encoding)
       if first_time:
         # Stage the new file.
         repo.add([filename])
@@ -51,9 +51,9 @@ class git_repo_document_db(object):
 
     self.repo.operation_with_reset(_git_update_op, commit_msg)
 
-  def load_document(self, filename, codec = 'utf-8'):
+  def load_document(self, filename, encoding = 'utf-8'):
     'Returns the content from the repo for the filename.'
     self.repo.reset_to_revision('@{upstream}')
     self.repo.pull()
     fp = self.repo.file_path(filename)
-    return bf_file_ops.read(fp, codec = codec)
+    return bf_file_ops.read(fp, encoding = encoding)

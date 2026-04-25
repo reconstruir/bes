@@ -82,7 +82,7 @@ lemon,yellow,tart,small
     options = data_output_options(style = style,
                                   output_filename = tmp)
     data_output.output_table(data, options = options)
-    return bf_file_ops.read(tmp, codec = 'utf-8')
+    return bf_file_ops.read(tmp, encoding = 'utf-8')
     
 if __name__ == '__main__':
   unit_test.main()

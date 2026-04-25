@@ -23,7 +23,7 @@ class file_replace(object):
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
     
-    content = bf_file_ops.read(filename, codec = 'utf-8')
+    content = bf_file_ops.read(filename, encoding = 'utf-8')
     new_content = text_replace.replace(content, replacements,
                                        word_boundary = word_boundary,
                                        word_boundary_chars = word_boundary_chars)

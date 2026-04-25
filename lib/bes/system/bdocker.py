@@ -24,7 +24,7 @@ class bdocker(object):
     if not path.exists(clazz._CGROUPS_FILE):
       raise RuntimeError('cgroups file not found: {}'.format(clazz._CGROUPS_FILE))
     
-    content = bf_file_ops.read(clazz._CGROUPS_FILE, codec = 'utf-8')
+    content = bf_file_ops.read(clazz._CGROUPS_FILE, encoding = 'utf-8')
     return 'pids:/docker/' in content
 
   @staticmethod

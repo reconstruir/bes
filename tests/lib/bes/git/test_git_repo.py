@@ -167,7 +167,7 @@ class test_git_repo(unit_test):
     r1.push('origin', 'master')
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', encoding = 'utf8') )
     
   @git_temp_home_func()
   def test_delete_remote_tags(self):

@@ -54,12 +54,12 @@ class unit_test(unittest.TestCase):
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
 
-  def xdata(self, filename, platform_specific = False, codec = 'utf-8', native_line_breaks = False):
+  def xdata(self, filename, platform_specific = False, encoding = 'utf-8', native_line_breaks = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
     with open(data_path, 'rb') as fin:
       data = fin.read()
-      if codec:
-        data = data.decode(codec)
+      if encoding:
+        data = data.decode(encoding)
       if native_line_breaks:
         data = self.native_line_breaks(data)
       return data
@@ -156,10 +156,10 @@ class unit_test(unittest.TestCase):
       actual = fin.read()
       self.assertEqual( expected, actual )
 
-  def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
+  def assert_text_file_equal(self, expected, filename, strip = True, encoding = 'utf-8',
                              preprocess_func = None, ignore_white_space = False, native_line_breaks = False):
     with open(filename, 'rb') as fin:
-      actual = fin.read().decode(codec)
+      actual = fin.read().decode(encoding)
       if preprocess_func:
         actual = preprocess_func(actual)
         expected = preprocess_func(expected)
@@ -169,11 +169,11 @@ class unit_test(unittest.TestCase):
                                ignore_white_space = ignore_white_space,
                                native_line_breaks = native_line_breaks)
 
-  def assert_text_file_equal_fuzzy(self, expected, filename, codec = 'utf-8',
+  def assert_text_file_equal_fuzzy(self, expected, filename, encoding = 'utf-8',
                                    preprocess_func = None,
                                    ignore_white_space = True):
     with open(filename, 'rb') as fin:
-      actual = fin.read().decode(codec)
+      actual = fin.read().decode(encoding)
       if preprocess_func:
         actual = preprocess_func(actual)
         expected = preprocess_func(expected)
@@ -184,7 +184,7 @@ class unit_test(unittest.TestCase):
   def assert_json_file_equal(self, expected, filename):
     self.assert_text_file_equal(expected, filename,
                                 strip = True,
-                                codec = 'utf-8',
+                                encoding = 'utf-8',
                                 preprocess_func = self._json_normalize)
 
   @classmethod

@@ -94,7 +94,7 @@ class http_download_cache(object):
       self.log.log_e('get_url:  cookies: %s' % (cookies))
       self.log.log_e('get_url: expected: %s' % (checksum))
       self.log.log_e('get_url:   actual: %s' % (actual_checksum))
-      #self.log.log_e('content:\n{}\n'.format(bf_file_ops.read(tmp, codec = 'utf8')))
+      #self.log.log_e('content:\n{}\n'.format(bf_file_ops.read(tmp, encoding = 'utf8')))
       self.log.log_d('get_url: 8 result={}'.format(None))
       return None
     

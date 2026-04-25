@@ -21,7 +21,7 @@ class refactor_ast_source(namedtuple('refactor_ast_source', 'filename')):
 
   @cached_property
   def text(self):
-    return bf_file_ops.read(self.filename, codec = 'utf-8')
+    return bf_file_ops.read(self.filename, encoding = 'utf-8')
   
   @cached_property
   def lines(self):

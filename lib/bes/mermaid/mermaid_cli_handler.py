@@ -37,7 +37,7 @@ class mermaid_cli_handler(cli_command_handler):
     check.check_string(output_filename)
     check.check_string(output_format)
 
-    mmd_content = bf_file_ops.read(filename, codec = 'utf-8')
+    mmd_content = bf_file_ops.read(filename, encoding = 'utf-8')
     output_bytes = mermaid_ink.img_request(mmd_content, output_format)
     with open(output_filename, 'wb') as f:
       f.write(output_bytes)

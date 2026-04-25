@@ -10,6 +10,7 @@ from bes.common.string_util import string_util
 from bes.common.object_util import object_util
 from bes.fs.file_type import file_type
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -38,7 +39,7 @@ class git_util(object):
     options = bf_file_finder_options(file_type = 'dir', file_matcher = matcher)
     finder = bf_file_finder(options = options)
     result = finder.find(dirs).entries.absolute_filenames()
-    result = [ bf_file_ops.remove_tail(d, '.git') for d in result ]
+    result = [ bf_filename.remove_tail(d, '.git') for d in result ]
     return sorted(result)
   
   @classmethod

@@ -10,6 +10,7 @@ from bes.fs.file_attributes import file_attributes
 from bes.fs.file_attributes_metadata import file_attributes_metadata
 from bes.fs.file_mime import file_mime
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_date import bf_date
 from bes.fs.file_metadata_getter_base import file_metadata_getter_base
 from bes.system.filesystem import filesystem
 from bes.system.host import host
@@ -39,7 +40,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
   def test_get_bytes_with_change(self):
     tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
     yesterday = datetime.now() - timedelta(days = 1)
-    bf_file_ops.set_modification_date(tmp, yesterday)
+    bf_date.set_modification_date(tmp, yesterday)
 
     counter = 0
     def _value_maker1(f):
@@ -57,7 +58,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     self.assertEqual( 1, counter )
     self.assertEqual( b'666', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker1) )
     self.assertEqual( 1, counter )
-    mtime = bf_file_ops.get_modification_date(tmp)
+    mtime = bf_date.get_modification_date(tmp)
     self.assertEqual( {
       '__bes_mtime_foo__': str(mtime.timestamp()).encode('utf-8'),
       'foo': b'666',
@@ -67,14 +68,14 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
       f.write(' more text')
       f.flush()
 
-    self.assertEqual( 'this is foo more text', bf_file_ops.read(tmp, codec = 'utf-8') )
+    self.assertEqual( 'this is foo more text', bf_file_ops.read(tmp, encoding = 'utf-8') )
 
     self.assertEqual( b'667', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker2) )
     self.assertEqual( 2, counter )
     self.assertEqual( b'667', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker2) )
     self.assertEqual( 2, counter )
 
-    new_mtime = bf_file_ops.get_modification_date(tmp)
+    new_mtime = bf_date.get_modification_date(tmp)
     
     self.assertEqual( {
       '__bes_mtime_foo__': str(new_mtime.timestamp()).encode('utf-8'),
@@ -104,7 +105,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
         # for some reason on some linuxes the modification date does not change
         # when we clobber the png file with jpg content
         if host.is_linux():
-          bf_file_ops.set_modification_date(tmp_file, datetime.now())
+          bf_date.set_modification_date(tmp_file, datetime.now())
     self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file) )
 
   def test_get_mime_type_cached(self):
@@ -113,7 +114,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(tmp_file, cached = True) )
     bf_file_ops.copy(self.jpg_file, tmp_file)
     if host.is_linux():
-      bf_file_ops.set_modification_date(tmp_file, datetime.now())
+      bf_date.set_modification_date(tmp_file, datetime.now())
     self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file, cached = True) )
 
   def test_register_getter(self):

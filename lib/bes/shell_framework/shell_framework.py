@@ -41,7 +41,7 @@ class shell_framework(object):
       return None
     if not path.isfile(self.revision_filename):
       raise IOError('Not a file: "{}"'.format(self.revision_filename))
-    return bf_file_ops.read(self.revision_filename, codec = 'utf-8').strip()
+    return bf_file_ops.read(self.revision_filename, encoding = 'utf-8').strip()
 
   @property
   def latest_revision(self):

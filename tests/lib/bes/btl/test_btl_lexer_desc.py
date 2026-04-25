@@ -81,7 +81,7 @@ stateDiagram-v2
     desc = self._make_simple_lexer_desc()
     desc.write_code(tmp, '_fruit', 'kiwi_lexer')
 
-    self.assert_python_code_text_equal( self._EXPECTED_CODE, bf_file_ops.read(tmp, codec = 'utf-8') )
+    self.assert_python_code_text_equal( self._EXPECTED_CODE, bf_file_ops.read(tmp, encoding = 'utf-8') )
 
   @classmethod
   def _add_line_numbers(clazz, code):

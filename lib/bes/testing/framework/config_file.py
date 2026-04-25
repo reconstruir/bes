@@ -14,7 +14,7 @@ class config_file(namedtuple('config_file', 'root_dir, filename, data')):
     filename = path.abspath(filename)
     check.check_string(filename)
     bf_check.check_file(filename)
-    content = bf_file_ops.read(filename, codec = 'utf-8')
+    content = bf_file_ops.read(filename, encoding = 'utf-8')
     root_dir = path.normpath(path.join(path.dirname(filename), '..'))
     data = config_data.parse(content, filename = filename)
     return clazz.__bases__[0].__new__(clazz, root_dir, filename, data)

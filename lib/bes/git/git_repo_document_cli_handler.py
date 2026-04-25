@@ -21,7 +21,7 @@ class git_repo_document_cli_handler(object):
     # base name of the file used to provide the source document contents.
     filename = path.basename(input_filename)
     db = git_repo_document_db(working_dir, address, branch)
-    new_contents = bf_file_ops.read(input_filename)
+    new_contents = bf_file_ops.read_text(input_filename)
     if not commit_msg:
       commit_msg = 'git_repo_document_db commit'
 

@@ -153,11 +153,11 @@ class git_temp_repo(object):
       resolved_file = self._resolve_file(f.content, context)
       if resolved_file:
         content = resolved_file.content
-        mode = resolved_file.mode
+        perm = resolved_file.mode
       else:
         content = f.content
-        mode = f.mode
-      self.add_file(f.filename, content, mode = mode, commit = False)
+        perm = f.mode
+      self.add_file(f.filename, content, perm = perm, commit = False)
     message = cmd.message or 'add {}'.format(' '.join([ f.filename for f in cmd.files ]))
     commit_hash = self.commit(message, [ f.filename for f in cmd.files ])
     key = '@{}'.format(cmd.commit_alias)

@@ -20,6 +20,9 @@ from .file_mime import file_mime
 from bes.files.bf_path import bf_path
 from .file_sort_order import file_sort_order
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
+from bes.files.bf_entry import bf_entry
+from bes.files.bf_date import bf_date
 from .filename_list import filename_list
 
 class dir_split(object):
@@ -76,7 +79,7 @@ class dir_split(object):
       dirs = algorithm.unique([ path.dirname(f) for f in new_files ])
       for d in dirs:
         if d != src_dir:
-          d_relative = bf_file_ops.remove_head(d, src_dir + path.sep)
+          d_relative = bf_filename.remove_head(d, src_dir + path.sep)
           if not d_relative.startswith(options.prefix):
             d_root = path.join(src_dir, bf_path.part(d_relative, 0))
             possible_empty_dirs_roots.append(d_root)
@@ -138,9 +141,9 @@ class dir_split(object):
       if order == file_sort_order.FILENAME:
         criteria.append(finfo.filename)
       elif order == file_sort_order.SIZE:
-        criteria.append(bf_file_ops.size(finfo.filename))
+        criteria.append(bf_entry(finfo.filename).size)
       elif order == file_sort_order.DATE:
-        criteria.append(bf_file_ops.get_modification_date(finfo.filename))
+        criteria.append(bf_date.get_modification_date(finfo.filename))
       elif order == file_sort_order.DEPTH:
         criteria.append(bf_path.depth(finfo.filename))
       else:

@@ -318,7 +318,7 @@ class pip_project(object):
     checksum_file = self._requirements_checksum_file(requirements_file)
     
     if path.exists(checksum_file):
-      old_checksum = bf_file_ops.read(checksum_file, codec = 'utf-8').strip()
+      old_checksum = bf_file_ops.read(checksum_file, encoding = 'utf-8').strip()
       if old_checksum == new_checksum:
         self._log.log_d(f'{requirements_file}: Old and new checksum are the same')
         return

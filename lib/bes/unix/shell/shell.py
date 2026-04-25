@@ -45,7 +45,7 @@ class shell(object):
   @classmethod
   def valid_shells(clazz):
     'Return a list if valid shells.'
-    content = bf_file_ops.read('/etc/shells', codec = 'utf-8')
+    content = bf_file_ops.read('/etc/shells', encoding = 'utf-8')
     return text_line_parser.parse_lines(content, strip_comments = True, strip_text = True, remove_empties = True)
 
   @classmethod

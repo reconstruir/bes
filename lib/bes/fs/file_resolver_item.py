@@ -8,6 +8,7 @@ from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
 
 class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, filename_abs, index, found_index')):
 
@@ -39,6 +40,6 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
   
   @cached_property
   def size(self):
-    return bf_file_ops.size(self.filename_abs)
+    return bf_entry(self.filename_abs).size
   
 check.register_class(file_resolver_item, include_seq = False)

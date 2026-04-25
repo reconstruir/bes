@@ -160,11 +160,12 @@ class git_repo(object):
   def remote_get_url(self, name = 'origin'):
     return git.remote_get_url(self.root, name = name)
     
-  def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True, push = False,
+  def add_file(self, filename, content, encoding = 'utf-8', perm = None,
+               commit = True, push = False,
                commit_message = None):
     p = self.file_path(filename)
     assert not path.isfile(p)
-    bf_file_ops.save(p, content = content, codec = codec, mode = mode)
+    bf_file_ops.save(p, content = content, encoding = encoding, perm = perm)
     self.add( [ filename ])
     result = None
     if commit:
@@ -175,19 +176,19 @@ class git_repo(object):
       self.push()
     return result
 
-  def save_file(self, filename, content, codec = 'utf-8', mode = None, add = True, commit = True):
+  def save_file(self, filename, content, encoding = 'utf-8', perm = None, add = True, commit = True):
     if add and not commit:
       raise ValueError('If add is True then commit should be True as well.')
     p = self.file_path(filename)
-    bf_file_ops.save(p, content = content, mode = mode)
+    bf_file_ops.save(p, content = content, perm = perm)
     if add:
       self.add([ filename ])
     if commit:
       msg = 'add or change {}'.format(filename)
       self.commit(msg, [ filename ])
 
-  def read_file(self, filename, codec = 'utf-8'):
-    return bf_file_ops.read(self.file_path(filename), codec = codec)
+  def read_file(self, filename, encoding = 'utf-8'):
+    return bf_file_ops.read(self.file_path(filename), encoding = encoding)
 
   def has_file(self, filename):
     return path.exists(self.file_path(filename))

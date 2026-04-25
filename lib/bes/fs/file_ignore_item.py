@@ -22,7 +22,7 @@ class file_ignore_item(namedtuple('file_ignore_item', 'directory, patterns')):
     filename = path.abspath(filename)
     if not path.isfile(filename):
       raise IOError('not a file: %s' % (filename))
-    text = bf_file_ops.read(filename, codec = 'utf-8')
+    text = bf_file_ops.read(filename, encoding = 'utf-8')
     patterns = text_line_parser.parse_lines(text).to_list()
     return file_ignore_item(path.dirname(filename), patterns)
   

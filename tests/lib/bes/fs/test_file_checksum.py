@@ -92,7 +92,7 @@ class test_file_checksum(unit_test):
     "5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953"
   ]
 ]'''
-    self.assertEqual( expected, bf_file_ops.read(tmp_file, codec = 'utf8') )
+    self.assertEqual( expected, bf_file_ops.read(tmp_file, encoding = 'utf8') )
 
   def test_load_checksums_file(self):
     tmp_dir = self._make_test_data()

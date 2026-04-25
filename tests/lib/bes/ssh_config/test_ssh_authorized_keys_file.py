@@ -40,7 +40,7 @@ ssh-rsa key3 barney@bedrock
 ssh-rsa key4 bambam@bedrock
 '''
     
-    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, encoding = 'utf-8').strip() )
 
   def test_empty_file(self):
     content = '''
@@ -52,7 +52,7 @@ ssh-rsa key4 bambam@bedrock
     expected = '''
 ssh-rsa key4 bambam@bedrock
 '''
-    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, encoding = 'utf-8').strip() )
 
   def test_nonexistent_file(self):
     tmp_file = self.make_temp_file()
@@ -63,7 +63,7 @@ ssh-rsa key4 bambam@bedrock
     expected = '''
 ssh-rsa key4 bambam@bedrock
 '''
-    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, encoding = 'utf-8').strip() )
 
   def test_comment_preservation(self):
     content = '''

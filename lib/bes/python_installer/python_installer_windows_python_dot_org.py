@@ -173,7 +173,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     rv = execute.execute(cmd, stderr_to_stdout = True, raise_error = False)
     self._log.log_d('install_package: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
     if rv.exit_code != 0:
-      print(bf_file_ops.read(install_log, codec = 'utf-8'))
+      print(bf_file_ops.read(install_log, encoding = 'utf-8'))
     
   #@abstractmethod
   def uninstall(self, version):
@@ -220,7 +220,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     rv = execute.execute(cmd, stderr_to_stdout = True, raise_error = False)
     self._log.log_d('uninstall: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
     if rv.exit_code != 0:
-      print(bf_file_ops.read(uninstall_log, codec = 'utf-8'))
+      print(bf_file_ops.read(uninstall_log, encoding = 'utf-8'))
 
   #@abstractmethod
   def download(self, full_version):

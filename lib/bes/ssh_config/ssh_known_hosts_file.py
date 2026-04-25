@@ -28,8 +28,8 @@ class ssh_known_hosts_file(object):
   @cached_property
   def _lines(self):
     if not path.exists(self._filename):
-      bf_file_ops.save(self._filename, content = '', codec = 'utf-8')
-    return text_line_parser(bf_file_ops.read(self._filename, codec = 'utf-8'))
+      bf_file_ops.save(self._filename, content = '', encoding = 'utf-8')
+    return text_line_parser(bf_file_ops.read(self._filename, encoding = 'utf-8'))
   
   def add_known_host(self, known_host):
     'Add a new known_host to the config file.'
@@ -58,4 +58,4 @@ class ssh_known_hosts_file(object):
     return None
     
   def _save(self):
-    bf_file_ops.save(self._filename, content = str(self), mode = 0o0600, codec = 'utf-8')
+    bf_file_ops.save(self._filename, content = str(self), mode = 0o0600, encoding = 'utf-8')

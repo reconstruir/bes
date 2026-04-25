@@ -41,6 +41,6 @@ class ssh_authorized_key(namedtuple('ssh_authorized_key', 'key_type, key, annota
 
   @classmethod
   def parse_file(clazz, filename):
-    return clazz.parse_text(bf_file_ops.read(filename, codec = 'utf-8'))
+    return clazz.parse_text(bf_file_ops.read(filename, encoding = 'utf-8'))
 
 check.register_class(ssh_authorized_key)

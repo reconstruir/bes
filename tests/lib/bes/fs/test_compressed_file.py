@@ -20,7 +20,7 @@ This is my nice file.
     tmp_uncompressed_file = self.make_temp_file()
     compressed_file.uncompress(tmp_compressed_file, tmp_uncompressed_file)
 
-    self.assertMultiLineEqual( bf_file_ops.read(tmp_file, codec = 'utf-8'), bf_file_ops.read(tmp_uncompressed_file, codec = 'utf-8') )
+    self.assertMultiLineEqual( bf_file_ops.read(tmp_file, encoding = 'utf-8'), bf_file_ops.read(tmp_uncompressed_file, encoding = 'utf-8') )
     
 if __name__ == '__main__':
   unit_test.main()

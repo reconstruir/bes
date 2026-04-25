@@ -20,7 +20,7 @@ class refactor_ast_file(object):
 
     filename = bf_check.check_file(filename)
 
-    source_code = bf_file_ops.read(filename, codec = 'utf-8')
+    source_code = bf_file_ops.read(filename, encoding = 'utf-8')
     tree = ast.parse(source_code)
 
     nodes = refactor_ast_util.find_nodes(tree, node_type)

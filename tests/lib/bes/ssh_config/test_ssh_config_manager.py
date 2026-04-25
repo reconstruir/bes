@@ -37,7 +37,7 @@ Host foo
   IdentityFile /tmp/id_rsa
   User fred
 '''
-    self.assertMultiLineEqual( expected_config.strip(), bf_file_ops.read(path.join(tmp_dir, 'config'), codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected_config.strip(), bf_file_ops.read(path.join(tmp_dir, 'config'), encoding = 'utf-8').strip() )
 
   def test_add_known_host_clean_slate(self):
     tmp_dir = self.make_temp_dir(suffix = '.ssh')
@@ -51,7 +51,7 @@ Host foo
     expected_known_hosts = '''
 example.com ssh-rsa key1
 '''
-    self.assertMultiLineEqual( expected_known_hosts.strip(), bf_file_ops.read(path.join(tmp_dir, 'known_hosts'), codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected_known_hosts.strip(), bf_file_ops.read(path.join(tmp_dir, 'known_hosts'), encoding = 'utf-8').strip() )
 
   def test_add_authorized_key_clean_slate(self):
     tmp_dir = self.make_temp_dir(suffix = '.ssh')
@@ -65,7 +65,7 @@ example.com ssh-rsa key1
     expected_authorized_keys = '''
 ssh-rsa key1 fred@bedrock
 '''
-    self.assertMultiLineEqual( expected_authorized_keys.strip(), bf_file_ops.read(path.join(tmp_dir, 'authorized_keys'), codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected_authorized_keys.strip(), bf_file_ops.read(path.join(tmp_dir, 'authorized_keys'), encoding = 'utf-8').strip() )
     
   def test_install_key_pair_for_host(self):
     tmp_dir = self.make_temp_dir(suffix = '.ssh')
@@ -95,12 +95,12 @@ Host bitbucket.org
   IdentityFile {private_key}
   User fred
 '''.format(private_key = installed.private_key_filename)
-    self.assertMultiLineEqual( expected_config.strip(), bf_file_ops.read(path.join(tmp_dir, 'config'), codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected_config.strip(), bf_file_ops.read(path.join(tmp_dir, 'config'), encoding = 'utf-8').strip() )
 
     expected_known_hosts = '''
 bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQeJzhupRu0u0cdegZIa8e86EG2qOCsIsD1Xw0xSeiPDlCr7kq97NLmMbpKTX6Esc30NuoqEEHCuc7yWtwp8dI76EEEB1VqY9QJq6vk+aySyboD5QF61I/1WeTwu+deCbgKMGbUijeXhtfbxSxm6JwGrXrhBdofTsbKRUsrN1WoNgUa8uqN1Vx6WAJw1JHPhglEGGHea6QICwJOAr/6mrui/oB7pkaWKHj3z7d1IC4KWLtY47elvjbaTlkN04Kc/5LFEirorGYVbt15kAUlqGM65pk6ZBxtaO3+30LVlORZkxOh+LKL/BvbZ/iRNhItLqNyieoQj/uh/7Iv4uyH/cV/0b4WDSd3DptigWq84lJubb9t/DnZlrJazxyDCulTmKdOR7vs9gMTo+uoIrPSb8ScTtvw65+odKAlBj59dhnVp9zd7QUojOpXlL62Aw56U4oO+FALuevvMjiWeavKhJqlR7i5n9srYcrNV7ttmDw7kf/97P5zauIhxcjX+xHv4M=
 '''
-    self.assertMultiLineEqual( expected_known_hosts.strip(), bf_file_ops.read(path.join(tmp_dir, 'known_hosts'), codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected_known_hosts.strip(), bf_file_ops.read(path.join(tmp_dir, 'known_hosts'), encoding = 'utf-8').strip() )
 
     abs_files = [ path.join(tmp_dir, f) for f in files ]
     for filename in abs_files:

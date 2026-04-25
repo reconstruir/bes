@@ -9,19 +9,19 @@ from bes.git.git_changelog import git_changelog
 from bes.git.git_changelog_options import git_changelog_options as options
 
 def create_list_of_commit_info(filename):
-  log = bf_file_ops.read(filename, codec='utf-8')
+  log = bf_file_ops.read(filename, encoding='utf-8')
   log = log.strip()
 
   return git_changelog.convert_changelog_string(log)
 
 class test_truncate_changelog(unit_test):
   
-  def data(self, filename, platform_specific = False, codec = 'utf-8', native_line_breaks = False):
+  def data(self, filename, platform_specific = False, encoding = 'utf-8', native_line_breaks = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
     with open(data_path, 'rb') as fin:
       data = fin.read()
-      if codec:
-        data = data.decode(codec)
+      if encoding:
+        data = data.decode(encoding)
       if native_line_breaks:
         data = self.native_line_breaks(data)
       return data
@@ -33,28 +33,28 @@ class test_truncate_changelog(unit_test):
   def test_no_truncation(self):
     list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     result_log = git_changelog.truncate_changelog(list_of_commit_info, options())
-    original_log = self.data('result/log_no_truncation.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_no_truncation.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result_log)
 
   def test_disable_date(self):
     list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     result_log = git_changelog.truncate_changelog(list_of_commit_info, options(disable_date=True))
-    original_log = self.data('result/log_disable_date.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_disable_date.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result_log)
 
   def test_disable_author(self):
     list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     result_log = git_changelog.truncate_changelog(list_of_commit_info, options(disable_author=True))
-    original_log = self.data('result/log_disable_author.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_disable_author.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result_log)
 
   def test_disable_date_and_author(self):
     list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     result_log = git_changelog.truncate_changelog(list_of_commit_info, options(disable_date=True, disable_author=True))
-    original_log = self.data('result/log_disable_date_and_author.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_disable_date_and_author.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result_log)
 
@@ -63,7 +63,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(5668, 4148, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, revision_chars=1))
-      original_log = self.data('result/log_truncate_revisions_1.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_revisions_1.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -72,7 +72,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(5668, 4381, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, revision_chars=7))
-      original_log = self.data('result/log_truncate_revisions_7.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_revisions_7.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -81,7 +81,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(5668, 4498, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, revision_chars=10))
-      original_log = self.data('result/log_truncate_revisions_10.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_revisions_10.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -90,7 +90,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(4381, 3182, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_date.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_date.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -99,7 +99,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(3182, 2770, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_author.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_author.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -108,7 +108,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(2770, 2730, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_one_merge_commit.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_one_merge_commit.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -117,7 +117,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(2310, 2270, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_all_merge_commits.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_all_merge_commits.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -126,7 +126,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(2270, 2260, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_one_message.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_one_message.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -135,7 +135,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(2125, 2056, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_five_messages.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_five_messages.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -144,7 +144,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(1510, 1492, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_one_line.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_one_line.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -153,7 +153,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(1420, 1402, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
-      original_log = self.data('result/log_truncate_five_lines.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_five_lines.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -162,7 +162,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(1420, 1402, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, drop_message='XxXxYyYyW'))
-      original_log = self.data('result/log_truncate_with_new_drop_message.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_with_new_drop_message.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -171,7 +171,7 @@ class test_truncate_changelog(unit_test):
 
     for max_chars in range(1420, 1402, -1):
       result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, message_chars=9))
-      original_log = self.data('result/log_truncate_message_chars_9.txt', codec='utf-8', native_line_breaks = True)
+      original_log = self.data('result/log_truncate_message_chars_9.txt', encoding='utf-8', native_line_breaks = True)
       original_log = original_log.strip()
       self.assertEqual(original_log, result_log)
 
@@ -179,7 +179,7 @@ class test_truncate_changelog(unit_test):
     list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
     result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=100))
-    original_log = self.data('result/log_truncate_max_chars_100.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_truncate_max_chars_100.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result_log)
 
@@ -209,7 +209,7 @@ class test_truncate_changelog(unit_test):
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options())
-    original_log = self.data('result/log_three_repos_no_truncation.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_three_repos_no_truncation.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result)
 
@@ -225,7 +225,7 @@ class test_truncate_changelog(unit_test):
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=2000))
-    original_log = self.data('result/log_three_repos_max_chars_2000.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_three_repos_max_chars_2000.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result)
 
@@ -241,7 +241,7 @@ class test_truncate_changelog(unit_test):
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=1000))
-    original_log = self.data('result/log_three_repos_max_chars_1000.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_three_repos_max_chars_1000.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result)
 
@@ -257,7 +257,7 @@ class test_truncate_changelog(unit_test):
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=500))
-    original_log = self.data('result/log_three_repos_max_chars_500.txt', codec='utf-8', native_line_breaks = True)
+    original_log = self.data('result/log_three_repos_max_chars_500.txt', encoding='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result)
 

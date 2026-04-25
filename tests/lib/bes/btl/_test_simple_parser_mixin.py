@@ -18,7 +18,7 @@ class _test_simple_parser_mixin:
   
   @cached_class_property
   def _simple_parser_desc_text(clazz):
-    return bf_file_ops.read(clazz._simple_parser_desc_filename, codec = 'utf-8')
+    return bf_file_ops.read(clazz._simple_parser_desc_filename, encoding = 'utf-8')
 
   @classmethod
   def _simple_parser_desc_tree(clazz):

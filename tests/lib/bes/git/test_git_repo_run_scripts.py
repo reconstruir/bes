@@ -34,7 +34,7 @@ exit 0
     else:
       assert False
     xp_script = self.native_filename(script)
-    r.add_file(self.native_filename(xp_script), content, mode = 0o0755)
+    r.add_file(self.native_filename(xp_script), content, perm = 0o0755)
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
@@ -65,7 +65,7 @@ exit 0
     else:
       assert False
     xp_script = self.native_filename(script)
-    r.add_file(self.native_filename(xp_script), content, mode = 0o0755)
+    r.add_file(self.native_filename(xp_script), content, perm = 0o0755)
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
@@ -100,7 +100,7 @@ exit 0
     else:
       assert False
     xp_script = self.native_filename(script)
-    r1.add_file(xp_script, content, mode = 0o0755)
+    r1.add_file(xp_script, content, perm = 0o0755)
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
@@ -153,8 +153,8 @@ exit 0
 '''
     else:
       assert False
-    r1.add_file(script1, content1, mode = 0o0755)
-    r1.add_file(script2, content2, mode = 0o0755)
+    r1.add_file(script1, content1, perm = 0o0755)
+    r1.add_file(script2, content2, perm = 0o0755)
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
@@ -187,7 +187,7 @@ exit 0
     else:
       assert False
     xp_script = self.native_filename(script)
-    r1.add_file(xp_script, content, mode = 0o0755)
+    r1.add_file(xp_script, content, perm = 0o0755)
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
@@ -262,7 +262,7 @@ exit 0
     else:
       assert False
     xp_script = self.native_filename(script)
-    r1.add_file(self.native_filename(xp_script), content, mode = 0o0755)
+    r1.add_file(self.native_filename(xp_script), content, perm = 0o0755)
     r1.push('origin', 'master')
 
     jobs = []

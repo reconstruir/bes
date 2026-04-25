@@ -169,8 +169,8 @@ class config(object):
       return self._parser.has_option(self._DEFAULT_SECTION, key)
     return False
   
-  def save(self, filename, codec = 'utf-8'):
-    bf_file_ops.save(filename, content = str(self), codec = codec)
+  def save(self, filename, encoding = 'utf-8'):
+    bf_file_ops.save(filename, content = str(self), encoding = encoding)
 
   MAJOR = software_version.MAJOR
   MINOR = software_version.MINOR
@@ -223,8 +223,8 @@ class config(object):
     return cfg
   
   @classmethod
-  def _make_parser_from_file(clazz, filename, codec = 'utf-8'):
-    text = bf_file_ops.read(filename, codec = codec)
+  def _make_parser_from_file(clazz, filename, encoding = 'utf-8'):
+    text = bf_file_ops.read(filename, encoding = encoding)
     return clazz._make_parser_from_text(text)
 
   @classmethod

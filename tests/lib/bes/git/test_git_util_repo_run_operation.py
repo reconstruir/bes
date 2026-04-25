@@ -18,10 +18,10 @@ class test_git_util_repo_run_operation(unit_test):
   @git_temp_home_func()
   def test_basic(self):
     r = git_temp_repo(debug = self.DEBUG)
-    r.add_file('kiwi.txt', content = 'this is kiwi.txt', mode = 0o0644)
+    r.add_file('kiwi.txt', content = 'this is kiwi.txt', perm = 0o0644)
     r.push('origin', 'master')
     def _op(repo):
-      r.add_file('melon.txt', content = 'this is melon.txt', mode = 0o0644,
+      r.add_file('melon.txt', content = 'this is melon.txt', perm = 0o0644,
                  commit = False, push = False)
     git_util.repo_run_operation(r.address, _op, 'add melon.txt', options = None)
     self.assertEqual( 'this is melon.txt', r.read_file('melon.txt') )
@@ -29,10 +29,10 @@ class test_git_util_repo_run_operation(unit_test):
   @git_temp_home_func()
   def test_basic_dry_run(self):
     r = git_temp_repo(debug = self.DEBUG)
-    r.add_file('kiwi.txt', content = 'this is kiwi.txt', mode = 0o0644)
+    r.add_file('kiwi.txt', content = 'this is kiwi.txt', perm = 0o0644)
     r.push('origin', 'master')
     def _op(repo):
-      r.add_file('melon.txt', content = 'this is melon.txt', mode = 0o0644,
+      r.add_file('melon.txt', content = 'this is melon.txt', perm = 0o0644,
                  commit = False, push = False)
     options = git_repo_operation_options(dry_run = True)
     git_util.repo_run_operation(r.address, _op, 'add melon.txt', options = options)
@@ -42,10 +42,10 @@ class test_git_util_repo_run_operation(unit_test):
   @staticmethod
   def _worker_test_multiprocess_conflict(n, address):
     def _op(repo):
-      old_content = repo.read_file('foo.txt', codec = 'utf8')
+      old_content = repo.read_file('foo.txt', encoding = 'utf8')
       new_content = '{}\nworker {}'.format(old_content, n)
       fp = repo.file_path('foo.txt')
-      bf_file_ops.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
+      bf_file_ops.save(fp, content = new_content, encoding = 'utf8', perm = 0o644)
         
     git_util.repo_run_operation(address, _op, 'from worker {}'.format(n), options = None)
     
@@ -86,7 +86,7 @@ class test_git_util_repo_run_operation(unit_test):
       'worker 6',
       'worker 7',
       'worker 8',
-    ], sorted(r2.read_file('foo.txt', codec = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
+    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
     
 if __name__ == '__main__':
   unit_test.main()

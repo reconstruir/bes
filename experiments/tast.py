@@ -8,7 +8,7 @@ from bes.files.bf_file_ops import bf_file_ops
 
 filename = path.join(path.dirname(__file__), 'code.py')
 
-source_code = bf_file_ops.read(filename, codec = 'utf-8')
+source_code = bf_file_ops.read(filename, encoding = 'utf-8')
 
 #print(source_code)
 

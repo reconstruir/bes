@@ -40,7 +40,7 @@ bitbucket.org,18.205.93.2 ssh-rsa key2
 foo.com,192.168.2.2 ssh-rsa key4
 '''
     
-    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, encoding = 'utf-8').strip() )
 
   def test_empty_file(self):
     content = '''
@@ -52,7 +52,7 @@ foo.com,192.168.2.2 ssh-rsa key4
     expected = '''
 foo.com,192.168.2.2 ssh-rsa key4
 '''
-    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, encoding = 'utf-8').strip() )
 
   def test_nonexistent_file(self):
     tmp_file = self.make_temp_file()
@@ -64,7 +64,7 @@ foo.com,192.168.2.2 ssh-rsa key4
 foo.com,192.168.2.2 ssh-rsa key4
 '''
     
-    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, encoding = 'utf-8').strip() )
 
   def test_comment_preservation(self):
     content = '''

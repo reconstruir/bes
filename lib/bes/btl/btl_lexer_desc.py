@@ -127,7 +127,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
   @classmethod
   def parse_file(clazz, filename):
     filename = bf_check.check_file(filename)
-    desc_text = bf_file_ops.read(filename, codec = 'utf-8')
+    desc_text = bf_file_ops.read(filename, encoding = 'utf-8')
     return clazz.parse_text(desc_text, path.basename(filename))
 
   def generate_code(self, buf, namespace, name):

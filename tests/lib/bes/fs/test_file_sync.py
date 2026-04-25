@@ -86,7 +86,7 @@ class test_file_find(unit_test):
       self.native_filename('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
-    self.assertEqual( 'second foo.txt\n', bf_file_ops.read(path.join(tmp_dst_dir, 'foo.txt'), codec = 'utf8') )
+    self.assertEqual( 'second foo.txt\n', bf_file_ops.read(path.join(tmp_dst_dir, 'foo.txt'), encoding = 'utf8') )
 
   def test_file_sync_with_exclude(self):
     tmp_src_dir = self._make_temp_content([

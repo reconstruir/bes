@@ -33,8 +33,8 @@ class vm_builder_cli_handler(cli_command_handler):
     cm = ssh_config_manager(ssh_config_dir)
 
     # Install outbound keys needed for git push and pull from domain_name
-    ssh_public_key_content = bf_file_ops.read(ssh_public_key, codec = 'utf-8')
-    ssh_private_key_content = bf_file_ops.read(ssh_private_key, codec = 'utf-8')
+    ssh_public_key_content = bf_file_ops.read(ssh_public_key, encoding = 'utf-8')
+    ssh_private_key_content = bf_file_ops.read(ssh_private_key, encoding = 'utf-8')
     installed = cm.install_key_pair_for_host(ssh_public_key_content,
                                              ssh_private_key_content,
                                              domain_name,
@@ -44,7 +44,7 @@ class vm_builder_cli_handler(cli_command_handler):
     self.log.log_d('vm_builder_ssh_setup: bitbucket installed={}'.format(installed))
 
     # Install inbound keys to ssh into the vm builder from the vm host
-    builder_access_ssh_public_key_content = bf_file_ops.read(builder_access_ssh_public_key, codec = 'utf-8')
+    builder_access_ssh_public_key_content = bf_file_ops.read(builder_access_ssh_public_key, encoding = 'utf-8')
     installed = cm.install_public_key(builder_access_ssh_public_key_content, 'vm_builder_access_key', True)
     self.log.log_d('vm_builder_ssh_setup: access installed={}'.format(installed))
     return 0
@@ -65,8 +65,8 @@ class vm_builder_cli_handler(cli_command_handler):
     cm = ssh_config_manager(ssh_config_dir)
 
     # Install inbound keys to ssh into the vm builder from the vm host
-    builder_access_ssh_public_key_content = bf_file_ops.read(builder_access_ssh_public_key, codec = 'utf-8')
-    builder_access_ssh_private_key_content = bf_file_ops.read(builder_access_ssh_private_key, codec = 'utf-8')
+    builder_access_ssh_public_key_content = bf_file_ops.read(builder_access_ssh_public_key, encoding = 'utf-8')
+    builder_access_ssh_private_key_content = bf_file_ops.read(builder_access_ssh_private_key, encoding = 'utf-8')
     installed = cm.install_key_pair(builder_access_ssh_public_key_content,
                                     builder_access_ssh_private_key_content,
                                     filename)
