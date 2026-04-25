@@ -6,8 +6,8 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.property.cached_property import cached_property
-from bes.fs.file_util import file_util
-from bes.fs.file_check import file_check
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_check import bf_check
 
 from .refactor_ast_node_type import refactor_ast_node_type
 from .refactor_ast_util import refactor_ast_util
@@ -15,13 +15,13 @@ from .refactor_ast_util import refactor_ast_util
 class refactor_ast_source(namedtuple('refactor_ast_source', 'filename')):
 
   def __new__(clazz, filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     return clazz.__bases__[0].__new__(clazz, filename)
 
   @cached_property
   def text(self):
-    return file_util.read(self.filename, codec = 'utf-8')
+    return bf_file_ops.read(self.filename, encoding = 'utf-8')
   
   @cached_property
   def lines(self):

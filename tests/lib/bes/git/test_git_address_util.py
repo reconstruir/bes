@@ -5,7 +5,7 @@ import os.path as path
 
 from bes.testing.unit_test import unit_test
 from bes.git.git_unit_test import git_temp_home_func
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from bes.git.git import git
 from bes.git.git_address_util import git_address_util
@@ -25,7 +25,7 @@ class test_git_address_util(unit_test):
     self.assertEqual( 'https://github.com/git/git.git', git_address_util.resolve('https://github.com/git/git.git') )
     self.assertEqual( 'git@github.com/git/git.git', git_address_util.resolve('git@github.com/git/git.git') )
     tmp_repo = path.expanduser('~/minerepo')
-    file_util.mkdir(tmp_repo)
+    bf_file_ops.mkdir(tmp_repo)
     git.init(tmp_repo)
     self.assertEqual( tmp_repo, git_address_util.resolve('~/minerepo') )
 

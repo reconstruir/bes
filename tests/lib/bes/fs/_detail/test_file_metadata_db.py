@@ -5,7 +5,7 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs._detail.file_metadata_db import file_metadata_db
 from bes.fs.file_metadata import file_metadata
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value_list import key_value_list
 
 from unittest.mock import Mock, MagicMock, call

@@ -5,7 +5,7 @@ from collections import namedtuple
 import os.path as path
 
 from bes.testing.program_unit_test import program_unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.host import host
 
 class test_cli(program_unit_test):
@@ -90,10 +90,10 @@ class kitchen_cli(cli):
 '''
     
     tmp = self.make_temp_dir()
-    kitchen_program = file_util.save(path.join(tmp, 'kitchen.py'), content = kitchen_program_content)
-    file_util.save(path.join(tmp, 'knife_cli_args.py'), content = knife_cli_args_content)
-    file_util.save(path.join(tmp, 'oven_cli_args.py'), content = oven_cli_args_content)
-    file_util.save(path.join(tmp, 'kitchen_cli.py'), content = kitchen_cli_content)
+    kitchen_program = bf_file_ops.save(path.join(tmp, 'kitchen.py'), content = kitchen_program_content)
+    bf_file_ops.save(path.join(tmp, 'knife_cli_args.py'), content = knife_cli_args_content)
+    bf_file_ops.save(path.join(tmp, 'oven_cli_args.py'), content = oven_cli_args_content)
+    bf_file_ops.save(path.join(tmp, 'kitchen_cli.py'), content = kitchen_cli_content)
 
     rv = self.run_program(kitchen_program, [ 'knife', 'cut', 'bread' ])
     self.assertEqual( 0, rv.exit_code )

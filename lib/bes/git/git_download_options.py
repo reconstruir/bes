@@ -3,7 +3,7 @@
 from bes.credentials.credentials import credentials
 from ..system.check import check
 from bes.cli.cli_options import cli_options
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .git_error import git_error
 from .git_clone_options import git_clone_options
@@ -90,12 +90,12 @@ class git_download_options(git_clone_options):
       assert not self.ssh_private_key
       return None
     try:
-      ssh_public_key_content = file_util.read(self.ssh_public_key, codec = 'utf-8')
+      ssh_public_key_content = bf_file_ops.read(self.ssh_public_key, encoding = 'utf-8')
     except Exception as ex:
       raise git_error('Failed to ready public ssh key: "{}" - {}'.format(self.ssh_public_key,
                                                                          str(ex)))
     try:
-      ssh_private_key_content = file_util.read(self.ssh_private_key, codec = 'utf-8')
+      ssh_private_key_content = bf_file_ops.read(self.ssh_private_key, encoding =  'utf-8')
     except Exception as ex:
       raise git_error('Failed to ready private ssh key: "{}" - {}'.format(self.ssh_private_key,
                                                                          str(ex)))

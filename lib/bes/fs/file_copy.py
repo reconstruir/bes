@@ -6,7 +6,7 @@ import os, shutil
 from bes.system.host import host
 
 from .tar_util import tar_util
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .dir_util import dir_util
 from .xcopy import xcopy
 
@@ -26,7 +26,7 @@ class file_copy(object):
       raise IOError('Not a directory: %s' % (src_dir))
     if not path.isdir(dst_dir):
       raise IOError('Not a directory: %s' % (dst_dir))
-    if not file_util.same_device_id(src_dir, dst_dir):
+    if not bf_file_ops.same_device_id(src_dir, dst_dir):
       raise IOError('src_dir and dst_dir are not in the same device: %s %s' % (src, dst_dir))
     for f in dir_util.list(src_dir, relative = True):
       src_file = path.join(src_dir, f)
@@ -34,7 +34,7 @@ class file_copy(object):
       if path.isdir(src_file):
         if path.exists(dst_file):
           clazz.copy_tree(src_file, dst_file)
-          file_util.remove(src_file)
+          bf_file_ops.remove(src_file)
         else:
           shutil.move(src_file, dst_file)
       else:

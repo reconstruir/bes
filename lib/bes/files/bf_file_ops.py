@@ -12,6 +12,7 @@ from ..system.filesystem import filesystem
 from ..system.which import which
 
 from .bf_check import bf_check
+from .bf_entry import bf_entry
 
 class bf_file_ops(object):
 
@@ -156,12 +157,15 @@ class bf_file_ops(object):
   @classmethod
   def same_device_id(clazz, src, dst):
     'Return True if src and dst have the same device id.'
+    src_entry = bf_entry(src)
+    dst_entry = bf_entry(dst)
+    
     dst_dir = path.dirname(dst)
     created_dst_dir = False
     if not path.exists(dst_dir):
       created_dst_dir = True
       clazz.mkdir(dst_dir)
-    result = clazz.device_id(src) == clazz.device_id(dst_dir)
+    result = src_entry.device_id == dst_entry.device_id
     if created_dst_dir:
       os.removedirs(dst_dir)
     return result
@@ -210,7 +214,7 @@ class bf_file_ops(object):
   @classmethod
   def relocate_file(clazz, filename, dst_dir):
     new_filename = path.join(dst_dir, path.basename(filename))
-    file_util.rename(filename, new_filename)
+    bf_file_ops.rename(filename, new_filename)
     return new_filename
   
   @classmethod
@@ -262,3 +266,12 @@ class bf_file_ops(object):
         if f1.read(read_size) != f2.read(read_size):
           return False
     return True
+
+  @classmethod
+  def touch(clazz, filename):
+    'Update the modification date of filename to be now'
+    entry = bf_entry(filename)
+    if not entry.exists:
+      clazz.ensure_file_dir(filename)
+      clazz.save(filename, content = '')
+    entry.touch()

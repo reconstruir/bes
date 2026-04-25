@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.pyinstaller.pyinstaller import pyinstaller
 from bes.ssh_config.ssh_key_scan import ssh_key_scan
 from bes.testing.unit_test import unit_test

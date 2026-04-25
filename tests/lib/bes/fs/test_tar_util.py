@@ -4,7 +4,9 @@
 import os, os.path as path, tarfile
 
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.fs.tar_util import tar_util
 from bes.system.bdocker import is_running_under_docker_override_func
 from bes.system.host_override import host_override_func
@@ -166,7 +168,7 @@ fi
 rv=$?
 exit ${rv}
 '''
-    tar_exe = file_util.save(path.join(tmp_tar_exe_dir, 'tar'), content = fake_tar_content, mode = 0o0755)
+    tar_exe = bf_file_ops.save(path.join(tmp_tar_exe_dir, 'tar'), content = fake_tar_content, perm = 0o0755)
     
     tmp_dir = self.make_temp_dir()
     tmp_archive = self._make_test_tarball()

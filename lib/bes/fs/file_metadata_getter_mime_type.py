@@ -3,7 +3,7 @@
 from ..system.check import check
 
 from .file_metadata_getter_base import file_metadata_getter_base
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_mime import file_mime
 
 class file_metadata_getter_mime_type(file_metadata_getter_base):
@@ -17,7 +17,7 @@ class file_metadata_getter_mime_type(file_metadata_getter_base):
   #@abstractmethod
   def get_value(self, manager, filename):
     'Get a metadata value from filename and return it encoded as bytes.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     value = file_mime.mime_type(filename)
     if value is None:

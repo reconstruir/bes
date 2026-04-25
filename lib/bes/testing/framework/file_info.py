@@ -4,7 +4,8 @@ import os.path as path
 from collections import namedtuple
 from bes.system.check import check
 from bes.property.cached_property import cached_property
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.fs.file_symlink import file_symlink
 from bes.git.git import git
 from bes.git.git_error import git_error
@@ -24,7 +25,7 @@ class file_info(namedtuple('file_info', 'filename, config, inspection')):
   def relative_filename(self):
     'Return the filename relative to the config root_dir or None if no config was found.'
     if self.config:
-      return file_util.remove_head(self.filename, self.config.root_dir)
+      return bf_filename.remove_head(self.filename, self.config.root_dir)
     else:
       return None
 

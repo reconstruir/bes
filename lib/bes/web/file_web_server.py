@@ -3,7 +3,9 @@
 import os, os.path as path
 from .web_server import web_server
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.files.bf_path import bf_path
 from bes.fs.testing.temp_content import temp_content
 from bes.archive.temp_archive import temp_archive
@@ -20,7 +22,7 @@ class file_web_server(web_server):
     if not path.isfile(path_info.rooted_filename):
       return self.response_error(start_response, 404)
     mime_type = self.mime_type(path_info.rooted_filename)
-    content = file_util.read(path_info.rooted_filename)
+    content = bf_file_ops.read(path_info.rooted_filename)
     headers = [
       ( 'Content-Type', str(mime_type) ),
       ( 'Content-Length', str(len(content)) ),
@@ -30,14 +32,14 @@ class file_web_server(web_server):
   def write_temp_content(self, items):
     temp_content.write_items(items, self._root_dir)
 
-  def write_file(self, filename, content, codec = 'utf-8', mode = None):
+  def write_file(self, filename, content, encoding = 'utf-8', perm = None):
     p = self.file_path(filename)
     if path.exists(p):
       raise IOError('already existsL {}'.format(filename))
-    file_util.save(p, content = content, codec = codec, mode = mode)
+    bf_file_ops.save(p, content = content, encoding = encoding, perm = mode)
 
-  def read_file(self, filename, codec = 'utf-8'):
-    return file_util.read(self.file_path(filename), codec = codec)
+  def read_file(self, filename, encoding = 'utf-8'):
+    return bf_file_ops.read(self.file_path(filename), encoding = encoding)
 
   def has_file(self, filename):
     return path.exists(self.file_path(filename))
@@ -49,6 +51,6 @@ class file_web_server(web_server):
     p = self.file_path(filename)
     if path.exists(p):
       raise IOError('already existsL {}'.format(filename))
-    extension = file_util.extension(filename)
+    extension = bf_filename.extension(filename)
     tmp_archive = temp_archive.make_temp_archive(items, extension)
-    file_util.rename(tmp_archive, p)
+    bf_file_ops.rename(tmp_archive, p)

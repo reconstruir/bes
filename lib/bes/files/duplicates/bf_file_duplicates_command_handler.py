@@ -36,7 +36,7 @@ class bf_file_duplicates_command_handler(bcli_command_handler):
   
   '''
   def dups(self, files, delete, keep_empty_dirs, blurber = None):
-    files = file_check.check_file_or_dir_seq(files)
+    files = bf_check.check_file_or_dir_seq(files)
     check.check_bool(delete)
     check.check_bool(keep_empty_dirs)
 
@@ -56,7 +56,7 @@ class bf_file_duplicates_command_handler(bcli_command_handler):
           if blurber:
             blurber.blurb(f'DRY_RUN: delete {f}')
       else:
-        file_util.remove(dup_filenames)
+        bf_file_ops.remove(dup_filenames)
         if self.options.verbose:
           for f in dup_filenames:
             if blurber:

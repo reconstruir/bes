@@ -9,7 +9,7 @@ from bes.property.cached_property import cached_property
 from bes.common.time_util import time_util
 
 from bes.files.bf_path import bf_path
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class dir_operation_item(namedtuple('dir_operation_item', 'src_filename, dst_filename')):
 
@@ -31,7 +31,7 @@ class dir_operation_item(namedtuple('dir_operation_item', 'src_filename, dst_fil
     return path.dirname(self.dst_filename)
 
   def src_and_dst_are_the_same(self):
-    return file_util.files_are_the_same(self.src_filename, self.dst_filename)
+    return bf_file_ops.files_are_the_same(self.src_filename, self.dst_filename)
 
   def src_exists(self):
     return path.exists(self.src_filename)

@@ -14,12 +14,15 @@ from .dir_operation_item_list import dir_operation_item_list
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
 from .file_sort_order import file_sort_order
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
+from bes.files.bf_entry import bf_entry
+from bes.files.bf_date import bf_date
 from .filename_list import filename_list
 
 class dir_split(object):
@@ -29,7 +32,7 @@ class dir_split(object):
 
   @classmethod
   def split(clazz, src_dir, dst_dir, options = None):
-    src_dir_abs = file_check.check_dir(src_dir)
+    src_dir_abs = bf_check.check_dir(src_dir)
     check.check_string(dst_dir)
     dst_dir_abs = path.abspath(dst_dir)
     check.check_dir_split_options(options, allow_none = True)
@@ -76,7 +79,7 @@ class dir_split(object):
       dirs = algorithm.unique([ path.dirname(f) for f in new_files ])
       for d in dirs:
         if d != src_dir:
-          d_relative = file_util.remove_head(d, src_dir + path.sep)
+          d_relative = bf_filename.remove_head(d, src_dir + path.sep)
           if not d_relative.startswith(options.prefix):
             d_root = path.join(src_dir, bf_path.part(d_relative, 0))
             possible_empty_dirs_roots.append(d_root)
@@ -106,7 +109,7 @@ class dir_split(object):
   @classmethod
   def split_items(clazz, src_dir, dst_dir, options = None):
     'Return a list of split items that when renaming each item implements split.'
-    src_dir_abs = file_check.check_dir(src_dir)
+    src_dir_abs = bf_check.check_dir(src_dir)
     check.check_string(dst_dir)
     dst_dir_abs = path.abspath(dst_dir)
     check.check_dir_split_options(options, allow_none = True)
@@ -138,9 +141,9 @@ class dir_split(object):
       if order == file_sort_order.FILENAME:
         criteria.append(finfo.filename)
       elif order == file_sort_order.SIZE:
-        criteria.append(file_util.size(finfo.filename))
+        criteria.append(bf_entry(finfo.filename).size)
       elif order == file_sort_order.DATE:
-        criteria.append(file_util.get_modification_date(finfo.filename))
+        criteria.append(bf_date.get_modification_date(finfo.filename))
       elif order == file_sort_order.DEPTH:
         criteria.append(bf_path.depth(finfo.filename))
       else:

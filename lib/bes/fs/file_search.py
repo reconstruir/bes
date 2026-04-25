@@ -11,7 +11,8 @@ from bes.system.check import check
 
 from .file_find import file_find
 from .file_replace import file_replace
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 
 class file_search(object):
 
@@ -21,7 +22,7 @@ class file_search(object):
       return clazz.__bases__[0].__new__(clazz, filename, line_number, pattern, line, span)
 
     def become_relative(self, root_dir):
-      return self.__class__(file_util.remove_head(self.filename, root_dir),
+      return self.__class__(bf_filename.remove_head(self.filename, root_dir),
                             self.line_number, self.pattern, self.line, self.span)
   span = namedtuple('span', 'start, end')
 
@@ -49,7 +50,7 @@ class file_search(object):
                   word_boundary_chars = None):
     #assert string_util.is_string(text)
     try:
-      content = file_util.read(filename, 'utf-8')
+      content = bf_file_ops.read(filename, 'utf-8')
     except UnicodeDecodeError as ex:
       return []
     result = clazz.search_string(content,

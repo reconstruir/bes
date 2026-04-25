@@ -9,7 +9,8 @@ from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.object_util import object_util
 from bes.fs.file_type import file_type
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -38,7 +39,7 @@ class git_util(object):
     options = bf_file_finder_options(file_type = 'dir', file_matcher = matcher)
     finder = bf_file_finder(options = options)
     result = finder.find(dirs).entries.absolute_filenames()
-    result = [ file_util.remove_tail(d, '.git') for d in result ]
+    result = [ bf_filename.remove_tail(d, '.git') for d in result ]
     return sorted(result)
   
   @classmethod
@@ -56,7 +57,7 @@ class git_util(object):
     'Return the greatest numeric tag of a git project by address.'
     repo = clazz.clone_to_temp_dir(address)
     greatest_tag = repo.greatest_local_tag()
-    file_util.remove(repo.root)
+    bf_file_ops.remove(repo.root)
     return greatest_tag
 
   @classmethod
@@ -64,7 +65,7 @@ class git_util(object):
     'Bump the tag of a repo by address.'
     repo = clazz.clone_to_temp_dir(address)
     result = repo.bump_tag(component, push = True, dry_run = dry_run, reset_lower = reset_lower)
-    file_util.remove(repo.root)
+    bf_file_ops.remove(repo.root)
     return result
 
   @classmethod
@@ -126,7 +127,7 @@ class git_util(object):
       else:
         repo.bump_tag(options.bump_tag_component, push = True)
     result = clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
-    file_util.remove(repo.root)
+    bf_file_ops.remove(repo.root)
     return result
 
   @classmethod
@@ -154,7 +155,7 @@ class git_util(object):
                                 num_tries = options.num_tries,
                                 retry_wait_seconds = options.retry_wait_seconds,
                                 files_to_commit = options.files_to_commit)
-    file_util.remove(repo.root)
+    bf_file_ops.remove(repo.root)
 
   @classmethod
   def repo_update_submodule(clazz, address, submodule, branch, revision, dry_run, blurber = None):

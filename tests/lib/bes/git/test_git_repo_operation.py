@@ -4,7 +4,7 @@
 import os.path as path
 import multiprocessing
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git import git
 from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
@@ -38,12 +38,12 @@ class test_git_repo_operation(unit_test):
       ])
       repo.add('.')
     r2.operation_with_reset(_op, 'add bar.txt')
-    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
-    self.assertEqual( 'this is bar', r2.read_file('bar.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is bar', r2.read_file('bar.txt', encoding = 'utf8') )
 
     r3 = r1.make_temp_cloned_repo()
-    self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
-    self.assertEqual( 'this is bar', r3.read_file('bar.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r3.read_file('foo.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is bar', r3.read_file('bar.txt', encoding = 'utf8') )
 
   @git_temp_home_func()
   def test_operation_with_reset_basic_interface(self):
@@ -64,12 +64,12 @@ class test_git_repo_operation(unit_test):
          ])
         repo.add('.')
     r2.operation_with_reset(_op(), 'add bar.txt')
-    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
-    self.assertEqual( 'this is bar', r2.read_file('bar.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is bar', r2.read_file('bar.txt', encoding = 'utf8') )
 
     r3 = r1.make_temp_cloned_repo()
-    self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
-    self.assertEqual( 'this is bar', r3.read_file('bar.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r3.read_file('foo.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is bar', r3.read_file('bar.txt', encoding = 'utf8') )
 
   @git_temp_home_func()
   def test_operation_with_reset_seq_interface(self):
@@ -97,14 +97,14 @@ class test_git_repo_operation(unit_test):
         repo.add('.')
     ops = [ _op1(), _op2() ]
     r2.operation_with_reset(ops, 'add kiwi.txt')
-    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
-    self.assertEqual( 'this is kiwi', r2.read_file('kiwi.txt', codec = 'utf8') )
-    self.assertEqual( 'this is apple', r2.read_file('apple.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is kiwi', r2.read_file('kiwi.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is apple', r2.read_file('apple.txt', encoding = 'utf8') )
 
     r3 = r1.make_temp_cloned_repo()
-    self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
-    self.assertEqual( 'this is kiwi', r3.read_file('kiwi.txt', codec = 'utf8') )
-    self.assertEqual( 'this is apple', r3.read_file('apple.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r3.read_file('foo.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is kiwi', r3.read_file('kiwi.txt', encoding = 'utf8') )
+    self.assertEqual( 'this is apple', r3.read_file('apple.txt', encoding = 'utf8') )
     
   @git_temp_home_func()
   def test_operation_with_reset_with_conflict(self):
@@ -130,10 +130,10 @@ class test_git_repo_operation(unit_test):
         'file foo.txt "this is foo 3" 644',
       ])
     r3.operation_with_reset(_op3, 'hack foo.txt to 3')
-    self.assertEqual( 'this is foo 3', r3.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo 3', r3.read_file('foo.txt', encoding = 'utf8') )
 
     r4 = r1.make_temp_cloned_repo()
-    self.assertEqual( 'this is foo 3', r4.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo 3', r4.read_file('foo.txt', encoding = 'utf8') )
 
   @staticmethod
   def _worker_test_operation_with_reset_with_multiprocess_conflict(clazz, n, address):
@@ -143,13 +143,13 @@ class test_git_repo_operation(unit_test):
     worker_repo.checkout('master')
       
     def _op(repo):
-      old_content = repo.read_file('foo.txt', codec = 'utf8')
+      old_content = repo.read_file('foo.txt', encoding = 'utf8')
       new_content = '{}\nworker {}'.format(old_content, n)
       fp = repo.file_path('foo.txt')
-      file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
+      bf_file_ops.save(fp, content = new_content, encoding = 'utf8', perm = 0o644)
         
     worker_repo.operation_with_reset(_op, 'from worker {}'.format(n))
-    file_util.remove(worker_tmp_root)
+    bf_file_ops.remove(worker_tmp_root)
     
   @git_temp_home_func()
   def test_operation_with_reset_with_multiprocess_conflict(self):
@@ -188,7 +188,7 @@ class test_git_repo_operation(unit_test):
       'worker 6',
       'worker 7',
       'worker 8',
-    ], sorted(r2.read_file('foo.txt', codec = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
+    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
 
   @git_temp_home_func()
   def test_operation_with_reset_wrong_function_args(self):

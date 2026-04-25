@@ -4,7 +4,7 @@ import os
 from os import path
 
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .git_repo_document_db import git_repo_document_db
 
@@ -21,7 +21,7 @@ class git_repo_document_cli_handler(object):
     # base name of the file used to provide the source document contents.
     filename = path.basename(input_filename)
     db = git_repo_document_db(working_dir, address, branch)
-    new_contents = file_util.read(input_filename)
+    new_contents = bf_file_ops.read_text(input_filename)
     if not commit_msg:
       commit_msg = 'git_repo_document_db commit'
 
@@ -36,5 +36,5 @@ class git_repo_document_cli_handler(object):
     if not output_filename:
       output_filename = path.join(os.getcwd(), filename)
     content = db.load_document(filename)
-    file_util.save(output_filename, content)
+    bf_file_ops.save(output_filename, content)
     return 0

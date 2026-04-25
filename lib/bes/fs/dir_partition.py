@@ -14,10 +14,10 @@ from .dir_partition_criteria_media_type import dir_partition_criteria_media_type
 from .dir_partition_criteria_prefix import dir_partition_criteria_prefix
 from .dir_partition_options import dir_partition_options
 from .dir_partition_type import dir_partition_type
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from bes.files.bf_path import bf_path
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .filename_list import filename_list
 
 class dir_partition(object):

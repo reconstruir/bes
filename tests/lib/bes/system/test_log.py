@@ -7,7 +7,7 @@ from collections import namedtuple
 from bes.system.log import log
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class test_log(unit_test):
 
@@ -136,7 +136,7 @@ class test_log(unit_test):
 (foo.CRITICAL)  critical
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
@@ -148,7 +148,7 @@ class test_log(unit_test):
 (foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
     
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=error', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
@@ -157,7 +157,7 @@ class test_log(unit_test):
 (foo.ERROR)  error
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
@@ -169,7 +169,7 @@ class test_log(unit_test):
 (foo.WARNING)  warning
 '''
     self.assert_string_equal( expected, rv.output, native_line_breaks = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
 
   @staticmethod
   def _test_log_func_output_filename(args):
@@ -192,7 +192,7 @@ class test_log(unit_test):
 (foo.CRITICAL)  critical
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
@@ -204,7 +204,7 @@ class test_log(unit_test):
 (foo.WARNING)  warning
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
     
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=error', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
@@ -213,7 +213,7 @@ class test_log(unit_test):
 (foo.ERROR)  error
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
@@ -225,7 +225,7 @@ class test_log(unit_test):
 (foo.WARNING)  warning
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, encoding = 'utf-8', native_line_breaks = True)
 
   #FIXME: broken
   def xtest_all(self):
@@ -323,7 +323,7 @@ class test_log(unit_test):
     p = self._log_tester(function, config, tmp_output_filename, function_args)
     p.start()
     p.join()
-    output = file_util.read(tmp_output_filename, codec = 'utf-8')
+    output = bf_file_ops.read(tmp_output_filename, encoding = 'utf-8')
     return self._test_result(tmp_output_filename, output)
     
 if __name__ == '__main__':

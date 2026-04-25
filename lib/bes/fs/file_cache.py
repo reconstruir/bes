@@ -10,7 +10,8 @@ from bes.system.host import host
 from bes.text.line_break import line_break
 from bes.system.log import logger
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from .temp_file import temp_file
 
 cache_info = namedtuple('cache_info', 'cached_filename, checksum_filename, cached_checksum')
@@ -44,7 +45,7 @@ class file_cache_item(file_cache_item_base):
   def __init__(self, filename):
     super(file_cache_item, self).__init__()
     self.filename = path.abspath(path.normpath(filename))
-    self._checksum = file_util.checksum('sha256', self.filename)
+    self._checksum = bf_checksum.checksum(self.filename, 'sha256')
     self._log.log_d('file_cache_item:__init__: filename={} checksum={}'.format(self.filename,
                                                                                self._checksum))
     
@@ -54,8 +55,8 @@ class file_cache_item(file_cache_item_base):
   def save(self, info):
     assert path.isfile(self.filename)
     self._log.log_d('file_cache_item:save: filename={} info={}'.format(self.filename, info))
-    file_util.copy(self.filename, info.cached_filename)
-    file_util.save(info.checksum_filename, self._checksum + line_break.DEFAULT_LINE_BREAK)
+    bf_file_ops.copy(self.filename, info.cached_filename)
+    bf_file_ops.save(info.checksum_filename, self._checksum + line_break.DEFAULT_LINE_BREAK)
 
   def checksum(self):
     return self._checksum
@@ -70,7 +71,7 @@ class file_filename_cache_item(file_cache_item):
   def load(self, cached_filename):
     assert path.isfile(cached_filename)
     tmp_copy = temp_file.make_temp_file(prefix = 'cached_')
-    file_util.copy(cached_filename, tmp_copy)
+    bf_file_ops.copy(cached_filename, tmp_copy)
     return tmp_copy
 
 class file_content_cache_item(file_cache_item):
@@ -78,7 +79,7 @@ class file_content_cache_item(file_cache_item):
     super(file_content_cache_item, self).__init__(filename)
 
   def load(self, cached_filename):
-    return file_util.read(cached_filename)
+    return bf_file_ops.read(cached_filename)
   
 class file_cache(object):
 
@@ -129,13 +130,13 @@ class file_cache(object):
       saver_func(args, info)
     except IOError:
       # FIXME: write a unit test for this and figure out what the right exceptions to catch are
-      file_util.remove([ info.cached_filename, info.checksum_filename ])
+      bf_file_ops.remove([ info.cached_filename, info.checksum_filename ])
 
   @classmethod
   def _content_saver_func(clazz, args, info):
     filename = args[0]
-    file_util.copy(filename, info.cached_filename)
-    file_util.save(info.checksum_filename, info.checksum + line_break.DEFAULT_LINE_BREAK)
+    bf_file_ops.copy(filename, info.cached_filename)
+    bf_file_ops.save(info.checksum_filename, info.checksum + line_break.DEFAULT_LINE_BREAK)
 
   @classmethod
   def _make_info(clazz, item, cache_dir):
@@ -159,5 +160,5 @@ class file_cache(object):
   @classmethod
   def _cached_checksum(clazz, checksum_filename):
     if path.exists(checksum_filename):
-      return file_util.read(checksum_filename).strip()
+      return bf_file_ops.read(checksum_filename).strip()
     return None

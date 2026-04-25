@@ -7,7 +7,7 @@ import re
 from ..system.check import check
 from bes.common.tuple_util import tuple_util
 from bes.compat.StringIO import StringIO
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.text.tree_text_parser import tree_text_parser
@@ -64,9 +64,9 @@ class git_modules_file(object):
         
   def save(self):
     new_content = str(self)
-    old_content = file_util.read(self._filename, codec = 'utf8')
+    old_content = bf_file_ops.read(self._filename, encoding = 'utf8')
     if new_content != old_content:
-      file_util.save(self._filename, new_content)
+      bf_file_ops.save(self._filename, new_content)
         
   def __str__(self):
     buf = StringIO()
@@ -76,7 +76,7 @@ class git_modules_file(object):
   
   @classmethod
   def _parse_file(clazz, filename):
-    text = file_util.read(filename, codec = 'utf8')
+    text = bf_file_ops.read(filename, encoding = 'utf8')
     return clazz._parse_text(filename, text)
     
   @classmethod

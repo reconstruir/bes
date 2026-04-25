@@ -6,7 +6,7 @@ from bes.testing.unit_test import unit_test
 from bes.system.os_env import os_env
 from bes.system.env_override import env_override
 from bes.system.env_override_options import env_override_options
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.env.env_dir import env_dir

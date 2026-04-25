@@ -2,7 +2,7 @@
 
 import base64
 
-from ..fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from ..system.check import check
 from ..system.log import logger
 from ..url.url_util import url_util

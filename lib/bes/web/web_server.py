@@ -10,7 +10,8 @@ from abc import abstractmethod, ABCMeta
 from ..system.check import check
 from bes.fs.file_mime import file_mime
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.system.log import log
 
 class web_server(object, metaclass = ABCMeta):
@@ -173,7 +174,7 @@ class web_server(object, metaclass = ABCMeta):
   def path_info(self, environ, relative = True):
     path_info = environ['PATH_INFO']
     filename = bf_path.normalize_sep(path_info)
-    fragment = file_util.lstrip_sep(filename)
+    fragment = bf_filename.lstrip_sep(filename)
     rooted_filename = path.join(self._root_dir, fragment)
     return self._path_info(path_info, filename, fragment, rooted_filename)
 

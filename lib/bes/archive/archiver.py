@@ -6,9 +6,11 @@ from ..system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_cache import file_cache
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
+
+from ..files.bf_file_ops import bf_file_ops
+from ..files.checksum.bf_checksum_cache import bf_checksum_cache
 
 from .archive_base import archive_base
 from .archive_dmg import archive_dmg
@@ -101,11 +103,11 @@ class archiver(object):
                            exclude = exclude)
 
   @classmethod
-  def extract_member_to_string(clazz, archive, member, codec = None):
+  def extract_member_to_string(clazz, archive, member, encoding = None):
     archive_class = clazz._determine_type(archive)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (archive))
-    return archive_class(archive).extract_member_to_string(member, codec = codec)
+    return archive_class(archive).extract_member_to_string(member, encoding = encoding)
 
   @classmethod
   def extract_member_to_string_cached(clazz, archive, member, cache_dir = None):
@@ -129,8 +131,8 @@ class archiver(object):
   @classmethod
   def member_checksum(clazz, archive, member):
     tmp_file = clazz.extract_member_to_temp_file(archive, member)
-    chk = file_util.checksum('sha256', tmp_file)
-    file_util.remove(tmp_file)
+    chk = bf_checksum_cache.get_checksum(tmp_file, 'sha256')
+    bf_file_ops.remove(tmp_file)
     return chk
     
   @classmethod
@@ -155,7 +157,7 @@ class archiver(object):
   def recreate(clazz, archive, output_archive, base_dir):
     'Recreate the archive with the new a base_dir.  output_archive can be same as archive.'
     tmp_archive = clazz.recreate_temp_file(archive, base_dir)
-    file_util.rename(tmp_archive, output_archive)
+    bf_file_ops.rename(tmp_archive, output_archive)
     
   @classmethod
   def recreate_temp_file(clazz, archive, base_dir, delete = True):
@@ -257,8 +259,8 @@ class archiver(object):
         raise TypeError('Operation should be a subclass of archive_operation_base: {}'.format(operation))
       operation.execute(tmp_dir)
     tmp_new_archive = clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir)
-    file_util.remove(archive)
-    file_util.rename(tmp_new_archive, archive)
+    bf_file_ops.remove(archive)
+    bf_file_ops.rename(tmp_new_archive, archive)
 
   @classmethod
   def is_empty(clazz, filename):

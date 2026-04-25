@@ -9,7 +9,7 @@ from bes.property.cached_property import cached_property
 from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 from bes.match.matcher_filename import matcher_multiple_filename
@@ -56,13 +56,13 @@ class archive(archive_base):
       raise RuntimeError('Failed to extract member from {}: {}'.format(self.filename, member))
     if not path.isfile(tmp_member):
       raise RuntimeError('Member is not a file {}: {}'.format(self.filename, member))
-    file_util.rename(tmp_member, filename)
+    bf_file_ops.rename(tmp_member, filename)
 
-  def extract_member_to_string(self, member, codec = None):
+  def extract_member_to_string(self, member, encoding = None):
     tmp_file = temp_file.make_temp_file(non_existent = True)
     self.extract_member_to_file(member, tmp_file)
-    result = file_util.read(tmp_file, codec = codec)
-    file_util.remove(tmp_file)
+    result = bf_file_ops.read(tmp_file, encoding = encoding)
+    bf_file_ops.remove(tmp_file)
     return result
     
   def common_base(self):
@@ -119,7 +119,7 @@ class archive(archive_base):
       dest_dir = path.join(dest_dir, base_dir)
     else:
       dest_dir = dest_dir
-    file_util.mkdir(dest_dir)
+    bf_file_ops.mkdir(dest_dir)
     return dest_dir
 
   @classmethod
@@ -144,21 +144,21 @@ class archive(archive_base):
   def _move_dir(clazz, from_dir, dest_dir):
     #print('FOO: from_dir: %s' % (from_dir))
     #print('FOO: dest_dir: %s' % (dest_dir))
-    file_util.mkdir(dest_dir)
-#    if file_util.same_device_id(from_dir, dest_dir):
+    bf_file_ops.mkdir(dest_dir)
+#    if bf_file_ops.same_device_id(from_dir, dest_dir):
 #      print('FOO: calling shutil.move(%s, %s)' % (from_dir, dest_dir))
 #      assert False
 #      shutil.move(from_dir, dest_dir)
 #      return
     file_copy.copy_tree(from_dir, dest_dir)
     print(f'CACA: dest_dir={dest_dir}')
-    file_util.remove(from_dir)
+    bf_file_ops.remove(from_dir)
         
   def _pre_create(self):
     'Setup some stuff before create() is called.'
     d = path.dirname(self.filename)
     if d:
-      file_util.mkdir(d)
+      bf_file_ops.mkdir(d)
 
   @classmethod
   def _filter_for_extract(clazz, members, include, exclude):

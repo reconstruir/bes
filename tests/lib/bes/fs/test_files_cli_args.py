@@ -4,7 +4,7 @@
 import os.path as path
 
 from bes.testing.program_unit_test import program_unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
@@ -221,7 +221,7 @@ class test_files_cli_args(program_unit_test):
                        dup_file_timestamp = None,
                        dup_file_count = None):
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      file_util.mkdir(test.dst_dir)
+      bf_file_ops.mkdir(test.dst_dir)
       args = [
         'files',
         'move',

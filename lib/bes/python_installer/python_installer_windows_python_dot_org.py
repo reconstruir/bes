@@ -7,7 +7,7 @@ import subprocess
 
 from ..system.check import check
 from bes.fs.temp_file import temp_file
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
 from bes.python.python_version_list import python_version_list
@@ -173,7 +173,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     rv = execute.execute(cmd, stderr_to_stdout = True, raise_error = False)
     self._log.log_d('install_package: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
     if rv.exit_code != 0:
-      print(file_util.read(install_log, codec = 'utf-8'))
+      print(bf_file_ops.read(install_log, encoding = 'utf-8'))
     
   #@abstractmethod
   def uninstall(self, version):
@@ -220,7 +220,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     rv = execute.execute(cmd, stderr_to_stdout = True, raise_error = False)
     self._log.log_d('uninstall: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
     if rv.exit_code != 0:
-      print(file_util.read(uninstall_log, codec = 'utf-8'))
+      print(bf_file_ops.read(uninstall_log, encoding = 'utf-8'))
 
   #@abstractmethod
   def download(self, full_version):

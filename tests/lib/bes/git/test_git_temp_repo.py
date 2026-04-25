@@ -6,7 +6,7 @@ import os.path as path
 import multiprocessing
 
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.env_override import env_override_temp_home_func
 from bes.system.execute import execute
@@ -69,7 +69,7 @@ remove remove1
 this is my content
 it can be multi line
 or not'''
-    self.assert_text_file_equal( expected, r.file_path('copy_of_something2.txt'), codec = 'utf-8', native_line_breaks = True )
+    self.assert_text_file_equal( expected, r.file_path('copy_of_something2.txt'), encoding = 'utf-8', native_line_breaks = True )
     
 if __name__ == '__main__':
   unit_test.main()

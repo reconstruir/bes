@@ -12,7 +12,8 @@ from bes.common.object_util import object_util
 from bes.common.hash_util import hash_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.filename_util import filename_util
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
@@ -46,9 +47,9 @@ class pip_project(object):
     self._root_dir = self._options.resolve_root_dir()
     self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
     self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
-    file_util.mkdir(self._fake_home_dir)
+    bf_file_ops.mkdir(self._fake_home_dir)
     self._fake_tmp_dir = path.join(self.droppings_dir, 'fake-tmp')
-    file_util.mkdir(self._fake_tmp_dir)
+    bf_file_ops.mkdir(self._fake_tmp_dir)
 
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
@@ -59,7 +60,7 @@ class pip_project(object):
       if 'version mismatch' in ex.message:
         self._options.blurber.blurb('{} - Fixing automagically.'.format(ex.message))
         self._options.blurber.blurb('removing {}'.format(self._root_dir))
-        file_util.remove(self._root_dir)
+        bf_file_ops.remove(self._root_dir)
         self._do_init(2)
 
   def _do_init(self, attempt_number):
@@ -314,11 +315,11 @@ class pip_project(object):
 
   def _install_one_requirements_file(self, requirements_file):
     'Install packages from a requirements file'
-    new_checksum = file_util.checksum('sha256', requirements_file)
+    new_checksum = bf_checksum.checksum(requirements_file, 'sha256')
     checksum_file = self._requirements_checksum_file(requirements_file)
     
     if path.exists(checksum_file):
-      old_checksum = file_util.read(checksum_file, codec = 'utf-8').strip()
+      old_checksum = bf_file_ops.read(checksum_file, encoding = 'utf-8').strip()
       if old_checksum == new_checksum:
         self._log.log_d(f'{requirements_file}: Old and new checksum are the same')
         return
@@ -335,7 +336,7 @@ class pip_project(object):
       self._log.log_w('install: {}'.format(msg))
       raise pip_error(msg)
     self._log.log_d(f'{requirements_file}: Saving new checksum {new_checksum} to {checksum_file}')
-    file_util.save(checksum_file, content = new_checksum)
+    bf_file_ops.save(checksum_file, content = new_checksum)
     
   def _requirements_checksum_file(self, requirements_file):
     assert path.isabs(requirements_file)

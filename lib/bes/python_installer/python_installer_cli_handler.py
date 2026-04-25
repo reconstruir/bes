@@ -5,7 +5,7 @@ import os.path as path
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_version import python_version
 from bes.script.blurber import blurber
 
@@ -92,7 +92,7 @@ class python_installer_cli_handler(cli_command_handler):
 
     tmp_package = self.installer.download(full_version)
     output_filename = output_filename or path.basename(tmp_package)
-    file_util.rename(tmp_package, output_filename)
+    bf_file_ops.rename(tmp_package, output_filename)
     return 0
   
   def is_installed(self, version):

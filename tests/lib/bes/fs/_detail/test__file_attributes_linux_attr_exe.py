@@ -7,7 +7,7 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_attributes import HAS_XATTR
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.bdocker import bdocker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host

@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 
 from bes.testing.unit_test import unit_test
@@ -13,7 +13,7 @@ class test_properties_editor_v2(unit_test):
   def test_set_value_non_existent_file(self):
     'Set the first value for a non existent properties file.'
     tmp = self.make_temp_file(prefix = 'set_value_non_existent_file')
-    file_util.remove(tmp)
+    bf_file_ops.remove(tmp)
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     expected = """fruit: kiwi\n"""
@@ -129,7 +129,7 @@ version: 1.2.3
   def test_backup(self):
     'Set the first value for a non existent properties file.'
     tmp_dir = self.make_temp_dir(prefix = 'backup')
-    tmp = file_util.save(path.join(tmp_dir, 'foo.props'), content = '')
+    tmp = bf_file_ops.save(path.join(tmp_dir, 'foo.props'), content = '')
     tmp_backup = tmp + '.bak'
     e = PE(tmp, backup = True)
     e.set_value('fruit', 'kiwi')

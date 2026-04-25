@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from ..system.check import check
 from bes.common.object_util import object_util
 
@@ -18,4 +18,4 @@ class archive_operation_remove_files(archive_operation_base):
   def execute(self, temp_dir):
     'Execute this operation in a temp_dir of the unpacked archive.'
     filenames = [ path.join(temp_dir, arcname) for arcname in self._file_arcnames ]
-    file_util.remove(filenames)
+    bf_file_ops.remove(filenames)

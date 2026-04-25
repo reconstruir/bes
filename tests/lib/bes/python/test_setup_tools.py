@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, unittest
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.python.setup_tools import setup_tools
 
@@ -16,7 +16,7 @@ class test_setup_tools(unittest.TestCase):
       'baz-10.11.12-py2.7.egg',
     ]
     for egg in eggs:
-      file_util.save(path.join(tmp_dir, egg), content = '%s\n' % (egg))
+      bf_file_ops.save(path.join(tmp_dir, egg), content = '%s\n' % (egg))
     setup_tools.update_egg_directory(tmp_dir)
 
     easy_install_dot_pth_path = path.join(tmp_dir, setup_tools.EASY_INSTALL_DOT_PTH_FILENAME)
@@ -25,7 +25,7 @@ class test_setup_tools(unittest.TestCase):
 
   def test_update_egg_directory_empty_dir(self):
     tmp_dir = temp_file.make_temp_dir()
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)
     setup_tools.update_egg_directory(tmp_dir)
     easy_install_dot_pth_path = path.join(tmp_dir, setup_tools.EASY_INSTALL_DOT_PTH_FILENAME)
     self.assertFalse( path.exists(easy_install_dot_pth_path) )
@@ -34,11 +34,11 @@ class test_setup_tools(unittest.TestCase):
     tmp_dir = temp_file.make_temp_dir()
     setup_tools.update_site_dot_py(tmp_dir)
     site_py_path = path.join(tmp_dir, setup_tools.SITE_DOT_PY_FILENAME)
-    self.assertEqual( setup_tools.SITE_DOT_PY_CONTENT.encode('utf-8'), file_util.read(site_py_path) )
+    self.assertEqual( setup_tools.SITE_DOT_PY_CONTENT.encode('utf-8'), bf_file_ops.read(site_py_path) )
 
   def test_update_site_dot_py_empty_dir(self):
     tmp_dir = temp_file.make_temp_dir()
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)
     setup_tools.update_site_dot_py(tmp_dir)
     site_py_path = path.join(tmp_dir, setup_tools.SITE_DOT_PY_FILENAME)
     self.assertFalse( path.exists(site_py_path) )

@@ -3,7 +3,7 @@
 import os.path as path
 
 from bes.property.cached_class_property import cached_class_property
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class _test_ini_mixin:
 
@@ -13,4 +13,4 @@ class _test_ini_mixin:
     return path.abspath(filename)
   
   def demo_text(clazz, filename):
-    return file_util.read(clazz.demo_filename(filename), codec = 'utf-8')
+    return bf_file_ops.read(clazz.demo_filename(filename), encoding = 'utf-8')

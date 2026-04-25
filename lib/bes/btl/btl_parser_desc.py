@@ -5,8 +5,8 @@ import os
 from collections import namedtuple
 
 from ..common.json_util import json_util
-from ..fs.file_check import file_check
-from ..fs.file_util import file_util
+from bes.files.bf_check import bf_check
+from bes.files.bf_file_ops import bf_file_ops
 from ..system.check import check
 from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
@@ -100,8 +100,8 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
 
   @classmethod
   def parse_file(clazz, filename):
-    filename = file_check.check_file(filename)
-    text = file_util.read(filename, codec = 'utf-8')
+    filename = bf_check.check_file(filename)
+    text = bf_file_ops.read(filename, encoding = 'utf-8')
     return clazz.parse_text(text, os.path.basename(filename))
 
   def generate_code(self, buf, namespace, name):
@@ -187,6 +187,6 @@ def desc_text(clazz):
 
     buf = btl_code_gen_buffer(indent_width = indent_width)
     self.generate_code(buf, namespace, name)
-    file_util.save(output_filename, content = buf.get_value())
+    bf_file_ops.save(output_filename, content = buf.get_value())
 
 check.register_class(btl_parser_desc, include_seq = False)

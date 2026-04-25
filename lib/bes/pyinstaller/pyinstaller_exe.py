@@ -5,7 +5,7 @@ import os.path as path
 import pprint
 
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_path import bf_path
 from bes.system.os_env import os_env
 from bes.system.which import which
@@ -35,7 +35,7 @@ class pyinstaller_exe(object):
     clazz._log.log_d('replace_env={pprint.pformat(env)}')
     clazz._log.log_d('calling pyinstaller: {" ".join(cmd)}')
     if build_dir:
-      file_util.mkdir(build_dir)
+      bf_file_ops.mkdir(build_dir)
     dist_dir = path.join(build_dir, 'dist')
     work_dir = path.join(build_dir, 'work')
     spec_dir = path.join(build_dir, 'spec')

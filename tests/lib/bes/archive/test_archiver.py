@@ -3,7 +3,7 @@
 
 from os import path
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archiver import archiver
@@ -19,13 +19,13 @@ class test_archiver(unit_test):
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
 
-    file_util.copy(tmp_zip, path.join(tmp_dir, 'archives/zip/tmp_zip.zip'))
-    file_util.copy(tmp_tar, path.join(tmp_dir, 'archives/tar/tmp_tar.tar'))
-    file_util.copy(tmp_tgz, path.join(tmp_dir, 'archives/tgz/tmp_tgz.tgz'))
-    file_util.copy(tmp_tar_gz, path.join(tmp_dir, 'archives/tar_gz/tmp_tar_gz.tar.gz'))
-    file_util.save(path.join(tmp_dir, 'archives/zip/fake_zip.zip'), content = 'not a zip\n')
-    file_util.save(path.join(tmp_dir, 'archives/tar/fake_tar.tar'), content = 'not a tar\n')
-    file_util.save(path.join(tmp_dir, 'archives/tar_gz/fake_tar_gz.tar.gz'), content = 'not a tar.gz\n')
+    bf_file_ops.copy(tmp_zip, path.join(tmp_dir, 'archives/zip/tmp_zip.zip'))
+    bf_file_ops.copy(tmp_tar, path.join(tmp_dir, 'archives/tar/tmp_tar.tar'))
+    bf_file_ops.copy(tmp_tgz, path.join(tmp_dir, 'archives/tgz/tmp_tgz.tgz'))
+    bf_file_ops.copy(tmp_tar_gz, path.join(tmp_dir, 'archives/tar_gz/tmp_tar_gz.tar.gz'))
+    bf_file_ops.save(path.join(tmp_dir, 'archives/zip/fake_zip.zip'), content = 'not a zip\n')
+    bf_file_ops.save(path.join(tmp_dir, 'archives/tar/fake_tar.tar'), content = 'not a tar\n')
+    bf_file_ops.save(path.join(tmp_dir, 'archives/tar_gz/fake_tar_gz.tar.gz'), content = 'not a tar.gz\n')
 
     self.assertEqual( self.native_filename_list([
       'archives/tar/tmp_tar.tar',
@@ -164,7 +164,7 @@ class test_archiver(unit_test):
       'files/baz.txt',
       'new/new_file.txt',
     ], archiver.members(tmp_archive) )
-    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt', codec = 'utf8') )
+    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt', encoding = 'utf8') )
 
   def test_create_with_exclude(self):
     tmp_dir = temp_content.write_items_to_temp_dir([

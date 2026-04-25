@@ -7,7 +7,8 @@ from bes.fs.dir_partition import dir_partition
 from bes.fs.dir_partition_options import dir_partition_options
 from bes.fs.dir_partition_criteria_base import dir_partition_criteria_base
 from bes.fs.dir_partition_defaults import dir_partition_defaults
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 
@@ -279,7 +280,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
     ]
     class _criteria(dir_partition_criteria_base):
       def classify(self, filename):
-        size = file_util.size(filename)
+        size = bf_entry(filename).size
         if size == 1:
           return None
         return str(size)

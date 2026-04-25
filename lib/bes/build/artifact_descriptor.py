@@ -9,7 +9,7 @@ from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 from bes.archive.archive_extension import archive_extension
 from bes.compat.cmp import cmp
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.text.text_replace import text_replace
 
 from .build_arch import build_arch

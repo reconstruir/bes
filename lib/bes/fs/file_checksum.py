@@ -13,8 +13,8 @@ from ..common.type_checked_list import type_checked_list
 from ..compat.StringIO import StringIO
 from ..system.check import check
 
-from .file_check import file_check
-from .file_util import file_util
+from bes.files.bf_check import bf_check
+from bes.files.bf_file_ops import bf_file_ops
 from .file_checksum_getter_raw import file_checksum_getter_raw
 
 class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
@@ -38,7 +38,7 @@ class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
     if path.islink(filepath):
       checksum = ''
     else:
-      file_check.check_file(filepath)
+      bf_check.check_file(filepath)
       checksum = getter.checksum(function_name, filepath)
     return clazz(filename, checksum)
 
@@ -98,12 +98,12 @@ class file_checksum_list(type_checked_list):
     return result
 
   def save_checksums_file(self, filename):
-    file_util.save(filename, content = self.to_json(), codec = 'utf8')
+    bf_file_ops.save(filename, content = self.to_json(), encoding = 'utf8')
 
   @classmethod
   def load_checksums_file(clazz, filename):
     try:
-      content = file_util.read(filename)
+      content = bf_file_ops.read(filename)
     except IOError as ex:
       return None
     return clazz.from_json(content)

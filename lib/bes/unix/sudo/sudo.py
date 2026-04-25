@@ -7,7 +7,7 @@ from bes.common.object_util import object_util
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.log import logger
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.os_env import os_env
 from bes.system.which import which
@@ -64,7 +64,7 @@ class sudo(object):
       return rv
     finally:
       if tmp_askpass:
-        file_util.remove(tmp_askpass)
+        bf_file_ops.remove(tmp_askpass)
   
   @classmethod
   def authenticate(clazz, options = None):

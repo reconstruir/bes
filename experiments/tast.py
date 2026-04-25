@@ -4,11 +4,11 @@
 from os import path
 import ast
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 filename = path.join(path.dirname(__file__), 'code.py')
 
-source_code = file_util.read(filename, codec = 'utf-8')
+source_code = bf_file_ops.read(filename, encoding = 'utf-8')
 
 #print(source_code)
 

@@ -3,7 +3,7 @@
 from os import path
 from ..system.check import check
 from bes.property.cached_property import cached_property
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .simple_config import simple_config
 from .simple_config_options import simple_config_options
@@ -18,7 +18,7 @@ class simple_config_editor(object):
     self._options = options or simple_config_options()
     self._filename = path.abspath(filename)
     if not path.isfile(self._filename):
-      file_util.save(self._filename, content = '')
+      bf_file_ops.save(self._filename, content = '')
 
   def __str__(self):
     return str(self._config)

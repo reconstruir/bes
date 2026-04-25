@@ -3,8 +3,9 @@
 from ..system.check import check
 
 from .file_metadata_getter_base import file_metadata_getter_base
-from .file_check import file_check
-from .file_util import file_util
+
+from bes.files.bf_check import bf_check
+from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
 
 class file_metadata_getter_checksum(file_metadata_getter_base):
 
@@ -17,9 +18,9 @@ class file_metadata_getter_checksum(file_metadata_getter_base):
   #@abstractmethod
   def get_value(self, manager, filename):
     'Get a metadata value from filename and return it encoded as bytes.'
-    file_check.check_file(filename)
+    bf_check.check_file(filename)
 
-    return file_util.checksum(self._algorithm, filename).encode('utf-8')
+    return bf_checksum_cache.get_checksum(filename, self._algorithm).encode('utf-8')
 
   #@abstractmethod
   def decode_value(self, value):

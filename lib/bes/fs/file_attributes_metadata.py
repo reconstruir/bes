@@ -6,7 +6,7 @@ import os
 from bes.common.bool_util import bool_util
 from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
@@ -15,7 +15,8 @@ from .file_attributes import file_attributes
 from .file_attributes_error import file_attributes_permission_error
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_date import bf_date
 
 from .file_metadata_getter_base import file_metadata_getter_base
 from .file_metadata_getter_checksum_md5 import file_metadata_getter_checksum_md5
@@ -42,7 +43,7 @@ class file_attributes_metadata(object):
     
     mtime_key = clazz._make_mtime_key(key)
     attr_mtime = file_attributes.get_date(filename, mtime_key)
-    file_mtime = file_util.get_modification_date(filename)
+    file_mtime = bf_date.get_modification_date(filename)
 
     label = f'get_bytes:{filename}:{key}'
     
@@ -75,14 +76,14 @@ class file_attributes_metadata(object):
   @classmethod
   def _refresh_value(clazz, filename, key, value, mtime_key):
     file_attributes.set_bytes(filename, key, value)
-    file_mtime = file_util.get_modification_date(filename)
+    file_mtime = bf_date.get_modification_date(filename)
     file_attributes.set_date(filename, mtime_key, file_mtime)
     # setting the date in the line above has the side effect
     # of changing the mtime in some implementations.  so we
     # force it to be what it was right after setting the value
     # which is in the past (usually microseconds) but guranteed
     # to match what what was set in set_date()
-    file_util.set_modification_date(filename, file_mtime)
+    bf_date.set_modification_date(filename, file_mtime)
     
   @classmethod
   def get_string(clazz, filename, key, value_maker, fallback = False):
@@ -111,7 +112,7 @@ class file_attributes_metadata(object):
   @classmethod
   def _make_cache_key(clazz, filename):
     hashed_filename = hash_util.hash_string_sha256(filename)
-    mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
+    mtime_string = time_util.timestamp(when = bf_date.get_modification_date(filename))
     return f'{hashed_filename}_{mtime_string}'
 
   @classmethod
@@ -182,7 +183,7 @@ class file_attributes_metadata(object):
 
   @classmethod
   def remove_values(clazz, filename, func):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_callable(func)
     
     keys = [ key for key in file_attributes.keys(filename) if func(key) ]
@@ -220,7 +221,7 @@ class file_attributes_metadata(object):
   @classmethod
   def media_type_matches(clazz, filename, media_types):
     try:
-      filename = file_check.check_file(filename)
+      filename = bf_check.check_file(filename)
       check.check_string_seq(media_types)
     
       media_type = clazz.get_metadata(filename, 'media_type')
@@ -244,7 +245,7 @@ class file_attributes_metadata(object):
 
   @classmethod
   def mime_type_matches(clazz, filename, mime_types):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string_seq(mime_types)
     
     mime_type = clazz.get_metadata(filename, 'mime_type')

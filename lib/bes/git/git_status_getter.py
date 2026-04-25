@@ -72,7 +72,7 @@ class git_status_getter(object):
     dirs = [ d for d in dirs if path.isdir(d) ]
     possible = []
     result = clazz._find(dirs, '.git', None, None, False)
-    result = [ file_util.remove_tail(d, '.git') for d in result ]
+    result = [ bf_file_ops.remove_tail(d, '.git') for d in result ]
     return sorted(result)
 
   @classmethod

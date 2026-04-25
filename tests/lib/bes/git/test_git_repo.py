@@ -4,7 +4,7 @@
 import sys
 import os.path as path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.git.git import git
 from bes.git.git_error import git_error
@@ -167,7 +167,7 @@ class test_git_repo(unit_test):
     r1.push('origin', 'master')
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', encoding = 'utf8') )
     
   @git_temp_home_func()
   def test_delete_remote_tags(self):
@@ -1269,11 +1269,11 @@ tag 1.0.1 tag2
     r.add_file('.gitignore', ignore_content)
     r.push('origin', 'master')
 
-    file_util.save(r.file_path('kiwi.notfoo'), content = 'kiwi.notfoo')
+    bf_file_ops.save(r.file_path('kiwi.notfoo'), content = 'kiwi.notfoo')
     r.add(['kiwi.notfoo'])
     r.commit('add', ['kiwi.notfoo'])
 
-    file_util.save(r.file_path('lemon.foo'), content = 'lemon.foo')
+    bf_file_ops.save(r.file_path('lemon.foo'), content = 'lemon.foo')
     with self.assertRaises(git_error) as ctx:
       r.add(['lemon.foo'])
     r.add(['lemon.foo'], force = True)

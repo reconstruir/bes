@@ -9,7 +9,7 @@ import sys
 
 from ..system.check import check
 from bes.common.string_util import string_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.filename_util import filename_util
 from bes.fs.temp_file import temp_file
 from bes.system.command_line import command_line
@@ -73,7 +73,7 @@ class pyinstaller_build(object):
     output_exe = path.join(build_dir, 'dist', clazz._binary_filename(script_filename))
 
     if options.clean:
-      file_util.remove(build_dir)
+      bf_file_ops.remove(build_dir)
     
     pyinstaller_exe.call_pyinstaller(args,
                                      replace_env = replace_env,

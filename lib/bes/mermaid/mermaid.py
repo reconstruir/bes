@@ -6,8 +6,8 @@ import os.path as path
 import io
 import pprint
 from ..common.point import point
-from ..fs.file_check import file_check
-from ..fs.file_util import file_util
+from bes.files.bf_check import bf_check
+from bes.files.bf_file_ops import bf_file_ops
 from ..system.check import check
 from ..system.log import logger
 from ..text.lexer_token import lexer_token

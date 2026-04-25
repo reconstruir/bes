@@ -3,7 +3,7 @@
 from ..system.check import check
 from bes.cli.cli_helper import cli_helper
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .egg import egg
 from .egg_options import egg_options
@@ -19,7 +19,7 @@ class egg_cli_handler(cli_command_handler, cli_helper):
     check.check_string(revision)
 
     tmp_egg = egg.make_from_address(address, revision, options = self.options)
-    dst_egg = file_util.relocate_file(tmp_egg, self.options.output_dir)
+    dst_egg = bf_file_ops.relocate_file(tmp_egg, self.options.output_dir)
     if self.options.verbose:
       print(dst_egg)
     return 0

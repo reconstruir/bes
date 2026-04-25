@@ -3,7 +3,7 @@
 import os.path as path
 from ..system.check import check
 from bes.common.string_util import string_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 
 from .git import git
@@ -36,7 +36,7 @@ class git_archive_cache(object):
       name = git_address_util.name(address)
     tmp_full_path = path.join(tmp_dir, tarball_filename)
     git.archive(address, revision, name, tmp_full_path)
-    file_util.rename(tmp_full_path, tarball_path)
+    bf_file_ops.rename(tmp_full_path, tarball_path)
     return tarball_path
     
   def path_for_address(self, address):

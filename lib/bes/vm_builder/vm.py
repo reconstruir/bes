@@ -6,7 +6,7 @@ import glob
 import subprocess
 from io import open
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.execute import execute
 from bes.vault.vault_ego import vault_ego
 from bes.vault.vault_cli_command import vault_cli_command
@@ -71,7 +71,7 @@ class vm_manager(object):
     env['PATH'] = '{}/tools/bin:{}'.format(self._vm_user, env['PATH'])
 
     self._save_ssh_keys()
-    public_ssh_key = file_util.read('{}/.ssh/id_rsa.pub'.format(self._vm_user), codec='utf-8')
+    public_ssh_key = bf_file_ops.read('{}/.ssh/id_rsa.pub'.format(self._vm_user), encoding='utf-8')
     authorized_keys_content = public_ssh_key.replace('bitbckt-org-wm-bldr-prod-20190201', 'vagrant')
 
     result = execute.execute(['ssh-keyscan', '-t', 'rsa', 'bitbucket.org'], env=env)

@@ -3,7 +3,7 @@
 import os.path as path
 
 from bes.property.cached_class_property import cached_class_property
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.text.tree_text_parser import tree_text_parser
 from bes.btl.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.btl.btl_desc_text_node import btl_desc_text_node
@@ -18,7 +18,7 @@ class _test_simple_lexer_mixin:
   
   @cached_class_property
   def _simple_lexer_desc_text(clazz):
-    return file_util.read(clazz._simple_lexer_desc_filename, codec = 'utf-8')
+    return bf_file_ops.read(clazz._simple_lexer_desc_filename, encoding = 'utf-8')
 
   @classmethod
   def _simple_lexer_desc_tree(clazz):

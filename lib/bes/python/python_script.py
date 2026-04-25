@@ -6,7 +6,7 @@ import subprocess
 from collections import namedtuple
 
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.log import logger
 
@@ -39,7 +39,7 @@ class python_script(object):
       exit_code = ex.returncode
       clazz._log.log_d('run_script: failed')
     finally:
-      file_util.remove(tmp_script)
+      bf_file_ops.remove(tmp_script)
     output = codecs.decode(output_bytes, 'utf-8').strip()
     clazz._log.log_d('run_script: exit_code={} output="{}"')
     return clazz._run_script_result(exit_code, output)
@@ -59,7 +59,7 @@ raise SystemExit(0)
 '''
     tmp_output = temp_file.make_temp_file()
     clazz.run_script(exe, script, [ tmp_output ])
-    return file_util.read(tmp_output, codec = 'utf-8').strip()
+    return bf_file_ops.read(tmp_output, encoding = 'utf-8').strip()
 
   @classmethod
   def site_packages_path(clazz, exe):

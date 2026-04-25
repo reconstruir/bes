@@ -4,7 +4,7 @@
 import sys
 import os.path as path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
 from bes.git.git_temp_repo import git_temp_repo

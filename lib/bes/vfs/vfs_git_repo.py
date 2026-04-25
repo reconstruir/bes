@@ -6,9 +6,7 @@ from collections import namedtuple
 from ..system.check import check
 from bes.common.node import node
 from bes.fs.file_attributes import file_attributes
-from bes.fs.file_checksum import file_checksum
-from bes.fs.file_checksum_db import file_checksum_db
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.file_mime import file_mime
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
@@ -118,7 +116,7 @@ class vfs_git_repo(vfs_base):
     proxy.repo.add(remote_filename)
     if self._use_lfs:
       if not file_mime.content_is_text(local_filename):
-        pattern = '*.{}'.format(file_util.extension(remote_filename))
+        pattern = '*.{}'.format(bf_filename.extension(remote_filename))
         proxy.repo.lfs_track(remote_filename)
     comment = 'add {}'.format(remote_filename)
     proxy.repo.commit(comment, remote_filename)

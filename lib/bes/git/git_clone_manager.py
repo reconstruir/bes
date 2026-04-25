@@ -3,7 +3,7 @@
 import os.path as path
 from ..system.check import check
 from bes.common.string_util import string_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 
 from .git import git

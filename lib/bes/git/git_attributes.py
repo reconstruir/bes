@@ -42,7 +42,7 @@ class git_attributes(type_checked_list):
   def output(self, output_filename = None):
     check.check_string(output_filename, allow_none = True)
     
-    with file_util.open_with_default(filename = output_filename) as fout:
+    with bf_file_ops.open_with_default(filename = output_filename) as fout:
         fout.write(self.to_json(short_hash = True))
         fout.write(line_break.DEFAULT_LINE_BREAK)
         

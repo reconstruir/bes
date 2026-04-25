@@ -8,7 +8,7 @@ from bes.config.simple_config import simple_config as SC
 from bes.config.simple_config_error import simple_config_error as ERROR
 from bes.config.simple_config_files import simple_config_files as SCL
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.testing.temp_content import temp_content
 from bes.system.env_override import env_override
 from bes.testing.unit_test import unit_test
@@ -184,7 +184,7 @@ cat extends mammal
 '''
     tmp_dir = self.make_temp_dir()
     tmp_file = path.join(tmp_dir, 'organisms.config')
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     return tmp_file
 
   def test_duplicate_section(self):
@@ -199,7 +199,7 @@ organism
 '''
     tmp_dir = self.make_temp_dir()
     tmp_file = path.join(tmp_dir, 'organisms.config')
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     with self.assertRaises(ERROR) as ctx:
       s.load()
@@ -212,7 +212,7 @@ ape extends missing_link
 '''
     tmp_dir = self.make_temp_dir()
     tmp_file = path.join(tmp_dir, 'apes.config')
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     s.load()
     with self.assertRaises(ERROR) as ctx:
@@ -229,7 +229,7 @@ bonobo extends ape
 '''
     tmp_dir = self.make_temp_dir()
     tmp_file = path.join(tmp_dir, 'apes.config')
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     s.load()
     with self.assertRaises(ERROR) as ctx:
@@ -243,7 +243,7 @@ ape extends ape
 '''
     tmp_dir = self.make_temp_dir()
     tmp_file = path.join(tmp_dir, 'apes.config')
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     with self.assertRaises(ERROR) as ctx:
       s.load()
@@ -265,7 +265,7 @@ chimp extends ape
 '''
     tmp_dir = self.make_temp_dir()
     tmp_file = path.join(tmp_dir, 'apes.config')
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     with env_override(env = { '_CONFIG_ACTIVITY': 'resting', '_CONFIG_SNACK': 'kiwi' }) as tmp_env:
       s = SCL(tmp_dir, '*.config')
       s.load()
@@ -290,7 +290,7 @@ chimp extends ape
   snack: eggs
 '''
     with env_override.temp_home() as tmp_env:
-      file_util.save(path.join(os.environ['HOME'], '.config', 'apes.config'), content = content)
+      bf_file_ops.save(path.join(os.environ['HOME'], '.config', 'apes.config'), content = content)
       s = SCL('~/.config', '*.config')
       s.load()
       self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity') )

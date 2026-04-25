@@ -3,7 +3,7 @@
 
 import os, os.path as path, unittest
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.env_override import env_override
 from bes.system.host import host
 from bes.system.filesystem import filesystem

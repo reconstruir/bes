@@ -13,13 +13,14 @@ from bes.version.semantic_version import semantic_version
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
 from .file_resolver import file_resolver
 from .file_split import file_split
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from .filename_list import filename_list
 from .files_cli_options import files_cli_options
 
@@ -35,7 +36,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
 
     files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
-      checksum = file_util.checksum(algorithm, f.filename_abs)
+      checksum = bf_checksum.checksum(f.filename_abs, algorithm)
       print('{}: {}'.format(f.filename_abs, checksum))
     return 0
 
@@ -63,7 +64,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
     return 0
   
   def hexify(self, filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     dump = hexdump.filename(filename, line_delimiter = '\n')
     print(dump)
@@ -122,12 +123,12 @@ class files_cli_handler(bcli_deprecated_command_handler):
     output_filename = output_filename or self._make_output_filename(files)
     file_split.unsplit_files(output_filename, files)
     for f in files:
-      file_util.remove(f)
+      bf_file_ops.remove(f)
     return 0
 
   def move(self, src_dir, dst_dir):
-    src_dir = file_check.check_dir(src_dir)
-    dst_dir = file_check.check_dir(dst_dir)
+    src_dir = bf_check.check_dir(src_dir)
+    dst_dir = bf_check.check_dir(dst_dir)
 
     if src_dir == dst_dir:
       print(f'src_dir and dst_dir cannot be the same.')
@@ -184,5 +185,5 @@ class files_cli_handler(bcli_deprecated_command_handler):
       if self.options.dry_run:
         print(f'DRY_RUN: would remove {f}')
       else:
-        file_util.remove(f)
+        bf_file_ops.remove(f)
     return 0

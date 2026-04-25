@@ -5,7 +5,7 @@ import copy
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value import key_value
 from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser
@@ -60,7 +60,7 @@ class properties(object):
     return self.to_text(self._FORMATTER_JAVA)
 
   def save(self, filename, formatter):
-    file_util.save(filename, content = self.to_text(formatter))
+    bf_file_ops.save(filename, content = self.to_text(formatter))
 
   def save_to_yaml_file(self, filename):
     self.save(filename, self._FORMATTER_YAML)
@@ -153,7 +153,7 @@ class properties(object):
   
   @classmethod
   def load(clazz, filename, formatter):
-    text = file_util.read(filename, codec = 'utf-8')
+    text = bf_file_ops.read(filename, encoding = 'utf-8')
     return clazz.from_text(text, filename, formatter)
   
   @classmethod

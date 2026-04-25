@@ -9,7 +9,7 @@ from bes.system.log import logger
 from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.system.log import log
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.git.git import git
 
 from .cli_missing_command_error import cli_missing_command_error
@@ -139,11 +139,11 @@ class argparser_handler(object):
   
   @classmethod
   def check_file(clazz, filename):
-    file_check.check_file(filename)
+    bf_check.check_file(filename)
 
   @classmethod
   def check_dir(clazz, dirname):
-    file_check.check_dir(dirname)
+    bf_check.check_dir(dirname)
 
   @classmethod
   def check_dir_is_git_repo(clazz, d):

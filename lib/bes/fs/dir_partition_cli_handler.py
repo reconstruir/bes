@@ -5,7 +5,7 @@ from ..system.check import check
 
 from .dir_partition import dir_partition
 from .dir_partition_options import dir_partition_options
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 
 class dir_partition_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'

@@ -3,7 +3,7 @@
 from os import path
 
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.property.cached_property import cached_property
 from bes.text.text_line_parser import text_line_parser
 
@@ -28,8 +28,8 @@ class ssh_authorized_keys_file(object):
   @cached_property
   def _lines(self):
     if not path.exists(self._filename):
-      file_util.save(self._filename, content = '', codec = 'utf-8')
-    return text_line_parser(file_util.read(self._filename, codec = 'utf-8'))
+      bf_file_ops.save(self._filename, content = '', encoding = 'utf-8')
+    return text_line_parser(bf_file_ops.read(self._filename, encoding = 'utf-8'))
   
   def add_authorized_key(self, authorized_key):
     'Add a new authorized_key to the config file.'
@@ -39,4 +39,4 @@ class ssh_authorized_keys_file(object):
     self._save()
 
   def _save(self):
-    file_util.save(self._filename, content = str(self), mode = 0o0600, codec = 'utf-8')
+    bf_file_ops.save(self._filename, content = str(self), perm = 0o0600, encoding = 'utf-8')

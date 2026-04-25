@@ -5,7 +5,7 @@ from os import path
 
 from ..system.check import check
 from bes.config.simple_config import simple_config
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.log import logger
 
 from .vfs_error import vfs_error

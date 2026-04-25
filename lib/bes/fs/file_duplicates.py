@@ -3,7 +3,7 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item import file_resolver_item
 from bes.fs.file_resolver_options import file_resolver_options
@@ -11,10 +11,12 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
+from bes.files.bf_entry import bf_entry
 from .file_duplicates_options import file_duplicates_options
 from .file_duplicates_setup import file_duplicates_setup
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 
 class file_duplicates(object):
   'A class to find duplicate files'
@@ -69,7 +71,7 @@ class file_duplicates(object):
     
   @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
@@ -79,7 +81,7 @@ class file_duplicates(object):
 
   @classmethod
   def find_file_duplicates_with_setup(clazz, filename, setup):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_file_duplicates_setup(setup)
 
     resolved_one_file = clazz._resolve_one_file(filename)
@@ -131,7 +133,7 @@ class file_duplicates(object):
   def _match_function(clazz, filename, options):
     try:
       if not options.include_empty_files:
-        if file_util.is_empty(filename):
+        if bf_entry(filename).is_empty:
           return False
       if options.should_ignore_file(filename):
         return False
@@ -169,7 +171,7 @@ class file_duplicates(object):
   def _small_checksum_map(clazz, files, num_bytes):
     result = {}
     for filename in files:
-      small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
+      small_checksum = bf_checksum.checksum(filename, 'sha256', chunk_size = num_bytes, num_chunks = 1)
       if not small_checksum in result:
         result[small_checksum] = []
       result[small_checksum].append(filename)

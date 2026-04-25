@@ -6,7 +6,7 @@ import copy
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value import key_value
 from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
@@ -84,7 +84,7 @@ class properties(object):
 
   def save(self, style, filename):
     self._check_style(style)
-    file_util.save(filename, content = self.to_text(style))
+    bf_file_ops.save(filename, content = self.to_text(style))
 
   def save_to_yaml_file(self, filename):
     self.save('yaml', filename)
@@ -167,7 +167,7 @@ class properties(object):
 
   @classmethod
   def load(clazz, style, filename):
-    text = file_util.read(filename, codec = 'utf-8')
+    text = bf_file_ops.read(filename, encoding = 'utf-8')
     return clazz.from_text(style, text, filename)
   
   @classmethod

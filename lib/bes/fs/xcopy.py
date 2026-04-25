@@ -4,7 +4,7 @@ import os.path as path, os, re
 from bes.system.execute import execute
 from bes.system.which import which
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .temp_file import temp_file
 
 class xcopy(object):
@@ -14,7 +14,7 @@ class xcopy(object):
     excludes = excludes or []
     if not path.isdir(src_dir):
       raise RuntimeError('src_dir is not a directory: %s' % (src_dir))
-    file_util.mkdir(dst_dir)
+    bf_file_ops.mkdir(dst_dir)
     xcopy_exe = which.which('robocopy.exe')
     cmd = [
       xcopy_exe,

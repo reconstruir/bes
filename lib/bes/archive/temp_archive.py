@@ -3,7 +3,7 @@
 from collections import namedtuple
 import os.path as path, tarfile, tempfile, zipfile
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 
@@ -21,7 +21,7 @@ class temp_archive(object):
       if filename:
         assert not content
       if filename:
-        content = file_util.read(filename)
+        content = bf_file_ops.read(filename)
       return clazz.__bases__[0].__new__(clazz, arcname, content, filename)
 
   @classmethod
@@ -70,7 +70,7 @@ class temp_archive(object):
         assert item.arcname
         tmp_content = temp_file.make_temp_file(item.content)
         archive.write(tmp_content, arcname = item.arcname)
-        file_util.remove(tmp_content)
+        bf_file_ops.remove(tmp_content)
       archive.close()
       fp.flush()
       fp.close()
@@ -84,7 +84,7 @@ class temp_archive(object):
         assert item.arcname
         tmp_content = temp_file.make_temp_file(item.content)
         archive.add(tmp_content, arcname = item.arcname)
-        file_util.remove(tmp_content)
+        bf_file_ops.remove(tmp_content)
       archive.close()
       fp.flush()
       fp.close()
@@ -95,11 +95,11 @@ class temp_archive(object):
     for item in items:
       assert item
       assert item.arcname
-      file_util.save(path.join(tmp_dir, item.arcname), content = item.content)
+      bf_file_ops.save(path.join(tmp_dir, item.arcname), content = item.content)
     tmp_dmg = temp_file.make_temp_file()
     cmd = 'hdiutil create -srcfolder %s -ov -format UDZO %s' % (tmp_dir, filename)
     execute.execute(cmd)
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)
     
   @classmethod
   def _make_temp_archive_xz(clazz, items, filename, mode):
@@ -107,13 +107,13 @@ class temp_archive(object):
     for item in items:
       assert item
       assert item.arcname
-      file_util.save(path.join(tmp_dir, item.arcname), content = item.content)
+      bf_file_ops.save(path.join(tmp_dir, item.arcname), content = item.content)
     tmp_xz = temp_file.make_temp_file()
     manifest_content = '\n'.join([ item.arcname for item in items ])
     manifest = temp_file.make_temp_file(content = manifest_content)
     cmd = 'tar Jcf %s -C %s -T %s' % (filename, tmp_dir, manifest)
     execute.execute(cmd)
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)
     
   @classmethod
   def make_temp_item_list(clazz, items):
@@ -152,4 +152,4 @@ class temp_archive(object):
     for item in items:
       assert item
       assert item.arcname
-      file_util.save(path.join(root_dir, item.arcname), item.content)
+      bf_file_ops.save(path.join(root_dir, item.arcname), item.content)

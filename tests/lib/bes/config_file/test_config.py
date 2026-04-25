@@ -4,7 +4,7 @@
 from os import path
 
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 
 from bes.config_file.config import config
@@ -222,8 +222,8 @@ fruit = durian
 '''
     c = config.load_from_text(text, '<unittest>')
     tmp = temp_file.make_temp_file()
-    c.save(tmp, codec = 'utf-8')
-    self.assertMultiLineEqual( text, file_util.read(tmp, codec = 'utf-8') )
+    c.save(tmp, encoding = 'utf-8')
+    self.assertMultiLineEqual( text, bf_file_ops.read(tmp, encoding = 'utf-8') )
 
   def test_save_quoted(self):
     text = '''\
@@ -243,8 +243,8 @@ fruit = "durian"
 '''
     c = config.load_from_text(text, '<unittest>', string_quote_char = '"')
     tmp = temp_file.make_temp_file()
-    c.save(tmp, codec = 'utf-8')
-    self.assertMultiLineEqual( text, file_util.read(tmp, codec = 'utf-8') )
+    c.save(tmp, encoding = 'utf-8')
+    self.assertMultiLineEqual( text, bf_file_ops.read(tmp, encoding = 'utf-8') )
     
   def test_bump_version(self):
     c = config.load_from_text('[something]\nversion = 1.2.3\n', '<unittest>')
@@ -480,7 +480,7 @@ fruit = durian
     }, c.to_dict() )
 
     tmp = temp_file.make_temp_file()
-    c.save(tmp, codec = 'utf-8')
+    c.save(tmp, encoding = 'utf-8')
 
     expected = '''\
 [default]
@@ -497,7 +497,7 @@ fruit = "durian"
 
 [antartica]
 '''
-    self.assertMultiLineEqual( expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual( expected, bf_file_ops.read(tmp, encoding = 'utf-8') )
 
   def test_has_section(self):
     text = '''\

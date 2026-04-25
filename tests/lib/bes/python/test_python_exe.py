@@ -3,7 +3,7 @@
 
 from os import path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_error import python_error
 from bes.python.python_exe import python_exe
 from bes.python.python_testing import python_testing
@@ -28,7 +28,7 @@ class test_python_exe(unit_test):
 
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_check_exe_not_executable(self):
-    fake_exe = python_testing.make_temp_fake_python('python6.7', '6.7.666', mode = 0o0600, debug = self.DEBUG)
+    fake_exe = python_testing.make_temp_fake_python('python6.7', '6.7.666', perm = 0o0600, debug = self.DEBUG)
     with self.assertRaises(python_error) as ctx:
       python_exe.check_exe(fake_exe)
     self.assertTrue( 'not a valid executable' in str(ctx.exception) )

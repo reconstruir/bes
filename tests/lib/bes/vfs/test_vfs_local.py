@@ -6,7 +6,7 @@ from os import path
 from datetime import datetime
 
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 from bes.vfs.vfs_error import vfs_error
@@ -348,7 +348,7 @@ class test_vfs_local(unit_test):
     tester = self._make_tester()
     tmp_file = self.make_temp_file()
     tester.download_to_file('foo.txt', tmp_file)
-    self.assertEqual( b'foo.txt', file_util.read(tmp_file) )
+    self.assertEqual( b'foo.txt', bf_file_ops.read(tmp_file) )
     
   def test_download_to_bytes(self):
     tester = self._make_tester()

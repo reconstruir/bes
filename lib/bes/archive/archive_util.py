@@ -9,7 +9,8 @@ from bes.common.dict_util import dict_util
 from bes.common.object_util import object_util
 from bes.fs.file_match import file_match
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -31,7 +32,7 @@ class archive_util(object):
     if debug:
       print('tmp_dir: {}'.format(tmp_dir))
     members = [ path.normpath(path.join(tmp_dir, m)) for m in members ]
-    file_util.remove(members)
+    bf_file_ops.remove(members)
     archiver.create(archive, tmp_dir)
 
   @classmethod
@@ -55,7 +56,8 @@ class archive_util(object):
         raise IOError('member not found: {}'.format(member))
       if not path.isfile(p):
         raise IOError('member is not a file: {}'.format(member))
-      result[member] = file_util.checksum('sha256', path.join(tmp_dir, member))
+      tmp_member_path = path.join(tmp_dir, member)
+      result[member] = bf_checksum_cache.get_checksum(tmp_member_path, 'sha256')
     return result
     
   @classmethod
@@ -152,7 +154,7 @@ class archive_util(object):
   @classmethod
   def read_patterns(clazz, filename):
     'Return a list of members that match any pattern in patterns.'
-    text = file_util.read(filename, codec = 'utf8')
+    text = bf_file_ops.read(filename, encoding = 'utf8')
     return text_line_parser.parse_lines(text).to_list()
 
     
@@ -177,7 +179,7 @@ class archive_util(object):
     tmp_dir = temp_file.make_temp_dir()
     archiver.extract(tarball, tmp_dir, strip_common_ancestor = True)
     result = execute.execute(cmd, cwd = tmp_dir, shell = True, raise_error = False)
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)
     return result
 
   @classmethod

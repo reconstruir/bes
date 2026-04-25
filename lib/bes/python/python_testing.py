@@ -4,7 +4,9 @@ import os
 from os import path
 
 from ..system.check import check
-from ..fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from ..fs.temp_file import temp_file
 from ..system.host import host
 from ..system.log import logger
@@ -206,7 +208,7 @@ echo Python {version}
 exit 0
 '''
     content = content2 if semantic_version(version) < '3.0' else content3
-    return file_util.save(filename, content = content)
+    return bf_file_ops.save(filename, content = content)
 
   @classmethod
   def _make_fake_python_windows(clazz, filename, version):
@@ -215,25 +217,25 @@ exit 0
 echo Python {version}
 exit /b 0
 '''.format(version = version)
-    return file_util.save(filename, content = content, mode = 0o0755)
+    return bf_file_ops.save(filename, content = content, perm = 0o0755)
       
   @classmethod
   def make_fake_python(clazz, filename, version):
     if host.is_unix():
       return clazz._make_fake_python_unix(filename, version)
     elif host.is_windows():
-      assert file_util.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+      assert bf_filename.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
       return clazz._make_fake_python_windows(filename + '.cmd', version)
     else:
       host.raise_unsupported_system()
       
   @classmethod
-  def make_temp_fake_python(clazz, filename, version, mode = None, debug = False):
+  def make_temp_fake_python(clazz, filename, version, perm = None, debug = False):
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
     path.join(tmp_dir, filename)
     tmp_exe = clazz.make_fake_python(path.join(tmp_dir, filename), version)
-    if mode:
-      os.chmod(tmp_exe, mode)
+    if perm:
+      os.chmod(tmp_exe, perm)
     return tmp_exe
       
   @classmethod
@@ -243,7 +245,7 @@ exit /b 0
 echo Python {version} 1>&2
 exit 0
 '''.format(version = version)
-    return file_util.save(filename, content = content, mode = 0o0755)
+    return bf_file_ops.save(filename, content = content, perm = 0o0755)
 
   @classmethod
   def _make_fake_python_windows(clazz, filename, version):
@@ -252,26 +254,25 @@ exit 0
 echo Python {version}
 exit /b 0
 '''.format(version = version)
-    return file_util.save(filename, content = content, mode = 0o0755)
+    return bf_file_ops.save(filename, content = content, perm = 0o0755)
 
   @classmethod
   def make_fake_pip(clazz, filename, version, py_version):
     if host.is_unix():
       return clazz._make_fake_pip_unix(filename, version, py_version)
     elif host.is_windows():
-      assert file_util.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+      assert bf_filename.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
       return clazz._make_fake_pip_windows(filename + '.cmd', version, py_version)
     else:
       host.raise_unsupported_system()
 
   @classmethod
-  def make_temp_fake_pip(clazz, filename, version, py_version, mode = None, debug = False):
-    mode = mode or 0o0755
+  def make_temp_fake_pip(clazz, filename, version, py_version, perm = None, debug = False):
+    perm = perm or 0o0755
 
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
     tmp_exe = clazz.make_fake_pip(path.join(tmp_dir, filename), version, py_version)
-    if mode:
-      os.chmod(tmp_exe, mode)
+    os.chmod(tmp_exe, perm)
     return tmp_exe
       
   @classmethod
@@ -281,7 +282,7 @@ exit /b 0
 echo "pip {pip_version} from /foo/site-packages/pip (python {py_version})"
 exit 0
 '''.format(py_version = py_version, pip_version = pip_version)
-    return file_util.save(filename, content = content, mode = 0o0755)
+    return bf_file_ops.save(filename, content = content, perm = 0o0755)
 
   @classmethod
   def _make_fake_pip_windows(clazz, filename, pip_version, py_version):
@@ -290,7 +291,7 @@ exit 0
 echo pip {pip_version} from /foo/site-packages/pip (python {py_version})
 exit /b 0
 '''.format(py_version = py_version, pip_version = pip_version)
-    return file_util.save(filename, content = content, mode = 0o0755)
+    return bf_file_ops.save(filename, content = content, perm = 0o0755)
 
   @staticmethod
   def skip_if_not(name, is_system, exe, version):

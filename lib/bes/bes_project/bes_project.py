@@ -6,8 +6,8 @@ from bes.common.algorithm import algorithm
 from ..system.check import check
 from bes.debug.debug_timer import debug_timer
 from bes.debug.debug_timer import timed_method
-from bes.fs.file_check import file_check
-from bes.fs.file_util import file_util
+from bes.files.bf_check import bf_check
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.dir_util import dir_util
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
@@ -79,8 +79,8 @@ class bes_project(object):
     new_versions = set(versions)
     to_remove = old_versions - new_versions
     
-    requirements = file_check.check_file(requirements)
-    requirements_dev = file_check.check_file(requirements_dev, allow_none = True)
+    requirements = bf_check.check_file(requirements)
+    requirements_dev = bf_check.check_file(requirements_dev, allow_none = True)
 
     self._timer.start('resolve')
     resolved_versions = self._resolve_versions(versions)
@@ -115,7 +115,7 @@ class bes_project(object):
   def _remove_dir(self, version):
     p = self._dir_for_version(version)
     if path.exists(p):
-      file_util.remove(p)
+      bf_file_ops.remove(p)
 
   def _make_pip_project(self, version):
     infos = python_exe.find_all_exes_info(key_by_version = True)

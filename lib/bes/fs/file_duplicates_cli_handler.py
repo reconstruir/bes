@@ -4,11 +4,11 @@ from ..bcli.bcli_deprecated_command_handler import bcli_deprecated_command_handl
 from ..system.check import check
 from bes.common.algorithm import algorithm
 
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_duplicates import file_duplicates
 from .file_duplicates_options import file_duplicates_options
 from .file_find import file_find
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class file_duplicates_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'
@@ -18,7 +18,7 @@ class file_duplicates_cli_handler(bcli_deprecated_command_handler):
     check.check_file_duplicates_options(self.options)
   
   def dups(self, files, delete, keep_empty_dirs, blurber = None):
-    files = file_check.check_file_or_dir_seq(files)
+    files = bf_check.check_file_or_dir_seq(files)
     check.check_bool(delete)
     check.check_bool(keep_empty_dirs)
 
@@ -38,7 +38,7 @@ class file_duplicates_cli_handler(bcli_deprecated_command_handler):
           if blurber:
             blurber.blurb(f'DRY_RUN: delete {f}')
       else:
-        file_util.remove(dup_filenames)
+        bf_file_ops.remove(dup_filenames)
         if self.options.verbose:
           for f in dup_filenames:
             if blurber:

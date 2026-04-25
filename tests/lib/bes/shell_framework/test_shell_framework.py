@@ -8,7 +8,9 @@ from bes.env.env_dir import env_dir
 from bes.shell_framework.shell_framework import shell_framework
 from bes.shell_framework.shell_framework_options import shell_framework_options
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.fs.tar_util import tar_util
 from bes.fs.temp_file import temp_file
 from bes.system.os_env import os_env
@@ -92,7 +94,7 @@ source ${_WHERE}/bes_shell_framework/bes_bash.bash
 bes_env_path_append PATH /foo/bin
 '''
     my_script_path = path.join(test.tmp_dir, 'my_script.sh')
-    file_util.save(my_script_path, content = my_script_content, mode = 0o755)
+    bf_file_ops.save(my_script_path, content = my_script_content, perm = 0o755)
     
     ed = env_dir(test.tmp_dir, files = [ 'my_script.sh' ])
     flat_system_path = path.pathsep.join(os_env.DEFAULT_SYSTEM_PATH)

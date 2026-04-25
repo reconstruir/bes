@@ -6,7 +6,7 @@ from os import path
 from ..system.check import check
 from bes.fs.dir_util import dir_util
 from bes.fs.file_symlink import file_symlink
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.native_package.native_package import native_package
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
@@ -258,7 +258,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
   def _remove_broken_symlink(self, link):
     if file_symlink.is_broken(link):
       self.blurb_verbose('Removing broken framework link: {}'.format(link))
-      file_util.remove(link)
+      bf_file_ops.remove(link)
 
   def _cleanup_usr_local_links(self):
     'Cleanup symlinks in /usr/local/bin that break after uninstalling python'
@@ -269,7 +269,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
       target = os.readlink(broken_link)
       if 'Library/Frameworks/Python.framework/Versions' in target:
         self.blurb_verbose('Removing broken /usr/local link: {}'.format(broken_link))
-        file_util.remove(broken_link)
+        bf_file_ops.remove(broken_link)
 
   #@abstractmethod
   def supports_full_version(self):

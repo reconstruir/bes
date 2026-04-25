@@ -6,7 +6,7 @@ import multiprocessing
 from bes.git.git import git
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_repo import git_repo
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.fs.temp_file import temp_file
 from bes.git.git_unit_test import git_temp_home_func
@@ -52,7 +52,7 @@ class test_git_push_with_rebase(unit_test):
     repo.clone_or_pull()
     repo.add_file(fruit, content = fruit, commit = True)
     repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)
     return 0
   
   @git_temp_home_func()

@@ -6,7 +6,7 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_find import file_find
 from bes.fs.file_copy import file_copy
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.testing.temp_content import temp_content
 
 class test_file_copy(unit_test):
@@ -23,7 +23,7 @@ class test_file_copy(unit_test):
       'link kiwi_link.txt "1/2/3/4/5/kiwi.txt" 644',
     ], delete = not self.DEBUG)
     dst_tmp_dir = self.make_temp_dir(prefix = 'dst-')
-    file_util.remove(dst_tmp_dir)
+    bf_file_ops.remove(dst_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
@@ -55,7 +55,7 @@ class test_file_copy(unit_test):
       'link kiwi_link.txt "1/2/3/4/5/kiwi.txt" 644',
     ], delete = not self.DEBUG)
     dst_tmp_dir = self.make_temp_dir(prefix = 'dst-')
-    file_util.remove(dst_tmp_dir)
+    bf_file_ops.remove(dst_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
     
     expected_files = [
@@ -85,7 +85,7 @@ class test_file_copy(unit_test):
       'link kiwi_link.txt "1/2/3/4/5/kiwi.txt" 644',
     ], delete = not self.DEBUG)
     dst_tmp_dir = self.make_temp_dir(prefix = 'dst-', suffix = '-has 2 spaces-')
-    file_util.remove(dst_tmp_dir)
+    bf_file_ops.remove(dst_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
@@ -108,7 +108,7 @@ class test_file_copy(unit_test):
     tmp_dir = self.make_temp_dir()
     src_dir = path.join(tmp_dir, 'src')
     dst_dir = path.join(tmp_dir, 'dst')
-    file_util.mkdir(dst_dir)
+    bf_file_ops.mkdir(dst_dir)
     temp_content.write_items([
       'file foo.txt "This is foo.txt\n" 644',
       'file bar.txt "This is bar.txt\n" 644',

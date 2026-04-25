@@ -4,7 +4,7 @@ import re
 
 from ..system.check import check
 from bes.compat.StringIO import StringIO
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
@@ -227,7 +227,7 @@ class simple_config(object):
                 entry_formatter = None,
                 ignore_extends = False,
                 options = None):
-    return clazz.from_text(file_util.read(filename, codec = 'utf8'),
+    return clazz.from_text(bf_file_ops.read(filename, encoding = 'utf8'),
                            source = filename,
                            check_env_vars = check_env_vars,
                            entry_parser = entry_parser,
@@ -481,8 +481,8 @@ class simple_config(object):
     result._options = self._options
     return result
 
-  def save(self, filename, codec = 'utf-8'):
-    file_util.save(filename, content = str(self), codec = codec)
+  def save(self, filename, encoding = 'utf-8'):
+    bf_file_ops.save(filename, content = str(self), encoding = encoding)
   
   def set_variable(self, key, value):
     check.check_string(key)

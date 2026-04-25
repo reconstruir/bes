@@ -5,7 +5,7 @@ from collections import namedtuple
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .ssh_config_error import ssh_config_error
 
@@ -41,6 +41,6 @@ class ssh_authorized_key(namedtuple('ssh_authorized_key', 'key_type, key, annota
 
   @classmethod
   def parse_file(clazz, filename):
-    return clazz.parse_text(file_util.read(filename, codec = 'utf-8'))
+    return clazz.parse_text(bf_file_ops.read(filename, encoding = 'utf-8'))
 
 check.register_class(ssh_authorized_key)

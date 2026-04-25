@@ -2,8 +2,6 @@
 
 import argparse, os, os.path as path
 
-from bes.fs import file_util
-
 from .egg import egg
 
 class egg_cli_args(object):

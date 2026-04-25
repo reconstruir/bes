@@ -4,7 +4,7 @@ import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
 
-from ..fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from ..fs.temp_file import temp_file
 from ..ssh_config.ssh_config_manager import ssh_config_manager
 from ..system.check import check
@@ -96,4 +96,4 @@ class git_download(object):
       ssh_command = 'ssh -F {}'.format(ssh_config_file)
       git_config.set_value('core.sshCommand', ssh_command)
       clazz._do_download(address, revision, output_filename, base_name, download_options)
-      file_util.remove(temp_home)
+      bf_file_ops.remove(temp_home)
