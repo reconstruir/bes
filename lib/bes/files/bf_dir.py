@@ -49,7 +49,7 @@ class bf_dir(object):
     return clazz.list(where, relative = relative, file_match = match)
 
   @classmethod
-  def list_files(clazz, where, relative = False, patterns = None, basename = False):
+  def list_files(clazz, where, relative = False, patterns = None):
     'Like list() but only returns files.'
     matcher = bf_file_matcher(patterns = patterns)
     matcher.add_item_callable(path.isfile)
