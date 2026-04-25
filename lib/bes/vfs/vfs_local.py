@@ -143,7 +143,8 @@ class vfs_local(vfs_base):
     return entry
 
   def _should_include_file(clazz, filename):
-    return not bf_entry(filename).is_hidden
+    parts = [p for p in path.normpath(filename).split(os.sep) if p]
+    return not any(p.startswith('.') for p in parts)
   
   #@abstractmethod
   def has_file(self, remote_filename):
