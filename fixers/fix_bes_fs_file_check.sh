@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_s=~/proj/bes/bin/best.sh
+_s=~/tmp/caca/bes/bin/best.sh
 
 ${_s} refactor rename 'from bes.fs.file_check import file_check' 'from bes.files.bf_check import bf_check' $(ag bes.fs.file_check -l)
 
