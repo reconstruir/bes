@@ -8,5 +8,7 @@ ${_s} refactor rename 'file_check.check_file' 'bf_check.check_file' $(ag file_ch
 
 ${_s} refactor rename 'file_check.check_dir' 'bf_check.check_dir' $(ag file_check.check_dir -l)
 
+${_s} refactor rename 'from .file_check import file_check' 'from bes.files.bf_check import bf_check' $(ag 'from .file_check import file_check' -l)
+
 ${_s} refactor rename 'from ..fs.file_check import file_check' 'from bes.files.bf_check import bf_check' $(ag 'from ..fs.file_check import file_check' -l)
 
