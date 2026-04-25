@@ -82,6 +82,8 @@ create index idx_stored_at on metadata_v1(stored_at)
     check.check_string(key)
     check.check_string(value)
 
+    self._log.log_method_d()
+    
     with self._lock:
       self._db.execute(
         'insert or replace into metadata_v1 values (?, ?, ?, ?)',

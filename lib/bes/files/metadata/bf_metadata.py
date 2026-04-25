@@ -55,17 +55,20 @@ class bf_metadata(object):
     return clazz._attr_instance.get_cached_bytes_if_fresh(filename, key)
 
   @classmethod
-  def keys(clazz, filename):
-    return clazz._get_file_store().keys(filename)
+  def keys(clazz, filename, file_store = None):
+    store = file_store if file_store is not None else clazz._get_file_store()
+    return store.keys(filename)
 
   @classmethod
-  def get_metadata(clazz, filename, key):
+  def get_metadata(clazz, filename, key, file_store = None):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
     desc = bf_metadata_factory_registry.get_description(key)
     clazz._log.log_d(f'get_metadata: desc={type(desc)}')
     assert desc.key == key
-    item = clazz._get_item(filename, key)
+    store = file_store if file_store is not None else clazz._get_file_store()
+    store_id = id(store) if file_store is not None else None
+    item = clazz._get_item(filename, key, store_id)
     clazz._log.log_d(f'get_metadata: filename={filename} last_mtime={item._last_mtime}')
     if item._last_mtime is not None:
       current_mtime = bf_date.get_modification_date(filename)
@@ -74,8 +77,7 @@ class bf_metadata(object):
         clazz._log.log_d(f'get_metadata: returning cached value')
         return item._value
 
-    file_store = clazz._get_file_store()
-    stored = file_store.get(filename, key.as_string)
+    stored = store.get(filename, key.as_string)
     if stored is not None:
       value_bytes = stored.encode('utf-8')
     else:
@@ -87,7 +89,7 @@ class bf_metadata(object):
           value_bytes = old_bytes
       if value_bytes is None:
         value_bytes = desc.encode(desc.getter(filename))
-      file_store.set(filename, key.as_string, value_bytes.decode('utf-8'))
+      store.set(filename, key.as_string, value_bytes.decode('utf-8'))
 
     mtime = bf_date.get_modification_date(filename)
     clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime}')
@@ -104,30 +106,31 @@ class bf_metadata(object):
     return desc.old_getter(filename)
 
   @classmethod
-  def metadata_delete(clazz, filename, key):
+  def metadata_delete(clazz, filename, key, file_store = None):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
-
-    clazz._get_file_store().delete(filename, key.as_string)
+    store = file_store if file_store is not None else clazz._get_file_store()
+    store.delete(filename, key.as_string)
     clazz._attr_instance.remove_mtime_key(filename, key.as_string)
     if clazz._attr_instance.has_key(filename, key.as_string):
       clazz._attr_instance.remove(filename, key.as_string)
 
   @classmethod
-  def get_metadata_getter_count(clazz, filename, key):
+  def get_metadata_getter_count(clazz, filename, key, file_store = None):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
-
     desc = bf_metadata_factory_registry.get_description(key)
-    item = clazz._get_item(filename, desc.key)
+    store = file_store if file_store is not None else clazz._get_file_store()
+    store_id = id(store) if file_store is not None else None
+    item = clazz._get_item(filename, desc.key, store_id)
     return item._count
 
   @classmethod
-  def has_metadata(clazz, filename, key):
+  def has_metadata(clazz, filename, key, file_store = None):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
-
-    return clazz._get_file_store().get(filename, key.as_string) is not None
+    store = file_store if file_store is not None else clazz._get_file_store()
+    return store.get(filename, key.as_string) is not None
 
   _items = {}
   class _items_item(object):
@@ -138,10 +141,8 @@ class bf_metadata(object):
       self._count = 0
 
   @classmethod
-  def _get_item(clazz, filename, key):
-    if filename not in clazz._items:
-      clazz._items[filename] = {}
-    file_dict = clazz._items[filename]
-    if not key in file_dict:
-      file_dict[key] = clazz._items_item()
-    return file_dict[key]
+  def _get_item(clazz, filename, key, store_id):
+    cache_key = (store_id, filename, key)
+    if cache_key not in clazz._items:
+      clazz._items[cache_key] = clazz._items_item()
+    return clazz._items[cache_key]

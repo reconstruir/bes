@@ -230,6 +230,22 @@ class test_bf_entry(unit_test, unit_test_media_files):
     self.assertEqual( 'image', tmp.media_type )
     self.assertEqual( True, tmp.is_image )
 
+  def test_metadata_database_path_basic(self):
+    db_path = self.make_temp_file(suffix = '.db', non_existent = True)
+    filename = self.make_temp_file(dir = __file__, content = 'kiwi')
+    e = bf_entry(filename, metadata_database_path = db_path)
+    self.assertEqual( bf_checksum.checksum(filename, 'sha256'), e.checksum_sha256 )
+
+  def test_metadata_database_path_isolated(self):
+    db_path_a = self.make_temp_file(suffix = '.db', non_existent = True)
+    db_path_b = self.make_temp_file(suffix = '.db', non_existent = True)
+    filename = self.make_temp_file(dir = __file__, content = 'kiwi')
+    e_a = bf_entry(filename, metadata_database_path = db_path_a)
+    e_b = bf_entry(filename, metadata_database_path = db_path_b)
+    _ = e_a.checksum_sha256
+    self.assertTrue( e_a.has_checksum_sha256 )
+    self.assertFalse( e_b.has_checksum_sha256 )
+
   def test_relative_filename(self):
     tmp_dir = self._make_tmp_dir()
     e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/kiwi.fruit')

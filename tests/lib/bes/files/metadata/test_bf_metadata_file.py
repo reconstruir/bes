@@ -74,5 +74,31 @@ class test_bf_metadata_file(unit_test):
         'acme__fruit__kiwi__1.0',
       ], tmp.keys() )
 
+  def test_database_path_basic(self):
+    db_path = self.make_temp_file(suffix = '.db', non_existent = True)
+    filename = self.make_temp_file(content = b'12345')
+    tmp = bf_metadata_file(filename, database_path = db_path)
+    self.assertEqual( 5, tmp.get_metadata('acme__fruit__kiwi__1.0') )
+
+  def test_database_path_isolated_from_default(self):
+    db_path = self.make_temp_file(suffix = '.db', non_existent = True)
+    filename = self.make_temp_file(content = b'12345')
+    tmp = bf_metadata_file(filename, database_path = db_path)
+    tmp.get_metadata('acme__fruit__kiwi__1.0')
+    self.assertTrue( tmp.has_metadata('acme__fruit__kiwi__1.0') )
+
+    tmp_default = bf_metadata_file(filename)
+    self.assertFalse( tmp_default.has_metadata('acme__fruit__kiwi__1.0') )
+
+  def test_two_database_paths_are_isolated(self):
+    db_path_a = self.make_temp_file(suffix = '.db', non_existent = True)
+    db_path_b = self.make_temp_file(suffix = '.db', non_existent = True)
+    filename = self.make_temp_file(content = b'12345')
+    tmp_a = bf_metadata_file(filename, database_path = db_path_a)
+    tmp_b = bf_metadata_file(filename, database_path = db_path_b)
+    tmp_a.get_metadata('acme__fruit__kiwi__1.0')
+    self.assertTrue( tmp_a.has_metadata('acme__fruit__kiwi__1.0') )
+    self.assertFalse( tmp_b.has_metadata('acme__fruit__kiwi__1.0') )
+
 if __name__ == '__main__':
   unit_test.main()

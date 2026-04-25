@@ -35,9 +35,10 @@ class bf_entry(object):
 
   _log = logger('bf_entry')
   
-  def __init__(self, filename, root_dir = None):
+  def __init__(self, filename, root_dir = None, metadata_database_path = None):
     check.check_string(filename)
     check.check_string(root_dir, allow_none = True)
+    check.check_string(metadata_database_path, allow_none = True)
 
     filename = path.normpath(filename)
     root_dir = path.normpath(root_dir) if root_dir else None
@@ -47,9 +48,10 @@ class bf_entry(object):
         raise bf_error(f'if root_dir is given then filename cannot be absolute: "{filename}"')
       if not path.isabs(root_dir):
         raise bf_error(f'root_dir has to be absolute: "{root_dir}"')
-    
+
     self._filename = filename
     self._root_dir = root_dir
+    self._metadata_database_path = metadata_database_path
 
   def to_dict(self, replacements = None, xp_filenames = False):
     root_dir = None
@@ -397,7 +399,7 @@ class bf_entry(object):
   def metadata(self):
     from .metadata_factories.bf_metadata_factory_checksum import bf_metadata_factory_checksum
     from .metadata_factories.bf_metadata_factory_mime import bf_metadata_factory_mime
-    return bf_metadata_file(self.filename)
+    return bf_metadata_file(self.filename, database_path = self._metadata_database_path)
 
   @property
   def media_type(self):
