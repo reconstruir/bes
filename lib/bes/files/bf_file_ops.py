@@ -12,6 +12,7 @@ from ..system.filesystem import filesystem
 from ..system.which import which
 
 from .bf_check import bf_check
+from .bf_entry import bf_entry
 
 class bf_file_ops(object):
 
@@ -262,3 +263,12 @@ class bf_file_ops(object):
         if f1.read(read_size) != f2.read(read_size):
           return False
     return True
+
+  @classmethod
+  def touch(clazz, filename):
+    'Update the modification date of filename to be now'
+    entry = bf_entry(filename)
+    if not entry.exists:
+      clazz.ensure_file_dir(filename)
+      clazz.save(filename, content = '')
+    entry.touch()
