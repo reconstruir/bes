@@ -6,7 +6,7 @@ import copy, os, os.path as path
 
 from bes.compat.plistlib import plistlib_loads
 
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.file_copy import file_copy
@@ -52,7 +52,7 @@ class dmg(object):
   
   @classmethod
   def contents(clazz, dmg):
-    file_check.check_file(dmg)
+    bf_check.check_file(dmg)
     mnt = clazz._mount_at_temp_dir(dmg)
     files = file_find.find(mnt.mount_point, relative = True, file_type = file_find.FILE_OR_LINK)
     clazz._eject(mnt.mount_point)
@@ -60,7 +60,7 @@ class dmg(object):
 
   @classmethod
   def extract(clazz, dmg, dst_dir):
-    file_check.check_file(dmg)
+    bf_check.check_file(dmg)
     file_util.mkdir(dst_dir)
     mnt = clazz._mount_at_temp_dir(dmg)
     #clazz._fix_extracted_dir_permissions(mnt.mount_point)
@@ -76,7 +76,7 @@ class dmg(object):
 
   @classmethod
   def _mount_at_temp_dir(clazz, dmg):
-    file_check.check_file(dmg)
+    bf_check.check_file(dmg)
     tmp_dir = temp_file.make_temp_dir()
     rv = clazz._execute_cmd('hdiutil', 'attach', '-mountpoint', tmp_dir, '-plist', '-readonly', dmg)
     entries = plistlib_loads(rv.stdout.encode('utf-8'))

@@ -13,7 +13,7 @@ from ..common.type_checked_list import type_checked_list
 from ..compat.StringIO import StringIO
 from ..system.check import check
 
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_util import file_util
 from .file_checksum_getter_raw import file_checksum_getter_raw
 
@@ -38,7 +38,7 @@ class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
     if path.islink(filepath):
       checksum = ''
     else:
-      file_check.check_file(filepath)
+      bf_check.check_file(filepath)
       checksum = getter.checksum(function_name, filepath)
     return clazz(filename, checksum)
 

@@ -5,7 +5,7 @@ import os
 from collections import namedtuple
 
 from ..common.json_util import json_util
-from ..fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from ..fs.file_util import file_util
 from ..system.check import check
 from ..text.tree_text_parser import tree_text_parser
@@ -100,7 +100,7 @@ class btl_parser_desc(namedtuple('btl_parser_desc', 'header, errors, states, sta
 
   @classmethod
   def parse_file(clazz, filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     text = file_util.read(filename, codec = 'utf-8')
     return clazz.parse_text(text, os.path.basename(filename))
 

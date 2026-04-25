@@ -13,7 +13,7 @@ from bes.system.filesystem import filesystem
 from bes.system.log import logger
 from bes.system.which import which
 
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 
 class file_util(object):
 
@@ -380,8 +380,8 @@ class file_util(object):
 
   @classmethod
   def files_are_the_same(clazz, filename1, filename2, read_size = 1024 * 1024):
-    filename1 = file_check.check_file(filename1)
-    filename2 = file_check.check_file(filename2)
+    filename1 = bf_check.check_file(filename1)
+    filename2 = bf_check.check_file(filename2)
 
     if clazz.size(filename1) != clazz.size(filename2):
       return False

@@ -6,7 +6,7 @@ import os
 from bes.common.bool_util import bool_util
 from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
@@ -182,7 +182,7 @@ class file_attributes_metadata(object):
 
   @classmethod
   def remove_values(clazz, filename, func):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_callable(func)
     
     keys = [ key for key in file_attributes.keys(filename) if func(key) ]
@@ -220,7 +220,7 @@ class file_attributes_metadata(object):
   @classmethod
   def media_type_matches(clazz, filename, media_types):
     try:
-      filename = file_check.check_file(filename)
+      filename = bf_check.check_file(filename)
       check.check_string_seq(media_types)
     
       media_type = clazz.get_metadata(filename, 'media_type')
@@ -244,7 +244,7 @@ class file_attributes_metadata(object):
 
   @classmethod
   def mime_type_matches(clazz, filename, mime_types):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string_seq(mime_types)
     
     mime_type = clazz.get_metadata(filename, 'mime_type')

@@ -6,7 +6,7 @@ import shlex
 from bes.system.check import check
 from bes.common.string_util import string_util
 from bes.debug.hexdump import hexdump
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.system.log import logger
 from bes.text.text_replace import text_replace
 
@@ -61,7 +61,7 @@ class xattr_exe(object):
   @classmethod
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
     check.check_bytes(value)
 
@@ -75,7 +75,7 @@ class xattr_exe(object):
   @classmethod
   def set_string(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
     check.check_string(value)
 
@@ -87,7 +87,7 @@ class xattr_exe(object):
   @classmethod
   def get_string(clazz, filename, key):
     'Get the value of attribute as a string.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
 
     args = [ '-p', key, shlex.quote(filename) ]
@@ -98,7 +98,7 @@ class xattr_exe(object):
   @classmethod
   def get_bytes(clazz, filename, key):
     'Get the value of attribute as as bytes.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
 
     args = [ '-p', '-x', key, shlex.quote(filename) ]
@@ -112,7 +112,7 @@ class xattr_exe(object):
   @classmethod
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
     
     args = [ '-d', key, shlex.quote(filename) ]
@@ -123,7 +123,7 @@ class xattr_exe(object):
   @classmethod
   def clear(clazz, filename):
     'Remove the attirbute with key from filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     
     args = [ '-c', shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)

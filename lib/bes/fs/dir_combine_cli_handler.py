@@ -5,7 +5,7 @@ from ..system.check import check
 
 from .dir_combine import dir_combine
 from .dir_combine_options import dir_combine_options
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 
 class dir_combine_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'

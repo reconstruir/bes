@@ -5,7 +5,7 @@ import ast
 from collections import namedtuple
 
 from bes.fs.file_util import file_util
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from ..system.check import check
 
 from .refactor_ast_node_type import refactor_ast_node_type
@@ -18,7 +18,7 @@ class refactor_ast_file(object):
   def find_nodes(clazz, filename, node_type):
     check.check_refactor_ast_node_type(node_type)
 
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     source_code = file_util.read(filename, codec = 'utf-8')
     tree = ast.parse(source_code)

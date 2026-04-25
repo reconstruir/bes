@@ -6,7 +6,7 @@ from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
 from ..system.check import check
 from bes.fs.file_util import file_util
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.script.blurber import blurber
 
 from .mermaid import mermaid
@@ -23,7 +23,7 @@ class mermaid_cli_handler(cli_command_handler):
     self.options.blurber.set_verbose(self.options.verbose)
 
   def generate(self, filename, namespace, name, output_directory):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(namespace)
     check.check_string(name)
     check.check_string(output_directory)
@@ -33,7 +33,7 @@ class mermaid_cli_handler(cli_command_handler):
     return 0
 
   def make(self, filename, output_filename, output_format):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(output_filename)
     check.check_string(output_format)
 

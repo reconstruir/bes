@@ -12,7 +12,7 @@ from bes.system.log import logger
 
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from bes.files.bf_path import bf_path
 from .file_resolver_options import file_resolver_options
@@ -45,7 +45,7 @@ class file_resolver(object):
     clazz._log.log_method_d()
 
     dirs = object_util.listify(dirs)
-    file_check.check_dir_seq(dirs)
+    bf_check.check_dir_seq(dirs)
     options = options or file_resolver_options()
     return clazz._do_resolve_files(dirs, options, file_find.DIR)
   

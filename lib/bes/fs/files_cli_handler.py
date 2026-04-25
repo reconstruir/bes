@@ -13,7 +13,7 @@ from bes.version.semantic_version import semantic_version
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
@@ -63,7 +63,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
     return 0
   
   def hexify(self, filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     dump = hexdump.filename(filename, line_delimiter = '\n')
     print(dump)
@@ -126,8 +126,8 @@ class files_cli_handler(bcli_deprecated_command_handler):
     return 0
 
   def move(self, src_dir, dst_dir):
-    src_dir = file_check.check_dir(src_dir)
-    dst_dir = file_check.check_dir(dst_dir)
+    src_dir = bf_check.check_dir(src_dir)
+    dst_dir = bf_check.check_dir(dst_dir)
 
     if src_dir == dst_dir:
       print(f'src_dir and dst_dir cannot be the same.')

@@ -2,12 +2,12 @@
 
 from .dir_partition_criteria_base import dir_partition_criteria_base
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 
 class dir_partition_criteria_media_type(dir_partition_criteria_base):
   
   def classify(self, filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     media_type = file_attributes_metadata.get_media_type(filename, fallback = True, cached = True)
     if media_type == 'unknown':
       return None

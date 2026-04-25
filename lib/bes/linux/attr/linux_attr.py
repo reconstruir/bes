@@ -3,7 +3,7 @@
 from bes.system.check import check
 from bes.common.string_util import string_util
 from bes.debug.hexdump import hexdump
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.system.log import logger
 
 from .linux_attr_error import linux_attr_error
@@ -46,7 +46,7 @@ class linux_attr(object):
   @classmethod
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
     check.check_bytes(value)
 
@@ -58,7 +58,7 @@ class linux_attr(object):
   @classmethod
   def set_string(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
     check.check_string(value)
 
@@ -70,7 +70,7 @@ class linux_attr(object):
   @classmethod
   def get_string(clazz, filename, key):
     'Get the value of attribute as a string.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
 
 #    if rv.exit_code == 0:
@@ -89,7 +89,7 @@ class linux_attr(object):
   @classmethod
   def get_bytes(clazz, filename, key):
     'Get the value of attribute as as bytes.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
 
     args = [ '-q', '-g', key, filename ]
@@ -101,7 +101,7 @@ class linux_attr(object):
   @classmethod
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string(key)
 
     args = [ '-r', key, filename ]
@@ -111,7 +111,7 @@ class linux_attr(object):
   @classmethod
   def clear(clazz, filename):
     'Remove the attirbute with key from filename.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     for key in clazz.keys(filename):
       clazz.remove(filename, key)

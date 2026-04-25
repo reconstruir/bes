@@ -5,7 +5,7 @@ import os.path as path
 import pickle
 
 from bes.system.check import check
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_util import file_util
 from bes.system.log import logger
 from bes.system.log import logger
@@ -20,7 +20,7 @@ class ads(object):
   @classmethod
   def has_stream(clazz, filename, stream_name):
     'Return True if filename has stream_name.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     stream_name = clazz.check_stream_name(stream_name)
 
     ads_filename = clazz._make_ads_filename(filename, stream_name)
@@ -29,7 +29,7 @@ class ads(object):
   @classmethod
   def read_stream(clazz, filename, stream_name):
     'Return the content of stream_name for filename in bytes.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     stream_name = clazz.check_stream_name(stream_name)
 
     ads_filename = clazz._make_ads_filename(filename, stream_name)
@@ -42,7 +42,7 @@ class ads(object):
   @classmethod
   def write_stream(clazz, filename, stream_name, value):
     'Write the content of stream_name for filename in bytes.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     stream_name = clazz.check_stream_name(stream_name)
     check.check_bytes(value)
     
@@ -58,7 +58,7 @@ class ads(object):
   @classmethod
   def remove_stream(clazz, filename, stream_name):
     'Remove stream_name from filename if it exists.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     stream_name = clazz.check_stream_name(stream_name)
 
     if not clazz.has_stream(filename, stream_name):
@@ -75,7 +75,7 @@ class ads(object):
   @classmethod
   def write_values(clazz, filename, stream_name, values):
     'Write the content of stream_name for filename as values.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     stream_name = clazz.check_stream_name(stream_name)
     check.check_dict(values)
 
@@ -86,7 +86,7 @@ class ads(object):
   @classmethod
   def read_values(clazz, filename, stream_name):
     'Read the content of stream_name for filename as values.'
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     stream_name = clazz.check_stream_name(stream_name)
 
     value = clazz.read_stream(filename, stream_name)

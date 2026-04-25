@@ -8,7 +8,7 @@ import re
 from bes.common.algorithm import algorithm
 from bes.system.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
 from bes.fs.file_multi_ignore import file_multi_ignore
 from bes.files.bf_path import bf_path
@@ -36,9 +36,9 @@ class argument_resolver(object):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
-    file_check.check_dir(working_dir)
+    bf_check.check_dir(working_dir)
     if root_dir:
-      file_check.check_dir(root_dir)
+      bf_check.check_dir(root_dir)
     working_dir = path.abspath(working_dir)
     self.log.log_d('argument_resolver: working_dir={}'.format(working_dir))
     ignore = file_multi_ignore(file_ignore_filename)

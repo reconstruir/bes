@@ -5,7 +5,7 @@ from ..system.check import check
 
 from .dir_split import dir_split
 from .dir_split_options import dir_split_options
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 
 class dir_split_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'
@@ -15,7 +15,7 @@ class dir_split_cli_handler(bcli_deprecated_command_handler):
     check.check_dir_split_options(self.options)
   
   def split(self, src_dir, dst_dir):
-    src_dir = file_check.check_dir(src_dir)
+    src_dir = bf_check.check_dir(src_dir)
     check.check_string(dst_dir)
 
     if self.options.dry_run:

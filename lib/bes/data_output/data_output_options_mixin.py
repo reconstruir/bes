@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from ..system.check import check
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.property.cached_property import cached_property
 
 from .data_output_options import data_output_options

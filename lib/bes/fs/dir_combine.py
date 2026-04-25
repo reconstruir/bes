@@ -16,7 +16,7 @@ from .dir_operation_item_list import dir_operation_item_list
 from .dir_combine_options import dir_combine_options
 from .dir_combine_type import dir_combine_type
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from bes.files.bf_path import bf_path
 from .file_util import file_util

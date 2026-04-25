@@ -14,7 +14,7 @@ from .dir_operation_item_list import dir_operation_item_list
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_find import file_find
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
@@ -29,7 +29,7 @@ class dir_split(object):
 
   @classmethod
   def split(clazz, src_dir, dst_dir, options = None):
-    src_dir_abs = file_check.check_dir(src_dir)
+    src_dir_abs = bf_check.check_dir(src_dir)
     check.check_string(dst_dir)
     dst_dir_abs = path.abspath(dst_dir)
     check.check_dir_split_options(options, allow_none = True)
@@ -106,7 +106,7 @@ class dir_split(object):
   @classmethod
   def split_items(clazz, src_dir, dst_dir, options = None):
     'Return a list of split items that when renaming each item implements split.'
-    src_dir_abs = file_check.check_dir(src_dir)
+    src_dir_abs = bf_check.check_dir(src_dir)
     check.check_string(dst_dir)
     dst_dir_abs = path.abspath(dst_dir)
     check.check_dir_split_options(options, allow_none = True)

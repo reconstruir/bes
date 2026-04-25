@@ -3,7 +3,7 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item import file_resolver_item
 from bes.fs.file_resolver_options import file_resolver_options
@@ -11,7 +11,7 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .file_attributes_metadata import file_attributes_metadata
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_duplicates_options import file_duplicates_options
 from .file_duplicates_setup import file_duplicates_setup
 from .file_util import file_util
@@ -69,7 +69,7 @@ class file_duplicates(object):
     
   @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
@@ -79,7 +79,7 @@ class file_duplicates(object):
 
   @classmethod
   def find_file_duplicates_with_setup(clazz, filename, setup):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     check.check_file_duplicates_setup(setup)
 
     resolved_one_file = clazz._resolve_one_file(filename)

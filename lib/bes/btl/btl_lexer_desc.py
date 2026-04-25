@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from ..common.json_util import json_util
 from ..common.variable_manager import variable_manager
-from ..fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from ..fs.file_util import file_util
 from ..system.check import check
 from ..text.tree_text_parser import tree_text_parser
@@ -126,7 +126,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
 
   @classmethod
   def parse_file(clazz, filename):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
     desc_text = file_util.read(filename, codec = 'utf-8')
     return clazz.parse_text(desc_text, path.basename(filename))
 

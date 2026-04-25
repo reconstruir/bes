@@ -4,7 +4,7 @@ from ..bcli.bcli_deprecated_command_handler import bcli_deprecated_command_handl
 from ..system.check import check
 from bes.common.algorithm import algorithm
 
-from .file_check import file_check
+from bes.files.bf_check import bf_check
 from .file_split import file_split
 from .file_split_options import file_split_options
 

@@ -4,7 +4,7 @@ import json
 import sys
 
 from bes.system.check import check
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_util import file_util
 
 from .json_util import json_util
@@ -28,7 +28,7 @@ class json_read_write_mixin:
       
   @classmethod
   def read_json_file(clazz, filename, encoding = 'utf-8'):
-    filename = file_check.check_file(filename)
+    filename = bf_check.check_file(filename)
 
     with open(filename, 'r', encoding = encoding) as f:
       js = f.read()

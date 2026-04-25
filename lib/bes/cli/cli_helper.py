@@ -4,7 +4,7 @@ from os import path
 
 from ..system.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
 from bes.git.git import git
 
@@ -44,11 +44,11 @@ class cli_helper(object):
 
   @classmethod
   def check_file(clazz, filename):
-    file_check.check_file(filename)
+    bf_check.check_file(filename)
 
   @classmethod
   def check_dir(clazz, dirname):
-    file_check.check_dir(dirname)
+    bf_check.check_dir(dirname)
 
   @classmethod
   def check_dir_is_git_repo(clazz, d):

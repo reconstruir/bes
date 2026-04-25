@@ -2,7 +2,7 @@
 
 from ..system.check import check
 from bes.fs.file_multi_ignore import file_multi_ignore
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.property.cached_property import cached_property
 
 class file_ignore_options_mixin(object):
@@ -15,7 +15,7 @@ class file_ignore_options_mixin(object):
     
   def should_ignore_file(self, ford):
     try:
-      ford = file_check.check_file_or_dir(ford)
+      ford = bf_check.check_file_or_dir(ford)
   
       return self.file_ignorer().should_ignore(ford)
     except FileNotFoundError as ex:

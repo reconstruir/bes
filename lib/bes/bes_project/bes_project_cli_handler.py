@@ -5,7 +5,7 @@ from os import path
 from bes.cli.cli_command_handler import cli_command_handler
 from ..system.check import check
 from bes.data_output.data_output import data_output
-from bes.fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from bes.text.text_table import text_table
 
 from .bes_project_error import bes_project_error
@@ -31,8 +31,8 @@ class bes_project_cli_handler(cli_command_handler):
   
   def ensure(self, versions, requirements, requirements_dev):
     check.check_string_seq(versions)
-    requirements = file_check.check_file(requirements)
-    requirements_dev = file_check.check_file(requirements_dev, allow_none = True)
+    requirements = bf_check.check_file(requirements)
+    requirements_dev = bf_check.check_file(requirements_dev, allow_none = True)
 
     project = bes_project(options = self.options)
     project.ensure(versions, requirements, requirements_dev = requirements_dev)

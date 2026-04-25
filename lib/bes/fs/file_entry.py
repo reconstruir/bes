@@ -7,13 +7,13 @@ from datetime import datetime
 from ..system.check import check
 from ..property.cached_property import cached_property
 from ..fs.file_attributes_metadata import file_attributes_metadata
-from ..fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from ..compat.cmp import cmp
 
 class file_entry(object):
 
   def __init__(self, filename):
-    self._filename = file_check.check_file(filename)
+    self._filename = bf_check.check_file(filename)
 
   @property
   def exists(self):

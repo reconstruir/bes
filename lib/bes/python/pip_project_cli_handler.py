@@ -5,7 +5,7 @@ import pprint
 
 from ..cli.cli_command_handler import cli_command_handler
 from ..data_output.data_output import data_output
-from ..fs.file_check import file_check
+from bes.files.bf_check import bf_check
 from ..system.check import check
 from ..text.text_table import text_table
 
@@ -57,7 +57,7 @@ class pip_project_cli_handler(cli_command_handler):
     return 0
 
   def install_requirements(self, requirements_files):
-    requirements_files = file_check.check_file_seq(requirements_files)
+    requirements_files = bf_check.check_file_seq(requirements_files)
 
     project = pip_project(options = self.options)
     project.install_requirements(requirements_files)
