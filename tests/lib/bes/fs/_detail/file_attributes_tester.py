@@ -5,7 +5,7 @@ import os.path as path
 import stat
 
 from bes.fs.file_attributes_error import file_attributes_permission_error
-from bes.fs.file_symlink import file_symlink
+from bes.files.bf_symlink import bf_symlink
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -121,7 +121,7 @@ def make_test_case(impl):
       print('AF: tmp={} mode={}'.format(tmp, bf_entry(tmp).mode))
       return tmp
       if host.is_unix():
-        return file_symlink.resolve('/bin/sh')
+        return bf_symlink.resolve('/bin/sh')
       elif host.is_windows():
         return r'C:\Windows\System32\cmd.exe'
       else:

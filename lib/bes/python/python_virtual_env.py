@@ -6,7 +6,7 @@ import tempfile
 
 from ..system.check import check
 from bes.fs.dir_cleanup import dir_cleanup
-from bes.fs.file_symlink import file_symlink
+from bes.files.bf_symlink import bf_symlink
 from bes.property.cached_property import cached_property
 from bes.system.env_var import env_var
 from bes.system.env_override import env_override
@@ -112,7 +112,7 @@ class python_virtual_env(object):
     versioned_exe = python_source.versioned_python_exe(root_dir, version)
     if not path.isfile(versioned_exe):
       exe = python_source.python_exe(root_dir, version)
-      file_symlink.symlink(path.basename(exe), versioned_exe)
+      bf_symlink.symlink(path.basename(exe), versioned_exe)
       if not path.isfile(versioned_exe):
         raise python_error('Failed to create versioned python exe symlink: "{}"'.format(versioned_exe))
 

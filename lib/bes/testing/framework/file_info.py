@@ -6,7 +6,7 @@ from bes.system.check import check
 from bes.property.cached_property import cached_property
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_filename import bf_filename
-from bes.fs.file_symlink import file_symlink
+from bes.files.bf_symlink import bf_symlink
 from bes.git.git import git
 from bes.git.git_error import git_error
 
@@ -48,6 +48,6 @@ class file_info(namedtuple('file_info', 'filename, config, inspection')):
 
   @property
   def is_broken_link(self):
-    return file_symlink.is_broken(self.filename)
+    return bf_symlink.is_broken(self.filename)
 
 check.register_class(file_info, include_seq = False)

@@ -3,7 +3,7 @@
 from bes.system.check import check
 from bes.compat import url_compat
 from bes.files.bf_path import bf_path
-from bes.fs.file_symlink import file_symlink
+from bes.files.bf_symlink import bf_symlink
 from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_script import python_script
 from bes.version.semantic_version import semantic_version
@@ -56,7 +56,7 @@ class python_source_macos(python_source_unix):
     'Return True if python executable is from brew'
     
     # First check the exe itself to see if its in the brew "cellar"
-    actual_exe = file_symlink.resolve(exe)
+    actual_exe = bf_symlink.resolve(exe)
     if 'cellar' in actual_exe.lower():
       return True
 
@@ -64,7 +64,7 @@ class python_source_macos(python_source_unix):
     if actual_exe.startswith('/usr/local/opt/python@'):
       parts = bf_path.split(actual_exe)
       prefix = bf_path.join(parts[0:5])
-      actual_prefix = file_symlink.resolve(prefix)
+      actual_prefix = bf_symlink.resolve(prefix)
       if 'cellar' in actual_prefix.lower():
         return True
     return False

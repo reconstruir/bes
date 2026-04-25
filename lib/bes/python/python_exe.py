@@ -12,7 +12,7 @@ from ..system.check import check
 from ..files.bf_entry import bf_entry
 from bes.common.string_util import string_util
 from bes.debug.debug_timer import debug_timer
-from bes.fs.file_symlink import file_symlink
+from bes.files.bf_symlink import bf_symlink
 from bes.files.bf_file_ops import bf_file_ops
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -153,7 +153,7 @@ class python_exe(object):
     from .python_installation import python_installation
     piv = python_installation(main_exe)
     sys_executable = python_script.sys_executable(main_exe)
-    real_executable = file_symlink.resolve(sys_executable)
+    real_executable = bf_symlink.resolve(sys_executable)
     source = python_source.exe_source(main_exe)
     version = clazz.version(main_exe)
     full_version = clazz.full_version(main_exe)
@@ -282,7 +282,7 @@ class python_exe(object):
       else:
         sanitized_env_path = env_path
       result = bf_glob.glob(sanitized_env_path, exe_patterns)
-      result = [ f for f in result if not file_symlink.is_broken(f) ]
+      result = [ f for f in result if not bf_symlink.is_broken(f) ]
 
       seen = set()
       c = []

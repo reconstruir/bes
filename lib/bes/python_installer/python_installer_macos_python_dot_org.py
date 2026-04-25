@@ -5,7 +5,7 @@ from os import path
 
 from ..system.check import check
 from bes.fs.dir_util import dir_util
-from bes.fs.file_symlink import file_symlink
+from bes.files.bf_symlink import bf_symlink
 from bes.files.bf_file_ops import bf_file_ops
 from bes.native_package.native_package import native_package
 from bes.python.python_exe import python_exe
@@ -244,10 +244,10 @@ class python_installer_macos_python_dot_org(python_installer_base):
     if not path.exists(version_root_dir):
       raise python_installer_error('Trying to create framework symlinks for missing python version: {}'.format(version_root_dir))
 
-    file_symlink.symlink(version, self._FRAMEWORK_LINK_CURRENT_ROOT_DIR)
-    file_symlink.symlink('Versions/Current/Headers', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Headers'))
-    file_symlink.symlink('Versions/Current/Python', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Python'))
-    file_symlink.symlink('Versions/Current/Resources', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Resources'))
+    bf_symlink.symlink(version, self._FRAMEWORK_LINK_CURRENT_ROOT_DIR)
+    bf_symlink.symlink('Versions/Current/Headers', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Headers'))
+    bf_symlink.symlink('Versions/Current/Python', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Python'))
+    bf_symlink.symlink('Versions/Current/Resources', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Resources'))
 
   def _cleanup_framework_links(self):
     self._remove_broken_symlink(self._FRAMEWORK_LINK_CURRENT_ROOT_DIR)
@@ -256,7 +256,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     self._remove_broken_symlink(path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Resources'))
 
   def _remove_broken_symlink(self, link):
-    if file_symlink.is_broken(link):
+    if bf_symlink.is_broken(link):
       self.blurb_verbose('Removing broken framework link: {}'.format(link))
       bf_file_ops.remove(link)
 
@@ -264,7 +264,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     'Cleanup symlinks in /usr/local/bin that break after uninstalling python'
 
     links = dir_util.list('/usr/local/bin')
-    broken_links = [ l for l in links if file_symlink.is_broken(l) ]
+    broken_links = [ l for l in links if bf_symlink.is_broken(l) ]
     for broken_link in broken_links:
       target = os.readlink(broken_link)
       if 'Library/Frameworks/Python.framework/Versions' in target:
