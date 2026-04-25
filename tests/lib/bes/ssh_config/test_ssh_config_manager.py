@@ -5,6 +5,8 @@ from os import path
 
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.pyinstaller.pyinstaller import pyinstaller
 from bes.ssh_config.ssh_config_manager import ssh_config_manager
 from bes.testing.unit_test import unit_test
@@ -104,7 +106,7 @@ bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQeJzhupRu0u0cdegZIa8e86EG2q
 
     abs_files = [ path.join(tmp_dir, f) for f in files ]
     for filename in abs_files:
-      self.assertEqual( 0o0600, bf_file_ops.mode(filename) )
+      self.assertEqual( 0o0600, bf_entry(filename).mode )
     
 if __name__ == '__main__':
   unit_test.main()

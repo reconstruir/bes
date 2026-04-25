@@ -4,6 +4,8 @@
 ##### from os import path
 ##### 
 ##### from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 ##### from bes.pipenv.pipenv_exe import pipenv_exe
 ##### from bes.system.host import host
 ##### from bes.testing.unit_test import unit_test
@@ -14,20 +16,20 @@
 #####     fake_exe = self._make_temp_fake_pipenv('pipenv', '2020.1.13')
 #####     self.assertEqual( '2020.1.13', pipenv_exe.version(fake_exe) )
 #####     
-#####   def _make_temp_fake_pipenv(self, filename, version, mode = 0o0755, make_site_package_dir = False):
+#####   def _make_temp_fake_pipenv(self, filename, version, perm = 0o0755, make_site_package_dir = False):
 #####     if host.is_unix():
 #####       fake_pipenv = self._make_temp_fake_pipenv_unix(filename,
 #####                                                   version,
-#####                                                   mode = mode)
+#####                                                   perm = mode)
 #####     elif host.is_windows():
 #####       fake_pipenv = self._make_temp_fake_pipenv_windows(filename,
 #####                                                   version,
-#####                                                   mode = mode)
+#####                                                   perm = mode)
 #####     else:
 #####       host.raise_unsupported_system()
 #####     return fake_pipenv
 ##### 
-#####   def _make_temp_fake_pipenv_unix(self, filename, version, mode = 0o0755):
+#####   def _make_temp_fake_pipenv_unix(self, filename, version, perm = 0o0755):
 #####     tmp_dir = self.make_temp_dir()
 #####     tmp_exe = path.join(tmp_dir, 'bin', filename)
 #####     content = '''\
@@ -35,10 +37,10 @@
 ##### echo "pipenv, version {version}"
 ##### exit 0
 ##### '''.format(version = version)
-#####     bf_file_ops.save(tmp_exe, content = content, mode = mode)
+#####     bf_file_ops.save(tmp_exe, content = content, perm = mode)
 #####     return tmp_exe
 ##### 
-#####   def _make_temp_fake_pipenv_windows(self, filename, version, mode = 0o0755):
+#####   def _make_temp_fake_pipenv_windows(self, filename, version, perm = 0o0755):
 #####     tmp_dir = self.make_temp_dir()
 #####     assert not filename.endswith('.bat')
 #####     filename = filename + '.bat'
@@ -48,7 +50,7 @@
 ##### echo "pipenv, version {version}"
 ##### exit /b 0
 ##### '''.format(version = version)
-#####     bf_file_ops.save(tmp_exe, content = content, mode = mode)
+#####     bf_file_ops.save(tmp_exe, content = content, perm = mode)
 #####     return tmp_exe
 #####   
 ##### if __name__ == '__main__':

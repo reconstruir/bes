@@ -1,11 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os, os.path as path, sys, tempfile
+
 from collections import namedtuple
 
 from ..system.filesystem import filesystem
 from ..system.check import check
 
-import os, os.path as path, sys, tempfile
+from bes.files.bf_file_ops import bf_file_ops
 
 _HAS_PTY = False
 try:
@@ -14,13 +16,11 @@ try:
 except ModuleNotFoundError:
   pass
 
-from bes.files.bf_file_ops import bf_file_ops
-
-class temp_item(namedtuple('temp_item', 'filename, content, mode')):
+class temp_item(namedtuple('temp_item', 'filename, content, perm')):
   'Description of an temp item.'
 
-  def __new__(clazz, filename, content = None, mode = None):
-    return clazz.__bases__[0].__new__(clazz, filename, content, mode)
+  def __new__(clazz, filename, content = None, perm = None):
+    return clazz.__bases__[0].__new__(clazz, filename, content, perm)
 
   def write(self, root_dir):
     p = path.join(root_dir, self.filename)
@@ -28,7 +28,7 @@ class temp_item(namedtuple('temp_item', 'filename, content, mode')):
       content = bf_file_ops.read(self.content)
     else:
       content = self.content
-    bf_file_ops.save(p, content = content, mode = self.mode)
+    bf_file_ops.save(p, content = content, perm = self.perm)
     
 class temp_file(object):
 

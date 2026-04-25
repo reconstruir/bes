@@ -9,6 +9,8 @@ from bes.system.check import check
 from bes.text.text_replace import text_replace
 
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 
 class file_replace(object):
 
@@ -31,7 +33,7 @@ class file_replace(object):
       return False
     if backup:
       bf_file_ops.backup(filename)
-    bf_file_ops.save(filename, content = new_content.encode('utf-8'), mode = bf_file_ops.mode(filename))
+    bf_file_ops.save(filename, content = new_content.encode('utf-8'), perm = bf_entry(filename).mode)
     return True
 
   @classmethod
@@ -63,5 +65,5 @@ class file_replace(object):
         return False
     if backup:
       bf_file_ops.backup(dst)
-    bf_file_ops.save(dst, content = new_content, mode = bf_file_ops.mode(src))
+    bf_file_ops.save(dst, content = new_content, perm = bf_entry(src).mode)
     return True

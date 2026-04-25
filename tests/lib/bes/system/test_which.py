@@ -4,6 +4,8 @@
 import os, os.path as path, unittest
 
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.system.env_override import env_override
 from bes.system.host import host
 from bes.system.which import which
@@ -18,7 +20,7 @@ class test_which(unit_test):
     tmp_dir = self.make_temp_dir()
     bin_dir = path.join(tmp_dir, 'bin')
     content = '!#/bin/bash\nechoecho kiwi\nexit 0\n'
-    temp_exe = bf_file_ops.save(path.join(bin_dir, 'fruit_kiwi_tool'), content = content, mode = 0o0755)
+    temp_exe = bf_file_ops.save(path.join(bin_dir, 'fruit_kiwi_tool'), content = content, perm = 0o0755)
     self.assertEqual( None, which.which('fruit_kiwi_tool') )
     with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'fruit_kiwi_tool')
@@ -30,7 +32,7 @@ class test_which(unit_test):
     tmp_dir = self.make_temp_dir()
     bin_dir = path.join(tmp_dir, 'bin')
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
-    temp_bat = bf_file_ops.save(path.join(bin_dir, 'fruit_kiwi_tool.bat'), content = content, mode = 0o0755)
+    temp_bat = bf_file_ops.save(path.join(bin_dir, 'fruit_kiwi_tool.bat'), content = content, perm = 0o0755)
     self.assertEqual( None, which.which('fruit_kiwi_tool.bat') )
     with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'fruit_kiwi_tool.bat')
@@ -42,7 +44,7 @@ class test_which(unit_test):
     tmp_dir = self.make_temp_dir()
     bin_dir = path.join(tmp_dir, 'bin')
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
-    temp_bat = bf_file_ops.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
+    temp_bat = bf_file_ops.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, perm = 0o0755)
     self.assertEqual( None, which.which('kiwi_tool.bat') )
     with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'kiwi_tool.bat')

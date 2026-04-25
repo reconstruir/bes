@@ -82,7 +82,7 @@ Host orange
   IdentityFile ~/.ssh/sally_id_rsa
 '''
     
-    self.assert_text_file_equal( expected, tmp_file, codec = 'utf-8', strip = True, native_line_breaks = True )
+    self.assert_text_file_equal( expected, tmp_file, encoding = 'utf-8', strip = True, native_line_breaks = True )
     
   def test_update_host_dict_values(self):
     content = '''
@@ -133,7 +133,7 @@ Host orange
   User sally
 '''
     
-    self.assert_text_file_equal( expected, tmp_file, codec = 'utf-8', strip = True, native_line_breaks = True )
+    self.assert_text_file_equal( expected, tmp_file, encoding = 'utf-8', strip = True, native_line_breaks = True )
 
   def test_update_host_string_values(self):
     content = '''
@@ -205,7 +205,7 @@ Host orange
   User sally
   IdentityFile ~/.ssh/sally_id_rsa
 '''
-    self.assert_text_file_equal( expected, tmp_file, codec = 'utf-8', strip = True, native_line_breaks = True )
+    self.assert_text_file_equal( expected, tmp_file, encoding = 'utf-8', strip = True, native_line_breaks = True )
     
   def test_find_host(self):
     content = '''
@@ -275,7 +275,7 @@ Host *
   IPQoS=throughput
 '''
     
-    self.assert_text_file_equal( expected, tmp_file, codec = 'utf-8', strip = True, native_line_breaks = True )
+    self.assert_text_file_equal( expected, tmp_file, encoding = 'utf-8', strip = True, native_line_breaks = True )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -111,12 +111,14 @@ def make_test_case(impl):
         
     def _make_read_only_temp_file(self):
       from bes.files.bf_file_ops import bf_file_ops
+      from bes.files.bf_entry import bf_entry
+      
       tmp = self._make_temp_file('this is foo\n')
-      print('B4: tmp={} mode={}'.format(tmp, bf_file_ops.mode(tmp)))
+      print('B4: tmp={} mode={}'.format(tmp, bf_entry(tmp).mode))
       import os
 #      os.chmod(tmp, stat.S_IREAD)
       os.chmod(tmp, 0o0400)
-      print('AF: tmp={} mode={}'.format(tmp, bf_file_ops.mode(tmp)))
+      print('AF: tmp={} mode={}'.format(tmp, bf_entry(tmp).mode))
       return tmp
       if host.is_unix():
         return file_symlink.resolve('/bin/sh')

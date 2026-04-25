@@ -4,6 +4,8 @@ import os, os.path as path
 from .web_server import web_server
 
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.files.bf_path import bf_path
 from bes.fs.testing.temp_content import temp_content
 from bes.archive.temp_archive import temp_archive
@@ -30,11 +32,11 @@ class file_web_server(web_server):
   def write_temp_content(self, items):
     temp_content.write_items(items, self._root_dir)
 
-  def write_file(self, filename, content, encoding = 'utf-8', mode = None):
+  def write_file(self, filename, content, encoding = 'utf-8', perm = None):
     p = self.file_path(filename)
     if path.exists(p):
       raise IOError('already existsL {}'.format(filename))
-    bf_file_ops.save(p, content = content, encoding = encoding, mode = mode)
+    bf_file_ops.save(p, content = content, encoding = encoding, perm = mode)
 
   def read_file(self, filename, encoding = 'utf-8'):
     return bf_file_ops.read(self.file_path(filename), encoding = encoding)

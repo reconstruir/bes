@@ -4,6 +4,8 @@ from os import path
 
 from ..system.check import check
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.property.cached_property import cached_property
 from bes.text.text_line_parser import text_line_parser
 
@@ -58,4 +60,4 @@ class ssh_known_hosts_file(object):
     return None
     
   def _save(self):
-    bf_file_ops.save(self._filename, content = str(self), mode = 0o0600, encoding = 'utf-8')
+    bf_file_ops.save(self._filename, content = str(self), perm = 0o0600, encoding = 'utf-8')

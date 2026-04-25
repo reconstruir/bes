@@ -98,7 +98,7 @@ class file_checksum_list(type_checked_list):
     return result
 
   def save_checksums_file(self, filename):
-    bf_file_ops.save(filename, content = self.to_json(), codec = 'utf8')
+    bf_file_ops.save(filename, content = self.to_json(), encoding = 'utf8')
 
   @classmethod
   def load_checksums_file(clazz, filename):

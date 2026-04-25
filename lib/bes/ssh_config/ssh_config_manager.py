@@ -6,6 +6,8 @@ from collections import namedtuple
 from ..system.check import check
 from ..common.string_util import string_util
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from ..system.environment import environment
 
 from .ssh_authorized_key import ssh_authorized_key
@@ -102,8 +104,8 @@ class ssh_config_manager(object):
 
     public_key_filename = path.join(self._dot_ssh_dir, filename + '.pub')
     private_key_filename = path.join(self._dot_ssh_dir, filename)
-    bf_file_ops.save(public_key_filename, content = public_key, mode = 0o0600, codec = 'utf-8')
-    bf_file_ops.save(private_key_filename, content = private_key, mode = 0o0600, codec = 'utf-8')
+    bf_file_ops.save(public_key_filename, content = public_key, perm = 0o0600, encoding = 'utf-8')
+    bf_file_ops.save(private_key_filename, content = private_key, perm = 0o0600, encoding = 'utf-8')
 
     return self._installed_key_pair(public_key_filename, private_key_filename)
 
@@ -117,7 +119,7 @@ class ssh_config_manager(object):
     check.check_bool(add_authorized_key)
 
     public_key_filename = path.join(self._dot_ssh_dir, filename + '.pub')
-    bf_file_ops.save(public_key_filename, content = public_key, mode = 0o0600, codec = 'utf-8')
+    bf_file_ops.save(public_key_filename, content = public_key, perm = 0o0600, encoding = 'utf-8')
 
     if add_authorized_key:
       authorized_key = ssh_authorized_key.parse_text(public_key)

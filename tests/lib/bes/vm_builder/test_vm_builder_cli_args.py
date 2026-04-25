@@ -5,6 +5,8 @@ from os import path
 
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 from bes.system.host import host
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.testing.program_unit_test import program_unit_test
@@ -83,7 +85,7 @@ bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQeJzhupRu0u0cdegZIa8e86EG2q
     abs_files = [ path.join(tmp_dir, f) for f in files ]
     if host.is_unix():
       for filename in abs_files:
-        self.assertEqual( 0o0600, bf_file_ops.mode(filename) )
+        self.assertEqual( 0o0600, bf_entry(filename).mode )
 
   def test_vm_host_ssh_setup(self):
     vm_builder_access_ssh_public_key_content = r'''
@@ -137,7 +139,7 @@ bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQeJzhupRu0u0cdegZIa8e86EG2q
     abs_files = [ path.join(tmp_dir, f) for f in files ]
     if host.is_unix():
       for filename in abs_files:
-        self.assertEqual( 0o0600, bf_file_ops.mode(filename) )
+        self.assertEqual( 0o0600, bf_entry(filename).mode )
       
 if __name__ == '__main__':
   program_unit_test.main()

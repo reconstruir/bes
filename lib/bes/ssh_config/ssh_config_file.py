@@ -33,7 +33,7 @@ class ssh_config_file(object):
   @cached_property
   def _config(self):
     if not path.exists(self._filename):
-      bf_file_ops.save(self._filename, content = '', codec = 'utf-8')
+      bf_file_ops.save(self._filename, content = '', encoding = 'utf-8')
     return simple_config.from_file(self._filename,
                                    check_env_vars = False,
                                    entry_parser = self._parse_ssh_config_entry,
@@ -66,8 +66,8 @@ class ssh_config_file(object):
   def _save(self):
     bf_file_ops.save(self._filename,
                    content = str(self._config),
-                   mode = 0o0600,
-                   codec = 'utf-8')
+                   perm = 0o0600,
+                   encoding = 'utf-8')
       
   @classmethod
   def _parse_ssh_config_entry(clazz, text, origin, validate_key_characters = True):

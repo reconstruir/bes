@@ -5,6 +5,8 @@ import os.path as path
 from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
+
 
 class setup_tools(object):
   'Class to deal with setup_tools things.'
@@ -38,7 +40,7 @@ class setup_tools(object):
     eggs_content = '\n'.join(eggs)
     easy_install_dot_pth = path.join(d, clazz.EASY_INSTALL_DOT_PTH_FILENAME)
     easy_install_dot_pth_content = clazz.EASY_INSTALL_DOT_PTH_TEMPLATE % (eggs_content)
-    bf_file_ops.save(easy_install_dot_pth, content = easy_install_dot_pth_content, mode = 0o644)
+    bf_file_ops.save(easy_install_dot_pth, content = easy_install_dot_pth_content, perm = 0o644)
     clazz.update_site_dot_py(d)
     
   @classmethod
@@ -55,7 +57,7 @@ class setup_tools(object):
       old_content = bf_file_ops.read(site_py_path)
     if old_content == clazz.SITE_DOT_PY_CONTENT:
       return
-    bf_file_ops.save(site_py_path, content = clazz.SITE_DOT_PY_CONTENT, mode = 0o644)
+    bf_file_ops.save(site_py_path, content = clazz.SITE_DOT_PY_CONTENT, perm = 0o644)
     
   EASY_INSTALL_DOT_PTH_FILENAME = 'easy-install.pth'
   SITE_DOT_PY_FILENAME = 'site.py'

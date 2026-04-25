@@ -4,7 +4,6 @@ from os import path
 from functools import wraps
 
 from bes.system.host import host
-from bes.files.bf_file_ops import bf_file_ops
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class bdocker(object):
@@ -23,9 +22,10 @@ class bdocker(object):
 
     if not path.exists(clazz._CGROUPS_FILE):
       raise RuntimeError('cgroups file not found: {}'.format(clazz._CGROUPS_FILE))
-    
-    content = bf_file_ops.read(clazz._CGROUPS_FILE, encoding = 'utf-8')
-    return 'pids:/docker/' in content
+
+    with open(clazz._CGROUPS_FILE, 'r', encoding = 'utf-8') as f:
+      content = f.read()
+      return 'pids:/docker/' in content
 
   @staticmethod
   def raise_skip_if_running_under_docker():
