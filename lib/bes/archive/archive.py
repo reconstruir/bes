@@ -58,10 +58,10 @@ class archive(archive_base):
       raise RuntimeError('Member is not a file {}: {}'.format(self.filename, member))
     bf_file_ops.rename(tmp_member, filename)
 
-  def extract_member_to_string(self, member, codec = None):
+  def extract_member_to_string(self, member, encoding = None):
     tmp_file = temp_file.make_temp_file(non_existent = True)
     self.extract_member_to_file(member, tmp_file)
-    result = bf_file_ops.read(tmp_file, codec = codec)
+    result = bf_file_ops.read(tmp_file, encoding = encoding)
     bf_file_ops.remove(tmp_file)
     return result
     

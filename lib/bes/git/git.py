@@ -11,11 +11,13 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from bes.system.log import logger
 from bes.version.software_version import software_version
+
+from ..files.bf_file_ops import bf_file_ops
+from ..files.bf_filename import bf_filename
 
 from .git_address_util import git_address_util
 from .git_branch import git_branch
@@ -424,7 +426,7 @@ class git(git_lfs):
   def archive_to_file(clazz, root, prefix, revision, output_filename,
                       archive_format = None, short_hash = True):
     'git archive to a archive file.'
-    prefix = bf_file_ops.ensure_rsep(prefix)
+    prefix = bf_filename.ensure_rsep(prefix)
     archive_format = archive_format or 'tgz'
     output_filename = path.abspath(output_filename)
     bf_file_ops.ensure_file_dir(output_filename)

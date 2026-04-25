@@ -10,12 +10,12 @@ from .archive_operation_base import archive_operation_base
 class archive_operation_add_file(archive_operation_base):
   'Add a file to an archive.'
 
-  def __init__(self, arcname, content, mode):
+  def __init__(self, arcname, content, perm):
     self._arcname = arcname
     self._content = content
-    self._mode = mode
+    self._perm = perm
                
   #@abstractmethod
   def execute(self, temp_dir):
     'Execute this operation in a temp_dir of the unpacked archive.'
-    bf_file_ops.save(path.join(temp_dir, self._arcname), content = self._content, mode = self._mode)
+    bf_file_ops.save(path.join(temp_dir, self._arcname), content = self._content, perm = self._perm)
