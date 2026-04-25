@@ -142,6 +142,7 @@ class bf_file_ops(object):
     if path.exists(backup_filename) and clazz.files_are_the_same(filename, backup_filename):
       return
     clazz.copy(filename, backup_filename)
+    return backup_filename
 
   @classmethod
   def hard_link(clazz, src, dst):
