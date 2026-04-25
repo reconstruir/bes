@@ -13,6 +13,7 @@ from bes.common.hash_util import hash_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.filename_util import filename_util
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
@@ -314,7 +315,7 @@ class pip_project(object):
 
   def _install_one_requirements_file(self, requirements_file):
     'Install packages from a requirements file'
-    new_checksum = bf_file_ops.checksum('sha256', requirements_file)
+    new_checksum = bf_checksum.checksum(requirements_file, 'sha256')
     checksum_file = self._requirements_checksum_file(requirements_file)
     
     if path.exists(checksum_file):

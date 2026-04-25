@@ -5,6 +5,7 @@ import os, os.path as path
 from bes.archive.temp_archive import temp_archive
 from bes.compat import url_compat
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.file_find import file_find
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
@@ -57,7 +58,7 @@ class file_web_server_tester(object):
     return bf_file_ops.read(self.file_path(filename), encoding = encoding)
 
   def file_checksum(self, filename):
-    return bf_file_ops.checksum('sha256', self.file_path(filename))
+    return bf_checksum.checksum(self.file_path(filename), 'sha256')
 
   def has_file(self, filename):
     return path.exists(self.file_path(filename))

@@ -11,6 +11,7 @@ from bes.text.line_break import line_break
 from bes.system.log import logger
 
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from .temp_file import temp_file
 
 cache_info = namedtuple('cache_info', 'cached_filename, checksum_filename, cached_checksum')
@@ -44,7 +45,7 @@ class file_cache_item(file_cache_item_base):
   def __init__(self, filename):
     super(file_cache_item, self).__init__()
     self.filename = path.abspath(path.normpath(filename))
-    self._checksum = bf_file_ops.checksum('sha256', self.filename)
+    self._checksum = bf_checksum.checksum(self.filename, 'sha256')
     self._log.log_d('file_cache_item:__init__: filename={} checksum={}'.format(self.filename,
                                                                                self._checksum))
     

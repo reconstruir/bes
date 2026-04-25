@@ -7,6 +7,7 @@ from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.temp_file import temp_file
 from bes.fs.compressed_file import compressed_file
 from bes.git.git_address_util import git_address_util
@@ -74,7 +75,7 @@ class http_download_cache(object):
         bf_file_ops.rename(tmp, local_cached_path)
         self.log.log_d('get_url: 5 result={}'.format(local_cached_path))
         return local_cached_path
-    actual_checksum = bf_file_ops.checksum('sha256', tmp)
+    actual_checksum = bf_checksum.checksum(tmp, 'sha256')
     if actual_checksum == checksum:
       self.log.log_d('get_url: download succesful and checksum is good.  using: %s' % (local_cached_path_rel))
       if self.compressed:
@@ -115,10 +116,10 @@ class http_download_cache(object):
     if self.compressed:
       tmp_uncompressed_file = temp_file.make_temp_file()
       compressed_file.uncompress(filename, tmp_uncompressed_file)
-      result = bf_file_ops.checksum('sha256', tmp_uncompressed_file)
+      result = bf_checksum.checksum(tmp_uncompressed_file, 'sha256')
       bf_file_ops.remove(tmp_uncompressed_file)
     else:
-      result = bf_file_ops.checksum('sha256', filename)
+      result = bf_checksum.checksum(filename, 'sha256')
 
   def _uncompress_if_needed(self, filename, uncompress):
     if self.compressed:

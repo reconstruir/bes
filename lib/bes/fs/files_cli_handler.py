@@ -20,6 +20,7 @@ from bes.files.bf_path import bf_path
 from .file_resolver import file_resolver
 from .file_split import file_split
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from .filename_list import filename_list
 from .files_cli_options import files_cli_options
 
@@ -35,7 +36,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
 
     files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
-      checksum = bf_file_ops.checksum(algorithm, f.filename_abs)
+      checksum = bf_checksum.checksum(f.filename_abs, algorithm)
       print('{}: {}'.format(f.filename_abs, checksum))
     return 0
 

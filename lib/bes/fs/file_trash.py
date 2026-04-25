@@ -7,6 +7,7 @@ from bes.system.log import log
 from bes.thread.decorators import synchronized_method
 
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_entry import bf_entry
 
 from ._detail.trash_detail import fast_deleter, trash_process
 
@@ -23,14 +24,14 @@ class file_trash(object):
     bf_file_ops.mkdir(location)
     assert path.isdir(location)
     self._location = location
-    self._location_device_id = bf_file_ops.device_id(self._location)
+    self._location_device_id = bf_entry(self._location).device_id
     self.trash_process = trash_process(self._location, niceness_level, timeout, deleter)
     
   def trash(self, what):
     check.check_string(what)
     if not self._valid_type(what):
       raise RuntimeError('Invalid file type: %s' % (what))
-    if bf_file_ops.device_id(what) != self._location_device_id:
+    if bf_entry(what).device_id != self._location_device_id:
       raise RuntimeError('%s is not in the save filesystem as %s' % (what, self._location))
     self.trash_process.trash(what)
     

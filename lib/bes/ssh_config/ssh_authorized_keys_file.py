@@ -39,4 +39,4 @@ class ssh_authorized_keys_file(object):
     self._save()
 
   def _save(self):
-    bf_file_ops.save(self._filename, content = str(self), mode = 0o0600, encoding = 'utf-8')
+    bf_file_ops.save(self._filename, content = str(self), perm = 0o0600, encoding = 'utf-8')

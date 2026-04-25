@@ -6,6 +6,7 @@ import re
 from ..system.check import check
 from bes.compat import url_compat
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.temp_file import temp_file
 from bes.python.python_source import python_source
 from bes.python.python_version import python_version
@@ -121,7 +122,7 @@ class python_python_dot_org(object):
     expected_checksum = clazz._fetch_checksum(url)
     if not expected_checksum:
       raise python_installer_error('Failed to determine checksum for: {}'.format(url))
-    actual_checksum = bf_file_ops.checksum('md5', tmp_package)
+    actual_checksum = bf_checksum.checksum(tmp_package, 'md5')
     if expected_checksum != actual_checksum:
       msg = '''
 CHECKSUM MISMATCH: url={url}

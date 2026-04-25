@@ -5,6 +5,7 @@ from os import path
 from bes.system.log import log
 from .file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
+from bes.files.checksum.bf_checksum import bf_checksum
 
 class file_sync(object):
 
@@ -44,7 +45,7 @@ class file_sync(object):
       dst_file_path = path.join(dst_dir, src_file)
       should_copy = False
       if path.isfile(dst_file_path):
-        should_copy = bf_file_ops.checksum('sha1', src_file_path) != bf_file_ops.checksum('sha1', dst_file_path)
+        should_copy = bf_checksum.checksum(src_file_path, 'sha1') != bf_checksum.checksum(dst_file_path, 'sha1')
         should_copy_mode = bf_file_ops.mode(src_file_path) != bf_file_ops.mode(dst_file_path)
       else:
         should_copy = True
