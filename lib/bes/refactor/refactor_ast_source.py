@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.property.cached_property import cached_property
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_check import bf_check
 
 from .refactor_ast_node_type import refactor_ast_node_type
@@ -21,7 +21,7 @@ class refactor_ast_source(namedtuple('refactor_ast_source', 'filename')):
 
   @cached_property
   def text(self):
-    return file_util.read(self.filename, codec = 'utf-8')
+    return bf_file_ops.read(self.filename, codec = 'utf-8')
   
   @cached_property
   def lines(self):

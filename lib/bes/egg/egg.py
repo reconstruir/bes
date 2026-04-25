@@ -6,7 +6,7 @@ import os.path as path
 from bes.archive.archiver import archiver
 from ..system.check import check
 from bes.common.time_util import time_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.git.git import git 
 from bes.git.git_clone_options import git_clone_options
@@ -111,5 +111,5 @@ class egg(object):
   def unpack(clazz, egg_filename, output_dir):
     if not archiver.is_valid(egg_filename):
       raise egg_error('not a valid egg: ' % (egg_filename))
-    file_util.mkdir(output_dir)
+    bf_file_ops.mkdir(output_dir)
     archiver.extract_all(egg_filename, output_dir)

@@ -19,7 +19,7 @@ from .file_attributes_metadata import file_attributes_metadata
 from bes.files.bf_check import bf_check
 from .file_find import file_find
 from bes.files.bf_path import bf_path
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .dir_util import dir_util
 from .filename_list import filename_list
 

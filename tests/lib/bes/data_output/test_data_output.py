@@ -8,7 +8,7 @@ from bes.data_output.data_output import data_output
 from bes.data_output.data_output_options import data_output_options
 from bes.data_output.data_output_style import data_output_style
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class test_data_output(unit_test):
 
@@ -82,7 +82,7 @@ lemon,yellow,tart,small
     options = data_output_options(style = style,
                                   output_filename = tmp)
     data_output.output_table(data, options = options)
-    return file_util.read(tmp, codec = 'utf-8')
+    return bf_file_ops.read(tmp, codec = 'utf-8')
     
 if __name__ == '__main__':
   unit_test.main()

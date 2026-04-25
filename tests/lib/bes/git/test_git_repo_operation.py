@@ -4,7 +4,7 @@
 import os.path as path
 import multiprocessing
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git import git
 from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
@@ -146,10 +146,10 @@ class test_git_repo_operation(unit_test):
       old_content = repo.read_file('foo.txt', codec = 'utf8')
       new_content = '{}\nworker {}'.format(old_content, n)
       fp = repo.file_path('foo.txt')
-      file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
+      bf_file_ops.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
         
     worker_repo.operation_with_reset(_op, 'from worker {}'.format(n))
-    file_util.remove(worker_tmp_root)
+    bf_file_ops.remove(worker_tmp_root)
     
   @git_temp_home_func()
   def test_operation_with_reset_with_multiprocess_conflict(self):

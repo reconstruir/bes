@@ -16,7 +16,7 @@ from .file_resolver_item_list import file_resolver_item_list
 from .file_resolver_options import file_resolver_options
 from .file_split_error import file_split_error
 from .file_split_options import file_split_options
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .file_match import file_match
 from .filename_util import filename_util
 from .temp_file import temp_file
@@ -58,16 +58,16 @@ class file_split(object):
             archiver.extract_all(tmp, archive_tmp_dir)
             archive_tmp_file = path.join(archive_tmp_dir, archive_filename)
             assert path.exists(archive_tmp_file)
-            file_util.rename(archive_tmp_file, tmp)
-            file_util.remove(archive_tmp_dir)
+            bf_file_ops.rename(archive_tmp_file, tmp)
+            bf_file_ops.remove(archive_tmp_dir)
             item_target = path.join(path.dirname(item_target), archive_filename)
             
       target = None
       if path.exists(item_target):
-        if file_util.files_are_the_same(tmp, item_target):
+        if bf_file_ops.files_are_the_same(tmp, item_target):
           if blurber:
             blurber.blurb(f'{item_target} already exists and is the same')
-          file_util.remove(tmp)
+          bf_file_ops.remove(tmp)
         else:
           ts = time_util.timestamp(delimiter = '',
                                    milliseconds = False,
@@ -78,8 +78,8 @@ class file_split(object):
       else:
         target = item_target
       if target:
-        file_util.rename(tmp, target)
-      file_util.remove(item.files)
+        bf_file_ops.rename(tmp, target)
+      bf_file_ops.remove(item.files)
 
   @classmethod
   def _make_timestamp_filename(clazz, filename, ts):
@@ -186,7 +186,7 @@ class file_split(object):
     check.check_int(chunk_size)
     check.check_int(zfill_length, allow_none = True)
     
-    file_size = file_util.size(filename)
+    file_size = bf_file_ops.size(filename)
     
     clazz._log.log_method_d()
     

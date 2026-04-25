@@ -6,7 +6,7 @@ import os.path as path
 
 from bes.fs.file_find import file_find
 from bes.fs.file_sync import file_sync
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.system.host import host
@@ -86,7 +86,7 @@ class test_file_find(unit_test):
       self.native_filename('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
-    self.assertEqual( 'second foo.txt\n', file_util.read(path.join(tmp_dst_dir, 'foo.txt'), codec = 'utf8') )
+    self.assertEqual( 'second foo.txt\n', bf_file_ops.read(path.join(tmp_dst_dir, 'foo.txt'), codec = 'utf8') )
 
   def test_file_sync_with_exclude(self):
     tmp_src_dir = self._make_temp_content([
@@ -115,8 +115,8 @@ class test_file_find(unit_test):
     ])
     tmp_dst_dir = temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
-    self.assertEqual( 0o0755, file_util.mode(path.join(tmp_dst_dir, 'bar.sh')) )
-    self.assertEqual( 0o0644, file_util.mode(path.join(tmp_dst_dir, 'foo.txt')) )
+    self.assertEqual( 0o0755, bf_file_ops.mode(path.join(tmp_dst_dir, 'bar.sh')) )
+    self.assertEqual( 0o0644, bf_file_ops.mode(path.join(tmp_dst_dir, 'foo.txt')) )
     
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_file_sync_with_mode_change(self):
@@ -126,14 +126,14 @@ class test_file_find(unit_test):
     ])
     tmp_dst_dir = temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
-    self.assertEqual( 0o0755, file_util.mode(path.join(tmp_dst_dir, 'bar.sh')) )
-    self.assertEqual( 0o0644, file_util.mode(path.join(tmp_dst_dir, 'foo.txt')) )
+    self.assertEqual( 0o0755, bf_file_ops.mode(path.join(tmp_dst_dir, 'bar.sh')) )
+    self.assertEqual( 0o0644, bf_file_ops.mode(path.join(tmp_dst_dir, 'foo.txt')) )
 
     os.chmod(path.join(tmp_src_dir, 'foo.txt'), 0o0755)
     os.chmod(path.join(tmp_src_dir, 'bar.sh'), 0o0644)
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
-    self.assertEqual( 0o0644, file_util.mode(path.join(tmp_dst_dir, 'bar.sh')) )
-    self.assertEqual( 0o0755, file_util.mode(path.join(tmp_dst_dir, 'foo.txt')) )
+    self.assertEqual( 0o0644, bf_file_ops.mode(path.join(tmp_dst_dir, 'bar.sh')) )
+    self.assertEqual( 0o0755, bf_file_ops.mode(path.join(tmp_dst_dir, 'foo.txt')) )
     
 if __name__ == "__main__":
   unit_test.main()

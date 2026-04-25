@@ -3,13 +3,13 @@
 
 import os.path as path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.testing.unit_test import unit_test
 from bes.git.git_changelog import git_changelog
 from bes.git.git_changelog_options import git_changelog_options as options
 
 def create_list_of_commit_info(filename):
-  log = file_util.read(filename, codec='utf-8')
+  log = bf_file_ops.read(filename, codec='utf-8')
   log = log.strip()
 
   return git_changelog.convert_changelog_string(log)

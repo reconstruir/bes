@@ -28,7 +28,7 @@ import os
 import sys
 import zipfile
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .archive_zip import archive_zip
 
@@ -108,7 +108,7 @@ class zip_util(object):
 
     for index in range(limit):
       item = size_report[index]
-      print("{:<20}{}".format(file_util.sizeof_fmt(item[1]), item[0]), file=file)
+      print("{:<20}{}".format(bf_file_ops.sizeof_fmt(item[1]), item[0]), file=file)
 
   def _create_zipfile(self, items):
     with zipfile.ZipFile(file=self._filename, mode='w', compression=zipfile.ZIP_DEFLATED, allowZip64=True) as archive:

@@ -6,7 +6,7 @@ from bes.system.env_var import os_env_var
 from bes.system.host import host
 from bes.system.environment import environment
 from bes.text.text_line_parser import text_line_parser
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.unix.sudo.sudo import sudo
 from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 from bes.system.log import logger
@@ -45,7 +45,7 @@ class shell(object):
   @classmethod
   def valid_shells(clazz):
     'Return a list if valid shells.'
-    content = file_util.read('/etc/shells', codec = 'utf-8')
+    content = bf_file_ops.read('/etc/shells', codec = 'utf-8')
     return text_line_parser.parse_lines(content, strip_comments = True, strip_text = True, remove_empties = True)
 
   @classmethod

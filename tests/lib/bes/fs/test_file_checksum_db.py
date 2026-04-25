@@ -5,7 +5,7 @@ import time
 from bes.testing.unit_test import unit_test
 import os, os.path as path, tempfile
 from bes.fs.file_checksum_db import file_checksum_db
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.bdocker import bdocker
 
@@ -20,9 +20,9 @@ class test_file_metadata_db(unit_test):
     db = file_checksum_db(tmp_dir)
     tmp_file = temp_file.make_temp_file(suffix = '.txt', content = 'this is foo\n')
     self.assertEqual( 0, db.count )
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 1, db.count )
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 1, db.count )
     
   def test_file_persistence(self):
@@ -30,10 +30,10 @@ class test_file_metadata_db(unit_test):
     db = file_checksum_db(tmp_dir)
     tmp_file = temp_file.make_temp_file(suffix = '.txt', content = 'this is foo\n')
     self.assertEqual( 0, db.count )
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 1, db.count )
     db = file_checksum_db(tmp_dir)
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 0, db.count )
     
   def test_file_changed(self):
@@ -41,15 +41,15 @@ class test_file_metadata_db(unit_test):
     db = file_checksum_db(tmp_dir)
     tmp_file = temp_file.make_temp_file(suffix = '.txt', content = 'this is foo\n')
     self.assertEqual( 0, db.count )
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 1, db.count )
     time.sleep(0.100) # need to sleep to let the mtime change
     with open(tmp_file, 'a') as fout:
       fout.write('changed')
       fout.flush()
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 2, db.count )
-    self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 2, db.count )
     
 if __name__ == '__main__':

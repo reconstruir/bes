@@ -68,7 +68,7 @@ class which(object):
     tmp_dir = self.make_temp_dir()
     bin_dir = path.join(tmp_dir, 'bin')
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
-    temp_bat = file_util.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
+    temp_bat = bf_file_ops.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
     self.assertEqual( None, which.which('kiwi_tool.bat') )
     with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'kiwi_tool.bat')

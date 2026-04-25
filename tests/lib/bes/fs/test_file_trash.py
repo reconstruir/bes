@@ -4,7 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.fs.dir_util import dir_util
 from bes.fs.file_trash import file_trash
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.log import log
 import os.path as path
@@ -32,7 +32,7 @@ class test_file_trash(unit_test):
   def test_trash_one(self):
     ctx = self._make_context(timeout = 0.100)
     ctx.trash.start()
-    tmp = file_util.save(path.join(ctx.stuff_dir, 'foo.txt'), content = 'foo\n')
+    tmp = bf_file_ops.save(path.join(ctx.stuff_dir, 'foo.txt'), content = 'foo\n')
     self.assertEqual( [ 'foo.txt' ], dir_util.list(ctx.stuff_dir, relative = True) )
     ctx.trash.trash(tmp)
     time.sleep(0.250)

@@ -3,7 +3,7 @@
 
 import os.path as path, tarfile, zipfile
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from bes.archive.temp_archive import temp_archive
@@ -60,7 +60,7 @@ class test_temp_archive(unit_test):
       archive.extractall(path = tmp_dir, filter = lambda info, _: info)
       tmp_member_path = path.join(tmp_dir, 'foo.txt')
       self.assertTrue( path.isfile(tmp_member_path) )
-      self.assertEqual( b'foo.txt\n', file_util.read(tmp_member_path) )
+      self.assertEqual( b'foo.txt\n', bf_file_ops.read(tmp_member_path) )
 
   def _make_temp_archive(self, extension, items = None):
     items = items or [ temp_archive.item('foo.txt', content = 'foo.txt\n') ]

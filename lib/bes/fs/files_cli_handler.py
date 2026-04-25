@@ -19,7 +19,7 @@ from .file_mime import file_mime
 from bes.files.bf_path import bf_path
 from .file_resolver import file_resolver
 from .file_split import file_split
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .filename_list import filename_list
 from .files_cli_options import files_cli_options
 
@@ -35,7 +35,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
 
     files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
-      checksum = file_util.checksum(algorithm, f.filename_abs)
+      checksum = bf_file_ops.checksum(algorithm, f.filename_abs)
       print('{}: {}'.format(f.filename_abs, checksum))
     return 0
 
@@ -122,7 +122,7 @@ class files_cli_handler(bcli_deprecated_command_handler):
     output_filename = output_filename or self._make_output_filename(files)
     file_split.unsplit_files(output_filename, files)
     for f in files:
-      file_util.remove(f)
+      bf_file_ops.remove(f)
     return 0
 
   def move(self, src_dir, dst_dir):
@@ -184,5 +184,5 @@ class files_cli_handler(bcli_deprecated_command_handler):
       if self.options.dry_run:
         print(f'DRY_RUN: would remove {f}')
       else:
-        file_util.remove(f)
+        bf_file_ops.remove(f)
     return 0

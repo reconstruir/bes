@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 
 from bes.testing.unit_test import unit_test
@@ -13,62 +13,62 @@ class test_config_file_editor(unit_test):
   def test_set_value_non_existent_file(self):
     'Set the first value for a non existent config file.'
     tmp = temp_file.make_temp_file()
-    file_util.remove(tmp)
+    bf_file_ops.remove(tmp)
     e = CFE(tmp)
     e.set_value('something', 'fruit', 'kiwi')
     expected = '''\
 [something]
 fruit = kiwi
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
 
   def test_set_value_non_existent_file_quoted(self):
     'Set the first value for a non existent config file.'
     tmp = temp_file.make_temp_file()
-    file_util.remove(tmp)
+    bf_file_ops.remove(tmp)
     e = CFE(tmp, string_quote_char = '"')
     e.set_value('something', 'fruit', 'kiwi')
     expected = '''\
 [something]
 fruit = "kiwi"
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     
   def test_replace_value(self):
     'Set the first value for a non existent config file.'
     tmp = temp_file.make_temp_file()
-    file_util.remove(tmp)
+    bf_file_ops.remove(tmp)
     e = CFE(tmp)
     e.set_value('something', 'fruit', 'kiwi')
     expected = '''\
 [something]
 fruit = kiwi
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     e.set_value('something', 'fruit', 'apple')
     expected = '''\
 [something]
 fruit = apple
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     
   def test_replace_value_quoted(self):
     'Set the first value for a non existent config file.'
     tmp = temp_file.make_temp_file()
-    file_util.remove(tmp)
+    bf_file_ops.remove(tmp)
     e = CFE(tmp, string_quote_char = '"')
     e.set_value('something', 'fruit', 'kiwi')
     expected = '''\
 [something]
 fruit = "kiwi"
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     e.set_value('something', 'fruit', 'apple')
     expected = '''\
 [something]
 fruit = "apple"
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     
   def test_get_value_existing_file(self):
     content = '''\
@@ -77,7 +77,7 @@ fruit = kiwi
 '''
     tmp = temp_file.make_temp_file(content = content)
     e = CFE(tmp)
-    self.assertMultiLineEqual(content, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(content, bf_file_ops.read(tmp, codec = 'utf-8') )
     self.assertEqual( 'kiwi', e.get_value('something', 'fruit') )
     
   def test_bump_version(self):
@@ -117,7 +117,7 @@ fruit = kiwi
 '''
     tmp = temp_file.make_temp_file(content = content)
     e = CFE(tmp)
-    self.assertMultiLineEqual(content, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(content, bf_file_ops.read(tmp, codec = 'utf-8') )
     with self.assertRaises(KeyError) as ctx:
       self.assertEqual( None, e.get_value('something', 'color') )
     
@@ -146,7 +146,7 @@ fruit = kiwi
 cheese = brie
 wine = barolo
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
 
   def test_import_file_empty_config(self):
     content1 = '''\
@@ -176,7 +176,7 @@ fruit = kiwi
 cheese = brie
 wine = barolo
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
 
   def test_import_file_empty_config(self):
     content = '''\
@@ -193,7 +193,7 @@ fruit = kiwi
 [something]
 fruit = kiwi
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     
   def test_import_file_clobber(self):
     content1 = '''\
@@ -219,7 +219,7 @@ fruit = lemon
 fruit = lemon
 cheese = brie
 '''
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
 
   def test_immediate_read(self):
     content = '''\
@@ -237,7 +237,7 @@ cheese = brie
 wine = barolo
 '''
     
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     
   def test_update_config(self):
     content = '''\
@@ -270,7 +270,7 @@ bread = baguette
 drink = water
 '''
     
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assertMultiLineEqual(expected, bf_file_ops.read(tmp, codec = 'utf-8') )
     
 if __name__ == '__main__':
   unit_test.main()

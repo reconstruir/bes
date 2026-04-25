@@ -11,7 +11,7 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from bes.system.log import logger
@@ -177,7 +177,7 @@ class git(git_lfs):
           printed_files = '\n  '.join(sorted_files).strip()
           raise git_error('root_dir "{}" is not empty:\n  {}\n'.format(root_dir, printed_files))
     else:
-      file_util.mkdir(root_dir)
+      bf_file_ops.mkdir(root_dir)
       
     args = [ 'clone' ]
     if options.depth:
@@ -362,7 +362,7 @@ class git(git_lfs):
   def patch_make(clazz, root, patch_file):
     args = [ 'diff', '--patch' ]
     rv = git_exe.call_git(root, args)
-    file_util.save(patch_file, content = rv.stdout)
+    bf_file_ops.save(patch_file, content = rv.stdout)
 
   @classmethod
   def commit(clazz, root_dir, message, filenames):
@@ -372,7 +372,7 @@ class git(git_lfs):
     try:
       rv = git_exe.call_git(root_dir, args)
     finally:
-      file_util.remove(tmp_msg)
+      bf_file_ops.remove(tmp_msg)
     return clazz.last_commit_hash(root_dir, short_hash = True)
 
   @classmethod
@@ -399,7 +399,7 @@ class git(git_lfs):
       excludes = git_ignore.read_gitignore_file(address)
       file_copy.copy_tree(address, tmp_repo_dir, excludes = excludes)
       if override_gitignore:
-        file_util.save(path.join(address, '.gitignore'), content = override_gitignore)
+        bf_file_ops.save(path.join(address, '.gitignore'), content = override_gitignore)
       if untracked:
         git_exe.call_git(tmp_repo_dir, [ 'add', '-A' ])
         git_exe.call_git(tmp_repo_dir, [ 'commit', '-m', '"add untracked files just for tmp repo"' ])
@@ -408,7 +408,7 @@ class git(git_lfs):
         raise git_error('untracked can only be True for local repos.')
       clazz.clone(address, tmp_repo_dir)
     output_filename = path.abspath(output_filename)
-    file_util.mkdir(path.dirname(output_filename))
+    bf_file_ops.mkdir(path.dirname(output_filename))
     args = [
       'archive',
       '--format=tgz',
@@ -424,10 +424,10 @@ class git(git_lfs):
   def archive_to_file(clazz, root, prefix, revision, output_filename,
                       archive_format = None, short_hash = True):
     'git archive to a archive file.'
-    prefix = file_util.ensure_rsep(prefix)
+    prefix = bf_file_ops.ensure_rsep(prefix)
     archive_format = archive_format or 'tgz'
     output_filename = path.abspath(output_filename)
-    file_util.ensure_file_dir(output_filename)
+    bf_file_ops.ensure_file_dir(output_filename)
     if short_hash:
       if clazz.is_long_hash(revision):
         revision = clazz.short_hash(root, revision)
@@ -439,7 +439,7 @@ class git(git_lfs):
   @classmethod
   def archive_to_dir(clazz, root, revision, output_dir):
     'git archive to a dir.'
-    file_util.mkdir(output_dir)
+    bf_file_ops.mkdir(output_dir)
     tmp_archive = temp_file.make_temp_file(suffix = '.tar')
     args = [
       'archive',

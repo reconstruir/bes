@@ -15,7 +15,7 @@ from .file_attributes import file_attributes
 from .file_attributes_error import file_attributes_permission_error
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .file_metadata_getter_base import file_metadata_getter_base
 from .file_metadata_getter_checksum_md5 import file_metadata_getter_checksum_md5
@@ -42,7 +42,7 @@ class file_attributes_metadata(object):
     
     mtime_key = clazz._make_mtime_key(key)
     attr_mtime = file_attributes.get_date(filename, mtime_key)
-    file_mtime = file_util.get_modification_date(filename)
+    file_mtime = bf_file_ops.get_modification_date(filename)
 
     label = f'get_bytes:{filename}:{key}'
     
@@ -75,14 +75,14 @@ class file_attributes_metadata(object):
   @classmethod
   def _refresh_value(clazz, filename, key, value, mtime_key):
     file_attributes.set_bytes(filename, key, value)
-    file_mtime = file_util.get_modification_date(filename)
+    file_mtime = bf_file_ops.get_modification_date(filename)
     file_attributes.set_date(filename, mtime_key, file_mtime)
     # setting the date in the line above has the side effect
     # of changing the mtime in some implementations.  so we
     # force it to be what it was right after setting the value
     # which is in the past (usually microseconds) but guranteed
     # to match what what was set in set_date()
-    file_util.set_modification_date(filename, file_mtime)
+    bf_file_ops.set_modification_date(filename, file_mtime)
     
   @classmethod
   def get_string(clazz, filename, key, value_maker, fallback = False):
@@ -111,7 +111,7 @@ class file_attributes_metadata(object):
   @classmethod
   def _make_cache_key(clazz, filename):
     hashed_filename = hash_util.hash_string_sha256(filename)
-    mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
+    mtime_string = time_util.timestamp(when = bf_file_ops.get_modification_date(filename))
     return f'{hashed_filename}_{mtime_string}'
 
   @classmethod

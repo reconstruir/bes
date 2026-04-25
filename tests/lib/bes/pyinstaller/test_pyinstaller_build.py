@@ -7,7 +7,7 @@ from os import path
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -103,7 +103,7 @@ sys.stdout.flush()
 
 raise SystemExit()
 '''
-    program_source = file_util.save(path.join(tmp_dir, 'program', 'program.py'), content = program_content)
+    program_source = bf_file_ops.save(path.join(tmp_dir, 'program', 'program.py'), content = program_content)
 
     fakelib1_content = r'''
 class fakelib1(object):
@@ -117,8 +117,8 @@ class fakelib2(object):
     self.something = 'test_fakelib2_hidden:'
 '''
 
-    file_util.save(path.join(tmp_dir, 'program', 'fakelib1.py'), content = fakelib1_content)
-    file_util.save(path.join(tmp_dir, 'program', 'fakelib2.py'), content = fakelib2_content)
+    bf_file_ops.save(path.join(tmp_dir, 'program', 'fakelib1.py'), content = fakelib1_content)
+    bf_file_ops.save(path.join(tmp_dir, 'program', 'fakelib2.py'), content = fakelib2_content)
 
     for p in project.PYTHONPATH:
       sys.path.insert(0, p)

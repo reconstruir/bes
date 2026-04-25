@@ -4,7 +4,7 @@ from os import path
 
 from bes.git.git_address_util import git_address_util
 from bes.git.git_repo import git_repo
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from ..system.check import check
 from bes.git.git_error import git_error
 from bes.common.inspect_util import inspect_util
@@ -38,10 +38,10 @@ class git_repo_document_db(object):
       # distinguish the true first time from a later time where it happened to become empty. On the
       # other hand, None would make the update_func more complex if all you want to do is
       # concatenate.
-      contents = '' if first_time else file_util.read(fp, codec = codec)
+      contents = '' if first_time else bf_file_ops.read(fp, codec = codec)
 
       updated_contents = update_func(contents)
-      file_util.save(fp, updated_contents, codec = codec)
+      bf_file_ops.save(fp, updated_contents, codec = codec)
       if first_time:
         # Stage the new file.
         repo.add([filename])
@@ -56,4 +56,4 @@ class git_repo_document_db(object):
     self.repo.reset_to_revision('@{upstream}')
     self.repo.pull()
     fp = self.repo.file_path(filename)
-    return file_util.read(fp, codec = codec)
+    return bf_file_ops.read(fp, codec = codec)

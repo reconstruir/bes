@@ -11,7 +11,7 @@ from bes.fs.file_split import file_split
 from bes.fs.file_split_options import file_split_options
 from bes.fs.file_split_error import file_split_error
 from bes.fs.file_split import file_split
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 from bes.archive.temp_archive import temp_archive
@@ -204,22 +204,22 @@ class test_file_split(unit_test, unit_test_media_files):
       temp_archive.item('kiwi.mp4', filename = self.mp4_file),
     ], 'zip')
     tmp_dir = self.make_temp_dir()
-    files = file_split.split_file(tmp, int(file_util.size(tmp) / 3),
+    files = file_split.split_file(tmp, int(bf_file_ops.size(tmp) / 3),
                                   output_directory = tmp_dir,
                                   zfill_length = 3)
     self.assertEqual( 4, len(files) )
     items = [
-      temp_content('file', 'src/kiwi.mp4.zip.001', file_util.read(files[0]), 0o0644),
-      temp_content('file', 'src/kiwi.mp4.zip.002', file_util.read(files[1]), 0o0644),
-      temp_content('file', 'src/kiwi.mp4.zip.003', file_util.read(files[2]), 0o0644),
-      temp_content('file', 'src/kiwi.mp4.zip.004', file_util.read(files[3]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.001', bf_file_ops.read(files[0]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.002', bf_file_ops.read(files[1]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.003', bf_file_ops.read(files[2]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.004', bf_file_ops.read(files[3]), 0o0644),
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     unzip = True)
     self.assertEqual( self.xp_filename_list([
       'kiwi.mp4',
     ]), self.xp_filename_list(t.src_files) )
-    self.assertEqual( True, file_util.files_are_the_same(f'{t.src_dir}/kiwi.mp4',
+    self.assertEqual( True, bf_file_ops.files_are_the_same(f'{t.src_dir}/kiwi.mp4',
                                                          self.mp4_file) )
 
   def test_find_and_unsplit_with_unzip_and_multiple_members(self):
@@ -228,15 +228,15 @@ class test_file_split(unit_test, unit_test_media_files):
       temp_archive.item('lemon.jpg', filename = self.jpg_file),
     ], 'zip')
     tmp_dir = self.make_temp_dir()
-    files = file_split.split_file(tmp, int(file_util.size(tmp) / 3),
+    files = file_split.split_file(tmp, int(bf_file_ops.size(tmp) / 3),
                                   output_directory = tmp_dir,
                                   zfill_length = 3)
     self.assertEqual( 4, len(files) )
     items = [
-      temp_content('file', 'src/kiwi.mp4.zip.001', file_util.read(files[0]), 0o0644),
-      temp_content('file', 'src/kiwi.mp4.zip.002', file_util.read(files[1]), 0o0644),
-      temp_content('file', 'src/kiwi.mp4.zip.003', file_util.read(files[2]), 0o0644),
-      temp_content('file', 'src/kiwi.mp4.zip.004', file_util.read(files[3]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.001', bf_file_ops.read(files[0]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.002', bf_file_ops.read(files[1]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.003', bf_file_ops.read(files[2]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.004', bf_file_ops.read(files[3]), 0o0644),
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                                     unzip = True)
@@ -254,35 +254,35 @@ class test_file_split(unit_test, unit_test_media_files):
       items.append(item)
     tmp_archive = temp_archive.make_temp_archive(items, 'zip')
 
-    files = file_split.split_file(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 1)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 1)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
-    file_util.remove(files)
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    bf_file_ops.remove(files)
     
-    files = file_split.split_file(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 2)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 2)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
-    file_util.remove(files)
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    bf_file_ops.remove(files)
 
-    files = file_split.split_file(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 3)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 3)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
-    file_util.remove(files)
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    bf_file_ops.remove(files)
     
-    files = file_split.split_file(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 4)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 4)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
-    file_util.remove(files)
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    bf_file_ops.remove(files)
     
-    files = file_split.split_file(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 5)))
+    files = file_split.split_file(tmp_archive, int(math.floor(bf_file_ops.size(tmp_archive) / 5)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit_files(unsplit_tmp_archive, files)
-    self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
-    file_util.remove(files)
+    self.assertEqual( bf_file_ops.checksum('sha256', tmp_archive), bf_file_ops.checksum('sha256', unsplit_tmp_archive) )
+    bf_file_ops.remove(files)
 
   @classmethod
   def _make_content(clazz, size):

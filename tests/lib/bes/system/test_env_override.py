@@ -5,7 +5,7 @@ import copy
 from os import path
 import os
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.env_override import env_override
 from bes.system.env_override_options import env_override_options
 from bes.system.os_env import os_env
@@ -54,7 +54,7 @@ class test_env_override(unit_test):
   def test_env_override_temp_home_enter_functions(self):
 
     def _setup_fruit_txt():
-      file_util.save(path.expanduser('~/fruit.txt'), content = 'kiwi')
+      bf_file_ops.save(path.expanduser('~/fruit.txt'), content = 'kiwi')
       
     with env_override.temp_home(enter_functions = [ _setup_fruit_txt ]) as env:
       self.assert_text_file_equal( 'kiwi', path.expanduser('~/fruit.txt'), strip = True )

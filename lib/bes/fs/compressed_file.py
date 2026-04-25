@@ -2,7 +2,7 @@
 
 import codecs, gzip
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class compressed_file(object):
 
@@ -21,7 +21,7 @@ class compressed_file(object):
     'Uncompress a gzipped file to another file.'
     assert filename != output
 
-    file_util.ensure_file_dir(output)
+    bf_file_ops.ensure_file_dir(output)
 
     with gzip.open(filename, 'rb') as fin:
       with open(output, 'wb') as fout:
@@ -32,7 +32,7 @@ class compressed_file(object):
     'Compress a file to another file with gzip.'
     assert filename != output
 
-    file_util.ensure_file_dir(output)
+    bf_file_ops.ensure_file_dir(output)
     
     with open(filename, 'rb') as fin:
       with gzip.open(output, 'wb') as fout:

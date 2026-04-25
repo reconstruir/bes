@@ -6,7 +6,7 @@ from bes.testing.unit_test import unit_test
 from bes.archive.temp_archive import temp_archive
 from bes.system.check import check
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.match.matcher_always_false import matcher_always_false
 from bes.match.matcher_always_true import matcher_always_true
 from bes.match.matcher_filename import matcher_multiple_filename
@@ -285,7 +285,7 @@ def make_test_case(archive_class, xarchive_type):
       tmp_dir = self.make_temp_dir()
       tmp_archive.extract(tmp_dir, include = include, exclude = exclude)
       actual_files = file_find.find(tmp_dir, relative = True)
-      file_util.remove(tmp_dir)
+      bf_file_ops.remove(tmp_dir)
       return actual_files
   
     def test_extract_member_to_string(self):
@@ -309,7 +309,7 @@ def make_test_case(archive_class, xarchive_type):
       tmp_archive = self.make_temp_archive_for_reading(items)
       tmp_file = self.make_temp_file(non_existent = True)
       tmp_archive.extract_member_to_file('foo/apple.txt', tmp_file)
-      self.assertEqual( b'apple.txt\n', file_util.read(tmp_file) )
+      self.assertEqual( b'apple.txt\n', bf_file_ops.read(tmp_file) )
       
     def _test_extract_with_members(self, items, members,
                                    base_dir = None,
@@ -323,7 +323,7 @@ def make_test_case(archive_class, xarchive_type):
                           strip_head = strip_head,
                           include = members)
       actual_files = file_find.find(tmp_dir, relative = True)
-      file_util.remove(tmp_dir)
+      bf_file_ops.remove(tmp_dir)
       return actual_files
   
     def test_extract_members(self):
@@ -402,7 +402,7 @@ def make_test_case(archive_class, xarchive_type):
   
       self._compare_dirs(tmp_dir, tmp_extract_dir)
   
-      file_util.remove([ tmp_dir, tmp_extract_dir])
+      bf_file_ops.remove([ tmp_dir, tmp_extract_dir])
   
     def test_create_base_dir(self):
       self.maxDiff = None
@@ -425,11 +425,11 @@ def make_test_case(archive_class, xarchive_type):
       archive.extract_all(tmp_extract_dir)
   
       def _remove_base_dir(f):
-        return file_util.remove_head(f, base_dir)
+        return bf_file_ops.remove_head(f, base_dir)
   
       self._compare_dirs(tmp_dir, tmp_extract_dir, transform = _remove_base_dir)
   
-      file_util.remove([ tmp_dir, tmp_extract_dir])
+      bf_file_ops.remove([ tmp_dir, tmp_extract_dir])
   
     def test_create_with_include(self):
       self.maxDiff = None
@@ -545,7 +545,7 @@ def make_test_case(archive_class, xarchive_type):
       tmp_extract_dir = self.make_temp_dir()
       archive.extract_all(tmp_extract_dir)
       actual_files = file_find.find(tmp_extract_dir, relative = True)
-      file_util.remove([ tmp_dir, tmp_extract_dir])
+      bf_file_ops.remove([ tmp_dir, tmp_extract_dir])
       return actual_files
   
     def xtest_checksum(self):
@@ -561,11 +561,11 @@ def make_test_case(archive_class, xarchive_type):
       tmp_dir = temp_archive.write_temp_items(items)
       archive1 = self.make_temp_archive_for_writing()
       archive1.create(tmp_dir)
-      checksum1 = file_util.checksum('sha256', archive1.filename)
+      checksum1 = bf_file_ops.checksum('sha256', archive1.filename)
       
       archive2 = self.make_temp_archive_for_writing()
       archive2.create(tmp_dir)
-      checksum2 = file_util.checksum('sha256', archive2.filename)
+      checksum2 = bf_file_ops.checksum('sha256', archive2.filename)
   
       self.assertEqual( checksum1, checksum2 )
   

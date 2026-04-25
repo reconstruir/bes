@@ -3,7 +3,7 @@
 #
 from bes.testing.unit_test import unit_test
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git_modules_file import git_modules_file
 from bes.git.git_modules_file import git_module
 
@@ -78,7 +78,7 @@ class test_git_submodules_file(unit_test):
 	path = bar
 	url = git@example.com:org/bar.git
 '''
-    self.assertMultiLineEqual( expected, file_util.read(tmp_file, codec = 'utf8') )
+    self.assertMultiLineEqual( expected, bf_file_ops.read(tmp_file, codec = 'utf8') )
     mf.set_branch('bar', 'b666')
     expected = '''\
 [submodule "foo"]
@@ -114,7 +114,7 @@ class test_git_submodules_file(unit_test):
 	path = bar
 	url = git@example.com:org/bar.git
 '''
-    self.assertMultiLineEqual( expected, file_util.read(tmp_file, codec = 'utf8') )
+    self.assertMultiLineEqual( expected, bf_file_ops.read(tmp_file, codec = 'utf8') )
     
 if __name__ == '__main__':
   unit_test.main()

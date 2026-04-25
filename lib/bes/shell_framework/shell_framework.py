@@ -2,7 +2,7 @@
 
 import os.path as path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.git.git_clone_manager import git_clone_manager
 from bes.git.git_clone_options import git_clone_options
@@ -41,7 +41,7 @@ class shell_framework(object):
       return None
     if not path.isfile(self.revision_filename):
       raise IOError('Not a file: "{}"'.format(self.revision_filename))
-    return file_util.read(self.revision_filename, codec = 'utf-8').strip()
+    return bf_file_ops.read(self.revision_filename, codec = 'utf-8').strip()
 
   @property
   def latest_revision(self):
@@ -78,7 +78,7 @@ class shell_framework(object):
     return True
 
   def _save_revision_filename(self, revision):
-    file_util.save(self.revision_filename, revision.strip() + line_break.DEFAULT_LINE_BREAK)
+    bf_file_ops.save(self.revision_filename, revision.strip() + line_break.DEFAULT_LINE_BREAK)
   
   def _fetch_framework(self, revision):
     assert revision != 'latest'
@@ -92,10 +92,10 @@ class shell_framework(object):
                                 branch = revision)
     repo = git_repo(tmp_dir, address = self._options.address)
     repo.clone(options = options)
-    file_util.remove(self.framework_dir)
+    bf_file_ops.remove(self.framework_dir)
     src_dir = path.join(tmp_dir, 'bash', 'bes_bash_one_file')
-    file_util.rename(src_dir, self.framework_dir)
-    file_util.remove(tmp_dir)
+    bf_file_ops.rename(src_dir, self.framework_dir)
+    bf_file_ops.remove(tmp_dir)
 
   @classmethod
   def ensure(self, dest_dir, revision, address = None, framework_basename = None, revision_basename = None):

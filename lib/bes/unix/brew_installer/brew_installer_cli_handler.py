@@ -4,7 +4,7 @@ from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .brew_installer import brew_installer
 from .brew_installer_options import brew_installer_options
@@ -22,7 +22,7 @@ class brew_installer_cli_handler(cli_command_handler):
     
     if print_only:
       tmp = brew_installer.download_script(script_name)
-      file_util.page(tmp)
+      bf_file_ops.page(tmp)
       return 0
     brew_installer.run_script(script_name, args, self.options)
     return 0

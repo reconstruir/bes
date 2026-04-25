@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.git.git_temp_repo import git_temp_repo
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from bes.vfs.vfs_git_repo import vfs_git_repo
 from bes.vfs.vfs_error import vfs_error
@@ -415,7 +415,7 @@ class test_vfs_git_repo(unit_test):
     tester = self._make_tester_with_items()
     tmp_file = self.make_temp_file()
     tester.fs.download_to_file('foo.txt', tmp_file)
-    self.assertEqual( b'foo.txt', file_util.read(tmp_file) )
+    self.assertEqual( b'foo.txt', bf_file_ops.read(tmp_file) )
 
   @git_temp_home_func()
   def xtest_list_dir_persistent(self):

@@ -6,7 +6,7 @@ import multiprocessing
 
 from bes.testing.unit_test import unit_test
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git_repo_operation_options import git_repo_operation_options
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
@@ -45,7 +45,7 @@ class test_git_util_repo_run_operation(unit_test):
       old_content = repo.read_file('foo.txt', codec = 'utf8')
       new_content = '{}\nworker {}'.format(old_content, n)
       fp = repo.file_path('foo.txt')
-      file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
+      bf_file_ops.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
         
     git_util.repo_run_operation(address, _op, 'from worker {}'.format(n), options = None)
     

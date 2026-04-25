@@ -9,7 +9,7 @@ from datetime import timedelta
 from bes.fs.file_duplicates import file_duplicates
 from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -136,11 +136,11 @@ class test_file_duplicates(unit_test):
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
     ]
     def _ptf(test):
-      file_util.set_modification_date(f'{test.src_dir}/c/kiwi_01.jpg',
+      bf_file_ops.set_modification_date(f'{test.src_dir}/c/kiwi_01.jpg',
                                       datetime.now())
-      file_util.set_modification_date(f'{test.src_dir}/b/kiwi_02.jpg',
+      bf_file_ops.set_modification_date(f'{test.src_dir}/b/kiwi_02.jpg',
                                       datetime.now() - timedelta(days = 1))
-      file_util.set_modification_date(f'{test.src_dir}/a/kiwi_03.jpg',
+      bf_file_ops.set_modification_date(f'{test.src_dir}/a/kiwi_03.jpg',
                                       datetime.now() - timedelta(days = 2))
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
@@ -188,7 +188,7 @@ class test_file_duplicates(unit_test):
     bin_dir = path.dirname(sh_exe)
     tmp_dir = self.make_temp_dir()
     sh_exe_dup = path.join(tmp_dir, 'dupsh.exe')
-    file_util.copy(sh_exe, sh_exe_dup)
+    bf_file_ops.copy(sh_exe, sh_exe_dup)
     result = self._test([ 
     ], [], extra_dirs_before = [
       _file_duplicate_tester_object._extra_dir(bin_dir, '${_bin}'),
@@ -323,7 +323,7 @@ class test_file_duplicates(unit_test):
     with dir_operation_tester(extra_content_items = items) as t:
       setup = file_duplicates.setup([ t.src_dir ], options = options)
 
-      file_util.remove(f'{t.src_dir}/a/kiwi.jpg')
+      bf_file_ops.remove(f'{t.src_dir}/a/kiwi.jpg')
       
       dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
       self.assert_filename_list_equal( [

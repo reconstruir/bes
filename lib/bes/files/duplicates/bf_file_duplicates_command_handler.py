@@ -56,7 +56,7 @@ class bf_file_duplicates_command_handler(bcli_command_handler):
           if blurber:
             blurber.blurb(f'DRY_RUN: delete {f}')
       else:
-        file_util.remove(dup_filenames)
+        bf_file_ops.remove(dup_filenames)
         if self.options.verbose:
           for f in dup_filenames:
             if blurber:

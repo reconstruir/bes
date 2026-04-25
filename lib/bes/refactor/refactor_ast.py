@@ -3,7 +3,7 @@
 from collections import namedtuple
 
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.file_replace import file_replace
 from bes.text.text_search import text_search
 

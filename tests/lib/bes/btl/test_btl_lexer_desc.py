@@ -3,7 +3,7 @@
 
 import os
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.property.cached_class_property import cached_class_property
 from bes.system.check import check
 from bes.system.execute import execute
@@ -81,7 +81,7 @@ stateDiagram-v2
     desc = self._make_simple_lexer_desc()
     desc.write_code(tmp, '_fruit', 'kiwi_lexer')
 
-    self.assert_python_code_text_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_python_code_text_equal( self._EXPECTED_CODE, bf_file_ops.read(tmp, codec = 'utf-8') )
 
   @classmethod
   def _add_line_numbers(clazz, code):

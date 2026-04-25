@@ -3,7 +3,7 @@
 from ..system.check import check
 from bes.system.log import logger
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .file_metadata import file_metadata
 
@@ -46,16 +46,16 @@ class file_checksum_db(object):
       raise ValueError('invalid algorithm: %s' % (algorithm))
     attr_mtime = self._metadata.get_value('checksums', filename, self._KEY_BES_MTIME)
     attr_checksum = self._metadata.get_value('checksums', filename, checksum_key)
-    mtime = file_util.mtime(filename)
+    mtime = bf_file_ops.mtime(filename)
     self.log.log_d('checksum: mtime={} attr_mtime={} attr_checksum={}'.format(mtime, attr_mtime, attr_checksum))
     if attr_mtime is not None and attr_checksum is not None:
-      if attr_mtime == str(file_util.mtime(filename)):
+      if attr_mtime == str(bf_file_ops.mtime(filename)):
         return attr_checksum
     return self._write_checksum(algorithm, filename, chunk_size)
 
   def _write_checksum(self, algorithm, filename, chunk_size):
-    mtime = str(file_util.mtime(filename))
-    checksum = file_util.checksum(algorithm, filename)
+    mtime = str(bf_file_ops.mtime(filename))
+    checksum = bf_file_ops.checksum(algorithm, filename)
     self._count += 1
     checksum_key = self._ALGORITHM_TO_KEY.get(algorithm, None)
     self.log.log_d('_write_checksum: mtime={} checksum={} count={} checksum_key={}'.format(mtime,

@@ -7,7 +7,7 @@ from collections import namedtuple
 from bes.system.log import log
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class test_log(unit_test):
 
@@ -323,7 +323,7 @@ class test_log(unit_test):
     p = self._log_tester(function, config, tmp_output_filename, function_args)
     p.start()
     p.join()
-    output = file_util.read(tmp_output_filename, codec = 'utf-8')
+    output = bf_file_ops.read(tmp_output_filename, codec = 'utf-8')
     return self._test_result(tmp_output_filename, output)
     
 if __name__ == '__main__':

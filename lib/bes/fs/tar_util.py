@@ -14,7 +14,7 @@ from bes.system.which import which
 from ..files.bf_entry import bf_entry
 
 from .file_find import file_find
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .temp_file import temp_file
 
 class tar_util(object):
@@ -24,7 +24,7 @@ class tar_util(object):
     excludes = excludes or []
     if not path.isdir(src_dir):
       raise RuntimeError('src_dir is not a directory: %s' % (src_dir))
-    file_util.mkdir(dst_dir)
+    bf_file_ops.mkdir(dst_dir)
     unreadable = file_find.find_unreadable(src_dir)
     print(f'CACA: unreadable={unreadable}')
     unreadable = []
@@ -130,7 +130,7 @@ class tar_util(object):
   def create_deterministic_tarball_with_manifest(clazz, filename, files_dir, manifest_filename, mtime):
     'Create a deterministic tarball with a hard coded mtime.  For the same contents, the checksum will not change.'
     gnu_tar = clazz.find_tar_or_raise('gnu', 'bsd tar is not deterministic about archive checksum for the same contents.')
-    file_util.mkdir(path.dirname(filename))
+    bf_file_ops.mkdir(path.dirname(filename))
     template = '{gnu_tar} --mtime={mtime} -cf - -C {files_dir} -T {manifest_filename} | gzip -n > {filename}'
     tar_cmd = template.format(gnu_tar = gnu_tar,
                               mtime = mtime,
@@ -143,7 +143,7 @@ class tar_util(object):
   def create_deterministic_tarball(clazz, filename, files_dir, what, mtime):
     'Create a deterministic tarball with a hard coded mtime.  For the same contents, the checksum will not change.'
     gnu_tar = clazz.find_tar_or_raise('gnu', 'bsd tar is not deterministic about archive checksum for the same contents.')
-    file_util.mkdir(path.dirname(filename))
+    bf_file_ops.mkdir(path.dirname(filename))
     template = '{gnu_tar} --mtime={mtime} -cf - -C {files_dir} {what} | gzip -n > {filename}'
     tar_cmd = template.format(gnu_tar = gnu_tar,
                               mtime = mtime,

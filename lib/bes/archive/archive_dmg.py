@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, tarfile
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.host import host
@@ -78,8 +78,8 @@ class archive_dmg(archive):
                strip_common_ancestor = strip_common_ancestor,
                strip_head = strip_head,
                include = include, exclude = exclude)
-    file_util.remove(tmp_zip)
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_zip)
+    bf_file_ops.remove(tmp_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
@@ -89,7 +89,7 @@ class archive_dmg(archive):
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
     tmp_dir = temp_file.make_temp_dir()
     for item in items:
-      file_util.copy(item.filename, path.join(tmp_dir, item.arcname))
+      bf_file_ops.copy(item.filename, path.join(tmp_dir, item.arcname))
     cmd = 'hdiutil create -srcfolder %s -ov -format UDZO %s' % (tmp_dir, self.filename)
     execute.execute(cmd)
-    file_util.remove(tmp_dir)
+    bf_file_ops.remove(tmp_dir)

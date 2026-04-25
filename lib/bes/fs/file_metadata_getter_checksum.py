@@ -4,7 +4,7 @@ from ..system.check import check
 
 from .file_metadata_getter_base import file_metadata_getter_base
 from bes.files.bf_check import bf_check
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class file_metadata_getter_checksum(file_metadata_getter_base):
 
@@ -19,7 +19,7 @@ class file_metadata_getter_checksum(file_metadata_getter_base):
     'Get a metadata value from filename and return it encoded as bytes.'
     bf_check.check_file(filename)
 
-    return file_util.checksum(self._algorithm, filename).encode('utf-8')
+    return bf_file_ops.checksum(self._algorithm, filename).encode('utf-8')
 
   #@abstractmethod
   def decode_value(self, value):

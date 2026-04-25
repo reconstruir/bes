@@ -6,7 +6,7 @@ from ..system.check import check
 from bes.common.json_util import json_util
 from bes.common.table import table
 from bes.common.tuple_util import tuple_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.console import console
 from bes.text.line_break import line_break
 from bes.text.text_box import text_box_colon
@@ -30,7 +30,7 @@ class data_output(object):
     if stream:
       clazz._output_table_to_stream(data, stream, options)
     else:
-      with file_util.open_with_default(filename = options.output_filename) as fout:
+      with bf_file_ops.open_with_default(filename = options.output_filename) as fout:
         clazz._output_table_to_stream(data, fout, options)
 
   @classmethod
@@ -142,7 +142,7 @@ class data_output(object):
     if stream:
       self._output_value_to_stream(data, key, options, stream)
     else:
-      with file_util.open_with_default(filename = options.output_filename) as fout:
+      with bf_file_ops.open_with_default(filename = options.output_filename) as fout:
         self._output_value_to_stream(data, key, options, fout)
 
   @classmethod

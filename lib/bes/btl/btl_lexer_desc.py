@@ -8,7 +8,7 @@ from collections import namedtuple
 from ..common.json_util import json_util
 from ..common.variable_manager import variable_manager
 from bes.files.bf_check import bf_check
-from ..fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from ..system.check import check
 from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
@@ -127,7 +127,7 @@ class btl_lexer_desc(namedtuple('btl_lexer_desc', 'header, tokens, errors, varia
   @classmethod
   def parse_file(clazz, filename):
     filename = bf_check.check_file(filename)
-    desc_text = file_util.read(filename, codec = 'utf-8')
+    desc_text = bf_file_ops.read(filename, codec = 'utf-8')
     return clazz.parse_text(desc_text, path.basename(filename))
 
   def generate_code(self, buf, namespace, name):
@@ -201,7 +201,7 @@ def desc_text(clazz):
     check.check_int(indent_width)
 
     code_text = self.generate_code_to_str(namespace, name)
-    file_util.save(output_filename, content = code_text)
+    bf_file_ops.save(output_filename, content = code_text)
 
   def make_variable_manager(self, variables):
     check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)

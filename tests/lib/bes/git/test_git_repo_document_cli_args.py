@@ -3,7 +3,7 @@
 
 from os import path, getcwd, remove
 from bes.git.git_temp_repo import git_temp_repo
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.git.git_unit_test import git_temp_home_func
 
@@ -68,7 +68,7 @@ class test_git_repo_document_cli_args(program_unit_test):
     self.assertEqual(0, rv.exit_code)
 
     # See if the file and contents are there.
-    actual = file_util.read(tmp_target_filepath)
+    actual = bf_file_ops.read(tmp_target_filepath)
     self.assertEqual(actual, b'abc')
 
     # This will cause an exception and fail the test if the file wasn't created by the CLI.

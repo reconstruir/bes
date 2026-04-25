@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value_list import key_value_list
 
 from bes.testing.unit_test import unit_test
@@ -40,7 +40,7 @@ ssh-rsa key3 barney@bedrock
 ssh-rsa key4 bambam@bedrock
 '''
     
-    self.assertMultiLineEqual( expected.strip(), file_util.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
 
   def test_empty_file(self):
     content = '''
@@ -52,18 +52,18 @@ ssh-rsa key4 bambam@bedrock
     expected = '''
 ssh-rsa key4 bambam@bedrock
 '''
-    self.assertMultiLineEqual( expected.strip(), file_util.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
 
   def test_nonexistent_file(self):
     tmp_file = self.make_temp_file()
-    file_util.remove(tmp_file)
+    bf_file_ops.remove(tmp_file)
     c = ssh_authorized_keys_file(tmp_file)
     c.add_authorized_key(ssh_authorized_key('ssh-rsa', 'key4', 'bambam@bedrock'))
 
     expected = '''
 ssh-rsa key4 bambam@bedrock
 '''
-    self.assertMultiLineEqual( expected.strip(), file_util.read(tmp_file, codec = 'utf-8').strip() )
+    self.assertMultiLineEqual( expected.strip(), bf_file_ops.read(tmp_file, codec = 'utf-8').strip() )
 
   def test_comment_preservation(self):
     content = '''

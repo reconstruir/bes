@@ -12,7 +12,7 @@ from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
 from bes.fs.file_multi_ignore import file_multi_ignore
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git import git
 from bes.python.dependencies import dependencies
 from bes.system.env_var import env_var
@@ -344,7 +344,7 @@ class argument_resolver(object):
   def cleanup_python_compiled_files(self):
     root_dirs = [ config.root_dir for config in self._env_dependencies_configs ]
     pyc_files = file_finder.find_python_compiled_files(root_dirs)
-    file_util.remove(pyc_files)
+    bf_file_ops.remove(pyc_files)
 
   def _file_is_managed(self, filename):
     'Return True if filename is managed by the environment.'

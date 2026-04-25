@@ -12,7 +12,7 @@ from bes.common.string_util import string_util
 from bes.egg.egg import egg
 from bes.fs.file_find import file_find
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.git.git import git
 from bes.git.git_exe import git_exe
@@ -222,7 +222,7 @@ def main():
     return 1
   
   if args.temp_dir:
-    file_util.mkdir(args.temp_dir)
+    bf_file_ops.mkdir(args.temp_dir)
     tempfile.tempdir = args.temp_dir
 
   if DEBUG:
@@ -261,7 +261,7 @@ def main():
     for i, f in enumerate(ar.all_files):
       tmp = temp_file.make_temp_file()
       filename_count_blurb = ' ' + _make_count_blurb(i + 1, total_files)
-      short_filename = file_util.remove_head(f, cwd)
+      short_filename = bf_file_ops.remove_head(f, cwd)
       blurb = '%7s:%s %s ' % ('compile', filename_count_blurb, short_filename)
       printer.writeln_name(blurb)
       py_compile.compile(f, cfile = tmp, doraise = True)
@@ -374,7 +374,7 @@ def main():
       pythonpath.prepend(egg_zip)
       printer.writeln_name('using tmp egg: %s' % (egg_zip))
       if args.save_egg:
-        file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
+        bf_file_ops.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
 
   if args.pre_commit:
     missing_from_git = []
@@ -480,7 +480,7 @@ def main():
       error_status = unit_test_output.error_status(result.output)
       for error in error_status.errors:
         error_type = error.error_type
-        filename_rel = file_util.remove_head(filename, cwd)
+        filename_rel = bf_file_ops.remove_head(filename, cwd)
         filename_rel = filename_rel.replace('\\', '/')
         fixture = error.fixture
         printer.writeln_name('%5s: %s %s :%s' % (error_type,
@@ -497,7 +497,7 @@ def main():
     filenames = sorted(timings.keys())
     num_filenames = len(filenames)
     for i, filename in zip(range(0, num_filenames), filenames):
-      short_filename = file_util.remove_head(filename, cwd)
+      short_filename = bf_file_ops.remove_head(filename, cwd)
       all_timings = timings[filename]
       num_timings = len(all_timings)
       avg_ms = _timing_average(all_timings) * 1000.0
@@ -536,9 +536,9 @@ def main():
   os.chdir('/tmp')
 
   if not args.keep_side_effects:
-    file_util.remove(tmp_cwd)
-    file_util.remove(tmp_home)
-    file_util.remove(tmp_tmp)
+    bf_file_ops.remove(tmp_cwd)
+    bf_file_ops.remove(tmp_home)
+    bf_file_ops.remove(tmp_tmp)
 
   return rv
 
@@ -551,7 +551,7 @@ def _collect_side_effects(table, test, where, label, keep_side_effects):
     se = side_effect(where, next_dropping, label)
     table[test].append(se)
     if not keep_side_effects:
-      file_util.remove(next_dropping)
+      bf_file_ops.remove(next_dropping)
 
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
@@ -566,7 +566,7 @@ def _test_data_dir(filename):
   return data_dir or ''
 
 def _test_execute(pexe, test_map, filename, tests, options, index, total_files, cwd, env):
-  short_filename = file_util.remove_head(filename, cwd)
+  short_filename = bf_file_ops.remove_head(filename, cwd)
 
   cmd = [ '"{}"'.format(pexe) ]
   

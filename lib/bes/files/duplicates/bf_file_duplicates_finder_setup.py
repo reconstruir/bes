@@ -73,7 +73,7 @@ class bf_file_duplicates_finder_setup(bdata_class_base):
     for i, filename in enumerate(files, start = 1):
       if blurber:
         blurber.blurb_verbose(f'checking {i} of {num}: {filename}')
-      small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
+      small_checksum = bf_file_ops.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
       if not small_checksum in result:
         result[small_checksum] = []
       result[small_checksum].append(filename)

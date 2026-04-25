@@ -8,7 +8,7 @@ from bes.compat.plistlib import plistlib_loads
 
 from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 
@@ -61,7 +61,7 @@ class dmg(object):
   @classmethod
   def extract(clazz, dmg, dst_dir):
     bf_check.check_file(dmg)
-    file_util.mkdir(dst_dir)
+    bf_file_ops.mkdir(dst_dir)
     mnt = clazz._mount_at_temp_dir(dmg)
     #clazz._fix_extracted_dir_permissions(mnt.mount_point)
     file_copy.copy_tree(mnt.mount_point, dst_dir)

@@ -5,7 +5,7 @@ from enum import IntEnum
 
 from bes.compat.StringIO import StringIO
 from bes.fs.dir_util import dir_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -104,7 +104,7 @@ class env_dir(object):
       rv = execute.execute(script, raise_error = True, shell = True, env = env)
     finally:
       if not self._debug:
-        file_util.remove(script)
+        bf_file_ops.remove(script)
     parser = text_line_parser(rv.stdout)
     self._log.log_d(f'env_dir.instructions: stdout={rv.stdout}', multi_line = True)
     self._log.log_d(f'env_dir.instructions: stderr={rv.stderr}', multi_line = True)

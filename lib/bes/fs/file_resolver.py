@@ -17,7 +17,7 @@ from .file_find import file_find
 from bes.files.bf_path import bf_path
 from .file_resolver_options import file_resolver_options
 from .file_sort_order import file_sort_order
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .file_resolver_item import file_resolver_item
 from .file_resolver_item_list import file_resolver_item_list
@@ -110,9 +110,9 @@ class file_resolver(object):
       if order == file_sort_order.FILENAME:
         criteria.append(resolved_file.filename_abs)
       elif order == file_sort_order.SIZE:
-        criteria.append(file_util.size(resolved_file.filename_abs))
+        criteria.append(bf_file_ops.size(resolved_file.filename_abs))
       elif order == file_sort_order.DATE:
-        criteria.append(file_util.get_modification_date(resolved_file.filename_abs))
+        criteria.append(bf_file_ops.get_modification_date(resolved_file.filename_abs))
       elif order == file_sort_order.DEPTH:
         criteria.append(bf_path.depth(resolved_file.filename_abs))
       else:
@@ -185,7 +185,7 @@ class file_resolver(object):
     for f in resolved_files:
       should_ignore = False
       if file_ignorer:
-        should_ignore = file_ignorer.should_ignore(f.filename_abs) or file_util.is_empty(f.filename_abs)
+        should_ignore = file_ignorer.should_ignore(f.filename_abs) or bf_file_ops.is_empty(f.filename_abs)
       if not should_ignore:
         result.append(f.filename_abs)
     return sorted(result)

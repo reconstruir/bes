@@ -6,7 +6,7 @@ from bes.system.log import logger
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.fs.compressed_file import compressed_file
 from bes.git.git_address_util import git_address_util
@@ -47,7 +47,7 @@ class http_download_cache(object):
           return result
         else:
           self.log.log_w('get_url: found in cache with BAD checksum. removing: %s' % (local_cached_path_rel))
-          file_util.remove(local_cached_path)
+          bf_file_ops.remove(local_cached_path)
     else:
       if path.exists(local_cached_path):
         self.log.log_d('get_url: found in cache. using: %s' % (local_cached_path_rel))
@@ -71,10 +71,10 @@ class http_download_cache(object):
         self.log.log_d('get_url: 4 result={}'.format(result))
         return result
       else:
-        file_util.rename(tmp, local_cached_path)
+        bf_file_ops.rename(tmp, local_cached_path)
         self.log.log_d('get_url: 5 result={}'.format(local_cached_path))
         return local_cached_path
-    actual_checksum = file_util.checksum('sha256', tmp)
+    actual_checksum = bf_file_ops.checksum('sha256', tmp)
     if actual_checksum == checksum:
       self.log.log_d('get_url: download succesful and checksum is good.  using: %s' % (local_cached_path_rel))
       if self.compressed:
@@ -86,7 +86,7 @@ class http_download_cache(object):
         self.log.log_d('get_url: 6 result={}'.format(result))
         return result
       else:
-        file_util.rename(tmp, local_cached_path)
+        bf_file_ops.rename(tmp, local_cached_path)
         self.log.log_d('get_url: 7 result={}'.format(local_cached_path))
         return local_cached_path
     else:
@@ -94,7 +94,7 @@ class http_download_cache(object):
       self.log.log_e('get_url:  cookies: %s' % (cookies))
       self.log.log_e('get_url: expected: %s' % (checksum))
       self.log.log_e('get_url:   actual: %s' % (actual_checksum))
-      #self.log.log_e('content:\n{}\n'.format(file_util.read(tmp, codec = 'utf8')))
+      #self.log.log_e('content:\n{}\n'.format(bf_file_ops.read(tmp, codec = 'utf8')))
       self.log.log_d('get_url: 8 result={}'.format(None))
       return None
     
@@ -115,10 +115,10 @@ class http_download_cache(object):
     if self.compressed:
       tmp_uncompressed_file = temp_file.make_temp_file()
       compressed_file.uncompress(filename, tmp_uncompressed_file)
-      result = file_util.checksum('sha256', tmp_uncompressed_file)
-      file_util.remove(tmp_uncompressed_file)
+      result = bf_file_ops.checksum('sha256', tmp_uncompressed_file)
+      bf_file_ops.remove(tmp_uncompressed_file)
     else:
-      result = file_util.checksum('sha256', filename)
+      result = bf_file_ops.checksum('sha256', filename)
 
   def _uncompress_if_needed(self, filename, uncompress):
     if self.compressed:

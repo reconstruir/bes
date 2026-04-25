@@ -9,7 +9,7 @@ from bes.compat.ConfigParser import ConfigParser
 from bes.compat.ConfigParser import NoOptionError
 from bes.compat.ConfigParser import SafeConfigParser
 from bes.compat.StringIO import StringIO
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value import key_value
 from bes.system.compat import compat
 from bes.system.log import log
@@ -170,7 +170,7 @@ class config(object):
     return False
   
   def save(self, filename, codec = 'utf-8'):
-    file_util.save(filename, content = str(self), codec = codec)
+    bf_file_ops.save(filename, content = str(self), codec = codec)
 
   MAJOR = software_version.MAJOR
   MINOR = software_version.MINOR
@@ -224,7 +224,7 @@ class config(object):
   
   @classmethod
   def _make_parser_from_file(clazz, filename, codec = 'utf-8'):
-    text = file_util.read(filename, codec = codec)
+    text = bf_file_ops.read(filename, codec = codec)
     return clazz._make_parser_from_text(text)
 
   @classmethod

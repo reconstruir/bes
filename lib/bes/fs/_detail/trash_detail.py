@@ -8,7 +8,7 @@ from bes.system.log import log
 from bes.fs.dir_util import dir_util
 from bes.thread.decorators import synchronized_method
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class deleter(object, metaclass = ABCMeta):
   
@@ -26,7 +26,7 @@ class fast_deleter(deleter):
   def delete_file(self, filename):
     'Delete a file or directory.'
     self.log_i('deleting %s' % (filename))
-    file_util.remove(filename)
+    bf_file_ops.remove(filename)
 
 class slow_deleter(deleter):
   'Delete files slowly by sleeping between deletes for files in directories.'
@@ -40,13 +40,13 @@ class slow_deleter(deleter):
     'Delete a file or directory.'
     if path.isfile(filename):
       self.log_i('deleting single file %s' % (filename))
-      file_util.remove(filename)
+      bf_file_ops.remove(filename)
     elif path.isdir(filename):
       files = dir_util.list(filename)
       self.log_i('deleting many files: %s' % (files))
       for f in files:
         self.log_i('deleting next file %s' % (f))
-        file_util.remove(f)
+        bf_file_ops.remove(f)
         self.log_i('sleeping for %f seconds' % (self._sleep_time))
         time.sleep(self._sleep_time)
     else:
@@ -113,7 +113,7 @@ class trash_process(object):
     if not files:
       return False
     to_delete = files.pop(0)
-    file_util.remove(to_delete)
+    bf_file_ops.remove(to_delete)
     return len(files) > 0
     
   def start(self):

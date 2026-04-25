@@ -1,7 +1,7 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.fs.temp_file import temp_file
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_repo_document_db import git_repo_document_db
 
@@ -25,4 +25,4 @@ def worker(n, address, debug):
 
   db.update_document('retries.txt', attempt_update, 'a commit message')
   if not debug:
-    file_util.remove(tmp_working_dir)
+    bf_file_ops.remove(tmp_working_dir)

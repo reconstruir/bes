@@ -16,7 +16,7 @@ class tools(object):
     rv = subprocess.check_output(cmd, shell = False)
     files = [ f.strip() for f in rv.split('\n') if f.strip() ]
     tests = [ f for f in files if egg_unit_test.is_test_file(f) ]
-    return sorted([ file_util.remove_head(f, d) for f in tests ])
+    return sorted([ bf_file_ops.remove_head(f, d) for f in tests ])
   
   @classmethod
   def want_tests(clazz):

@@ -12,7 +12,7 @@ from bes.fs.file_replace import file_replace
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.file_search import file_search
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.filename_util import filename_util
 from bes.system.check import check
 from bes.system.log import logger
@@ -52,7 +52,7 @@ class refactor_files(object):
     def _match_text_files(filename):
       if path.islink(filename):
         return False
-      if file_util.is_empty(filename):
+      if bf_file_ops.is_empty(filename):
         return False
       return text_detect.file_is_text(filename)
     resolver_options = file_resolver_options(recursive = True,
@@ -124,7 +124,7 @@ class refactor_files(object):
                                  False,
                                  options)
     for item in empty_dirs_operation_items:
-      file_util.mkdir(item.dst)
+      bf_file_ops.mkdir(item.dst)
       assert dir_util.is_empty(item.src)
       dir_util.remove(item.src)
     
@@ -161,7 +161,7 @@ class refactor_files(object):
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
-      file_util.mkdir(next_new_dir)
+      bf_file_ops.mkdir(next_new_dir)
     for next_operation_item in operation_items:
       next_operation_item.apply_operation(operation, options.try_git)
     if operation != refactor_operation_type.COPY_FILES:

@@ -14,7 +14,7 @@ try:
 except ModuleNotFoundError:
   pass
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class temp_item(namedtuple('temp_item', 'filename, content, mode')):
   'Description of an temp item.'
@@ -25,10 +25,10 @@ class temp_item(namedtuple('temp_item', 'filename, content, mode')):
   def write(self, root_dir):
     p = path.join(root_dir, self.filename)
     if path.isfile(self.content):
-      content = file_util.read(self.content)
+      content = bf_file_ops.read(self.content)
     else:
       content = self.content
-    file_util.save(p, content = content, mode = self.mode)
+    bf_file_ops.save(p, content = content, mode = self.mode)
     
 class temp_file(object):
 
@@ -41,7 +41,7 @@ class temp_file(object):
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
     if dir and not path.isdir(dir):
-      file_util.mkdir(dir)
+      bf_file_ops.mkdir(dir)
     tmp = tempfile.NamedTemporaryFile(prefix = prefix,
                                       suffix = suffix,
                                       dir = dir,
@@ -65,7 +65,7 @@ class temp_file(object):
       filesystem.atexit_remove(tmp.name)
     tmp.close()
     if non_existent:
-      file_util.remove(tmp.name)
+      bf_file_ops.remove(tmp.name)
     return tmp.name
 
   @classmethod
@@ -75,14 +75,14 @@ class temp_file(object):
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or '.dir'
     if dir and not path.isdir(dir):
-      file_util.mkdir(dir)
+      bf_file_ops.mkdir(dir)
     tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
     assert path.isdir(tmp_dir)
     if items:
       assert not non_existent
       clazz.write_temp_files(tmp_dir, items)
     if non_existent:
-      file_util.remove(tmp_dir)
+      bf_file_ops.remove(tmp_dir)
     if delete:
       filesystem.atexit_remove(tmp_dir)
     return tmp_dir
@@ -92,7 +92,7 @@ class temp_file(object):
     'Write a named temporary file to an also temporary directory.'
     tmp_dir = clazz.make_temp_dir(delete = delete)
     tmp_file = path.join(tmp_dir, filename)
-    file_util.save(tmp_file, content = content)
+    bf_file_ops.save(tmp_file, content = content)
     if perm:
       os.chmod(tmp_file, perm)
     return tmp_file

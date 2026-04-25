@@ -5,7 +5,7 @@ from os import path
 
 from bes.fs.dir_split import dir_split
 from bes.fs.dir_split_options import dir_split_options
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.testing.temp_content import multiplied_temp_content
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
@@ -465,7 +465,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       temp_content('file', 'src/foo.txt', b'this is foo.txt', 0o0644),
     ]
     def _ptf(test):
-      file_util.remove(f'{test.src_dir}/foo.txt')
+      bf_file_ops.remove(f'{test.src_dir}/foo.txt')
       
     t = self._split_test([], 1, 1, extra_content_items = extra_content_items, pre_test_function = _ptf)
     expected = []

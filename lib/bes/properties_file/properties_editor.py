@@ -3,7 +3,7 @@
 from os import path
 from ..system.check import check
 from bes.property.cached_property import cached_property
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 from .properties import properties
 
@@ -18,7 +18,7 @@ class properties_editor(object):
     self._style = style
     self._filename = path.abspath(filename)
     if not path.isfile(self._filename):
-      file_util.save(self._filename, content = '')
+      bf_file_ops.save(self._filename, content = '')
     
   def set_value(self, key, value):
     check.check_string(key)

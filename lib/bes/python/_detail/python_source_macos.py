@@ -4,7 +4,7 @@ from bes.system.check import check
 from bes.compat import url_compat
 from bes.files.bf_path import bf_path
 from bes.fs.file_symlink import file_symlink
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_script import python_script
 from bes.version.semantic_version import semantic_version
 

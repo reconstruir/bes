@@ -6,7 +6,7 @@ from os import path
 
 from bes.common.json_util import json_util
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_exe import python_exe
 from bes.system.system_command import system_command
 from bes.system.system_command import system_command
@@ -51,7 +51,7 @@ class _bes_project_tester(object):
     tmp = self._unit_test.make_temp_file()
     rv = self.run(self.make_args(command, '--style', 'brief', '--output', tmp))
     self._unit_test.assertEqual( 0, rv.exit_code )
-    return system_command.split_lines(file_util.read(tmp, codec = 'utf-8'))
+    return system_command.split_lines(bf_file_ops.read(tmp, codec = 'utf-8'))
 
   def _json_command(self, command):
     tmp = self._unit_test.make_temp_file()

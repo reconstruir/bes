@@ -6,7 +6,7 @@ import fnmatch, inspect, os, os.path as path, zipfile
 from .unit_test import unit_test
 
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 # FIXME: figure out hot to unpack and egg such that permissions and links are correct
 #        and dont need to be hacked by hand
@@ -46,7 +46,7 @@ class egg_unit_test(unit_test):
   def extract_egg_test_files(clazz, egg, dst):
     with zipfile.ZipFile(file = egg, mode = 'r') as zf:
       members = clazz.filter_test_file_members(zf.infolist())
-      file_util.mkdir(dst)
+      bf_file_ops.mkdir(dst)
       for member in members:
         zf.extract(member, path = dst)
         extracted_filename = path.join(dst, member.filename)

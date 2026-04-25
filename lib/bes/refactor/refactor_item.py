@@ -4,7 +4,7 @@ from collections import namedtuple
 from os import path
 
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git import git
 from bes.git.git_error import git_error
 
@@ -57,11 +57,11 @@ class refactor_item(namedtuple('refactor_item', 'src, dst')):
         except git_error as ex:
           print(f'caught: {ex}')
     if not git_worked:
-      file_util.rename(self.src, self.dst)
+      bf_file_ops.rename(self.src, self.dst)
 
   def _apply_operation_copy(self, try_git):
-    file_util.copy(self.src, self.dst)
-    file_util.copy_mode(self.src, self.dst)
+    bf_file_ops.copy(self.src, self.dst)
+    bf_file_ops.copy_mode(self.src, self.dst)
     if try_git:
       root_dir = git.find_root_dir(start_dir = path.dirname(self.dst))
       should_ignore = git.check_ignore(root_dir, self.src)

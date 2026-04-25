@@ -13,7 +13,7 @@ from ..files.bf_entry import bf_entry
 from bes.common.string_util import string_util
 from bes.debug.debug_timer import debug_timer
 from bes.fs.file_symlink import file_symlink
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
@@ -168,7 +168,7 @@ class python_exe(object):
   @classmethod
   def _determine_main_exe_and_links(clazz, exe):
     'Return info for python executables'
-    inode = file_util.inode_number(exe)
+    inode = bf_entry(exe).inode_number
     exes = clazz._find_all_exes()
     inode_map = clazz._inode_map(exes)
     if not inode in inode_map:
@@ -201,7 +201,7 @@ class python_exe(object):
   @classmethod
   def _determine_main_exe_and_links(clazz, exe):
     'Return info for python executables'
-    inode = file_util.inode_number(exe)
+    inode = bf_entry(exe).inode_number
     exes = clazz._find_all_exes()
     inode_map = clazz._inode_map(exes)
     if not inode in inode_map:
@@ -287,7 +287,7 @@ class python_exe(object):
       seen = set()
       c = []
       for exe in result:
-        inode = file_util.inode_number(exe)
+        inode = bf_entry(exe).inode_number
         if not inode in seen:
           seen.add(inode)
           if clazz._exe_version_is_good(exe):
@@ -310,7 +310,7 @@ class python_exe(object):
     'Return an inode to list of executable map'
     result = {}
     for exe in exes:
-      inode = file_util.inode_number(exe)
+      inode = bf_entry(exe).inode_number
       if not inode in result:
         result[inode] = []
       result[inode].append(exe)

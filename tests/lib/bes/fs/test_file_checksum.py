@@ -8,7 +8,7 @@ from bes.testing.unit_test import unit_test
 from bes.fs.file_checksum import file_checksum as FC
 from bes.fs.file_checksum import file_checksum_list as FCL
 from bes.fs.file_checksum import file_checksum
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
   
 class test_file_checksum(unit_test):
@@ -92,7 +92,7 @@ class test_file_checksum(unit_test):
     "5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953"
   ]
 ]'''
-    self.assertEqual( expected, file_util.read(tmp_file, codec = 'utf8') )
+    self.assertEqual( expected, bf_file_ops.read(tmp_file, codec = 'utf8') )
 
   def test_load_checksums_file(self):
     tmp_dir = self._make_test_data()
@@ -144,8 +144,8 @@ class test_file_checksum(unit_test):
   @classmethod
   def _make_test_data(self):
     tmp_dir = self.make_temp_dir()
-    file_util.save(path.join(tmp_dir, self._FILE_1), content = self._DATA_1)
-    file_util.save(path.join(tmp_dir, self._FILE_2), content = self._DATA_2)
+    bf_file_ops.save(path.join(tmp_dir, self._FILE_1), content = self._DATA_1)
+    bf_file_ops.save(path.join(tmp_dir, self._FILE_2), content = self._DATA_2)
     return tmp_dir
   
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ from datetime import datetime
 from ..system.check import check
 from bes.system.log import logger
 from bes.python.code import code
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value_list import key_value_list
 from bes.text.text_table import text_table
 
@@ -93,7 +93,7 @@ class vfs_cli_command(object):
   @classmethod
   def _format_file_size(clazz, size, options):
     if options.human_friendly:
-      return file_util.format_size(size)
+      return bf_file_ops.format_size(size)
     else:
       return str(size)
   
@@ -212,7 +212,7 @@ class vfs_cli_command(object):
   @classmethod
   def _list_configs(clazz):
     files = glob.glob('{}/*.bes_vfs'.format(clazz._CONFIG_DIR))
-    return [ file_util.remove_extension(path.basename(f)) for f in files ]
+    return [ bf_file_ops.remove_extension(path.basename(f)) for f in files ]
   
   @classmethod
   def _create_fs_from_config(clazz, config):

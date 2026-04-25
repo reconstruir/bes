@@ -9,7 +9,7 @@ import time
 from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.common.object_util import object_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.text.line_break import line_break
@@ -164,7 +164,7 @@ class git_repo(object):
                commit_message = None):
     p = self.file_path(filename)
     assert not path.isfile(p)
-    file_util.save(p, content = content, codec = codec, mode = mode)
+    bf_file_ops.save(p, content = content, codec = codec, mode = mode)
     self.add( [ filename ])
     result = None
     if commit:
@@ -179,7 +179,7 @@ class git_repo(object):
     if add and not commit:
       raise ValueError('If add is True then commit should be True as well.')
     p = self.file_path(filename)
-    file_util.save(p, content = content, mode = mode)
+    bf_file_ops.save(p, content = content, mode = mode)
     if add:
       self.add([ filename ])
     if commit:
@@ -187,7 +187,7 @@ class git_repo(object):
       self.commit(msg, [ filename ])
 
   def read_file(self, filename, codec = 'utf-8'):
-    return file_util.read(self.file_path(filename), codec = codec)
+    return bf_file_ops.read(self.file_path(filename), codec = codec)
 
   def has_file(self, filename):
     return path.exists(self.file_path(filename))
@@ -611,7 +611,7 @@ class git_repo(object):
 
     prefix = '{}-{}'.format(name, revision)
     self.archive_to_file(prefix, revision, tmp_full_path, archive_format = 'tar.gz', short_hash = True)
-    file_util.rename(tmp_full_path, tarball_path)
+    bf_file_ops.rename(tmp_full_path, tarball_path)
     return tarball_path
 
   def cached_archive_contains(self, revision, cache_dir = None):

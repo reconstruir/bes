@@ -5,7 +5,7 @@ import os.path as path, sys
 from bes.common.json_util import json_util
 from bes.system.add_method import add_method
 from bes.system.console import console
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.text.text_fit import text_fit
 
 class blurb(object):

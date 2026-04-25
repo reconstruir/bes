@@ -3,7 +3,7 @@
 ##### 
 ##### from os import path
 ##### 
-##### from bes.fs.file_util import file_util
+##### from bes.files.bf_file_ops import bf_file_ops
 ##### from bes.pipenv.pipenv_exe import pipenv_exe
 ##### from bes.system.host import host
 ##### from bes.testing.unit_test import unit_test
@@ -35,7 +35,7 @@
 ##### echo "pipenv, version {version}"
 ##### exit 0
 ##### '''.format(version = version)
-#####     file_util.save(tmp_exe, content = content, mode = mode)
+#####     bf_file_ops.save(tmp_exe, content = content, mode = mode)
 #####     return tmp_exe
 ##### 
 #####   def _make_temp_fake_pipenv_windows(self, filename, version, mode = 0o0755):
@@ -48,7 +48,7 @@
 ##### echo "pipenv, version {version}"
 ##### exit /b 0
 ##### '''.format(version = version)
-#####     file_util.save(tmp_exe, content = content, mode = mode)
+#####     bf_file_ops.save(tmp_exe, content = content, mode = mode)
 #####     return tmp_exe
 #####   
 ##### if __name__ == '__main__':

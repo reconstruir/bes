@@ -5,7 +5,7 @@ import os.path as path
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
 from ..system.check import check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_check import bf_check
 from bes.script.blurber import blurber
 
@@ -37,7 +37,7 @@ class mermaid_cli_handler(cli_command_handler):
     check.check_string(output_filename)
     check.check_string(output_format)
 
-    mmd_content = file_util.read(filename, codec = 'utf-8')
+    mmd_content = bf_file_ops.read(filename, codec = 'utf-8')
     output_bytes = mermaid_ink.img_request(mmd_content, output_format)
     with open(output_filename, 'wb') as f:
       f.write(output_bytes)

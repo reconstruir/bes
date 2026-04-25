@@ -14,7 +14,7 @@ from .file_attributes_metadata import file_attributes_metadata
 from bes.files.bf_check import bf_check
 from .file_duplicates_options import file_duplicates_options
 from .file_duplicates_setup import file_duplicates_setup
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class file_duplicates(object):
   'A class to find duplicate files'
@@ -131,7 +131,7 @@ class file_duplicates(object):
   def _match_function(clazz, filename, options):
     try:
       if not options.include_empty_files:
-        if file_util.is_empty(filename):
+        if bf_file_ops.is_empty(filename):
           return False
       if options.should_ignore_file(filename):
         return False
@@ -169,7 +169,7 @@ class file_duplicates(object):
   def _small_checksum_map(clazz, files, num_bytes):
     result = {}
     for filename in files:
-      small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
+      small_checksum = bf_file_ops.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
       if not small_checksum in result:
         result[small_checksum] = []
       result[small_checksum].append(filename)

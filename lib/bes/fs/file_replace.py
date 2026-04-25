@@ -8,7 +8,7 @@ from bes.common.variable import variable
 from bes.system.check import check
 from bes.text.text_replace import text_replace
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class file_replace(object):
 
@@ -23,15 +23,15 @@ class file_replace(object):
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
     
-    content = file_util.read(filename, codec = 'utf-8')
+    content = bf_file_ops.read(filename, codec = 'utf-8')
     new_content = text_replace.replace(content, replacements,
                                        word_boundary = word_boundary,
                                        word_boundary_chars = word_boundary_chars)
     if content == new_content:
       return False
     if backup:
-      file_util.backup(filename)
-    file_util.save(filename, content = new_content.encode('utf-8'), mode = file_util.mode(filename))
+      bf_file_ops.backup(filename)
+    bf_file_ops.save(filename, content = new_content.encode('utf-8'), mode = bf_file_ops.mode(filename))
     return True
 
   @classmethod
@@ -54,14 +54,14 @@ class file_replace(object):
   @classmethod
   def copy_with_substitute(clazz, src, dst, replacements, backup = True):
     assert isinstance(replacements, dict)
-    content = file_util.read(src, 'utf-8')
+    content = bf_file_ops.read(src, 'utf-8')
     new_content = variable.substitute(content, replacements)
     old_content = None
     if path.exists(dst):
-      old_content = file_util.read(dst, 'utf-8')
+      old_content = bf_file_ops.read(dst, 'utf-8')
       if old_content == new_content:
         return False
     if backup:
-      file_util.backup(dst)
-    file_util.save(dst, content = new_content, mode = file_util.mode(src))
+      bf_file_ops.backup(dst)
+    bf_file_ops.save(dst, content = new_content, mode = bf_file_ops.mode(src))
     return True

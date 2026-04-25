@@ -112,7 +112,7 @@ class filesystem(filesystem_base):
         if do_raise:
           raise
       except Exception as ex:
-        clazz._log.log_e('file_util.remove: Caught exception {}:{} removing "{}"'.format(str(ex), type(ex), f))
+        clazz._log.log_e('bf_file_ops.remove: Caught exception {}:{} removing "{}"'.format(str(ex), type(ex), f))
   
   @classmethod
   def atexit_remove(clazz, f):

@@ -4,7 +4,7 @@ import os, os.path as path, shutil
 import datetime
 
 from .file_match import file_match
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class dir_util(object):
     
@@ -25,7 +25,7 @@ class dir_util(object):
       files_abs = file_match.match_function(files_abs, function, match_type = file_match.ANY, basename = basename)
     if not relative:
       return files_abs
-    return [ file_util.remove_head(f, d + path.sep) for f in files_abs ]
+    return [ bf_file_ops.remove_head(f, d + path.sep) for f in files_abs ]
 
   @classmethod
   def list_dirs(clazz, d, relative = False, patterns = None, basename = False):

@@ -6,7 +6,7 @@ from os import path
 from ..system.check import check
 from bes.text.text_line_parser import text_line_parser
 
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .file_match import file_match
 
 class file_ignore_item(namedtuple('file_ignore_item', 'directory, patterns')):
@@ -22,7 +22,7 @@ class file_ignore_item(namedtuple('file_ignore_item', 'directory, patterns')):
     filename = path.abspath(filename)
     if not path.isfile(filename):
       raise IOError('not a file: %s' % (filename))
-    text = file_util.read(filename, codec = 'utf-8')
+    text = bf_file_ops.read(filename, codec = 'utf-8')
     patterns = text_line_parser.parse_lines(text).to_list()
     return file_ignore_item(path.dirname(filename), patterns)
   

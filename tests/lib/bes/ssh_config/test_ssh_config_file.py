@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value_list import key_value_list
 
 from bes.testing.unit_test import unit_test
@@ -194,7 +194,7 @@ Host orange
     
   def test_non_existent_file(self):
     tmp_file = self.make_temp_file()
-    file_util.remove(tmp_file)
+    bf_file_ops.remove(tmp_file)
     c = ssh_config_file(tmp_file)
 
     self.assert_string_equal( '', str(c), strip = True, multi_line = True, native_line_breaks = True )

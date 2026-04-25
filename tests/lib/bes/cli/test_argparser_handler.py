@@ -6,7 +6,7 @@ import sys
 
 from bes.system.host import host
 from bes.testing.program_unit_test import program_unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class test_argparser_handler(program_unit_test):
 
@@ -44,15 +44,15 @@ class test_argparser_handler(program_unit_test):
 
   def _make_test_program(self):
     tmp_dir = self.make_temp_dir()
-    file_util.save(path.join(tmp_dir, 'farm_cli.py'), content = self._FARM_CLI_DOT_PY )
-    file_util.save(path.join(tmp_dir, 'fruit_cli_args.py'), content = self._FRUIT_CLI_ARGS_DOT_PY )
-    file_util.save(path.join(tmp_dir, 'cheese_cli_args.py'), content = self._CHEESE_CLI_ARGS_DOT_PY )
-    unix_program = file_util.save(path.join(tmp_dir, 'farm.py'), content = self._FARM_DOT_PY)
+    bf_file_ops.save(path.join(tmp_dir, 'farm_cli.py'), content = self._FARM_CLI_DOT_PY )
+    bf_file_ops.save(path.join(tmp_dir, 'fruit_cli_args.py'), content = self._FRUIT_CLI_ARGS_DOT_PY )
+    bf_file_ops.save(path.join(tmp_dir, 'cheese_cli_args.py'), content = self._CHEESE_CLI_ARGS_DOT_PY )
+    unix_program = bf_file_ops.save(path.join(tmp_dir, 'farm.py'), content = self._FARM_DOT_PY)
     if host.is_unix():
       program = unix_program
     elif host.is_windows():
       content = self._FARM_DOT_BAT.format(executable = sys.executable)
-      program = file_util.save(path.join(tmp_dir, 'farm.bat'), content = content)
+      program = bf_file_ops.save(path.join(tmp_dir, 'farm.bat'), content = content)
     else:
       host.raise_unsupported_system()
     return program

@@ -11,7 +11,7 @@ else:
 from bes.testing.unit_test import unit_test
 from bes.web.file_web_server import file_web_server
 from bes.web.web_server_controller import web_server_controller
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.url.http_download_cache import http_download_cache
 from bes.fs.testing.temp_content import temp_content
@@ -43,10 +43,10 @@ class test_http_download_cache(unit_test):
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )
     self.assertEqual( 0, cache.download_count )
-    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertEqual( "this is foo.txt\n", bf_file_ops.read(cache.get_url(url1), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url1) )
     self.assertEqual( 1, cache.download_count )
-    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertEqual( "this is foo.txt\n", bf_file_ops.read(cache.get_url(url1), codec = 'utf-8') )
     self.assertEqual( 1, cache.download_count )
     self.assertEqual( [
       'http___localhost_{}_foo.txt'.format(server.address[1]),
@@ -54,7 +54,7 @@ class test_http_download_cache(unit_test):
 
     url2 = self._make_url(port, 'subdir/subberdir/baz.txt')
     self.assertFalse( cache.has_url(url2) )
-    self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
+    self.assertEqual( "this is baz.txt\n", bf_file_ops.read(cache.get_url(url2), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url2) )
     self.assertEqual( [
       'http___localhost_{}_foo.txt'.format(port),
@@ -81,10 +81,10 @@ class test_http_download_cache(unit_test):
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )
     self.assertEqual( 0, cache.download_count )
-    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertEqual( "this is foo.txt\n", bf_file_ops.read(cache.get_url(url1), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url1) )
     self.assertEqual( 1, cache.download_count )
-    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertEqual( "this is foo.txt\n", bf_file_ops.read(cache.get_url(url1), codec = 'utf-8') )
     self.assertEqual( 1, cache.download_count )
     self.assertEqual( [
       'http___localhost_{}_foo.txt.gz'.format(server.address[1]),
@@ -92,8 +92,8 @@ class test_http_download_cache(unit_test):
 
     url2 = self._make_url(port, 'subdir/subberdir/baz.txt')
     self.assertFalse( cache.has_url(url2) )
-    self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
-    self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
+    self.assertEqual( "this is baz.txt\n", bf_file_ops.read(cache.get_url(url2), codec = 'utf-8') )
+    self.assertEqual( "this is baz.txt\n", bf_file_ops.read(cache.get_url(url2), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url2) )
     self.assertEqual( [
       'http___localhost_{}_foo.txt.gz'.format(port),
@@ -123,12 +123,12 @@ class test_http_download_cache(unit_test):
     cached_filename = cache.get_url(url1, uncompress = False)
     tmp_uncompressed_file = self.make_temp_file()
     compressed_file.uncompress(cached_filename, tmp_uncompressed_file)
-    self.assertEqual( "this is foo.txt\n", file_util.read(tmp_uncompressed_file, codec = 'utf-8') )
+    self.assertEqual( "this is foo.txt\n", bf_file_ops.read(tmp_uncompressed_file, codec = 'utf-8') )
 
     cached_filename = cache.get_url(url1, uncompress = False)
     tmp_uncompressed_file = self.make_temp_file()
     compressed_file.uncompress(cached_filename, tmp_uncompressed_file)
-    self.assertEqual( "this is foo.txt\n", file_util.read(tmp_uncompressed_file, codec = 'utf-8') )
+    self.assertEqual( "this is foo.txt\n", bf_file_ops.read(tmp_uncompressed_file, codec = 'utf-8') )
     
     server.stop()
     

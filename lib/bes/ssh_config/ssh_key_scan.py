@@ -6,7 +6,7 @@ from collections import namedtuple
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.os_env import os_env

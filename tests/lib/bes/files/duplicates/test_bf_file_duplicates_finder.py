@@ -812,7 +812,7 @@ class test_bf_file_duplicates_finder(unit_test):
     bin_dir = path.dirname(sh_exe)
     tmp_dir = self.make_temp_dir()
     sh_exe_dup = path.join(tmp_dir, 'dupsh.exe')
-    file_util.copy(sh_exe, sh_exe_dup)
+    bf_file_ops.copy(sh_exe, sh_exe_dup)
     result = self._test([ 
     ], [], extra_dirs_before = [
       _file_duplicate_tester_object._extra_dir(bin_dir, '${_bin}'),

@@ -4,7 +4,7 @@
 import os.path as path, os, unittest
 
 from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.archive.archiver import archiver
 from bes.git.git_unit_test import git_temp_home_func
@@ -30,8 +30,8 @@ class test_git(unit_test):
   def _create_tmp_files(self, tmp_repo):
     foo = path.join(tmp_repo, 'foo.txt')
     bar = path.join(tmp_repo, 'bar.txt')
-    file_util.save(foo, content = 'foo.txt\n')
-    file_util.save(bar, content = 'bar.txt\n')
+    bf_file_ops.save(foo, content = 'foo.txt\n')
+    bf_file_ops.save(bar, content = 'bar.txt\n')
     return [ 'bar.txt', 'foo.txt' ]
 
   @git_temp_home_func()
@@ -148,7 +148,7 @@ class test_git(unit_test):
     git.commit(tmp_repo, 'nomsg\n', '.')
     self.assertEqual( None, git.read_gitignore(tmp_repo) )
     
-    file_util.save(path.join(tmp_repo, '.gitignore'), content = 'foo.txt\nbar.txt\nBUILD\n*~\n')
+    bf_file_ops.save(path.join(tmp_repo, '.gitignore'), content = 'foo.txt\nbar.txt\nBUILD\n*~\n')
     git.add(tmp_repo, '.gitignore')
     git.commit(tmp_repo, 'add .gitignore\n', '.')
     self.assertEqual( [
@@ -178,7 +178,7 @@ class test_git(unit_test):
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
-    file_util.save(path.join(tmp_repo, 'kiwi.txt'), content = 'this is kiwi.txt\n')
+    bf_file_ops.save(path.join(tmp_repo, 'kiwi.txt'), content = 'this is kiwi.txt\n')
     tmp_archive = self.make_temp_file()
     git.archive(tmp_repo, 'master', 'foo', tmp_archive, untracked = True)
     self.assertEqual( [
@@ -194,9 +194,9 @@ class test_git(unit_test):
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
-    file_util.save(path.join(tmp_repo, 'kiwi.txt'), content = 'this is kiwi.txt\n')
-    file_util.save(path.join(tmp_repo, 'ignored.txt'), content = 'this is ignored.txt\n')
-    file_util.save(path.join(tmp_repo, '.gitignore'), content = 'ignored.txt\n')
+    bf_file_ops.save(path.join(tmp_repo, 'kiwi.txt'), content = 'this is kiwi.txt\n')
+    bf_file_ops.save(path.join(tmp_repo, 'ignored.txt'), content = 'this is ignored.txt\n')
+    bf_file_ops.save(path.join(tmp_repo, '.gitignore'), content = 'ignored.txt\n')
     tmp_archive = self.make_temp_file()
     git.archive(tmp_repo, 'master', 'foo', tmp_archive, untracked = True)
     self.assertEqual( [
@@ -293,7 +293,7 @@ class test_git(unit_test):
     self.assertEqual( tmp_repo, git.find_root_dir(start_dir = tmp_repo) )
 
     d = path.join(tmp_repo, 'foo', 'bar', 'baz')
-    file_util.mkdir(d)
+    bf_file_ops.mkdir(d)
     self.assertEqual( tmp_repo, git.find_root_dir(start_dir = d) )
 
     self.assertEqual( None, git.find_root_dir(self.make_temp_dir()) )

@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from ..system.check import check
 
 from .archive_operation_base import archive_operation_base
@@ -18,4 +18,4 @@ class archive_operation_add_file(archive_operation_base):
   #@abstractmethod
   def execute(self, temp_dir):
     'Execute this operation in a temp_dir of the unpacked archive.'
-    file_util.save(path.join(temp_dir, self._arcname), content = self._content, mode = self._mode)
+    bf_file_ops.save(path.join(temp_dir, self._arcname), content = self._content, mode = self._mode)

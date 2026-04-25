@@ -8,7 +8,7 @@ from bes.config.simple_config import simple_config
 from bes.config.simple_config_entry import simple_config_entry
 from bes.config.simple_config_error import simple_config_error
 from bes.config.simple_config_origin import simple_config_origin
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.property.cached_property import cached_property
@@ -33,7 +33,7 @@ class ssh_config_file(object):
   @cached_property
   def _config(self):
     if not path.exists(self._filename):
-      file_util.save(self._filename, content = '', codec = 'utf-8')
+      bf_file_ops.save(self._filename, content = '', codec = 'utf-8')
     return simple_config.from_file(self._filename,
                                    check_env_vars = False,
                                    entry_parser = self._parse_ssh_config_entry,
@@ -64,7 +64,7 @@ class ssh_config_file(object):
     return self._config.find_first_section(hostname, matcher = lambda section, hostname: section.header_.extra_text == hostname)
     
   def _save(self):
-    file_util.save(self._filename,
+    bf_file_ops.save(self._filename,
                    content = str(self._config),
                    mode = 0o0600,
                    codec = 'utf-8')

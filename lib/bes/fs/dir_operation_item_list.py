@@ -8,7 +8,7 @@ from bes.common.type_checked_list import type_checked_list
 from bes.common.time_util import time_util
 
 from .dir_operation_item import dir_operation_item
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .filename_util import filename_util
 
 class dir_operation_item_list(type_checked_list):
@@ -29,17 +29,17 @@ class dir_operation_item_list(type_checked_list):
     for i, item in enumerate(resolved_items, start = 1):
       need_move = False
       if path.exists(item.dst_filename):
-        #assert file_util.files_are_the_same(item.src_filename,
+        #assert bf_file_ops.files_are_the_same(item.src_filename,
         #                                    item.dst_filename)
         #print(f'checking {item.src_filename} vs {item.dst_filename}')
-        need_move = file_util.files_are_the_same(item.src_filename,
+        need_move = bf_file_ops.files_are_the_same(item.src_filename,
                                                  item.dst_filename)
       else:
         need_move = True
       if need_move:
-        file_util.rename(item.src_filename, item.dst_filename)
+        bf_file_ops.rename(item.src_filename, item.dst_filename)
         if touch:
-          file_util.touch(item.dst_filename)
+          bf_file_ops.touch(item.dst_filename)
         result.append(item.dst_filename)
       if callback:
         callback(item, i, num)
@@ -56,16 +56,16 @@ class dir_operation_item_list(type_checked_list):
     for i, item in enumerate(resolved_items, start = 1):
       need_copy = False
       if path.exists(item.dst_filename):
-        assert file_util.files_are_the_same(item.src_filename,
+        assert bf_file_ops.files_are_the_same(item.src_filename,
                                             item.dst_filename)
-        need_copy = file_util.files_are_the_same(item.src_filename,
+        need_copy = bf_file_ops.files_are_the_same(item.src_filename,
                                                  item.dst_filename)
       else:
         need_copy = True
       if need_copy:
-        file_util.copy(item.src_filename, item.dst_filename)
+        bf_file_ops.copy(item.src_filename, item.dst_filename)
         if touch_files:
-          file_util.touch(item.dst_filename)
+          bf_file_ops.touch(item.dst_filename)
         result.append(item.dst_filename)
       if callback:
         callback(item, i, num)

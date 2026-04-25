@@ -211,7 +211,7 @@ class bf_file_ops(object):
   @classmethod
   def relocate_file(clazz, filename, dst_dir):
     new_filename = path.join(dst_dir, path.basename(filename))
-    file_util.rename(filename, new_filename)
+    bf_file_ops.rename(filename, new_filename)
     return new_filename
   
   @classmethod

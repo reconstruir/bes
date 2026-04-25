@@ -14,7 +14,7 @@ from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 
 from .file_duplicates_setup import file_duplicates_setup
 from .file_duplicates_setup import cli_file_duplicates_setup
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from .files_cli_options import files_cli_options
 from .files_cli_options import _files_cli_options_desc
 from .file_duplicates_defaults import file_duplicates_defaults
@@ -51,7 +51,7 @@ class file_duplicates_options(bcli_options, file_ignore_options_mixin):
 
   @staticmethod
   def sort_key_modification_date(filename):
-    return ( file_util.get_modification_date(filename), )
+    return ( bf_file_ops.get_modification_date(filename), )
 
   @staticmethod
   def sort_key_basename_length(filename):

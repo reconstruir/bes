@@ -8,7 +8,6 @@ from datetime import datetime
 from datetime import timezone
 
 from ..common.string_util import string_util
-from ..fs.file_util import file_util
 from ..system.check import check
 from ..system.log import log
 
@@ -32,7 +31,8 @@ class sqlite(object):
     self.log_i('sqlite(filename=%s)' % (filename))
     self._filename = filename
     if self._filename != ':memory:':
-      file_util.ensure_file_dir(self._filename)
+      from ..files.bf_file_ops import bf_file_ops
+      bf_file_ops.ensure_file_dir(self._filename)
     self._filename_log_label = path.basename(self._filename)
 
     self._connection = sqlite3.connect(self._filename,

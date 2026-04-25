@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.log import logger
 
 class archive_extension(object):
@@ -71,23 +71,23 @@ class archive_extension(object):
   @classmethod
   def write_format_for_filename(clazz, filename):
     clazz._log.log_method_d()
-    return clazz.write_format(file_util.extension(filename))
+    return clazz.write_format(bf_file_ops.extension(filename))
 
   @classmethod
   def is_valid_zip_filename(clazz, filename):
-    return clazz.is_valid_zip_ext(file_util.extension(filename))
+    return clazz.is_valid_zip_ext(bf_file_ops.extension(filename))
 
   @classmethod
   def is_valid_xz_filename(clazz, filename):
-    return clazz.is_valid_xz_ext(file_util.extension(filename))
+    return clazz.is_valid_xz_ext(bf_file_ops.extension(filename))
 
   @classmethod
   def is_valid_dmg_filename(clazz, filename):
-    return clazz.is_valid_dmg_ext(file_util.extension(filename))
+    return clazz.is_valid_dmg_ext(bf_file_ops.extension(filename))
 
   @classmethod
   def is_valid_tar_filename(clazz, filename):
-    return clazz.is_valid_tar_ext(file_util.extension(filename))
+    return clazz.is_valid_tar_ext(bf_file_ops.extension(filename))
 
   @classmethod
   def extension_for_filename(clazz, filename):

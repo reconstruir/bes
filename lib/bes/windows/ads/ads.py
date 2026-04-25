@@ -6,7 +6,7 @@ import pickle
 
 from bes.system.check import check
 from bes.files.bf_check import bf_check
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.system.log import logger
 from bes.system.log import logger
 
@@ -64,7 +64,7 @@ class ads(object):
     if not clazz.has_stream(filename, stream_name):
       return
     ads_filename = clazz._make_ads_filename(filename, stream_name)
-    file_util.remove(ads_filename)
+    bf_file_ops.remove(ads_filename)
       
   @classmethod
   def check_stream_name(clazz, stream_name):

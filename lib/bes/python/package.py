@@ -2,7 +2,7 @@
 
 import os, os.path as path, pkgutil, sys
 from bes.files.bf_path import bf_path
-from bes.fs.file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 
 from ..files.bf_entry import bf_entry
@@ -33,7 +33,7 @@ class package(object):
       if not inside_egg:
         if not path.isfile(data):
           raise RuntimeError('Not a file: %s' % (data))
-        result = file_util.read(data)
+        result = bf_file_ops.read(data)
         if not result:
           raise RuntimeError('Failed to read: %s' % (data))
         return result

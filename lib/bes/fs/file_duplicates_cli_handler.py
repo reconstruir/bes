@@ -8,7 +8,7 @@ from bes.files.bf_check import bf_check
 from .file_duplicates import file_duplicates
 from .file_duplicates_options import file_duplicates_options
 from .file_find import file_find
-from .file_util import file_util
+from bes.files.bf_file_ops import bf_file_ops
 
 class file_duplicates_cli_handler(bcli_deprecated_command_handler):
   'dir project cli handler.'
@@ -38,7 +38,7 @@ class file_duplicates_cli_handler(bcli_deprecated_command_handler):
           if blurber:
             blurber.blurb(f'DRY_RUN: delete {f}')
       else:
-        file_util.remove(dup_filenames)
+        bf_file_ops.remove(dup_filenames)
         if self.options.verbose:
           for f in dup_filenames:
             if blurber:
