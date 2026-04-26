@@ -173,11 +173,13 @@ class bf_file_ops(object):
     return result
 
   @classmethod
-  def rename(clazz, src, dst):
+  def rename(clazz, src, dst, sync = False):
     d = path.dirname(dst)
     if d:
       clazz.mkdir(path.dirname(dst))
     shutil.move(src, dst)
+    if sync:
+      filesystem.sync()
 
   @classmethod
   def copy(clazz, src, dst, use_hard_link = False):
