@@ -39,7 +39,7 @@ class bf_dir(object):
       result = matched_entries.relative_filenames(False)
     else:
       result = matched_entries.absolute_filenames(False)
-    return sorted(result)
+    return result
 
   @classmethod
   def list_dirs(clazz, where, relative = False, patterns = None):
