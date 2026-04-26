@@ -5,7 +5,7 @@ import os
 
 from bes.system.check import check
 from bes.system.environment import environment
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.fs.filename_util import filename_util
 from bes.python.python_error import python_error
 from bes.python.python_version import python_version
@@ -36,7 +36,7 @@ class python_source_windows(python_source_base):
     result = []
     for d in dirs:
       if path.isdir(d):
-        result.extend(dir_util.list(d, patterns = 'Python*', basename = True))
+        result.extend(bf_dir.list(d, patterns = 'Python*', basename = True))
     return result
 
   @classmethod

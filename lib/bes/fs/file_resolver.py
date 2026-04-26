@@ -14,7 +14,7 @@ from bes.files.bf_check import bf_check
 from bes.files.bf_path import bf_path
 from bes.files.bf_entry import bf_entry
 
-from .dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from .file_attributes_metadata import file_attributes_metadata
 from .file_find import file_find
 from .file_resolver_options import file_resolver_options
@@ -160,7 +160,7 @@ class file_resolver(object):
     
     def _match_empty_dirs(d):
       assert path.isdir(d)
-      return dir_util.is_empty(d)
+      return bf_dir.is_empty(d)
     
     options = file_resolver_options(recursive = recursive,
                                     match_function = _match_empty_dirs,

@@ -10,7 +10,7 @@ from bes.common.time_util import time_util
 from bes.system.check import check
 from bes.system.log import logger
 
-from .dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from .file_resolver import file_resolver
 from .file_resolver_item_list import file_resolver_item_list
 from .file_resolver_options import file_resolver_options
@@ -136,8 +136,7 @@ class file_split(object):
   def _files_group(clazz, first_filename, ignore_extensions):
     def _is_group_file(filename):
       return clazz._is_group_file(first_filename, filename, ignore_extensions)
-    files = dir_util.list(path.dirname(first_filename),
-                          function = _is_group_file)
+    files = bf_dir.list_with_callable(path.dirname(first_filename), _is_group_file)
     assert len(files) > 0
     assert files[0] == first_filename
     return files

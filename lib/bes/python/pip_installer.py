@@ -4,7 +4,7 @@ from os import path
 
 from ..system.check import check
 
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.files.bf_file_ops import bf_file_ops
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -53,7 +53,7 @@ class pip_installer(object):
         raise pip_error('Not a directory: "{}"'.format(self._install_dir))
       if clobber_install_dir:
         bf_file_ops.remove(self._install_dir)
-      if path.isdir(self._install_dir) and not dir_util.is_empty(self._install_dir):
+      if path.isdir(self._install_dir) and not bf_dir.is_empty(self._install_dir):
         raise pip_error('Directory not empty: "{}"'.format(self._install_dir))
 
     url = self._determine_get_pip_url(self._python_exe)

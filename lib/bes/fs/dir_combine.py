@@ -20,7 +20,7 @@ from bes.files.bf_check import bf_check
 from .file_find import file_find
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
-from .dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from .filename_list import filename_list
 
 class dir_combine(object):
@@ -51,7 +51,7 @@ class dir_combine(object):
     options = options or dir_combine_options()
 
     if options.ignore_empty:
-      should_ignore = lambda d: not path.exists(d) or dir_util.is_empty(d)
+      should_ignore = lambda d: not path.exists(d) or bf_dir.is_empty(d)
       files = [ f for f in files if not should_ignore(f) ]
       
     resolved_files = clazz._resolve_files(files, options.recursive)

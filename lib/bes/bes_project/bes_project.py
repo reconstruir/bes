@@ -8,7 +8,7 @@ from bes.debug.debug_timer import debug_timer
 from bes.debug.debug_timer import timed_method
 from bes.files.bf_check import bf_check
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_exe import python_exe
@@ -135,7 +135,7 @@ class bes_project(object):
     'Return the python versions on disk'
     if not path.exists(self._options.root_dir):
       return []
-    dirs = dir_util.list(self._options.root_dir, relative = True)
+    dirs = bf_dir.list(self._options.root_dir, relative = True)
     return semantic_version.sort_string_list(dirs)
 
   def activate_script(self, version, variant = None):

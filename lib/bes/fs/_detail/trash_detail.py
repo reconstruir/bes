@@ -5,7 +5,7 @@ from multiprocessing import Lock, Queue, Process
 from abc import abstractmethod, ABCMeta
 from bes.system.check import check
 from bes.system.log import log
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.thread.decorators import synchronized_method
 
 from bes.files.bf_file_ops import bf_file_ops
@@ -42,7 +42,7 @@ class slow_deleter(deleter):
       self.log_i('deleting single file %s' % (filename))
       bf_file_ops.remove(filename)
     elif path.isdir(filename):
-      files = dir_util.list(filename)
+      files = bf_dir.list(filename)
       self.log_i('deleting many files: %s' % (files))
       for f in files:
         self.log_i('deleting next file %s' % (f))
@@ -97,7 +97,7 @@ class trash_process(object):
     if not path.isdir(self._location):
       print('WARNING: location disappeared: %s' % (self._location))
       return []
-    return dir_util.list(self._location)
+    return bf_dir.list(self._location)
 
   @synchronized_method('_location_lock')
   def trash(self, what):

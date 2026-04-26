@@ -4,7 +4,7 @@ import os, re
 from os import path
 
 from ..system.check import check
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.files.bf_symlink import bf_symlink
 from bes.files.bf_file_ops import bf_file_ops
 from bes.native_package.native_package import native_package
@@ -263,7 +263,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
   def _cleanup_usr_local_links(self):
     'Cleanup symlinks in /usr/local/bin that break after uninstalling python'
 
-    links = dir_util.list('/usr/local/bin')
+    links = bf_dir.list('/usr/local/bin')
     broken_links = [ l for l in links if bf_symlink.is_broken(l) ]
     for broken_link in broken_links:
       target = os.readlink(broken_link)

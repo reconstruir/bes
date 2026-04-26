@@ -8,7 +8,7 @@ from ..system.check import check
 from bes.common.string_list_util import string_list_util
 from bes.common.string_util import string_util
 from bes.compat.plistlib import plistlib_loads
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.fs.file_mime import file_mime
 from bes.files.bf_path import bf_path
 from bes.macos.pkgutil.pkgutil import pkgutil
@@ -112,7 +112,7 @@ class native_package_macos(native_package_base):
     sorted_dirs = sorted(dirs, key = lambda d: d.count(os.sep), reverse = True)
     for dirname in sorted_dirs:
       if path.exists(dirname):
-        if dir_util.is_empty(dirname):
+        if bf_dir.is_empty(dirname):
           args = [ 'rmdir', dirname ]
           sudo.call_sudo(args)
     

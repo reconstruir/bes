@@ -9,7 +9,7 @@ from bes.archive.archiver import archiver
 from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
@@ -173,8 +173,8 @@ class git(git_lfs):
       if not path.isdir(root_dir):
         raise git_error('root_dir "{}" is not a directory.'.format(root_dir))
       if options.enforce_empty_dir:
-        if not dir_util.is_empty(root_dir):
-          files = dir_util.list(root_dir, relative = True)
+        if not bf_dir.is_empty(root_dir):
+          files = bf_dir.list(root_dir, relative = True)
           sorted_files = sorted(files, key = lambda f: f.lower())
           printed_files = '\n  '.join(sorted_files).strip()
           raise git_error('root_dir "{}" is not empty:\n  {}\n'.format(root_dir, printed_files))

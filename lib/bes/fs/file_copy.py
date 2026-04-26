@@ -7,7 +7,7 @@ from bes.system.host import host
 
 from .tar_util import tar_util
 from bes.files.bf_file_ops import bf_file_ops
-from .dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from .xcopy import xcopy
 
 class file_copy(object):
@@ -28,7 +28,7 @@ class file_copy(object):
       raise IOError('Not a directory: %s' % (dst_dir))
     if not bf_file_ops.same_device_id(src_dir, dst_dir):
       raise IOError('src_dir and dst_dir are not in the same device: %s %s' % (src, dst_dir))
-    for f in dir_util.list(src_dir, relative = True):
+    for f in bf_dir.list(src_dir, relative = True):
       src_file = path.join(src_dir, f)
       dst_file = path.join(dst_dir, f)
       if path.isdir(src_file):

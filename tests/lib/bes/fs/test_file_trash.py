@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.fs.file_trash import file_trash
 from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
@@ -33,10 +33,10 @@ class test_file_trash(unit_test):
     ctx = self._make_context(timeout = 0.100)
     ctx.trash.start()
     tmp = bf_file_ops.save(path.join(ctx.stuff_dir, 'foo.txt'), content = 'foo\n')
-    self.assertEqual( [ 'foo.txt' ], dir_util.list(ctx.stuff_dir, relative = True) )
+    self.assertEqual( [ 'foo.txt' ], bf_dir.list(ctx.stuff_dir, relative = True) )
     ctx.trash.trash(tmp)
     time.sleep(0.250)
-    self.assertEqual( [], dir_util.list(ctx.stuff_dir, relative = True) )
+    self.assertEqual( [], bf_dir.list(ctx.stuff_dir, relative = True) )
     ctx.trash.stop()
     
   def _make_context(self, niceness_level = None, timeout = None, deleter = None):

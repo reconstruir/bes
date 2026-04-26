@@ -4,7 +4,7 @@ import copy, difflib, os, os.path as path, sys
 from enum import IntEnum
 
 from bes.compat.StringIO import StringIO
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.temp_file import temp_file
 from bes.system.env_var import env_var
@@ -45,7 +45,7 @@ class env_dir(object):
           raise IOError('File not found: %s' % (p))
       return files
     else:
-      return dir_util.list(where, relative = True, patterns = [ '*.sh' ], basename = True)
+      return bf_dir.list_files(where, relative = True, patterns = [ '*.sh' ])
 
   @property
   def files(self):

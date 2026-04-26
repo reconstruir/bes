@@ -2,7 +2,7 @@
 
 import errno, os.path as path, os, stat
 
-from .dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from .file_match import file_match
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
@@ -157,7 +157,7 @@ class file_find(object):
                       file_type = clazz.DIR,
                       min_depth = min_depth,
                       max_depth = max_depth,
-                      match_function = lambda f: dir_util.is_empty(f),
+                      match_function = lambda f: bf_dir.is_empty(f),
                       match_basename = False)
 
   @classmethod
@@ -168,9 +168,9 @@ class file_find(object):
       if not empties:
         break
       for next_empty in empties:
-        dir_util.remove(next_empty)
+        bf_dir.remove(next_empty)
         result.append(next_empty)
-    if dir_util.is_empty(root_dir):
-      dir_util.remove(root_dir)
+    if bf_dir.is_empty(root_dir):
+      bf_dir.remove(root_dir)
       result.append(root_dir)
     return sorted(result)

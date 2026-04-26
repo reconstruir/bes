@@ -5,7 +5,7 @@ from collections import namedtuple
 from os import path
 
 from bes.common.algorithm import algorithm
-from bes.fs.dir_util import dir_util
+from bes.files.bf_dir import bf_dir
 from bes.fs.file_mime import file_mime
 from bes.files.bf_path import bf_path
 from bes.fs.file_replace import file_replace
@@ -126,12 +126,12 @@ class refactor_files(object):
                                  options)
     for item in empty_dirs_operation_items:
       bf_file_ops.mkdir(item.dst)
-      assert dir_util.is_empty(item.src)
-      dir_util.remove(item.src)
+      assert bf_dir.is_empty(item.src)
+      bf_dir.remove(item.src)
     
     for d in empty_dirs_affected_dirs:
-      if path.exists(d) and dir_util.is_empty(d):
-        dir_util.remove(d)
+      if path.exists(d) and bf_dir.is_empty(d):
+        bf_dir.remove(d)
         
     return result
 
@@ -167,8 +167,8 @@ class refactor_files(object):
       next_operation_item.apply_operation(operation, options.try_git)
     if operation != refactor_operation_type.COPY_FILES:
       for d in affected_dirs:
-        if path.exists(d) and dir_util.is_empty(d):
-          dir_util.remove(d)
+        if path.exists(d) and bf_dir.is_empty(d):
+          bf_dir.remove(d)
     return operation_items
 
   @classmethod
