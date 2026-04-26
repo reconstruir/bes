@@ -3,8 +3,9 @@
 # Borrowed from: http://stackoverflow.com/questions/21936292/conditional-skip-testcase-decorator-in-nosetests
 
 import functools, unittest, types, sys
-from bes.system.host import host
 from bes.system.compat import compat
+from bes.system.filesystem import filesystem
+from bes.system.host import host
 
 class unit_test_function_skip(object):
 
@@ -48,3 +49,7 @@ class unit_test_function_skip(object):
   @staticmethod
   def skip_if_not_windows(warning = False):
     return unit_test_function_skip.skip_if(not host.is_windows(), 'not windows', warning = warning)
+
+  @staticmethod
+  def skip_if_no_symlink_support(warning = False):
+    return unit_test_function_skip.skip_if(not filesystem.has_symlinks(), 'no symlink support', warning = warning)

@@ -1345,6 +1345,7 @@ class test_bf_file_duplicates_finder(unit_test):
 }
 ''', tester.find_duplicates_as_json(where = [ tester.src_dir ]) )
 
+  @unit_test_function_skip.skip_if_no_symlink_support()
   def test_find_duplicates_with_soft_links(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
@@ -1389,6 +1390,7 @@ class test_bf_file_duplicates_finder(unit_test):
 }
 ''', tester.find_duplicates_as_json(where = [ tester.src_dir ]) )
 
+  @unit_test_function_skip.skip_if_no_symlink_support()
   def test_find_duplicates_with_file_type_file(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
