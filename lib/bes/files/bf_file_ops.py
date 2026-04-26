@@ -64,7 +64,8 @@ class bf_file_ops(object):
       clazz.mkdir(path.dirname(filename))
 #    if path.exists(filename):
 #      clazz.remove(filename)
-    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = open_mode, encoding = encoding)
+    newline = '\n' if open_mode == 'w+t' else None
+    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = open_mode, encoding = encoding, newline = newline)
     if content:
       tmp.write(content)
     tmp.flush()
@@ -112,7 +113,7 @@ class bf_file_ops(object):
       encoded_content = f.read()
       f.flush()
       content = encoded_content.decode(encoding)
-      return content
+      return content.replace('\r\n', '\n')
   
   @classmethod
   def _cross_device_safe_rename(clazz, src, dst):

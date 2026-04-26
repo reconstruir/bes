@@ -8,7 +8,6 @@ from bes.git.git_repo_document_db import git_repo_document_db
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.testing.unit_test import unit_test
-from bes.text.line_break import line_break
 
 class test_git_repo_document_db(unit_test):
 
@@ -83,7 +82,7 @@ b
     # check the results.
     repo.pull()
     contents = repo.read_file('retries.txt')
-    actual = sorted(contents.split(line_break.DEFAULT_LINE_BREAK))
+    actual = sorted(contents.split('\n'))
     expected = [ str(n) for n in range(num_jobs) ]
     self.assertEqual( actual, expected )
 
