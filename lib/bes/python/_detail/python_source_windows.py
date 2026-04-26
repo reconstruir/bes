@@ -36,7 +36,7 @@ class python_source_windows(python_source_base):
     result = []
     for d in dirs:
       if path.isdir(d):
-        result.extend(bf_dir.list(d, patterns = 'Python*', basename = True))
+        result.extend(bf_dir.list_files(d, patterns = [ 'Python*' ]))
     return result
 
   @classmethod

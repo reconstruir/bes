@@ -58,12 +58,14 @@ class bf_dir(object):
   @classmethod
   def list_dirs(clazz, where, relative = False, patterns = None):
     'Like list() but only returns dirs.'
-    return clazz._do_list_files(where, path.isdir, relative, patterns)
+    func = lambda filename: path.isdir(filename)
+    return clazz._do_list_files(where, func, relative, patterns)
   
   @classmethod
   def list_files(clazz, where, relative = False, patterns = None):
     'Like list() but only returns files.'
-    return clazz._do_list_files(where, path.isfile, relative, patterns)
+    func = lambda filename: path.isfile(filename)
+    return clazz._do_list_files(where, func, relative, patterns)
 
   @classmethod
   def _do_list_files(clazz, where, func, relative, patterns):
