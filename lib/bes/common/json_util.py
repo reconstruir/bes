@@ -43,7 +43,7 @@ class json_util(object):
     js = json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
     if not ensure_last_line_sep:
       return js
-    return js + os.linesep
+    return js + '\n'
 
   @classmethod
   def normalize(clazz, o):
