@@ -6,6 +6,7 @@ from os import path
 from ..system.check import check
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
+from bes.files.bf_filename import bf_filename
 
 from ..fs.temp_file import temp_file
 from ..system.host import host
