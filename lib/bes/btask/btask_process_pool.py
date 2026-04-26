@@ -4,6 +4,9 @@ import os
 import signal
 import time
 
+# SIGKILL does not exist on Windows; SIGTERM there calls TerminateProcess() which is an immediate hard kill.
+_SIGKILL = getattr(signal, 'SIGKILL', signal.SIGTERM)
+
 from collections import namedtuple
 from datetime import datetime
 import multiprocessing
@@ -191,13 +194,13 @@ class btask_process_pool(object):
     self._log.log_d(f'_hard_kill: task_id={task_id} pid={pid}')
     try:
       os.kill(pid, signal.SIGTERM)
-    except ProcessLookupError:
+    except (ProcessLookupError, PermissionError):
       return  # already exited — soft cancel worked; result already in flight
     time.sleep(0.5)
     try:
-      os.kill(pid, signal.SIGKILL)
-    except ProcessLookupError:
-      pass  # died from SIGTERM during the sleep
+      os.kill(pid, _SIGKILL)
+    except (ProcessLookupError, PermissionError):
+      pass  # died from SIGTERM during the sleep (Windows raises PermissionError on dead pids)
     self._emit_timed_out_result(task_id)
     self._respawn_worker()
 
