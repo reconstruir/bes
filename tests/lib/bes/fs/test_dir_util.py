@@ -32,7 +32,7 @@ class test_dir_util(unit_test):
       'orange.png',
     ]
     expected_files = [ path.join(tmp_dir, f) for f in expected_files ]
-    self.assertEqual( sorted(expected_files), dir_util.list(tmp_dir) )
+    self.assertEqual( sorted(expected_files), sorted(dir_util.list(tmp_dir)) )
 
   def test_list_relative(self):
     tmp_dir = self._make_temp_content([
@@ -51,7 +51,7 @@ class test_dir_util(unit_test):
       'kiwi.png',
       'orange.png',
     ]
-    self.assertEqual( sorted(expected_files), dir_util.list(tmp_dir, relative = True) )
+    self.assertEqual( sorted(expected_files), sorted(dir_util.list(tmp_dir, relative = True)) )
 
   def test_list_pattern(self):
     tmp_dir = self._make_temp_content([
