@@ -158,6 +158,88 @@ class test_bf_dir(unit_test):
     tmp_dir = self._make_temp_content(content)
     filenames = bf_dir.list(tmp_dir, **kwargs)
     return self._test_result(tmp_dir, filenames)
+
+  def _call_list_files(self, content, **kwargs):
+    tmp_dir = self._make_temp_content(content)
+    filenames = bf_dir.list_files(tmp_dir, **kwargs)
+    return self._test_result(tmp_dir, filenames)
+
+  def _call_list_dirs(self, content, **kwargs):
+    tmp_dir = self._make_temp_content(content)
+    dirnames = bf_dir.list_dirs(tmp_dir, **kwargs)
+    return self._test_result(tmp_dir, dirnames)
   
+  def test_list_files(self):
+    content = [
+      'file foo.txt "foo.txt"',
+      'file bar.txt "bar.txt"',
+      'file kiwi.jpg "kiwi.jpg"',
+      'file kiwi.png "kiwi.png"',
+      'file orange.png "orange.png"',
+      'file emptyfile.txt',
+      'file subdir1/melon.txt "melon.txt"',
+      'file subdir2/lime.txt "lime.txt"',
+    ]
+    t = self._call_list_files(content, relative = True)
+    self.assertEqual( [
+      'bar.txt',
+      'emptyfile.txt',
+      'foo.txt',
+      'kiwi.jpg',
+      'kiwi.png',
+      'orange.png',
+    ], t.filenames )
+
+  def test_list_files_with_patterns(self):
+    content = [
+      'file foo.txt "foo.txt"',
+      'file bar.txt "bar.txt"',
+      'file kiwi.jpg "kiwi.jpg"',
+      'file kiwi.png "kiwi.png"',
+      'file orange.png "orange.png"',
+      'file emptyfile.txt',
+      'file subdir1/melon.txt "melon.txt"',
+      'file subdir2/lime.txt "lime.txt"',
+    ]
+    t = self._call_list_files(content, patterns = [ '*.png', '*.jpg' ], relative = True)
+    self.assertEqual( [
+      'kiwi.jpg',
+      'kiwi.png',
+      'orange.png',
+    ], t.filenames )
+
+  def test_list_dirs(self):
+    content = [
+      'file foo.txt "foo.txt"',
+      'file bar.txt "bar.txt"',
+      'file kiwi.jpg "kiwi.jpg"',
+      'file kiwi.png "kiwi.png"',
+      'file orange.png "orange.png"',
+      'file emptyfile.txt',
+      'file subdir1/melon.txt "melon.txt"',
+      'file subdir2/lime.txt "lime.txt"',
+    ]
+    t = self._call_list_dirs(content, relative = True)
+    self.assertEqual( [
+      'subdir1',
+      'subdir2',
+    ], t.filenames )
+
+  def test_list_dirs_with_patterns(self):
+    content = [
+      'file foo.txt "foo.txt"',
+      'file bar.txt "bar.txt"',
+      'file kiwi.jpg "kiwi.jpg"',
+      'file kiwi.png "kiwi.png"',
+      'file orange.png "orange.png"',
+      'file emptyfile.txt',
+      'file subdir1/melon.txt "melon.txt"',
+      'file subdir2/lime.txt "lime.txt"',
+    ]
+    t = self._call_list_dirs(content, patterns = [ '*2' ], relative = True)
+    self.assertEqual( [
+      'subdir2',
+    ], t.filenames )
+    
 if __name__ == '__main__':
   unit_test.main()

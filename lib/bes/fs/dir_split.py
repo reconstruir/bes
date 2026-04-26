@@ -12,9 +12,9 @@ from bes.system.log import logger
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
 from .dir_split_options import dir_split_options
-from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
 from bes.files.bf_check import bf_check
+from bes.files.bf_dir import bf_dir
 from .file_find import file_find
 from .file_mime import file_mime
 from bes.files.bf_path import bf_path
@@ -48,8 +48,8 @@ class dir_split(object):
                           options.dup_file_count)
     
     for d in info.existing_split_dirs:
-      if dir_util.is_empty(d):
-        dir_util.remove(d)
+      if bf_dir.is_empty(d):
+        bf_dir.remove(d)
 
     for next_possible_empty_root in info.possible_empty_dirs_roots:
       file_find.remove_empty_dirs(next_possible_empty_root)
@@ -67,7 +67,8 @@ class dir_split(object):
     old_files = []
     existing_split_dirs = clazz._existing_split_dirs(dst_dir, options.prefix)
     for old_dir in existing_split_dirs:
-      old_files.extend(dir_util.list_files(old_dir))
+      next_files = bf_dir.list_files(old_dir)
+      old_files.extend(next_files)
     clazz._log.log_d('old_files={}'.format(old_files))
     
     options = options or dir_split_options()
@@ -85,7 +86,7 @@ class dir_split(object):
             possible_empty_dirs_roots.append(d_root)
       possible_empty_dirs_roots = algorithm.unique(possible_empty_dirs_roots)
     else:
-      new_files = dir_util.list_files(src_dir)
+      new_files = bf_dir.list_files(src_dir)
       possible_empty_dirs_roots = []
     
     files = algorithm.unique(old_files + new_files)
@@ -121,7 +122,8 @@ class dir_split(object):
   def _existing_split_dirs(clazz, dst_dir, prefix):
     if not path.isdir(dst_dir):
       return []
-    return dir_util.list_dirs(dst_dir, patterns = '*{}{}*'.format(path.sep, prefix))
+    patterns = [ f'{prefix}*' ]
+    return bf_dir.list_dirs(dst_dir, patterns = patterns)
 
   @classmethod
   def _existing_split_dirs_common_num_digits(clazz, dirs, prefix):
