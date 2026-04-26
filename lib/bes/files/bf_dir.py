@@ -42,6 +42,20 @@ class bf_dir(object):
     return result
 
   @classmethod
+  def list_with_callable(clazz, where, func, relative = False):
+    'Return a list of where contents matched by func.'
+    where = bf_check.check_dir(where)
+    check.check_bool(relative)
+    check.check_callable(func)
+
+    matcher = bf_file_matcher()
+    matcher.add_item_callable(func, path_type = bf_path_type.ABSOLUTE)
+    return clazz.list(where,
+                      relative = relative,
+                      matcher = matcher,
+                      match_type = bf_file_matcher_mode.ALL)
+  
+  @classmethod
   def list_dirs(clazz, where, relative = False, patterns = None):
     'Like list() but only returns dirs.'
     return clazz._do_list_files(where, path.isdir, relative, patterns)
