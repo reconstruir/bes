@@ -12,7 +12,6 @@ from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_operation_base import git_operation_base
 from bes.testing.unit_test import unit_test
-from bes.text.line_break import line_break
 
 class test_git_repo_operation(unit_test):
 
@@ -188,7 +187,7 @@ class test_git_repo_operation(unit_test):
       'worker 6',
       'worker 7',
       'worker 8',
-    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
+    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split('\n')) )
 
   @git_temp_home_func()
   def test_operation_with_reset_wrong_function_args(self):

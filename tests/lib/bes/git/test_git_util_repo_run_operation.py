@@ -11,7 +11,6 @@ from bes.git.git_repo_operation_options import git_repo_operation_options
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_util import git_util
-from bes.text.line_break import line_break
 
 class test_git_util_repo_run_operation(unit_test):
   
@@ -86,7 +85,7 @@ class test_git_util_repo_run_operation(unit_test):
       'worker 6',
       'worker 7',
       'worker 8',
-    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
+    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split('\n')) )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -1,0 +1,65 @@
+diff --git a/lib/bes/files/bf_file_ops.py b/lib/bes/files/bf_file_ops.py
+index 84b683bc..5775da1c 100644
+--- a/lib/bes/files/bf_file_ops.py
++++ b/lib/bes/files/bf_file_ops.py
+@@ -64,7 +64,8 @@ class bf_file_ops(object):
+       clazz.mkdir(path.dirname(filename))
+ #    if path.exists(filename):
+ #      clazz.remove(filename)
+-    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = open_mode, encoding = encoding)
++    newline = '\n' if open_mode == 'w+t' else None
++    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = open_mode, encoding = encoding, newline = newline)
+     if content:
+       tmp.write(content)
+     tmp.flush()
+@@ -112,7 +113,7 @@ class bf_file_ops(object):
+       encoded_content = f.read()
+       f.flush()
+       content = encoded_content.decode(encoding)
+-      return content
++      return content.replace('\r\n', '\n')
+   
+   @classmethod
+   def _cross_device_safe_rename(clazz, src, dst):
+diff --git a/tests/lib/bes/git/test_git_repo_document_db.py b/tests/lib/bes/git/test_git_repo_document_db.py
+index 83dda121..65291ec9 100755
+--- a/tests/lib/bes/git/test_git_repo_document_db.py
++++ b/tests/lib/bes/git/test_git_repo_document_db.py
+@@ -8,7 +8,6 @@ from bes.git.git_repo_document_db import git_repo_document_db
+ from bes.git.git_temp_repo import git_temp_repo
+ from bes.git.git_unit_test import git_temp_home_func
+ from bes.testing.unit_test import unit_test
+-from bes.text.line_break import line_break
+ 
+ class test_git_repo_document_db(unit_test):
+ 
+@@ -83,7 +82,7 @@ b
+     # check the results.
+     repo.pull()
+     contents = repo.read_file('retries.txt')
+-    actual = sorted(contents.split(line_break.DEFAULT_LINE_BREAK))
++    actual = sorted(contents.split('\n'))
+     expected = [ str(n) for n in range(num_jobs) ]
+     self.assertEqual( actual, expected )
+ 
+diff --git a/tests/lib/bes/git/test_git_repo_operation.py b/tests/lib/bes/git/test_git_repo_operation.py
+index bd4eba9b..ca9bec27 100755
+--- a/tests/lib/bes/git/test_git_repo_operation.py
++++ b/tests/lib/bes/git/test_git_repo_operation.py
+@@ -12,7 +12,6 @@ from bes.git.git_temp_repo import git_temp_repo
+ from bes.git.git_unit_test import git_temp_home_func
+ from bes.git.git_operation_base import git_operation_base
+ from bes.testing.unit_test import unit_test
+-from bes.text.line_break import line_break
+ 
+ class test_git_repo_operation(unit_test):
+ 
+@@ -188,7 +187,7 @@ class test_git_repo_operation(unit_test):
+       'worker 6',
+       'worker 7',
+       'worker 8',
+-    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
++    ], sorted(r2.read_file('foo.txt', encoding = 'utf8').split('\n')) )
+ 
+   @git_temp_home_func()
+   def test_operation_with_reset_wrong_function_args(self):
