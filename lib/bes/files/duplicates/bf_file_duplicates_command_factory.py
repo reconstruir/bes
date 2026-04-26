@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.bcli.bcli_command_factory_i import bcli_command_factory_i
+from bes.bcli.bcli_command_factory_base import bcli_command_factory_base
 
-class bf_file_duplicates_command_factory(bcli_command_factory_i):
+class bf_file_duplicates_command_factory(bcli_command_factory_base):
 
   @classmethod
   #@abstractmethod

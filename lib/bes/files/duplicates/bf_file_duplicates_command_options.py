@@ -8,13 +8,10 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from ..bf_entry_sort_criteria import bf_entry_sort_criteria_bcli
 from ..bf_file_type import bf_cli_file_type
 
-from ..core.bf_files_cli_options import bf_files_cli_options
-from ..core.bf_files_cli_options import _bf_files_cli_options_desc
-
 from .bf_file_duplicates_error import bf_file_duplicates_error
 from .bf_file_duplicates_finder_options import bf_file_duplicates_finder_options
 
-class _bf_file_duplicates_command_options_desc(_bf_files_cli_options_desc):
+class _bf_file_duplicates_command_options_desc(bcli_options_desc):
 
   #@abstractmethod
   def _types(self):
@@ -37,13 +34,16 @@ max_depth  int
 min_depth  int
 stop_after int
 sort_order bf_entry_sort_criteria  default=FILENAME
+include_empty_files    bool          default=False
+include_resource_forks bool          default=False
+ include_soft_links    bool          default=False
 '''
 
   #@abstractmethod
   def _error_class(self):
     return bf_file_duplicates_error
   
-class bf_file_duplicates_command_options(bf_files_cli_options):
+class bf_file_duplicates_command_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_file_duplicates_command_options_desc(), **kwargs)
 
