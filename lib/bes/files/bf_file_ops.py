@@ -47,7 +47,7 @@ class bf_file_ops(object):
     if content != None:
       if check.is_string(content):
         open_mode = 'w+t'
-        encoding = check.check_string(encoding, allow_none = True) or locale.getpreferredencoding()
+        encoding = check.check_string(encoding, allow_none = True) or 'utf-8'
       elif check.is_bytes(content):
         open_mode = 'w+b'
         if encoding:
@@ -84,7 +84,7 @@ class bf_file_ops(object):
     check.check_int(perm, allow_none = True)
     check.check_string(encoding, allow_none = True)
 
-    encoding = encoding or locale.getpreferredencoding()
+    encoding = encoding or 'utf-8'
     encoded_text = text.encode(encoding)
     
     dirname, basename = os.path.split(filename)
@@ -107,7 +107,7 @@ class bf_file_ops(object):
     bf_check.check_file(filename)
     check.check_string(encoding, allow_none = True)
 
-    encoding = encoding or locale.getpreferredencoding()
+    encoding = encoding or 'utf-8'
 
     with open(filename, 'rb') as f:
       encoded_content = f.read()
@@ -227,8 +227,12 @@ class bf_file_ops(object):
     From: https://stackoverflow.com/a/17603000
     '''
     mode = mode or 'w'
+    is_binary = 'b' in mode
     if filename and filename != '-':
-      fh = open(filename, mode)
+      if is_binary:
+        fh = open(filename, mode)
+      else:
+        fh = open(filename, mode, encoding = 'utf-8', newline = '\n')
       using_stdout = False
     else:
       fh = os.fdopen(sys.stdout.fileno(), mode, closefd = False)
