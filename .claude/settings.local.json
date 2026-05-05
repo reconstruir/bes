@@ -14,7 +14,10 @@
       "Skill(keybindings-help)",
       "Bash(bash *)",
       "PowerShell(uv run *)",
-      "Bash(./r *)"
+      "Bash(./r *)",
+      "Bash(git -C /Users/test1/proj/bes diff --stat HEAD)",
+      "Bash(git -C /Users/test1/proj/bes status --short)",
+      "Bash(git *)"
     ]
   }
 }
