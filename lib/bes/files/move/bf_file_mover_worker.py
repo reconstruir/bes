@@ -77,7 +77,7 @@ class bf_file_mover_worker:
         paused_at=int(time.time())
       )
       if self._options.on_pause:
-        self._options.on_pause(operation_id)
+        self._options.on_pause(operation)
       return
 
     if path.exists(operation.destination_path):
@@ -94,7 +94,7 @@ class bf_file_mover_worker:
           completed_at=int(time.time())
         )
         if self._options.on_complete:
-          self._options.on_complete(operation_id)
+          self._options.on_complete(operation)
         return
 
     self._database.update_status(
@@ -111,7 +111,7 @@ class bf_file_mover_worker:
         completed_at=int(time.time())
       )
       if self._options.on_complete:
-        self._options.on_complete(operation_id)
+        self._options.on_complete(operation)
     except Exception as ex:
       self._database.update_status(
         operation_id,
@@ -134,16 +134,16 @@ class bf_file_mover_worker:
     if self._same_device(staging_path, dst_dir):
       os.rename(staging_path, destination_path)
     else:
-      self._cross_device_copy(staging_path, destination_path, operation.operation_id)
+      self._cross_device_copy(staging_path, destination_path, operation)
 
     try:
       os.rmdir(staging_uuid_dir)
     except OSError:
       pass
 
-  def _cross_device_copy(self, staging_path, destination_path, operation_id):
+  def _cross_device_copy(self, staging_path, destination_path, operation):
     dst_dir = path.dirname(destination_path)
-    tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
+    tmp_path = path.join(dst_dir, f'{operation.operation_id}.tmp')
     expected_size = os.stat(staging_path).st_size
     try:
       with open(staging_path, 'rb') as source_file:
@@ -156,7 +156,7 @@ class bf_file_mover_worker:
             destination_file.write(chunk)
             bytes_copied += len(chunk)
             if self._options.on_progress:
-              self._options.on_progress(operation_id, bytes_copied, expected_size)
+              self._options.on_progress(operation, bytes_copied, expected_size)
           destination_file.flush()
           os.fsync(destination_file.fileno())
     except Exception:

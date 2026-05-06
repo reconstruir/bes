@@ -268,9 +268,9 @@ class test_bf_file_mover(unit_test):
     mover.stop_worker()
 
   def test_move_cross_device_status_transitions(self):
-    statuses = []
-    def on_complete(operation_id):
-      statuses.append('complete')
+    completed_ops = []
+    def on_complete(operation):
+      completed_ops.append(operation)
 
     options = bf_file_mover_options(on_complete=on_complete)
     mover = self._make_mover(options=options)
@@ -280,7 +280,8 @@ class test_bf_file_mover(unit_test):
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
       operation_id = mover.move(src, dst)
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
-    self.assertEqual(['complete'], statuses)
+    self.assertEqual(1, len(completed_ops))
+    self.assertEqual(operation_id, completed_ops[0].operation_id)
     mover.stop_worker()
 
   # checksum verification
@@ -300,20 +301,22 @@ class test_bf_file_mover(unit_test):
 
   def test_on_complete_fires(self):
     completed = []
-    options = bf_file_mover_options(on_complete=lambda op_id: completed.append(op_id))
+    options = bf_file_mover_options(on_complete=lambda op: completed.append(op))
     mover = self._make_mover(options=options)
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'foo.flac')
     operation_id = mover.move(src, dst)
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
-    self.assertEqual([operation_id], completed)
+    self.assertEqual(1, len(completed))
+    self.assertEqual(operation_id, completed[0].operation_id)
+    self.assertEqual(src, completed[0].source_path)
     mover.stop_worker()
 
   def test_on_progress_fires(self):
     progress_calls = []
-    def on_progress(op_id, bytes_copied, total_bytes):
-      progress_calls.append((bytes_copied, total_bytes))
+    def on_progress(operation, bytes_copied, total_bytes):
+      progress_calls.append((operation, bytes_copied, total_bytes))
 
     options = bf_file_mover_options(on_progress=on_progress)
     mover = self._make_mover(options=options)
@@ -324,12 +327,13 @@ class test_bf_file_mover(unit_test):
       operation_id = mover.move(src, dst)
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertGreater(len(progress_calls), 0)
+    self.assertEqual(operation_id, progress_calls[0][0].operation_id)
     mover.stop_worker()
 
   def test_on_progress_total_bytes_correct(self):
     total_bytes_seen = []
     content = 'x' * 2048
-    def on_progress(op_id, bytes_copied, total_bytes):
+    def on_progress(operation, bytes_copied, total_bytes):
       total_bytes_seen.append(total_bytes)
 
     options = bf_file_mover_options(on_progress=on_progress)
@@ -345,14 +349,15 @@ class test_bf_file_mover(unit_test):
 
   def test_on_pause_fires(self):
     paused = []
-    options = bf_file_mover_options(on_pause=lambda op_id: paused.append(op_id))
+    options = bf_file_mover_options(on_pause=lambda op: paused.append(op))
     mover = self._make_mover(options=options)
     mover.start_worker()
     src = self._make_source_file()
     nonexistent_dst = path.join(self.make_temp_dir(), 'absent_dir', 'foo.flac')
     operation_id = mover.move(src, nonexistent_dst)
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-    self.assertEqual([operation_id], paused)
+    self.assertEqual(1, len(paused))
+    self.assertEqual(operation_id, paused[0].operation_id)
     mover.stop_worker()
 
   # paused — destination unavailable
@@ -880,7 +885,7 @@ class test_bf_file_mover(unit_test):
 
   def test_same_content_destination_on_complete_fires(self):
     completed = []
-    options = bf_file_mover_options(on_complete=lambda op_id: completed.append(op_id))
+    options = bf_file_mover_options(on_complete=lambda op: completed.append(op))
     mover = self._make_mover(options=options)
     mover.start_worker()
     content = b'same content fires callback'
@@ -891,7 +896,8 @@ class test_bf_file_mover(unit_test):
       f.write(content)
     operation_id = mover.move(src, dst)
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
-    self.assertEqual([operation_id], completed)
+    self.assertEqual(1, len(completed))
+    self.assertEqual(operation_id, completed[0].operation_id)
     mover.stop_worker()
 
   def test_same_content_destination_staging_uuid_dir_removed(self):
@@ -950,6 +956,72 @@ class test_bf_file_mover(unit_test):
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     unique_dst = path.join(dst_dir, f'track-{operation_id[:8]}.flac')
     self.assertTrue(path.exists(unique_dst))
+    mover.stop_worker()
+
+  def test_on_complete_operation_has_source_and_destination(self):
+    completed_ops = []
+    options = bf_file_mover_options(on_complete=lambda op: completed_ops.append(op))
+    mover = self._make_mover(options=options)
+    mover.start_worker()
+    src = self._make_source_file(filename='track.flac')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'track.flac')
+    operation_id = mover.move(src, dst)
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    op = completed_ops[0]
+    self.assertEqual(src, op.source_path)
+    self.assertEqual(dst, op.destination_path)
+    self.assertEqual(bf_file_mover_status.staging_done, op.status)
+    mover.stop_worker()
+
+  def test_on_pause_operation_has_source_and_destination(self):
+    paused_ops = []
+    options = bf_file_mover_options(on_pause=lambda op: paused_ops.append(op))
+    mover = self._make_mover(options=options)
+    mover.start_worker()
+    src = self._make_source_file(filename='track.flac')
+    dst = path.join(self.make_temp_dir(), 'missing_vol', 'track.flac')
+    operation_id = mover.move(src, dst)
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    op = paused_ops[0]
+    self.assertEqual(src, op.source_path)
+    self.assertEqual(dst, op.destination_path)
+    mover.stop_worker()
+
+  def test_on_complete_fires_for_recovered_operation(self):
+    completed_ops = []
+    database_path = path.join(self.make_temp_dir(), 'move.sqlite')
+    src = self._make_source_file(content='recovery callback content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+
+    db = bf_file_mover_database(database_path)
+    now = int(time.time())
+    staging_dir = self.make_temp_dir()
+    staging_uuid_dir = path.join(staging_dir, 'rec-uuid-cb-001')
+    os.makedirs(staging_uuid_dir)
+    staging_path = path.join(staging_uuid_dir, 'foo.flac')
+    os.rename(src, staging_path)
+    op = bf_file_mover_operation(
+      operation_id='rec-uuid-cb-001',
+      source_path=src,
+      staging_path=staging_path,
+      destination_path=dst,
+      destination_device_id=None,
+      status=bf_file_mover_status.copying,
+      submitted_at=now,
+      staged_at=now,
+      copy_started_at=now,
+    )
+    db.insert_operation(op)
+
+    options = bf_file_mover_options(on_complete=lambda op: completed_ops.append(op))
+    mover = bf_file_mover(database_path, options=options)
+    mover.start_worker()
+    self.assertTrue(self._wait_for_status(mover, 'rec-uuid-cb-001', bf_file_mover_status.done))
+    self.assertEqual(1, len(completed_ops))
+    self.assertEqual('rec-uuid-cb-001', completed_ops[0].operation_id)
+    self.assertEqual(src, completed_ops[0].source_path)
     mover.stop_worker()
 
   def test_no_destination_conflict_moves_directly(self):
