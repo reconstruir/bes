@@ -145,6 +145,8 @@ class bf_file_mover_worker:
     dst_dir = path.dirname(destination_path)
     tmp_path = path.join(dst_dir, f'{operation.operation_id}.tmp')
     expected_size = os.stat(staging_path).st_size
+    progress_interval = self._compute_progress_interval(expected_size)
+    last_progress_time = 0.0
     try:
       with open(staging_path, 'rb') as source_file:
         with open(tmp_path, 'wb') as destination_file:
@@ -156,7 +158,11 @@ class bf_file_mover_worker:
             destination_file.write(chunk)
             bytes_copied += len(chunk)
             if self._options.on_progress:
-              self._options.on_progress(operation, bytes_copied, expected_size)
+              now = time.monotonic()
+              is_last = (bytes_copied == expected_size)
+              if is_last or (now - last_progress_time >= progress_interval):
+                self._options.on_progress(operation, bytes_copied, expected_size)
+                last_progress_time = now
           destination_file.flush()
           os.fsync(destination_file.fileno())
     except Exception:
@@ -189,6 +195,16 @@ class bf_file_mover_worker:
 
   def _same_device(self, source_path, destination_dir):
     return os.stat(source_path).st_dev == os.stat(destination_dir).st_dev
+
+  def _compute_progress_interval(self, expected_size):
+    if self._options.progress_min_interval is not None:
+      return self._options.progress_min_interval
+    # Target ~50 updates per copy, assuming 200 MB/s nominal throughput.
+    # Clamped to [0.05, 2.0] seconds so small files still get a few updates
+    # and huge files don't go completely silent.
+    nominal_throughput = 200 * 1024 * 1024
+    estimated_duration = expected_size / nominal_throughput
+    return min(2.0, max(0.05, estimated_duration / 50))
 
   @staticmethod
   def _make_unique_destination(destination_path, operation_id):
