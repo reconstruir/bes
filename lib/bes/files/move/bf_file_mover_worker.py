@@ -6,6 +6,8 @@ import threading
 import time
 from os import path
 
+from bes.files.bf_file_ops import bf_file_ops
+from bes.files.bf_filename import bf_filename
 from bes.files.checksum.bf_checksum import bf_checksum
 from bes.system.log import log
 
@@ -78,6 +80,23 @@ class bf_file_mover_worker:
         self._options.on_pause(operation_id)
       return
 
+    if path.exists(operation.destination_path):
+      if bf_file_ops.files_are_the_same(operation.staging_path, operation.destination_path):
+        os.remove(operation.staging_path)
+        staging_uuid_dir = path.dirname(operation.staging_path)
+        try:
+          os.rmdir(staging_uuid_dir)
+        except OSError:
+          pass
+        self._database.update_status(
+          operation_id,
+          bf_file_mover_status.done,
+          completed_at=int(time.time())
+        )
+        if self._options.on_complete:
+          self._options.on_complete(operation_id)
+        return
+
     self._database.update_status(
       operation_id,
       bf_file_mover_status.copying,
@@ -110,6 +129,8 @@ class bf_file_mover_worker:
     dst_dir = path.dirname(destination_path)
     os.makedirs(dst_dir, exist_ok=True)
 
+    destination_path = self._make_unique_destination(destination_path, operation.operation_id)
+
     if self._same_device(staging_path, dst_dir):
       os.rename(staging_path, destination_path)
     else:
@@ -121,10 +142,12 @@ class bf_file_mover_worker:
       pass
 
   def _cross_device_copy(self, staging_path, destination_path, operation_id):
+    dst_dir = path.dirname(destination_path)
+    tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
     expected_size = os.stat(staging_path).st_size
     try:
       with open(staging_path, 'rb') as source_file:
-        with open(destination_path, 'wb') as destination_file:
+        with open(tmp_path, 'wb') as destination_file:
           bytes_copied = 0
           while True:
             chunk = source_file.read(self._options.chunk_size)
@@ -137,24 +160,25 @@ class bf_file_mover_worker:
           destination_file.flush()
           os.fsync(destination_file.fileno())
     except Exception:
-      if path.exists(destination_path):
-        os.remove(destination_path)
+      if path.exists(tmp_path):
+        os.remove(tmp_path)
       raise
 
-    actual_size = os.stat(destination_path).st_size
+    actual_size = os.stat(tmp_path).st_size
     if actual_size != expected_size:
-      os.remove(destination_path)
+      os.remove(tmp_path)
       raise RuntimeError(
         f'Size mismatch after copy: expected {expected_size}, got {actual_size}'
       )
 
     if self._options.verify_checksum_after_copy:
       source_checksum = bf_checksum.checksum(staging_path, 'sha256')
-      destination_checksum = bf_checksum.checksum(destination_path, 'sha256')
-      if source_checksum != destination_checksum:
-        os.remove(destination_path)
+      tmp_checksum = bf_checksum.checksum(tmp_path, 'sha256')
+      if source_checksum != tmp_checksum:
+        os.remove(tmp_path)
         raise RuntimeError('Checksum mismatch after copy')
 
+    os.rename(tmp_path, destination_path)
     os.remove(staging_path)
 
   def _destination_reachable(self, directory):
@@ -165,3 +189,15 @@ class bf_file_mover_worker:
 
   def _same_device(self, source_path, destination_dir):
     return os.stat(source_path).st_dev == os.stat(destination_dir).st_dev
+
+  @staticmethod
+  def _make_unique_destination(destination_path, operation_id):
+    if not path.exists(destination_path):
+      return destination_path
+    directory = path.dirname(destination_path)
+    basename = path.basename(destination_path)
+    stem = bf_filename.without_extension(basename)
+    ext = bf_filename.extension(basename)
+    new_stem = f'{stem}-{operation_id[:8]}'
+    new_basename = bf_filename.add_extension(new_stem, ext)
+    return path.join(directory, new_basename)

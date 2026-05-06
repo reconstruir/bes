@@ -597,7 +597,7 @@ class test_bf_file_mover(unit_test):
     call_count = [0]
     original_open = open
     def failing_open(filepath, mode='r', **kwargs):
-      if 'w' in mode and filepath == dst:
+      if 'w' in mode and str(filepath).endswith('.tmp'):
         call_count[0] += 1
         raise OSError('simulated write failure')
       return original_open(filepath, mode, **kwargs)
@@ -622,7 +622,7 @@ class test_bf_file_mover(unit_test):
     original_open = open
 
     def partially_writing_open(filepath, mode='r', **kwargs):
-      if 'w' in mode and filepath == dst:
+      if 'w' in mode and str(filepath).endswith('.tmp'):
         class PartialWriter:
           def __init__(self):
             self._f = original_open(filepath, mode, **kwargs)
@@ -643,6 +643,8 @@ class test_bf_file_mover(unit_test):
         operation_id = mover.move(src, dst)
         self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
 
+    tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
+    self.assertFalse(path.exists(tmp_path))
     self.assertFalse(path.exists(dst))
     mover.stop_worker()
 
@@ -819,6 +821,148 @@ class test_bf_file_mover(unit_test):
     mover._database.insert_operation(op)
     with self.assertRaises(RuntimeError):
       mover.retry('already-expired')
+    mover.stop_worker()
+
+  # cross-device temp file
+
+  def test_cross_device_uses_temp_file_then_renames(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='atomic content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with mock.patch.object(mover._worker, '_same_device', return_value=False):
+      operation_id = mover.move(src, dst)
+      self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
+    self.assertFalse(path.exists(tmp_path))
+    self.assertTrue(path.exists(dst))
+    mover.stop_worker()
+
+  def test_cross_device_temp_file_cleaned_up_on_failure(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+
+    original_open = open
+    def failing_open(filepath, mode='r', **kwargs):
+      if 'w' in mode and str(filepath).endswith('.tmp'):
+        raise OSError('simulated failure')
+      return original_open(filepath, mode, **kwargs)
+
+    with mock.patch('builtins.open', side_effect=failing_open):
+      with mock.patch.object(mover._worker, '_same_device', return_value=False):
+        operation_id = mover.move(src, dst)
+        self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
+
+    tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
+    self.assertFalse(path.exists(tmp_path))
+    mover.stop_worker()
+
+  # same-file detection
+
+  def test_same_content_destination_skips_copy_and_completes(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    content = b'identical content'
+    src = self._make_source_file(content=content.decode())
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with open(dst, 'wb') as f:
+      f.write(content)
+    operation_id = mover.move(src, dst)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    operation = mover.operation(operation_id)
+    self.assertFalse(path.exists(operation.staging_path))
+    mover.stop_worker()
+
+  def test_same_content_destination_on_complete_fires(self):
+    completed = []
+    options = bf_file_mover_options(on_complete=lambda op_id: completed.append(op_id))
+    mover = self._make_mover(options=options)
+    mover.start_worker()
+    content = b'same content fires callback'
+    src = self._make_source_file(content=content.decode())
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with open(dst, 'wb') as f:
+      f.write(content)
+    operation_id = mover.move(src, dst)
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    self.assertEqual([operation_id], completed)
+    mover.stop_worker()
+
+  def test_same_content_destination_staging_uuid_dir_removed(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    content = b'same content uuid dir'
+    src = self._make_source_file(content=content.decode())
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with open(dst, 'wb') as f:
+      f.write(content)
+    operation_id = mover.move(src, dst)
+    operation = mover.operation(operation_id)
+    staging_uuid_dir = path.dirname(operation.staging_path)
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    self.assertFalse(path.exists(staging_uuid_dir))
+    mover.stop_worker()
+
+  def test_different_content_destination_not_clobbered(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='new content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with open(dst, 'wb') as f:
+      f.write(b'old content')
+    operation_id = mover.move(src, dst)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    self.assertEqual(b'old content', open(dst, 'rb').read())
+    mover.stop_worker()
+
+  def test_different_content_destination_new_file_created(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='new content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with open(dst, 'wb') as f:
+      f.write(b'old content')
+    operation_id = mover.move(src, dst)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    unique_dst = path.join(dst_dir, f'foo-{operation_id[:8]}.flac')
+    self.assertTrue(path.exists(unique_dst))
+    self.assertEqual(b'new content', open(unique_dst, 'rb').read())
+    mover.stop_worker()
+
+  def test_different_content_destination_unique_name_preserves_extension(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='new content', filename='track.flac')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'track.flac')
+    with open(dst, 'wb') as f:
+      f.write(b'old content')
+    operation_id = mover.move(src, dst)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    unique_dst = path.join(dst_dir, f'track-{operation_id[:8]}.flac')
+    self.assertTrue(path.exists(unique_dst))
+    mover.stop_worker()
+
+  def test_no_destination_conflict_moves_directly(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='fresh content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    operation_id = mover.move(src, dst)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    self.assertTrue(path.exists(dst))
+    unique_dst = path.join(dst_dir, f'foo-{operation_id[:8]}.flac')
+    self.assertFalse(path.exists(unique_dst))
     mover.stop_worker()
 
   # concurrency
