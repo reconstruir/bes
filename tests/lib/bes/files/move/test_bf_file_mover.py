@@ -18,7 +18,12 @@ from bes.files.move.bf_file_mover_status import bf_file_mover_status
 class test_bf_file_mover(unit_test):
 
   def _make_mover(self, options=None):
-    database_path = path.join(self.make_temp_dir(), 'test_move.sqlite')
+    tmp_dir = self.make_temp_dir()
+    database_path = path.join(tmp_dir, 'test_move.sqlite')
+    if options is None:
+      options = bf_file_mover_options(staging_root=path.join(tmp_dir, 'staging'))
+    elif options.staging_root is None:
+      options.staging_root = path.join(tmp_dir, 'staging')
     return bf_file_mover(database_path, options)
 
   def _make_source_file(self, content='hello', filename='foo.flac'):

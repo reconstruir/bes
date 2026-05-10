@@ -66,7 +66,10 @@ class bf_file_mover:
       )
 
     db_scope = hashlib.sha256(self._database_path.encode()).hexdigest()[:16]
-    staging_dir = bf_volume_locator.directory_for_file(source_path, f'move_staging/{db_scope}')
+    if self._options.staging_root is not None:
+      staging_dir = path.join(self._options.staging_root, db_scope)
+    else:
+      staging_dir = bf_volume_locator.directory_for_file(source_path, f'move_staging/{db_scope}')
     operation_id = str(uuid.uuid4())
     staging_uuid_dir = path.join(staging_dir, operation_id)
     os.makedirs(staging_uuid_dir)
