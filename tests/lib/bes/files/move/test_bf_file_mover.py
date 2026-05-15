@@ -11,6 +11,7 @@ from unittest import mock
 from bes.testing.unit_test import unit_test
 from bes.files.move.bf_file_mover import bf_file_mover
 from bes.files.move.bf_file_mover_database import bf_file_mover_database
+from bes.files.move.bf_file_mover_move_status import bf_file_mover_move_status
 from bes.files.move.bf_file_mover_operation import bf_file_mover_operation
 from bes.files.move.bf_file_mover_options import bf_file_mover_options
 from bes.files.move.bf_file_mover_status import bf_file_mover_status
@@ -127,6 +128,48 @@ class test_bf_file_mover(unit_test):
     self.assertTrue(path.exists(src))
     mover.stop_worker()
 
+  # space check
+
+  def test_move_returns_no_space_when_disk_full(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='hello')
+    dst = path.join(self.make_temp_dir(), 'foo.flac')
+    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=0):
+      result = mover.move(src, dst)
+    self.assertEqual(bf_file_mover_move_status.no_space, result.status)
+    self.assertTrue(path.exists(src))
+    mover.stop_worker()
+
+  def test_move_succeeds_when_enough_space(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='hello')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=10 ** 12):
+      result = mover.move(src, dst)
+    self.assertEqual(bf_file_mover_move_status.success, result.status)
+    self.assertTrue(self._wait_for_status(mover, result.operation_id, bf_file_mover_status.done))
+    mover.stop_worker()
+
+  def test_move_no_space_accounts_for_in_flight_operations(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src1 = self._make_source_file(content='a' * 100, filename='a.flac')
+    src2 = self._make_source_file(content='b' * 100, filename='b.flac')
+    dst_dir = self.make_temp_dir()
+    dst1 = path.join(dst_dir, 'sub1', 'a.flac')
+    dst2 = path.join(dst_dir, 'sub2', 'b.flac')
+    os.makedirs(path.join(dst_dir, 'sub1'))
+    os.makedirs(path.join(dst_dir, 'sub2'))
+    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=150):
+      result1 = mover.move(src1, dst1)
+      self.assertEqual(bf_file_mover_move_status.success, result1.status)
+      result2 = mover.move(src2, dst2)
+      self.assertEqual(bf_file_mover_move_status.no_space, result2.status)
+    mover.stop_worker()
+
   # staging
 
   def test_move_stages_file_immediately(self):
@@ -135,7 +178,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertFalse(path.exists(src))
     mover.stop_worker()
 
@@ -145,7 +188,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
     staging_uuid_dir = path.dirname(operation.staging_path)
     self.assertTrue(path.isdir(staging_uuid_dir) or path.exists(dst))
@@ -157,7 +200,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(filename='myfile.flac')
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'myfile.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
     self.assertEqual('myfile.flac', path.basename(operation.staging_path))
     mover.stop_worker()
@@ -172,8 +215,8 @@ class test_bf_file_mover(unit_test):
     os.makedirs(path.join(dst_dir, 'sub2'))
     dst1 = path.join(dst_dir, 'sub1', 'track.flac')
     dst2 = path.join(dst_dir, 'sub2', 'track.flac')
-    op1 = mover.move(src1, dst1)
-    op2 = mover.move(src2, dst2)
+    op1 = mover.move(src1, dst1).operation_id
+    op2 = mover.move(src2, dst2).operation_id
     self.assertNotEqual(mover.operation(op1).staging_path, mover.operation(op2).staging_path)
     self.assertTrue(self._wait_for_status(mover, op1, bf_file_mover_status.done))
     self.assertTrue(self._wait_for_status(mover, op2, bf_file_mover_status.done))
@@ -189,7 +232,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(content='test content')
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     self.assertEqual(b'test content', open(dst, 'rb').read())
     mover.stop_worker()
@@ -200,7 +243,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertEqual(bf_file_mover_status.done, mover.status(operation_id))
     mover.stop_worker()
@@ -211,7 +254,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
     staging_uuid_dir = path.dirname(operation.staging_path)
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
@@ -225,7 +268,7 @@ class test_bf_file_mover(unit_test):
     dst_base = self.make_temp_dir()
     os.makedirs(path.join(dst_base, 'deep', 'nested', 'dir'))
     dst = path.join(dst_base, 'deep', 'nested', 'dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     self.assertTrue(path.exists(dst))
     mover.stop_worker()
@@ -239,7 +282,7 @@ class test_bf_file_mover(unit_test):
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     self.assertEqual(b'cross device data', open(dst, 'rb').read())
     mover.stop_worker()
@@ -251,7 +294,7 @@ class test_bf_file_mover(unit_test):
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       operation = mover.operation(operation_id)
       staging_path = operation.staging_path
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
@@ -265,7 +308,7 @@ class test_bf_file_mover(unit_test):
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       operation = mover.operation(operation_id)
       staging_uuid_dir = path.dirname(operation.staging_path)
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
@@ -283,7 +326,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertEqual(1, len(completed_ops))
     self.assertEqual(operation_id, completed_ops[0].operation_id)
@@ -298,7 +341,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(content='checksum content')
     dst = path.join(self.make_temp_dir(), 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     mover.stop_worker()
 
@@ -311,7 +354,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertEqual(1, len(completed))
     self.assertEqual(operation_id, completed[0].operation_id)
@@ -329,7 +372,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(content='a' * 1024)
     dst = path.join(self.make_temp_dir(), 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertGreater(len(progress_calls), 0)
     self.assertEqual(operation_id, progress_calls[0][0].operation_id)
@@ -347,7 +390,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(content=content)
     dst = path.join(self.make_temp_dir(), 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertTrue(all(t == len(content) for t in total_bytes_seen))
     mover.stop_worker()
@@ -359,7 +402,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     nonexistent_dst = path.join(self.make_temp_dir(), 'absent_dir', 'foo.flac')
-    operation_id = mover.move(src, nonexistent_dst)
+    operation_id = mover.move(src, nonexistent_dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     self.assertEqual(1, len(paused))
     self.assertEqual(operation_id, paused[0].operation_id)
@@ -372,7 +415,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.paused))
     mover.stop_worker()
 
@@ -381,7 +424,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     operation = mover.operation(operation_id)
     self.assertTrue(path.exists(operation.staging_path))
@@ -393,7 +436,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
     self.assertIsNotNone(operation.destination_device_id)
     mover.stop_worker()
@@ -403,7 +446,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
     self.assertIsNone(operation.destination_device_id)
     mover.stop_worker()
@@ -415,7 +458,7 @@ class test_bf_file_mover(unit_test):
     dst_base = self.make_temp_dir()
     dst_dir = path.join(dst_base, 'soon')
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     os.makedirs(dst_dir)
     mover.resume_paused()
@@ -427,7 +470,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'never_exists', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     mover.resume_paused()
     time.sleep(0.2)
@@ -536,7 +579,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
 
     staging_root = path.dirname(path.dirname(operation.staging_path))
@@ -566,7 +609,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src_for_known = self._make_source_file(filename='known.flac')
     dst_for_known = path.join(self.make_temp_dir(), 'missing', 'known.flac')
-    operation_id = mover.move(src_for_known, dst_for_known)
+    operation_id = mover.move(src_for_known, dst_for_known).operation_id
     operation = mover.operation(operation_id)
 
     staging_root = path.dirname(path.dirname(operation.staging_path))
@@ -614,7 +657,7 @@ class test_bf_file_mover(unit_test):
 
     with mock.patch('builtins.open', side_effect=failing_open):
       with mock.patch.object(mover._worker, '_same_device', return_value=False):
-        operation_id = mover.move(src, dst)
+        operation_id = mover.move(src, dst).operation_id
         self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
 
     operation = mover.operation(operation_id)
@@ -650,7 +693,7 @@ class test_bf_file_mover(unit_test):
 
     with mock.patch('builtins.open', side_effect=partially_writing_open):
       with mock.patch.object(mover._worker, '_same_device', return_value=False):
-        operation_id = mover.move(src, dst)
+        operation_id = mover.move(src, dst).operation_id
         self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
 
     tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
@@ -663,7 +706,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file(content='retry me')
     dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
 
     mover._database.update_status(operation_id, bf_file_mover_status.failed)
@@ -720,7 +763,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
 
     mover._database.update_status(
@@ -745,7 +788,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     mover._database.update_status(operation_id, bf_file_mover_status.failed, completed_at=int(time.time()))
 
@@ -761,7 +804,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
 
     mover.vacuum_staging(minimum_age_days=0)
@@ -799,7 +842,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file()
     dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     mover._database.update_status(
       operation_id,
@@ -842,7 +885,7 @@ class test_bf_file_mover(unit_test):
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
     with mock.patch.object(mover._worker, '_same_device', return_value=False):
-      operation_id = mover.move(src, dst)
+      operation_id = mover.move(src, dst).operation_id
       self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
     self.assertFalse(path.exists(tmp_path))
@@ -864,7 +907,7 @@ class test_bf_file_mover(unit_test):
 
     with mock.patch('builtins.open', side_effect=failing_open):
       with mock.patch.object(mover._worker, '_same_device', return_value=False):
-        operation_id = mover.move(src, dst)
+        operation_id = mover.move(src, dst).operation_id
         self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
 
     tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
@@ -882,7 +925,7 @@ class test_bf_file_mover(unit_test):
     dst = path.join(dst_dir, 'foo.flac')
     with open(dst, 'wb') as f:
       f.write(content)
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     operation = mover.operation(operation_id)
     self.assertFalse(path.exists(operation.staging_path))
@@ -899,7 +942,7 @@ class test_bf_file_mover(unit_test):
     dst = path.join(dst_dir, 'foo.flac')
     with open(dst, 'wb') as f:
       f.write(content)
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     self.assertEqual(1, len(completed))
     self.assertEqual(operation_id, completed[0].operation_id)
@@ -914,7 +957,7 @@ class test_bf_file_mover(unit_test):
     dst = path.join(dst_dir, 'foo.flac')
     with open(dst, 'wb') as f:
       f.write(content)
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     operation = mover.operation(operation_id)
     staging_uuid_dir = path.dirname(operation.staging_path)
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
@@ -929,7 +972,7 @@ class test_bf_file_mover(unit_test):
     dst = path.join(dst_dir, 'foo.flac')
     with open(dst, 'wb') as f:
       f.write(b'old content')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     self.assertEqual(b'old content', open(dst, 'rb').read())
     mover.stop_worker()
@@ -942,7 +985,7 @@ class test_bf_file_mover(unit_test):
     dst = path.join(dst_dir, 'foo.flac')
     with open(dst, 'wb') as f:
       f.write(b'old content')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     unique_dst = path.join(dst_dir, f'foo-{operation_id[:8]}.flac')
     self.assertTrue(path.exists(unique_dst))
@@ -957,7 +1000,7 @@ class test_bf_file_mover(unit_test):
     dst = path.join(dst_dir, 'track.flac')
     with open(dst, 'wb') as f:
       f.write(b'old content')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     unique_dst = path.join(dst_dir, f'track-{operation_id[:8]}.flac')
     self.assertTrue(path.exists(unique_dst))
@@ -971,7 +1014,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(filename='track.flac')
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'track.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
     op = completed_ops[0]
     self.assertEqual(src, op.source_path)
@@ -986,7 +1029,7 @@ class test_bf_file_mover(unit_test):
     mover.start_worker()
     src = self._make_source_file(filename='track.flac')
     dst = path.join(self.make_temp_dir(), 'missing_vol', 'track.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     op = paused_ops[0]
     self.assertEqual(src, op.source_path)
@@ -1035,7 +1078,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(content='fresh content')
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst)
+    operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     self.assertTrue(path.exists(dst))
     unique_dst = path.join(dst_dir, f'foo-{operation_id[:8]}.flac')
@@ -1053,7 +1096,7 @@ class test_bf_file_mover(unit_test):
       src = self._make_source_file(content=f'file{i}', filename=f'track{i}.flac')
       os.makedirs(path.join(dst_dir, f'sub{i}'))
       dst = path.join(dst_dir, f'sub{i}', f'track{i}.flac')
-      operation_ids.append(mover.move(src, dst))
+      operation_ids.append(mover.move(src, dst).operation_id)
 
     for operation_id in operation_ids:
       self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))

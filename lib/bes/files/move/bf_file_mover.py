@@ -8,10 +8,13 @@ from os import path
 
 from bes.files.core.bf_volume_locator import bf_volume_locator
 from bes.system.check import check
+from bes.system.filesystem import filesystem
 from bes.system.host import host
 from bes.system.log import log
 
 from .bf_file_mover_database import bf_file_mover_database
+from .bf_file_mover_move_result import bf_file_mover_move_result
+from .bf_file_mover_move_status import bf_file_mover_move_status
 from .bf_file_mover_operation import bf_file_mover_operation
 from .bf_file_mover_options import bf_file_mover_options
 from .bf_file_mover_status import bf_file_mover_status
@@ -65,6 +68,13 @@ class bf_file_mover:
         f'Destination path exceeds PATH_MAX ({path_max}): {destination_path}'
       )
 
+    destination_dir = path.dirname(destination_path)
+    if path.isdir(destination_dir):
+      source_size = os.stat(source_path).st_size
+      in_flight = self._in_flight_bytes_for_device(destination_dir)
+      if source_size + in_flight > filesystem.free_disk_space(destination_dir):
+        return bf_file_mover_move_result(bf_file_mover_move_status.no_space)
+
     db_scope = hashlib.sha256(self._database_path.encode()).hexdigest()[:16]
     if self._options.staging_root is not None:
       staging_dir = path.join(self._options.staging_root, db_scope)
@@ -76,7 +86,6 @@ class bf_file_mover:
     staging_path = path.join(staging_uuid_dir, path.basename(source_path))
 
     destination_device_id = None
-    destination_dir = path.dirname(destination_path)
     if path.isdir(destination_dir):
       destination_device_id = str(os.stat(destination_dir).st_dev)
 
@@ -100,7 +109,7 @@ class bf_file_mover:
     self._database.insert_operation(operation)
     self._worker.enqueue(operation_id)
 
-    return operation_id
+    return bf_file_mover_move_result(bf_file_mover_move_status.success, operation_id=operation_id)
 
   def status(self, operation_id):
     check.check_string(operation_id)
@@ -199,6 +208,22 @@ class bf_file_mover:
         bf_file_mover_status.expired,
         completed_at=now
       )
+
+  def _in_flight_bytes_for_device(self, destination_dir):
+    try:
+      destination_device = os.stat(destination_dir).st_dev
+    except OSError:
+      return 0
+    total = 0
+    for status in (bf_file_mover_status.staging_done, bf_file_mover_status.copying):
+      for operation in self._database.list_operations(status=status):
+        op_dst_dir = path.dirname(operation.destination_path)
+        try:
+          if os.stat(op_dst_dir).st_dev == destination_device:
+            total += os.stat(operation.staging_path).st_size
+        except OSError:
+          pass
+    return total
 
   def _run_startup_recovery(self):
     for operation in self._database.list_operations(status=bf_file_mover_status.copying):
