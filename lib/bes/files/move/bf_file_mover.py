@@ -17,6 +17,8 @@ from .bf_file_mover_move_result import bf_file_mover_move_result
 from .bf_file_mover_move_status import bf_file_mover_move_status
 from .bf_file_mover_operation import bf_file_mover_operation
 from .bf_file_mover_options import bf_file_mover_options
+from .bf_file_mover_restore_result import bf_file_mover_restore_result
+from .bf_file_mover_restore_status import bf_file_mover_restore_status
 from .bf_file_mover_status import bf_file_mover_status
 from .bf_file_mover_worker import bf_file_mover_worker
 
@@ -70,10 +72,13 @@ class bf_file_mover:
 
     destination_dir = path.dirname(destination_path)
     if path.isdir(destination_dir):
-      source_size = os.stat(source_path).st_size
-      in_flight = self._in_flight_bytes_for_device(destination_dir)
-      if source_size + in_flight > filesystem.free_disk_space(destination_dir):
-        return bf_file_mover_move_result(bf_file_mover_move_status.no_space)
+      source_device = os.stat(source_path).st_dev
+      destination_device = os.stat(destination_dir).st_dev
+      if source_device != destination_device:
+        source_size = os.stat(source_path).st_size
+        in_flight = self._in_flight_bytes_for_device(destination_dir)
+        if source_size + in_flight > filesystem.free_disk_space(destination_dir):
+          return bf_file_mover_move_result(bf_file_mover_move_status.no_space)
 
     db_scope = hashlib.sha256(self._database_path.encode()).hexdigest()[:16]
     if self._options.staging_root is not None:
@@ -209,6 +214,38 @@ class bf_file_mover:
         completed_at=now
       )
 
+  def restore(self, operation_id):
+    check.check_string(operation_id)
+
+    operation = self._database.get_operation(operation_id)
+    if operation is None:
+      raise KeyError(f'Unknown operation: {operation_id}')
+
+    restorable = (bf_file_mover_status.failed, bf_file_mover_status.paused)
+    if operation.status not in restorable:
+      return bf_file_mover_restore_result(bf_file_mover_restore_status.wrong_status, operation_id=operation_id)
+
+    if not path.exists(operation.staging_path):
+      return bf_file_mover_restore_result(bf_file_mover_restore_status.staging_file_missing, operation_id=operation_id)
+
+    source_dir = path.dirname(operation.source_path)
+    if not path.isdir(source_dir):
+      return bf_file_mover_restore_result(bf_file_mover_restore_status.source_directory_missing, operation_id=operation_id)
+
+    if path.exists(operation.source_path):
+      return bf_file_mover_restore_result(bf_file_mover_restore_status.source_path_occupied, operation_id=operation_id)
+
+    os.rename(operation.staging_path, operation.source_path)
+
+    staging_uuid_dir = path.dirname(operation.staging_path)
+    try:
+      os.rmdir(staging_uuid_dir)
+    except OSError:
+      pass
+
+    self._database.update_status(operation_id, bf_file_mover_status.restored, completed_at=int(time.time()))
+    return bf_file_mover_restore_result(bf_file_mover_restore_status.success, operation_id=operation_id)
+
   def _in_flight_bytes_for_device(self, destination_dir):
     try:
       destination_device = os.stat(destination_dir).st_dev
@@ -219,8 +256,12 @@ class bf_file_mover:
       for operation in self._database.list_operations(status=status):
         op_dst_dir = path.dirname(operation.destination_path)
         try:
-          if os.stat(op_dst_dir).st_dev == destination_device:
-            total += os.stat(operation.staging_path).st_size
+          if os.stat(op_dst_dir).st_dev != destination_device:
+            continue
+          staging_stat = os.stat(operation.staging_path)
+          if staging_stat.st_dev == destination_device:
+            continue
+          total += staging_stat.st_size
         except OSError:
           pass
     return total

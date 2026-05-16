@@ -8,12 +8,33 @@ import unittest
 from os import path
 from unittest import mock
 
+def _cross_device_stat(source_dirs, dest_dirs):
+  source_dev = 1001
+  dest_dev = 1002
+  real_stat = os.stat
+  def fake(p, *args, **kwargs):
+    r = real_stat(p, *args, **kwargs)
+    p_str = str(p)
+    for d in source_dirs:
+      if p_str == d or p_str.startswith(d + '/'):
+        return os.stat_result((r.st_mode, r.st_ino, source_dev, r.st_nlink,
+                               r.st_uid, r.st_gid, r.st_size,
+                               int(r.st_atime), int(r.st_mtime), int(r.st_ctime)))
+    for d in dest_dirs:
+      if p_str == d or p_str.startswith(d + '/'):
+        return os.stat_result((r.st_mode, r.st_ino, dest_dev, r.st_nlink,
+                               r.st_uid, r.st_gid, r.st_size,
+                               int(r.st_atime), int(r.st_mtime), int(r.st_ctime)))
+    return r
+  return mock.patch('os.stat', side_effect=fake)
+
 from bes.testing.unit_test import unit_test
 from bes.files.move.bf_file_mover import bf_file_mover
 from bes.files.move.bf_file_mover_database import bf_file_mover_database
 from bes.files.move.bf_file_mover_move_status import bf_file_mover_move_status
 from bes.files.move.bf_file_mover_operation import bf_file_mover_operation
 from bes.files.move.bf_file_mover_options import bf_file_mover_options
+from bes.files.move.bf_file_mover_restore_status import bf_file_mover_restore_status
 from bes.files.move.bf_file_mover_status import bf_file_mover_status
 
 class test_bf_file_mover(unit_test):
@@ -134,11 +155,25 @@ class test_bf_file_mover(unit_test):
     mover = self._make_mover()
     mover.start_worker()
     src = self._make_source_file(content='hello')
-    dst = path.join(self.make_temp_dir(), 'foo.flac')
-    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=0):
-      result = mover.move(src, dst)
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    source_dirs = [path.dirname(src), mover._options.staging_root]
+    with _cross_device_stat(source_dirs=source_dirs, dest_dirs=[dst_dir]):
+      with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=0):
+        result = mover.move(src, dst)
     self.assertEqual(bf_file_mover_move_status.no_space, result.status)
     self.assertTrue(path.exists(src))
+    mover.stop_worker()
+
+  def test_move_same_device_skips_space_check(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='hello')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=0):
+      result = mover.move(src, dst)
+    self.assertEqual(bf_file_mover_move_status.success, result.status)
     mover.stop_worker()
 
   def test_move_succeeds_when_enough_space(self):
@@ -147,14 +182,19 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file(content='hello')
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=10 ** 12):
-      result = mover.move(src, dst)
+    source_dirs = [path.dirname(src), mover._options.staging_root]
+    with _cross_device_stat(source_dirs=source_dirs, dest_dirs=[dst_dir]):
+      with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=10 ** 12):
+        result = mover.move(src, dst)
     self.assertEqual(bf_file_mover_move_status.success, result.status)
     self.assertTrue(self._wait_for_status(mover, result.operation_id, bf_file_mover_status.done))
     mover.stop_worker()
 
   def test_move_no_space_accounts_for_in_flight_operations(self):
-    mover = self._make_mover()
+    mover_dir = self.make_temp_dir()
+    staging_root = path.join(mover_dir, 'staging')
+    options = bf_file_mover_options(staging_root=staging_root)
+    mover = bf_file_mover(path.join(mover_dir, 'test_move.sqlite'), options)
     mover.start_worker()
     src1 = self._make_source_file(content='a' * 100, filename='a.flac')
     src2 = self._make_source_file(content='b' * 100, filename='b.flac')
@@ -163,11 +203,13 @@ class test_bf_file_mover(unit_test):
     dst2 = path.join(dst_dir, 'sub2', 'b.flac')
     os.makedirs(path.join(dst_dir, 'sub1'))
     os.makedirs(path.join(dst_dir, 'sub2'))
-    with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=150):
-      result1 = mover.move(src1, dst1)
-      self.assertEqual(bf_file_mover_move_status.success, result1.status)
-      result2 = mover.move(src2, dst2)
-      self.assertEqual(bf_file_mover_move_status.no_space, result2.status)
+    source_dirs = [path.dirname(src1), path.dirname(src2), staging_root]
+    with _cross_device_stat(source_dirs=source_dirs, dest_dirs=[dst_dir]):
+      with mock.patch('bes.files.move.bf_file_mover.filesystem.free_disk_space', return_value=150):
+        result1 = mover.move(src1, dst1)
+        self.assertEqual(bf_file_mover_move_status.success, result1.status)
+        result2 = mover.move(src2, dst2)
+        self.assertEqual(bf_file_mover_move_status.no_space, result2.status)
     mover.stop_worker()
 
   # staging
@@ -1103,6 +1145,136 @@ class test_bf_file_mover(unit_test):
 
     for i in range(5):
       self.assertEqual(f'file{i}'.encode(), open(path.join(dst_dir, f'sub{i}', f'track{i}.flac'), 'rb').read())
+    mover.stop_worker()
+
+  # restore
+
+  def test_restore_paused_returns_file_to_source(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='restore me')
+    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    result = mover.restore(operation_id)
+    self.assertEqual(bf_file_mover_restore_status.success, result.status)
+    self.assertTrue(path.exists(src))
+    self.assertEqual(b'restore me', open(src, 'rb').read())
+    mover.stop_worker()
+
+  def test_restore_failed_returns_file_to_source(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='restore failed')
+    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    mover._database.update_status(operation_id, bf_file_mover_status.failed)
+    result = mover.restore(operation_id)
+    self.assertEqual(bf_file_mover_restore_status.success, result.status)
+    self.assertTrue(path.exists(src))
+    mover.stop_worker()
+
+  def test_restore_sets_status_to_restored(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='restore status')
+    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    mover.restore(operation_id)
+    self.assertEqual(bf_file_mover_status.restored, mover.status(operation_id))
+    mover.stop_worker()
+
+  def test_restore_removes_staging_uuid_dir(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='restore dir')
+    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    operation = mover.operation(operation_id)
+    staging_uuid_dir = path.dirname(operation.staging_path)
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    mover.restore(operation_id)
+    self.assertFalse(path.exists(staging_uuid_dir))
+    mover.stop_worker()
+
+  def test_restore_wrong_status(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file()
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    result = mover.restore(operation_id)
+    self.assertEqual(bf_file_mover_restore_status.wrong_status, result.status)
+    mover.stop_worker()
+
+  def test_restore_staging_file_missing(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    staging_uuid_dir = path.join(self.make_temp_dir(), 'test-restore-missing')
+    os.makedirs(staging_uuid_dir)
+    staging_path = path.join(staging_uuid_dir, 'foo.flac')
+    now = int(time.time())
+    op = bf_file_mover_operation(
+      operation_id='test-restore-missing',
+      source_path=path.join(self.make_temp_dir(), 'foo.flac'),
+      staging_path=staging_path,
+      destination_path='/dst/foo.flac',
+      destination_device_id=None,
+      status=bf_file_mover_status.failed,
+      submitted_at=now,
+      staged_at=now,
+    )
+    mover._database.insert_operation(op)
+    result = mover.restore('test-restore-missing')
+    self.assertEqual(bf_file_mover_restore_status.staging_file_missing, result.status)
+    mover.stop_worker()
+
+  def test_restore_source_directory_missing(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    staging_uuid_dir = path.join(self.make_temp_dir(), 'test-restore-nosrcdir')
+    os.makedirs(staging_uuid_dir)
+    staging_path = path.join(staging_uuid_dir, 'foo.flac')
+    with open(staging_path, 'wb') as f:
+      f.write(b'content')
+    now = int(time.time())
+    op = bf_file_mover_operation(
+      operation_id='test-restore-nosrcdir',
+      source_path='/nonexistent/directory/foo.flac',
+      staging_path=staging_path,
+      destination_path='/dst/foo.flac',
+      destination_device_id=None,
+      status=bf_file_mover_status.failed,
+      submitted_at=now,
+      staged_at=now,
+    )
+    mover._database.insert_operation(op)
+    result = mover.restore('test-restore-nosrcdir')
+    self.assertEqual(bf_file_mover_restore_status.source_directory_missing, result.status)
+    mover.stop_worker()
+
+  def test_restore_source_path_occupied(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='restore me')
+    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    with open(src, 'wb') as f:
+      f.write(b'occupying')
+    result = mover.restore(operation_id)
+    self.assertEqual(bf_file_mover_restore_status.source_path_occupied, result.status)
+    mover.stop_worker()
+
+  def test_restore_unknown_operation_raises(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    with self.assertRaises(KeyError):
+      mover.restore('no-such-operation-id')
     mover.stop_worker()
 
 if __name__ == '__main__':

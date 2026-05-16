@@ -3,10 +3,11 @@
 import enum
 
 class bf_file_mover_status(enum.Enum):
-  pending = 'pending'
+  pending      = 'pending'
   staging_done = 'staging_done'
-  copying = 'copying'
-  paused = 'paused'
-  done = 'done'
-  failed = 'failed'
-  expired = 'expired'
+  copying      = 'copying'
+  paused       = 'paused'
+  done         = 'done'
+  failed       = 'failed'
+  expired      = 'expired'
+  restored     = 'restored'
