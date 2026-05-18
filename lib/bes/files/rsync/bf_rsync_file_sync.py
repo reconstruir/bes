@@ -157,7 +157,9 @@ class bf_rsync_file_sync(object):
     src = entry.absolute_filename
     rel_path = entry.relative_filename
     file_size = path.getsize(src)
+    self._update_status('chk_local')
     local_hash = bf_checksum_cache.get_checksum(src, 'sha256')
+    self._update_status('chk_remote')
     rel_dir = path.dirname(rel_path)
     original_basename = path.basename(rel_path)
 
@@ -263,13 +265,21 @@ class bf_rsync_file_sync(object):
       '--partial', '--partial-dir=.rsync-partial',
       '--exclude=**/.DS_Store',
       '--human-readable', '--stats',
+      '--progress',
       '--timeout=300',
       '-va',
       '-e', self._rsync_ssh_command(),
       src,
       f'{self._host}:{dest_path}',
     ]
-    bf_rsync_command.call_command(cmd, quote=False)
+    progress_cb = self._on_rsync_progress if self._show_progress else None
+    bf_rsync_command.call_command_with_progress(cmd, progress_cb=progress_cb, quote=False)
+
+  def _update_status(self, status):
+    if not self._show_progress:
+      return
+    sys.stdout.write(f'\r{self._progress_prefix}  {status}   ')
+    sys.stdout.flush()
 
   def _on_rsync_progress(self, event):
     line = f'\r{self._progress_prefix}  {event.percent}%  {event.rate}  {event.elapsed}   '

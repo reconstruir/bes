@@ -287,6 +287,8 @@ class execute(object):
     check.check_callable(popen_fn, allow_none = True)
     if 'non_blocking' in kwargs:
       raise ValueError('non_blocking is set internally by execute_with_progress')
+    if progress_source not in ('stdout', 'stderr', 'both'):
+      raise ValueError(f'progress_source must be stdout, stderr, or both: "{progress_source}"')
 
     events = []
     _lock = threading.Lock()

@@ -163,6 +163,55 @@ for i in range(1000):
     self.assertEqual('line0', rv.events[0])
     self.assertEqual('line999', rv.events[999])
 
+  def test_progress_source_stdout_filters_stderr(self):
+    script = '''\
+#!/usr/bin/env python
+import sys
+sys.stdout.write('from_stdout\\n')
+sys.stdout.flush()
+sys.stderr.write('from_stderr\\n')
+sys.stderr.flush()
+'''
+    tmp = self.make_temp_file(content=script, perm=0o0755, suffix='.py')
+    received = []
+    def parser(stdout, stderr):
+      if stdout and stdout.strip():
+        received.append(('stdout', stdout.strip()))
+      if stderr and stderr.strip():
+        received.append(('stderr', stderr.strip()))
+      return stdout.strip() if stdout and stdout.strip() else None
+    execute.execute_with_progress(tmp, line_parser=parser, progress_source='stdout')
+    self.assertTrue(any(src == 'stdout' for src, _ in received))
+    self.assertFalse(any(src == 'stderr' for src, _ in received))
+
+  def test_progress_source_stderr_filters_stdout(self):
+    script = '''\
+#!/usr/bin/env python
+import sys
+sys.stdout.write('from_stdout\\n')
+sys.stdout.flush()
+sys.stderr.write('from_stderr\\n')
+sys.stderr.flush()
+'''
+    tmp = self.make_temp_file(content=script, perm=0o0755, suffix='.py')
+    received = []
+    def parser(stdout, stderr):
+      if stdout and stdout.strip():
+        received.append(('stdout', stdout.strip()))
+      if stderr and stderr.strip():
+        received.append(('stderr', stderr.strip()))
+      return stderr.strip() if stderr and stderr.strip() else None
+    execute.execute_with_progress(tmp, line_parser=parser, progress_source='stderr')
+    self.assertTrue(any(src == 'stderr' for src, _ in received))
+    self.assertFalse(any(src == 'stdout' for src, _ in received))
+
+  def test_progress_source_invalid_raises(self):
+    def parser(stdout, stderr):
+      return None
+    with self.assertRaises(ValueError):
+      execute.execute_with_progress('true', line_parser=parser, progress_source='bad')
+
+
 if __name__ == '__main__':
   import unittest
   unittest.main()

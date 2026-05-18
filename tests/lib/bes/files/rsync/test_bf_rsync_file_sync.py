@@ -109,7 +109,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     rsync_called = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
-      with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a: rsync_called.append(a)):
+      with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_called.append(a)):
         syncer._ssh_sha256 = lambda p: 'd' * 64
         with mock.patch.object(os, 'remove'):
           syncer._sync_one(self._make_entry(src))
@@ -163,11 +163,12 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer = self._make_syncer()
     syncer._strict_host_checking = False
     captured = []
-    with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: captured.extend(a) or _fake_rv('')):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: captured.extend(a)):
       syncer._rsync('/tmp/video.mp4', '/mnt/stuff/p/video.mp4')
     args_str = ' '.join(captured)
     self.assertIn('--partial', args_str)
     self.assertIn('.rsync-partial', args_str)
+    self.assertIn('--progress', args_str)
     self.assertIn('StrictHostKeyChecking=no', args_str)
     self.assertIn('nas2:/mnt/stuff/p/video.mp4', args_str)
 
@@ -176,7 +177,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     home_kh = os.path.expanduser('~/.ssh/known_hosts')
     syncer = self._make_syncer()
     captured = []
-    with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: captured.extend(a) or _fake_rv('')):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: captured.extend(a)):
       syncer._rsync('/tmp/video.mp4', '/mnt/stuff/p/video.mp4')
     self.assertNotIn(home_kh, ' '.join(captured))
 
@@ -184,7 +185,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
   def test_transfer_excludes_ds_store(self):
     syncer = self._make_syncer()
     captured = []
-    with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: captured.extend(a) or _fake_rv('')):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: captured.extend(a)):
       syncer._rsync('/tmp/video.mp4', '/mnt/stuff/p/video.mp4')
     self.assertTrue(any('.DS_Store' in a for a in captured))
 
@@ -192,7 +193,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
   def test_transfer_no_remove_source_files(self):
     syncer = self._make_syncer()
     captured = []
-    with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: captured.extend(a) or _fake_rv('')):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: captured.extend(a)):
       syncer._rsync('/tmp/video.mp4', '/mnt/stuff/p/video.mp4')
     self.assertNotIn('--remove-source-files', captured)
 
@@ -200,7 +201,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
   def test_transfer_no_no_whole_file(self):
     syncer = self._make_syncer()
     captured = []
-    with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: captured.extend(a) or _fake_rv('')):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: captured.extend(a)):
       syncer._rsync('/tmp/video.mp4', '/mnt/stuff/p/video.mp4')
     self.assertNotIn('--no-whole-file', captured)
 
@@ -314,7 +315,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='0' * 64):
       syncer._ssh_sha256 = lambda p: '0' * 64
       rsync_calls = []
-      with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a: rsync_calls.append(a)):
+      with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_calls.append(a)):
         with mock.patch.object(os, 'remove'):
           syncer._sync_one(self._make_entry(src))
     self.assertEqual([], rsync_calls)
@@ -480,14 +481,14 @@ class test_bf_rsync_file_sync_unit(unit_test):
   def test_empty_source_dir(self):
     syncer = self._make_syncer(source_dirs=[self.make_temp_dir()])
     rsync_called = []
-    with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a: rsync_called.append(a)):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_called.append(a)):
       syncer._run_loop()
     self.assertEqual([], rsync_called)
 
   # 76
   def test_nonexistent_source_dir(self):
     syncer = self._make_syncer(source_dirs=['/nonexistent/dir'])
-    with mock.patch.object(bf_rsync_command, 'call_command'):
+    with mock.patch.object(bf_rsync_command, 'call_command_with_progress'):
       syncer._run_loop()  # should not raise
 
   # 77-86: logging tests
@@ -578,7 +579,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     rsync_calls = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
       syncer._ssh_sha256 = lambda p: None
-      with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: rsync_calls.append(a)):
+      with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_calls.append(a)):
         syncer._run_loop()
     self.assertEqual([], rsync_calls)
 
@@ -965,6 +966,28 @@ class test_bf_rsync_file_sync_progress(unit_test):
     with mock.patch('sys.stdout', new=captured):
       syncer._on_rsync_progress(event)
     self.assertIn('[1/1] 500.0B - small.mp4', captured.getvalue())
+
+  def test_update_status_writes_when_show_progress(self):
+    import io
+    syncer = self._make_syncer()
+    syncer._show_progress = True
+    syncer._progress_prefix = '[1/1] 100.0B - file.mp4'
+    captured = io.StringIO()
+    with mock.patch('sys.stdout', new=captured):
+      syncer._update_status('checksumming...')
+    output = captured.getvalue()
+    self.assertTrue(output.startswith('\r'))
+    self.assertIn('[1/1] 100.0B - file.mp4', output)
+    self.assertIn('checksumming...', output)
+
+  def test_update_status_silent_when_not_show_progress(self):
+    import io
+    syncer = self._make_syncer()
+    syncer._show_progress = False
+    captured = io.StringIO()
+    with mock.patch('sys.stdout', new=captured):
+      syncer._update_status('checksumming...')
+    self.assertEqual('', captured.getvalue())
 
   def test_on_rsync_progress_safe_with_empty_prefix(self):
     import io
