@@ -6,7 +6,9 @@ import time
 from datetime import datetime
 
 from bes.common.time_util import time_util
+from bes.files.bf_filename import bf_filename
 from bes.files.bf_size import bf_size
+from bes.system.console import console
 
 class bf_rsync_progress_tracker(object):
   'Tracks and displays per-file progress for bf_rsync_file_sync.'
@@ -29,11 +31,17 @@ class bf_rsync_progress_tracker(object):
       self._current_entry_path = absolute_path
     index_str = f'[{self._current_index}/{self._total_files}]'
     rel_path = entry.relative_filename
+    size_str = bf_size.sizeof_fmt(path.getsize(absolute_path))
+
     if self._compact:
-      sys.stdout.write(f'\033[2K\r{index_str} {rel_path} ...')
+      prefix = f'{index_str} {size_str} - '
+      suffix = ' ...'
+      available = console.terminal_width() - len(prefix) - len(suffix)
+      display_path = self._fit_path(rel_path, available)
+      sys.stdout.write(f'\033[2K\r{prefix}{display_path}{suffix}')
       sys.stdout.flush()
     else:
-      line = f'{index_str} {rel_path}'
+      line = f'{index_str} {size_str} - {rel_path}'
       print(line, flush=True)
       if self._log_fh:
         self._log_fh.write(line + '\n')
@@ -84,6 +92,35 @@ class bf_rsync_progress_tracker(object):
     if self._pause_start is not None:
       self._start_time += time.time() - self._pause_start
       self._pause_start = None
+
+  def _fit_path(self, rel_path, available):
+    'Shorten rel_path to fit within available characters, preserving the extension.'
+    if available <= 0 or len(rel_path) <= available:
+      return rel_path
+    dirname = path.dirname(rel_path)
+    basename = path.basename(rel_path)
+    if dirname:
+      available_for_base = available - len(dirname) - 1
+      if available_for_base > 4:
+        try:
+          return f'{dirname}/{bf_filename.shorten(basename, max_length=available_for_base)}'
+        except ValueError:
+          pass
+      # Directory portion alone is too long; fall back to .../{basename}
+      ellipsis = '.../'
+      available_for_base = available - len(ellipsis)
+      if available_for_base > 4:
+        try:
+          return f'{ellipsis}{bf_filename.shorten(basename, max_length=available_for_base)}'
+        except ValueError:
+          pass
+    else:
+      if available > 4:
+        try:
+          return bf_filename.shorten(basename, max_length=available)
+        except ValueError:
+          pass
+    return rel_path
 
   def _compute_eta(self):
     elapsed = time.time() - self._start_time
