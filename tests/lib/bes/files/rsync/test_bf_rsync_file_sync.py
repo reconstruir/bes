@@ -17,6 +17,7 @@ from bes.files.rsync.bf_rsync_file_sync import bf_rsync_file_sync
 from bes.ssh.bssh_command import bssh_command
 from bes.ssh.bssh_error import bssh_error
 from bes.ssh.bssh_sandbox import bssh_sandbox
+from bes.system.execute import execute
 
 
 class test_bf_rsync_file_sync_unit(unit_test):
@@ -38,8 +39,10 @@ class test_bf_rsync_file_sync_unit(unit_test):
   # 45
   def test_ssh_sha256_missing(self):
     syncer = self._make_syncer()
-    with mock.patch.object(bssh_command, 'call_command') as m:
-      m.return_value = _fake_rv('MISSING\n')
+    def fake_ewp(args, line_parser, **kwargs):
+      line_parser('sha256: MISSING', None)
+      return _fake_progress_rv()
+    with mock.patch.object(execute, 'execute_with_progress', side_effect=fake_ewp):
       result = syncer._ssh_sha256('/mnt/stuff/p/video.mp4')
     self.assertIsNone(result)
 
@@ -47,15 +50,19 @@ class test_bf_rsync_file_sync_unit(unit_test):
   def test_ssh_sha256_match(self):
     syncer = self._make_syncer()
     hexhash = 'a' * 64
-    with mock.patch.object(bssh_command, 'call_command') as m:
-      m.return_value = _fake_rv(f'{hexhash}  /mnt/stuff/p/video.mp4\n')
+    def fake_ewp(args, line_parser, **kwargs):
+      line_parser(f'sha256: CHECKSUM: {hexhash}', None)
+      return _fake_progress_rv()
+    with mock.patch.object(execute, 'execute_with_progress', side_effect=fake_ewp):
       result = syncer._ssh_sha256('/mnt/stuff/p/video.mp4')
     self.assertEqual(hexhash, result)
 
   # 47
   def test_ssh_sha256_ssh_error(self):
     syncer = self._make_syncer()
-    with mock.patch.object(bssh_command, 'call_command', side_effect=bssh_error('refused')):
+    def fake_ewp(args, line_parser, **kwargs):
+      return _fake_progress_rv(exit_code=1, stderr='refused')
+    with mock.patch.object(execute, 'execute_with_progress', side_effect=fake_ewp):
       with self.assertRaises(bssh_error):
         syncer._ssh_sha256('/mnt/stuff/p/video.mp4')
 
@@ -68,7 +75,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer = self._make_syncer(source_dirs=[src_dir])
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64) as m:
-      syncer._ssh_sha256 = lambda p: 'a' * 64  # same hash → skip
+      syncer._ssh_sha256 = lambda p, progress_callback=None: 'a' * 64  # same hash → skip
       with mock.patch.object(os, 'remove'):
         syncer._sync_one(self._make_entry(src))
     self.assertEqual(1, m.call_count)
@@ -83,7 +90,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer = self._make_syncer(source_dirs=[src_dir])
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='b' * 64) as m:
-      syncer._ssh_sha256 = lambda p: 'b' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: 'b' * 64
       with mock.patch.object(os, 'remove'):
         syncer._sync_one(self._make_entry(src))
     self.assertEqual(1, m.call_count)
@@ -96,7 +103,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
       transferred = []
       syncer._rsync = lambda s, d: transferred.append(d)
-      syncer._ssh_sha256 = lambda p: (None if not transferred else 'c' * 64)
+      syncer._ssh_sha256 = lambda p, progress_callback=None: (None if not transferred else 'c' * 64)
       syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
         syncer._sync_one(self._make_entry(src))
@@ -110,7 +117,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     rsync_called = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
       with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_called.append(a)):
-        syncer._ssh_sha256 = lambda p: 'd' * 64
+        syncer._ssh_sha256 = lambda p, progress_callback=None: 'd' * 64
         with mock.patch.object(os, 'remove'):
           syncer._sync_one(self._make_entry(src))
     self.assertEqual([], rsync_called)
@@ -123,7 +130,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     transferred = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='e' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         if call_count[0] == 1:
           return 'f' * 64  # pre-transfer: different
@@ -213,7 +220,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     removed = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'a' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -230,7 +237,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         if call_count[0] == 1:
           return None  # destination missing → transfer
@@ -249,7 +256,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     removed = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'c' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -265,7 +272,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     src = self.make_temp_file(content=b'nodrop', suffix='.mp4')
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
-      syncer._ssh_sha256 = lambda p: None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: None
       syncer._rsync = lambda s, d: (_ for _ in ()).throw(bf_rsync_error('rsync failed'))
       syncer._ssh_mkdir = lambda d: None
       removed = []
@@ -281,7 +288,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='e' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         if call_count[0] == 1:
           return None
@@ -302,7 +309,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     removed = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='f' * 64):
-      syncer._ssh_sha256 = lambda p: 'f' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: 'f' * 64
       with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
         syncer._sync_one(self._make_entry(src))
     self.assertIn(src, removed)
@@ -313,7 +320,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     src = self.make_temp_file(content=b'skip2', suffix='.mp4')
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='0' * 64):
-      syncer._ssh_sha256 = lambda p: '0' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: '0' * 64
       rsync_calls = []
       with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_calls.append(a)):
         with mock.patch.object(os, 'remove'):
@@ -330,7 +337,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     attempts = [0]
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='1' * 64):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         attempts[0] += 1
         if attempts[0] < 3:
           raise bssh_error('network error')
@@ -357,7 +364,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         rsync_attempts[0] += 1
         if rsync_attempts[0] < 2:
           raise bf_rsync_error('rsync failed')
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         return None if rsync_attempts[0] < 2 else '2' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = rsync
@@ -377,7 +384,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     attempt = [0]
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='3' * 64):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         attempt[0] += 1
         if attempt[0] == 1:
           raise bssh_error('fail once')
@@ -406,7 +413,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     b_failed = [False]
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='4' * 64):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         attempt[0] += 1
         basename = path.basename(p)
         # Fail b.mp4 on its first pre-check encounter to exercise the retry path.
@@ -439,7 +446,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='5' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else '5' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -466,7 +473,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     transferred = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='6' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] % 2 == 1 else '6' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -497,7 +504,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     src = self.make_temp_file(content=b'log', suffix='.mp4')
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='7' * 64):
-      syncer._ssh_sha256 = lambda p: '7' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: '7' * 64
       with mock.patch.object(os, 'remove'):
         action, *_ = syncer._sync_one(self._make_entry(src))
     self.assertEqual('skip', action)
@@ -508,7 +515,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='8' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else '8' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -531,7 +538,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     src = self.make_temp_file(content=b'ts', suffix='.mp4')
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='9' * 64):
-      syncer._ssh_sha256 = lambda p: '9' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: '9' * 64
       with mock.patch.object(os, 'remove'):
         syncer._sync_one(self._make_entry(src))
     pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}')
@@ -551,10 +558,11 @@ class test_bf_rsync_file_sync_unit(unit_test):
                                  log_file=log_path, strict_host_checking=False)
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a1' * 32):
-      syncer._ssh_sha256 = lambda p: 'a1' * 32
+      syncer._ssh_sha256 = lambda p, progress_callback=None: 'a1' * 32
       with mock.patch.object(os, 'remove'):
         with mock.patch.object(syncer, '_cleanup_partial'):
-          syncer.run()
+          with mock.patch.object(syncer, '_install_remote_checksum_script'):
+            syncer.run()
     self.assertTrue(path.exists(log_path))
     with open(log_path) as f:
       content = f.read()
@@ -578,7 +586,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     rsync_calls = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
-      syncer._ssh_sha256 = lambda p: None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: None
       with mock.patch.object(bf_rsync_command, 'call_command_with_progress', side_effect=lambda a, **kw: rsync_calls.append(a)):
         syncer._run_loop()
     self.assertEqual([], rsync_calls)
@@ -591,7 +599,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='b' * 64):
-      syncer._ssh_sha256 = lambda p: None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: None
       syncer._run_loop()
     self.assertTrue(path.exists(src))
 
@@ -603,7 +611,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
-      syncer._ssh_sha256 = lambda p: 'c' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: 'c' * 64
       syncer._run_loop()
     self.assertTrue(path.exists(src))
 
@@ -617,7 +625,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     captured = io.StringIO()
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
-      syncer._ssh_sha256 = lambda p: None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: None
       with mock.patch('sys.stdout', new=captured):
         syncer._run_loop()
     self.assertIn('DRY-XFER', captured.getvalue())
@@ -641,7 +649,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='e' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'e' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -662,7 +670,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='f' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'f' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -685,7 +693,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer._emit = lambda tag, msg: messages.append((tag, msg))
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='0' * 64):
-      syncer._ssh_sha256 = lambda p: '0' * 64
+      syncer._ssh_sha256 = lambda p, progress_callback=None: '0' * 64
       with mock.patch.object(os, 'remove'):
         syncer._run_loop()
     summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
@@ -703,7 +711,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer._emit = lambda tag, msg: messages.append((tag, msg))
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='1' * 64):
-      syncer._ssh_sha256 = lambda p: None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: None
       syncer._run_loop()
     summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
     self.assertIn('would transfer', summary)
@@ -790,7 +798,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'a' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -812,7 +820,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='b' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'b' * 64
       syncer._ssh_sha256 = ssh_sha256
@@ -834,7 +842,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         if call_count[0] == 1:
           return 'd' * 64  # pre-check: different content → rename
@@ -1031,7 +1039,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     local_hash = 'a' * 64
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
-      syncer._ssh_sha256 = lambda p: local_hash if path.basename(p) == 'my_movie.mp4' else None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: local_hash if path.basename(p) == 'my_movie.mp4' else None
       with mock.patch.object(os, 'remove'):
         action, size, reason = syncer._sync_one(entry)
     self.assertEqual('skip', action)
@@ -1045,7 +1053,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         if call_count[0] <= 2:
           return None   # simplified slot empty, original not on server
@@ -1067,7 +1075,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     mv_calls = []
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         basename = path.basename(p)
         if basename == 'my_movie.mp4':
           return None       # simplified slot empty
@@ -1092,7 +1100,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     mv_calls = []
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         basename = path.basename(p)
         if basename == 'my_movie.mp4':
           return other_hash   # simplified slot taken by different content
@@ -1120,7 +1128,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         basename = path.basename(p)
         if basename == 'my_movie.mp4':
@@ -1149,7 +1157,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         sha256_calls.append(p)
         call_count[0] += 1
         return None if call_count[0] == 1 else local_hash
@@ -1169,7 +1177,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         sha256_calls.append(p)
         call_count[0] += 1
         if call_count[0] <= 2:
@@ -1193,7 +1201,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     mv_calls = []
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         basename = path.basename(p)
         if basename == 'my_movie.mp4':
           return None
@@ -1218,7 +1226,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     captured = io.StringIO()
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
-      syncer._ssh_sha256 = lambda p: None
+      syncer._ssh_sha256 = lambda p, progress_callback=None: None
       with mock.patch('sys.stdout', new=captured):
         syncer._run_loop()
     output = captured.getvalue()
@@ -1236,7 +1244,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     captured = io.StringIO()
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         basename = path.basename(p)
         if basename == 'my_movie.mp4':
           return None
@@ -1262,7 +1270,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else local_hash
       syncer._ssh_sha256 = ssh_sha256
@@ -1281,7 +1289,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     removed = []
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         basename = path.basename(p)
         if basename == 'my_movie.mp4':
           return None
@@ -1302,7 +1310,7 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
       call_count = [0]
-      def ssh_sha256(p):
+      def ssh_sha256(p, progress_callback=None):
         call_count[0] += 1
         return None if call_count[0] == 1 else local_hash
       syncer._ssh_sha256 = ssh_sha256
@@ -1468,7 +1476,7 @@ class test_bf_rsync_file_sync_integration(unit_test):
     src = self._write_file(src_dir, 'interrupt.mp4', b'interrupt')
     syncer = self._make_syncer([src_dir])
     syncer._rsync = lambda s, d: (_ for _ in ()).throw(bf_rsync_error('simulated interrupt'))
-    syncer._ssh_sha256 = lambda p: None
+    syncer._ssh_sha256 = lambda p, progress_callback=None: None
     syncer._ssh_mkdir = lambda d: None
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     entry = bf_entry('source/interrupt.mp4', root_dir=path.dirname(src_dir))
@@ -1543,10 +1551,106 @@ class test_bf_rsync_file_sync_integration(unit_test):
     self.assertTrue(path.exists(path.join(nas_dir, 'my_movie.mp4')))
 
 
+class test_bf_rsync_file_sync_checksum_script(unit_test):
+  'Unit tests for _install_remote_checksum_script and streaming _ssh_sha256.'
+
+  def _make_syncer(self, **kwargs):
+    tmp_dir = self.make_temp_dir()
+    key = path.join(tmp_dir, 'key')
+    open(key, 'w').close()
+    return bf_rsync_file_sync(
+      key, 'nas2:/mnt/stuff/p', [tmp_dir],
+      strict_host_checking=False, **kwargs
+    )
+
+  # 105
+  def test_local_checksum_script_path_exists(self):
+    script_path = bf_rsync_file_sync._local_checksum_script_path()
+    self.assertTrue(path.isfile(script_path), f'bfile-checksum.py not found at: {script_path}')
+
+  # 106
+  def test_install_remote_checksum_script_passes_content_as_input_data(self):
+    syncer = self._make_syncer()
+    captured_calls = []
+    def fake_call_command(args, input_data=None, **kwargs):
+      captured_calls.append({'args': args, 'input_data': input_data})
+      return _fake_rv('')
+    with mock.patch.object(bssh_command, 'call_command', side_effect=fake_call_command):
+      syncer._install_remote_checksum_script()
+    self.assertEqual(1, len(captured_calls))
+    call = captured_calls[0]
+    self.assertIsNotNone(call['input_data'])
+    self.assertIsInstance(call['input_data'], bytes)
+    self.assertIn(b'sha256', call['input_data'])
+    remote_cmd = call['args'][-1]
+    self.assertIn(bf_rsync_file_sync._REMOTE_CHECKSUM_SCRIPT, remote_cmd)
+
+  # 107
+  def test_install_remote_checksum_script_target_path_in_command(self):
+    syncer = self._make_syncer()
+    captured_calls = []
+    with mock.patch.object(bssh_command, 'call_command',
+                           side_effect=lambda args, **kw: captured_calls.append(args) or _fake_rv('')):
+      syncer._install_remote_checksum_script()
+    remote_cmd = captured_calls[0][-1]
+    self.assertIn('/tmp/bfile-checksum.py', remote_cmd)
+    self.assertIn('cat >', remote_cmd)
+
+  # 108
+  def test_ssh_sha256_progress_callback_called(self):
+    syncer = self._make_syncer()
+    received_events = []
+    def progress_cb(event):
+      received_events.append(event)
+    def fake_ewp(args, line_parser, progress_cb=None, **kwargs):
+      event = line_parser('sha256: PROGRESS: 1048576/10485760', None)
+      if event is not None and progress_cb is not None:
+        progress_cb(event)
+      line_parser('sha256: CHECKSUM: ' + 'a' * 64, None)
+      return _fake_progress_rv()
+    with mock.patch.object(execute, 'execute_with_progress', side_effect=fake_ewp):
+      syncer._ssh_sha256('/mnt/stuff/p/video.mp4', progress_callback=progress_cb)
+    self.assertEqual(1, len(received_events))
+    self.assertEqual(1048576, received_events[0].bytes_done)
+    self.assertEqual(10485760, received_events[0].total_bytes)
+
+  # 109
+  def test_ssh_sha256_progress_callback_none_by_default(self):
+    syncer = self._make_syncer()
+    def fake_ewp(args, line_parser, progress_cb=None, **kwargs):
+      line_parser('sha256: CHECKSUM: ' + 'b' * 64, None)
+      self.assertIsNone(progress_cb)
+      return _fake_progress_rv()
+    with mock.patch.object(execute, 'execute_with_progress', side_effect=fake_ewp):
+      result = syncer._ssh_sha256('/mnt/stuff/p/video.mp4')
+    self.assertEqual('b' * 64, result)
+
+  # 110
+  def test_ssh_sha256_garbage_lines_ignored(self):
+    syncer = self._make_syncer()
+    hexhash = 'c' * 64
+    def fake_ewp(args, line_parser, **kwargs):
+      line_parser('some random output from ssh', None)
+      line_parser('', None)
+      line_parser('sha256: PROGRESS: bad/data', None)
+      line_parser(f'sha256: CHECKSUM: {hexhash}', None)
+      return _fake_progress_rv()
+    with mock.patch.object(execute, 'execute_with_progress', side_effect=fake_ewp):
+      result = syncer._ssh_sha256('/mnt/stuff/p/video.mp4')
+    self.assertEqual(hexhash, result)
+
+
 def _fake_rv(stdout):
   from collections import namedtuple
   R = namedtuple('R', 'stdout exit_code')
   return R(stdout=stdout, exit_code=0)
+
+
+def _fake_progress_rv(exit_code=0, stderr=''):
+  from collections import namedtuple
+  Result = namedtuple('Result', 'exit_code, stderr')
+  ProgressResult = namedtuple('ProgressResult', 'result, events')
+  return ProgressResult(result=Result(exit_code=exit_code, stderr=stderr), events=[])
 
 
 if __name__ == '__main__':

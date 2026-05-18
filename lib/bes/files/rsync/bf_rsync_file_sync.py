@@ -4,9 +4,11 @@ import os
 import os.path as path
 import sys
 import time
+from collections import namedtuple
 from datetime import datetime
 
 from bes.system.check import check
+from bes.system.execute import execute
 from bes.system.log import logger
 from bes.files.bf_entry import bf_entry
 from bes.files.bf_file_type import bf_file_type
@@ -16,10 +18,13 @@ from bes.files.bf_filename import bf_filename
 from bes.files.bf_filename_simplify import bf_filename_simplify
 from bes.files.find.bf_file_finder import bf_file_finder
 from bes.ssh.bssh_command import bssh_command
+from bes.ssh.bssh_error import bssh_error
 
 from .bf_rsync_command import bf_rsync_command
 from .bf_rsync_error import bf_rsync_error
 from .bf_rsync_progress_tracker import bf_rsync_progress_tracker
+
+_remote_checksum_progress = namedtuple('remote_checksum_progress', 'bytes_done, total_bytes')
 
 class bf_rsync_file_sync(object):
   'Sync files from local dirs to a remote NAS over rsync+SSH with retry and checksum verification.'
@@ -27,6 +32,7 @@ class bf_rsync_file_sync(object):
   _log = logger('bf_rsync_file_sync')
 
   RETRY_WAIT_SECONDS = 30
+  _REMOTE_CHECKSUM_SCRIPT = '/tmp/bfile-checksum.py'
 
   def __init__(self, ssh_key, destination, source_dirs,
                log_file=None, known_hosts_file=None, strict_host_checking=True,
@@ -66,6 +72,7 @@ class bf_rsync_file_sync(object):
 
   def run(self):
     'Run the sync loop until all files are transferred. Never returns on permanent failure.'
+    self._install_remote_checksum_script()
     if self._log_file:
       self._log_fh = open(self._log_file, 'a', encoding='utf-8')
     try:
@@ -160,6 +167,7 @@ class bf_rsync_file_sync(object):
     self._update_status('chk_local')
     local_hash = bf_checksum_cache.get_checksum(src, 'sha256')
     self._update_status('chk_remote')
+    chk_remote_callback = self._on_chk_remote_progress if self._show_progress else None
     rel_dir = path.dirname(rel_path)
     original_basename = path.basename(rel_path)
 
@@ -175,7 +183,7 @@ class bf_rsync_file_sync(object):
     target_rel = path.join(rel_dir, target_basename) if rel_dir else target_basename
     name_changed = (target_rel != rel_path)
 
-    remote_at_target = self._ssh_sha256(f'{self._dest_root}/{target_rel}')
+    remote_at_target = self._ssh_sha256(f'{self._dest_root}/{target_rel}', progress_callback=chk_remote_callback)
     if remote_at_target == local_hash:
       if not self._dry_run:
         os.remove(src)
@@ -184,7 +192,7 @@ class bf_rsync_file_sync(object):
     target_occupied = (remote_at_target is not None)
 
     if name_changed:
-      remote_at_original = self._ssh_sha256(f'{self._dest_root}/{rel_path}')
+      remote_at_original = self._ssh_sha256(f'{self._dest_root}/{rel_path}', progress_callback=chk_remote_callback)
       if remote_at_original == local_hash:
         if target_occupied:
           dest_basename = self._make_unique_name(target_basename, local_hash)
@@ -286,16 +294,65 @@ class bf_rsync_file_sync(object):
     sys.stdout.write(line)
     sys.stdout.flush()
 
-  def _ssh_sha256(self, remote_path):
+  def _ssh_sha256(self, remote_path, progress_callback=None):
     'Return sha256 of remote_path, or None if the file is missing.'
-    ssh_args = self._ssh_args()
-    remote_cmd = f'sha256sum "{remote_path}" 2>/dev/null || echo MISSING'
-    ssh_args += [self._host, remote_cmd]
-    rv = bssh_command.call_command(ssh_args, quote=False)
-    output = rv.stdout.strip()
-    if output == 'MISSING' or not output:
+    ssh_exe = bssh_command._find_exe()
+    args = [ssh_exe] + self._ssh_args() + [
+      self._host,
+      f'python3 {self._REMOTE_CHECKSUM_SCRIPT} "{remote_path}"',
+    ]
+    result_holder = [None]
+    def line_parser(stdout_line, stderr_line):
+      line = (stdout_line or '').strip()
+      if line == 'sha256: MISSING':
+        result_holder[0] = 'MISSING'
+        return None
+      if line.startswith('sha256: CHECKSUM: '):
+        result_holder[0] = line[len('sha256: CHECKSUM: '):]
+        return None
+      if line.startswith('sha256: PROGRESS: '):
+        raw = line[len('sha256: PROGRESS: '):]
+        parts = raw.split('/')
+        if len(parts) == 2:
+          try:
+            return _remote_checksum_progress(int(parts[0]), int(parts[1]))
+          except ValueError:
+            pass
       return None
-    return output.split()[0].lower()
+    progress_result = execute.execute_with_progress(
+      args,
+      line_parser=line_parser,
+      progress_cb=progress_callback,
+      progress_source='stdout',
+      raise_error=False,
+      quote=False,
+      check_python_script=False,
+    )
+    if progress_result.result.exit_code != 0:
+      raise bssh_error(f'ssh sha256 failed for {remote_path}: {progress_result.result.stderr}')
+    value = result_holder[0]
+    if value is None or value == 'MISSING':
+      return None
+    return value.lower()
+
+  @classmethod
+  def _local_checksum_script_path(clazz):
+    return path.abspath(path.join(path.dirname(__file__), '..', '..', '..', '..', 'bin', 'bfile-checksum.py'))
+
+  def _install_remote_checksum_script(self):
+    local_path = self._local_checksum_script_path()
+    if not path.isfile(local_path):
+      raise bf_rsync_error(f'local checksum script not found: {local_path}')
+    with open(local_path, 'rb') as fh:
+      script_bytes = fh.read()
+    ssh_args = self._ssh_args()
+    ssh_args += [self._host, f'cat > {self._REMOTE_CHECKSUM_SCRIPT}']
+    bssh_command.call_command(ssh_args, input_data=script_bytes, quote=False)
+
+  def _on_chk_remote_progress(self, event):
+    percent = int(event.bytes_done / event.total_bytes * 100) if event.total_bytes else 0
+    sys.stdout.write(f'\r{self._progress_prefix}  chk_remote  {percent}%   ')
+    sys.stdout.flush()
 
   def _ssh_mkdir(self, remote_dir):
     ssh_args = self._ssh_args()
