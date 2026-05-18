@@ -29,7 +29,12 @@ was timing out on either side.
 
 ## Defence layers
 
-Three layers, each catching what the previous misses.
+Two layers are sufficient. A third process-level kill is redundant because
+`ServerAliveInterval`/`ServerAliveCountMax` IS SSH's built-in process timeout — when
+the probes go unanswered SSH kills itself and exits non-zero, which is exactly what a
+`communicate(timeout=N)` + SIGKILL would do but at the protocol level where it's more
+precise. `ConnectTimeout` covers the connection-establishment case that keepalives
+cannot (no connection yet to send probes over).
 
 ### Layer 1 — rsync `--timeout=N` (I/O idle timeout)
 
@@ -53,68 +58,40 @@ cmd = [
 ]
 ```
 
-### Layer 2 — SSH keepalive flags (connection-level)
+### Layer 2 — SSH keepalive and connection-timeout flags
 
-SSH `ServerAliveInterval=N ServerAliveCountMax=M`: the SSH client sends a keepalive
-probe to the server every N seconds; if M consecutive probes go unanswered, SSH exits.
-Total silence budget = N × M seconds. This **catches the observed case** — the SSH
-channel is open but the NAS is unresponsive.
+Three SSH options, applied to every SSH invocation:
 
-Also add `ConnectTimeout=N`: caps how long SSH waits to establish the initial
-connection.
+| Option | Value | Purpose |
+|--------|-------|---------|
+| `ConnectTimeout` | 30 s | Caps connection establishment; covers DNS/TCP hangs before SSH is up |
+| `ServerAliveInterval` | 30 s | Send keepalive probe every 30 s of silence |
+| `ServerAliveCountMax` | 3 | Give up after 3 unanswered probes (90 s total silence budget) |
 
-Applied to every SSH command builder in `bf_rsync_file_sync`:
+**Total silence budget for any SSH session: 90 seconds.**
+
+These are applied in two places:
 
 **rsync `-e ssh ...` string** — affects the SSH session rsync runs over:
 ```
-ssh -i {key} -o ConnectTimeout=30 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 ...
+ssh -i {key} -o BatchMode=yes -o ConnectTimeout=30
+    -o ServerAliveInterval=30 -o ServerAliveCountMax=3 ...
 ```
 
-**All `bssh_command` calls** (`sha256sum`, `mkdir -p`, `cleanup`) — add to `ssh_args`:
-```python
-ssh_args += [
-  '-o', 'ConnectTimeout=30',
-  '-o', 'ServerAliveInterval=30',
-  '-o', 'ServerAliveCountMax=3',
-]
-```
-
-Total silence budget for SSH commands: 30 × 3 = **90 seconds**.
-
-### Layer 3 — process-level timeout in `execute.execute`
-
-Belt-and-suspenders: if layers 1 and 2 fail (e.g. rsync ignores `--timeout`, or
-SSH ignores keepalives due to a kernel-level TCP stall), a wall-clock alarm kills
-the subprocess.
-
-Add an optional `timeout_seconds` parameter to `execute.execute`:
-
-```python
-try:
-  output = process.communicate(input=input_data, timeout=timeout_seconds)
-except subprocess.TimeoutExpired:
-  process.kill()
-  process.communicate()   # drain pipes after kill
-  raise execute_timeout_error(f'command timed out after {timeout_seconds}s: {parsed_args}')
-```
-
-`execute_timeout_error` is a new subclass of the existing error type so callers can
-catch it specifically.
-
-For rsync, a fixed wall-clock timeout is wrong (a 100 GB file on a slow link could
-legitimately take hours). Use `None` (no process-level timeout) for rsync — layers 1
-and 2 are sufficient. For SSH-only commands (`sha256sum`, `mkdir`, `cleanup`) use a
-fixed **120 seconds** — any of these taking longer than 2 minutes indicates a hang.
+**All `bssh_command` calls** (`sha256sum`, `mkdir -p`, `cleanup`) — same three
+options added to `ssh_args`. Currently each method builds `ssh_args` independently
+with the same boilerplate. Extract a `_ssh_args()` helper that returns the full base
+args list so the timeout options are set in one place.
 
 ---
 
 ## Retry behaviour (already correct)
 
-When any of the above timeouts fires, the exception propagates out of `_sync_one`,
+When either timeout fires, the exception propagates out of `_sync_one`,
 gets caught by the `_run_loop` error handler, emits a `RETRY` line, sleeps
 `retry_wait_seconds`, and retries the file. rsync `--partial` + `--partial-dir`
-means the next attempt resumes from where the previous left off, which is exactly
-what the user observed when they manually re-ran.
+means the next attempt resumes from where the previous left off — exactly what
+was observed when the program was restarted manually.
 
 **No changes needed to retry logic.**
 
@@ -124,14 +101,12 @@ what the user observed when they manually re-ran.
 
 | Setting | Default | Expose as parameter? |
 |---------|---------|---------------------|
-| rsync `--timeout` | 300 s | No — hardcode is fine; rarely needs tuning |
+| rsync `--timeout` | 300 s | No — hardcode; rarely needs tuning |
 | SSH `ConnectTimeout` | 30 s | No |
 | SSH `ServerAliveInterval` | 30 s | No |
 | SSH `ServerAliveCountMax` | 3 | No |
-| SSH command process timeout | 120 s | No |
 
-None of these need to be user-tunable for this use case. If they do later, they can
-be added to `__init__` alongside `retry_wait_seconds`.
+None of these need to be user-tunable for this use case.
 
 ---
 
@@ -142,34 +117,75 @@ be added to `__init__` alongside `retry_wait_seconds`.
 
 2. **rsync `--timeout` vs SSH keepalive interaction**: if `--timeout=300` fires
    first, rsync exits and the SSH channel closes normally. If the SSH keepalive
-   fires first (90 s × layer-2 budget), SSH exits and rsync gets a broken pipe.
-   Both produce a non-zero exit code; both are caught by the retry loop. No
-   conflict.
+   fires first (90 s), SSH exits and rsync gets a broken pipe. Both produce a
+   non-zero exit code; both are caught by the retry loop. No conflict.
 
-3. **Process-level timeout for rsync**: A 100 GB file at 100 MB/s takes ~17 min.
-   Any fixed timeout would be too short for large files or slow links. Do **not**
-   add a process-level wall-clock timeout to rsync. Layers 1 and 2 are enough.
-
-4. **`execute.execute` change scope**: Adding `timeout_seconds` to `execute.execute`
-   is a small, additive change. `None` means no timeout (current behaviour), so
-   all existing callers are unaffected. Only the `bssh_command` calls in
-   `bf_rsync_file_sync` will pass a value.
+3. **Process-level timeout for rsync deliberately omitted**: A 100 GB file at
+   100 MB/s takes ~17 min. Any fixed wall-clock timeout would false-positive on
+   large files or slow links. Layers 1 and 2 are sufficient.
 
 ---
 
 ## Implementation plan
 
-1. Add `timeout_seconds=None` to `execute.execute`, using `communicate(timeout=N)`
-   with SIGKILL fallback and a new `execute_timeout_error` exception class.
+1. Add `_ssh_args()` instance method to `bf_rsync_file_sync` returning the full
+   base SSH args list with all timeout options. Replaces the repeated boilerplate
+   in `_ssh_sha256`, `_ssh_mkdir`, `_cleanup_partial`.
 
-2. Add `timeout_seconds=None` to `system_command.call_command` and thread it
-   through to `execute.execute`.
+2. Add `_rsync_ssh_command()` instance method returning the `-e ssh ...` string
+   for rsync with the same timeout options.
 
-3. In `bf_rsync_file_sync`:
-   - Add `--timeout=300` to the rsync args in `_rsync`.
-   - Add SSH keepalive options to the `-e ssh ...` string in `_rsync`.
-   - Extract a helper `_ssh_args()` that returns the base SSH args list (key,
-     port, strict-host, known-hosts) so the keepalive options are added in one
-     place and shared by `_ssh_sha256`, `_ssh_mkdir`, `_cleanup_partial`.
-   - Pass `timeout_seconds=120` to `bssh_command.call_command` in all three
-     SSH-only methods.
+3. Add `--timeout=300` to the rsync args in `_rsync`.
+
+4. Update `_ssh_sha256`, `_ssh_mkdir`, `_cleanup_partial` to call `_ssh_args()`.
+
+No changes to `execute.execute` or `system_command.call_command`.
+
+---
+
+## Checksum optimization (future work — independent)
+
+### Problem
+
+`sha256sum` runs over SSH on the NAS *twice* per file:
+
+1. **Pre-transfer** — to decide skip vs transfer (reads the full remote file)
+2. **Post-transfer** — to verify integrity (reads the full transferred file)
+
+For large video files on spinning NAS disks (~100–200 MB/s read), each pass takes
+**2–5 minutes**. During this time the progress display shows `filename ...` and
+nothing changes — indistinguishable from a hang.
+
+### Proposal: stat-first pre-transfer check
+
+Before computing the remote SHA-256, run a fast `stat` (or `ls -l`) over SSH to get
+the remote file size. Compare against the local file size:
+
+- **Sizes differ** → different content with certainty → skip the remote SHA-256,
+  go straight to rename+transfer. Save 2–5 min.
+- **Sizes match** → compute remote SHA-256 to distinguish same-content (skip) from
+  hash collision (transfer). Same cost as today.
+- **File missing** → no stat, no SHA-256, straight to transfer. Already fast.
+
+For the common case where the remote file doesn't exist yet, this is free. For the
+case where the remote file exists with matching content (skip), this halves the SSH
+round-trips. For the rename case (different content, different size — most common for
+truly different files), the full SHA-256 is avoided entirely.
+
+### Post-transfer verification
+
+The post-transfer `sha256sum` cannot easily be replaced with `stat` (we need to
+verify the bits, not just the size). However, rsync already verifies data integrity
+during transfer using its own checksum protocol. The SSH `sha256sum` adds a second
+independent verification layer. Whether this is worth 2–5 minutes per file for large
+files is a policy decision.
+
+Options:
+- Keep as-is (maximum integrity, slowest).
+- Make post-transfer verification opt-in via `--verify` flag (default off).
+- Replace with a `stat`-based size check post-transfer (fast but weaker).
+
+### When to implement
+
+Separately, after the timeout work is shipped. Start with the pre-transfer stat
+optimization since it is unambiguously correct and has no integrity trade-off.

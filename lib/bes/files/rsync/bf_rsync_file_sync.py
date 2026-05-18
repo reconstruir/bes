@@ -176,20 +176,48 @@ class bf_rsync_file_sync(object):
     os.remove(src)
     return ('rename' if rename_rel else 'transfer', file_size)
 
-  def _rsync(self, src, dest_path):
-    ssh_cmd = f'ssh -i {self._ssh_key}'
+  def _ssh_args(self):
+    'Base SSH args for bssh_command calls, with keepalive and connection timeout.'
+    args = [
+      '-i', self._ssh_key,
+      '-o', 'BatchMode=yes',
+      '-o', 'ConnectTimeout=30',
+      '-o', 'ServerAliveInterval=30',
+      '-o', 'ServerAliveCountMax=3',
+    ]
     if self._ssh_port is not None:
-      ssh_cmd += f' -p {self._ssh_port}'
+      args += ['-p', str(self._ssh_port)]
     if not self._strict_host_checking:
-      ssh_cmd += ' -o StrictHostKeyChecking=no'
+      args += ['-o', 'StrictHostKeyChecking=no']
     if self._known_hosts_file:
-      ssh_cmd += f' -o UserKnownHostsFile={self._known_hosts_file}'
+      args += ['-o', f'UserKnownHostsFile={self._known_hosts_file}']
+    return args
+
+  def _rsync_ssh_command(self):
+    'SSH command string for rsync -e, with keepalive and connection timeout.'
+    parts = [
+      f'ssh -i {self._ssh_key}',
+      '-o BatchMode=yes',
+      '-o ConnectTimeout=30',
+      '-o ServerAliveInterval=30',
+      '-o ServerAliveCountMax=3',
+    ]
+    if self._ssh_port is not None:
+      parts.append(f'-p {self._ssh_port}')
+    if not self._strict_host_checking:
+      parts.append('-o StrictHostKeyChecking=no')
+    if self._known_hosts_file:
+      parts.append(f'-o UserKnownHostsFile={self._known_hosts_file}')
+    return ' '.join(parts)
+
+  def _rsync(self, src, dest_path):
     cmd = [
       '--partial', '--partial-dir=.rsync-partial',
       '--exclude=**/.DS_Store',
       '--human-readable', '--stats',
+      '--timeout=300',
       '-va',
-      '-e', ssh_cmd,
+      '-e', self._rsync_ssh_command(),
       src,
       f'{self._host}:{dest_path}',
     ]
@@ -197,13 +225,7 @@ class bf_rsync_file_sync(object):
 
   def _ssh_sha256(self, remote_path):
     'Return sha256 of remote_path, or None if the file is missing.'
-    ssh_args = ['-i', self._ssh_key, '-o', 'BatchMode=yes']
-    if self._ssh_port is not None:
-      ssh_args += ['-p', str(self._ssh_port)]
-    if not self._strict_host_checking:
-      ssh_args += ['-o', 'StrictHostKeyChecking=no']
-    if self._known_hosts_file:
-      ssh_args += ['-o', f'UserKnownHostsFile={self._known_hosts_file}']
+    ssh_args = self._ssh_args()
     remote_cmd = f'sha256sum "{remote_path}" 2>/dev/null || echo MISSING'
     ssh_args += [self._host, remote_cmd]
     rv = bssh_command.call_command(ssh_args, quote=False)
@@ -213,26 +235,14 @@ class bf_rsync_file_sync(object):
     return output.split()[0].lower()
 
   def _ssh_mkdir(self, remote_dir):
-    ssh_args = ['-i', self._ssh_key, '-o', 'BatchMode=yes']
-    if self._ssh_port is not None:
-      ssh_args += ['-p', str(self._ssh_port)]
-    if not self._strict_host_checking:
-      ssh_args += ['-o', 'StrictHostKeyChecking=no']
-    if self._known_hosts_file:
-      ssh_args += ['-o', f'UserKnownHostsFile={self._known_hosts_file}']
+    ssh_args = self._ssh_args()
     ssh_args += [self._host, f'mkdir -p "{remote_dir}"']
     bssh_command.call_command(ssh_args, quote=False)
 
   def _cleanup_partial(self):
     'Best-effort recursive removal of .rsync-partial dirs on the NAS after a clean run.'
     try:
-      ssh_args = ['-i', self._ssh_key, '-o', 'BatchMode=yes']
-      if self._ssh_port is not None:
-        ssh_args += ['-p', str(self._ssh_port)]
-      if not self._strict_host_checking:
-        ssh_args += ['-o', 'StrictHostKeyChecking=no']
-      if self._known_hosts_file:
-        ssh_args += ['-o', f'UserKnownHostsFile={self._known_hosts_file}']
+      ssh_args = self._ssh_args()
       remote_cmd = f'find "{self._dest_root}" -type d -name .rsync-partial -exec rm -rf {{}} +'
       ssh_args += [self._host, remote_cmd]
       bssh_command.call_command(ssh_args, quote=False)
