@@ -10,6 +10,7 @@ import unittest.mock as mock
 
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
+from bes.files.bf_entry import bf_entry
 from bes.files.rsync.bf_rsync_command import bf_rsync_command
 from bes.files.rsync.bf_rsync_error import bf_rsync_error
 from bes.files.rsync.bf_rsync_file_sync import bf_rsync_file_sync
@@ -30,6 +31,9 @@ class test_bf_rsync_file_sync_unit(unit_test):
       key, 'nas2:/mnt/stuff/p', source_dirs,
       strict_host_checking=False, **kwargs
     )
+
+  def _make_entry(self, absolute_path):
+    return bf_entry(path.basename(absolute_path), root_dir=path.dirname(absolute_path))
 
   # 45
   def test_ssh_sha256_missing(self):
@@ -66,7 +70,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64) as m:
       syncer._ssh_sha256 = lambda p: 'a' * 64  # same hash → skip
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertEqual(1, m.call_count)
 
   # 49
@@ -81,7 +85,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='b' * 64) as m:
       syncer._ssh_sha256 = lambda p: 'b' * 64
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertEqual(1, m.call_count)
 
   # 50
@@ -90,12 +94,12 @@ class test_bf_rsync_file_sync_unit(unit_test):
     src = self.make_temp_file(content=b'data', suffix='.mp4')
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
-      syncer._ssh_sha256 = lambda p: None
       transferred = []
       syncer._rsync = lambda s, d: transferred.append(d)
       syncer._ssh_sha256 = lambda p: (None if not transferred else 'c' * 64)
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertTrue(any('/mnt/stuff/p/' + path.basename(src) == d for d in transferred))
 
   # 51
@@ -108,7 +112,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
       with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a: rsync_called.append(a)):
         syncer._ssh_sha256 = lambda p: 'd' * 64
         with mock.patch.object(os, 'remove'):
-          syncer._sync_one(src)
+          syncer._sync_one(self._make_entry(src))
     self.assertEqual([], rsync_called)
 
   # 52
@@ -126,8 +130,9 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return 'e' * 64    # post-transfer: verified
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: transferred.append(d)
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertTrue(any('-' + 'e' * 8 + '.mp4' in d for d in transferred))
 
   # 53
@@ -206,16 +211,15 @@ class test_bf_rsync_file_sync_unit(unit_test):
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     removed = []
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
-      syncer._ssh_sha256 = lambda p: None if not removed else 'a' * 64
-      syncer._rsync = lambda s, d: None
-      orig_sha = syncer._ssh_sha256
       call_count = [0]
       def ssh_sha256(p):
         call_count[0] += 1
         return None if call_count[0] == 1 else 'a' * 64
       syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertIn(src, removed)
 
   # 63
@@ -232,8 +236,9 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return 'b' * 64  # post-transfer: mismatch
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with self.assertRaises(bf_rsync_error):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
 
   # 64
   def test_source_deleted_after_verify(self):
@@ -248,8 +253,9 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if call_count[0] == 1 else 'c' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertEqual(1, removed.count(src))
 
   # 65
@@ -260,10 +266,11 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
       syncer._ssh_sha256 = lambda p: None
       syncer._rsync = lambda s, d: (_ for _ in ()).throw(bf_rsync_error('rsync failed'))
+      syncer._ssh_mkdir = lambda d: None
       removed = []
       with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
         with self.assertRaises(bf_rsync_error):
-          syncer._sync_one(src)
+          syncer._sync_one(self._make_entry(src))
     self.assertNotIn(src, removed)
 
   # 66
@@ -280,10 +287,11 @@ class test_bf_rsync_file_sync_unit(unit_test):
         raise bssh_error('verify ssh failed')
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       removed = []
       with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
         with self.assertRaises(bssh_error):
-          syncer._sync_one(src)
+          syncer._sync_one(self._make_entry(src))
     self.assertNotIn(src, removed)
 
   # 67
@@ -295,7 +303,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='f' * 64):
       syncer._ssh_sha256 = lambda p: 'f' * 64
       with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertIn(src, removed)
 
   # 68
@@ -308,7 +316,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
       rsync_calls = []
       with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a: rsync_calls.append(a)):
         with mock.patch.object(os, 'remove'):
-          syncer._sync_one(src)
+          syncer._sync_one(self._make_entry(src))
     self.assertEqual([], rsync_calls)
 
   # 69
@@ -328,6 +336,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if attempts[0] == 3 else '1' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch('time.sleep'):
         with mock.patch.object(os, 'remove'):
           syncer._run_loop()
@@ -351,6 +360,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if rsync_attempts[0] < 2 else '2' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = rsync
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch('time.sleep'):
         with mock.patch.object(os, 'remove'):
           syncer._run_loop()
@@ -373,6 +383,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if attempt[0] == 2 else '3' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       slept = []
       with mock.patch('time.sleep', side_effect=lambda n: slept.append(n)):
         with mock.patch.object(os, 'remove'):
@@ -410,6 +421,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
       def rsync(s, d):
         transferred.append(path.basename(s))
       syncer._rsync = rsync
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch('time.sleep'):
         with mock.patch.object(os, 'remove'):
           syncer._run_loop()
@@ -431,6 +443,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if call_count[0] == 1 else '5' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       slept = []
       with mock.patch('time.sleep', side_effect=lambda n: slept.append(n)):
         with mock.patch.object(os, 'remove'):
@@ -457,6 +470,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if call_count[0] % 2 == 1 else '6' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: transferred.append(path.basename(s))
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
         syncer._run_loop()
     self.assertIn('clip1.mp4', transferred)
@@ -487,7 +501,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='7' * 64):
       syncer._ssh_sha256 = lambda p: '7' * 64
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertTrue(any(tag == 'SKIP' for tag, _ in lines))
 
   def test_log_transfer_line(self):
@@ -503,8 +517,9 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if call_count[0] == 1 else '8' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     self.assertTrue(any(tag == 'TRANSFER' for tag, _ in lines))
 
   def test_log_has_timestamps(self):
@@ -522,7 +537,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='9' * 64):
       syncer._ssh_sha256 = lambda p: '9' * 64
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(src)
+        syncer._sync_one(self._make_entry(src))
     pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}')
     for line in log_lines:
       self.assertRegex(line, pattern)
@@ -634,6 +649,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if call_count[0] == 1 else 'e' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
         syncer._run_loop()
     self.assertIn('SUMMARY', tags)
@@ -654,6 +670,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
         return None if call_count[0] == 1 else 'f' * 64
       syncer._ssh_sha256 = ssh_sha256
       syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
         syncer._run_loop()
     summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
@@ -713,9 +730,10 @@ class test_bf_rsync_file_sync_unit(unit_test):
     open(top_file, 'w').close()
     open(sub_file, 'w').close()
     syncer = self._make_syncer(source_dirs=[src_dir])
-    files = syncer._collect_files()
-    self.assertIn(top_file, files)
-    self.assertIn(sub_file, files)
+    entries = syncer._collect_files()
+    abs_paths = [e.absolute_filename for e in entries]
+    self.assertIn(top_file, abs_paths)
+    self.assertIn(sub_file, abs_paths)
 
   def test_collect_files_deeply_nested(self):
     src_dir = self.make_temp_dir()
@@ -724,8 +742,9 @@ class test_bf_rsync_file_sync_unit(unit_test):
     deep_file = path.join(deep, 'movie.mp4')
     open(deep_file, 'w').close()
     syncer = self._make_syncer(source_dirs=[src_dir])
-    files = syncer._collect_files()
-    self.assertIn(deep_file, files)
+    entries = syncer._collect_files()
+    abs_paths = [e.absolute_filename for e in entries]
+    self.assertIn(deep_file, abs_paths)
 
   def test_collect_files_excludes_ds_store_in_subdir(self):
     src_dir = self.make_temp_dir()
@@ -736,9 +755,10 @@ class test_bf_rsync_file_sync_unit(unit_test):
     open(ds_store, 'w').close()
     open(real_file, 'w').close()
     syncer = self._make_syncer(source_dirs=[src_dir])
-    files = syncer._collect_files()
-    self.assertNotIn(ds_store, files)
-    self.assertIn(real_file, files)
+    entries = syncer._collect_files()
+    abs_paths = [e.absolute_filename for e in entries]
+    self.assertNotIn(ds_store, abs_paths)
+    self.assertIn(real_file, abs_paths)
 
   def test_collect_files_sorted(self):
     src_dir = self.make_temp_dir()
@@ -747,8 +767,89 @@ class test_bf_rsync_file_sync_unit(unit_test):
     open(path.join(src_dir, 'z.mp4'), 'w').close()
     open(path.join(sub, 'a.mp4'), 'w').close()
     syncer = self._make_syncer(source_dirs=[src_dir])
-    files = syncer._collect_files()
-    self.assertEqual(files, sorted(files))
+    entries = syncer._collect_files()
+    abs_paths = [e.absolute_filename for e in entries]
+    self.assertEqual(abs_paths, sorted(abs_paths))
+
+  def test_collect_files_entry_has_relative_filename(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'action')
+    os.makedirs(sub)
+    open(path.join(sub, 'movie.mp4'), 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    entries = syncer._collect_files()
+    rel_paths = [e.relative_filename for e in entries]
+    self.assertIn(path.join('action', 'movie.mp4'), rel_paths)
+
+  def test_dest_path_uses_relative_filename(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'action')
+    os.makedirs(sub)
+    src = path.join(sub, 'movie.mp4')
+    open(src, 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    transferred_dest = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        return None if call_count[0] == 1 else 'a' * 64
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: transferred_dest.append(d)
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        syncer._run_loop()
+    self.assertEqual(1, len(transferred_dest))
+    self.assertIn('action/movie.mp4', transferred_dest[0])
+
+  def test_mkdir_called_with_remote_subdir(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'action')
+    os.makedirs(sub)
+    src = path.join(sub, 'movie.mp4')
+    open(src, 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    mkdir_calls = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='b' * 64):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        return None if call_count[0] == 1 else 'b' * 64
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: mkdir_calls.append(d)
+      with mock.patch.object(os, 'remove'):
+        syncer._run_loop()
+    self.assertEqual(1, len(mkdir_calls))
+    self.assertIn('action', mkdir_calls[0])
+
+  def test_rename_in_subdir_preserves_subdir(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'action')
+    os.makedirs(sub)
+    src = path.join(sub, 'movie.mp4')
+    open(src, 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    transferred_dest = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        if call_count[0] == 1:
+          return 'd' * 64  # pre-check: different content → rename
+        return 'c' * 64    # verify: match
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: transferred_dest.append(d)
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        syncer._run_loop()
+    self.assertEqual(1, len(transferred_dest))
+    dest = transferred_dest[0]
+    self.assertIn('action/', dest)
+    self.assertIn('-' + 'c' * 8, dest)
 
 
 class test_bf_rsync_file_sync_integration(unit_test):

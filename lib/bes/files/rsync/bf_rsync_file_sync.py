@@ -73,22 +73,22 @@ class bf_rsync_file_sync(object):
     while pending:
       failed = False
       completed = []
-      for src in pending:
+      for entry in pending:
         try:
-          action, size = self._sync_one(src)
+          action, size = self._sync_one(entry)
           if action == 'skip':
             skip_count += 1
             skip_bytes += size
           else:
             transfer_count += 1
             transfer_bytes += size
-          completed.append(src)
+          completed.append(entry)
         except Exception as ex:
-          self._emit('RETRY', f'error on {path.basename(src)}: {ex}, waiting {self._retry_wait_seconds}s...')
+          self._emit('RETRY', f'error on {entry.relative_filename}: {ex}, waiting {self._retry_wait_seconds}s...')
           self._log.log_e(f'sync error: {ex}')
           failed = True
           break
-      pending = [f for f in pending if f not in completed]
+      pending = [e for e in pending if e not in completed]
       if failed:
         time.sleep(self._retry_wait_seconds)
     if not self._dry_run:
@@ -112,7 +112,7 @@ class bf_rsync_file_sync(object):
     self._emit('SUMMARY', f'{total} files — {xfer_part}, {skip_part}{suffix}')
 
   def _collect_files(self):
-    files = []
+    entries = []
     for src_dir in self._source_dirs:
       if not path.isdir(src_dir):
         self._emit('ERROR', f'source dir not found: {src_dir}')
@@ -122,51 +122,54 @@ class bf_rsync_file_sync(object):
         file_type=bf_file_type.FILE,
         exclude_patterns=['.DS_Store'],
       )
-      for entry in result.entries:
-        files.append(entry.absolute_filename)
-    return sorted(files)
+      entries.extend(result.entries)
+    return sorted(entries, key=lambda e: e.absolute_filename)
 
-  def _sync_one(self, src):
-    basename = path.basename(src)
+  def _sync_one(self, entry):
+    src = entry.absolute_filename
+    rel_path = entry.relative_filename
     file_size = path.getsize(src)
     local_hash = bf_checksum_cache.get_checksum(src, 'sha256')
-    remote_hash = self._ssh_sha256(f'{self._dest_root}/{basename}')
+    remote_hash = self._ssh_sha256(f'{self._dest_root}/{rel_path}')
 
     if remote_hash is None:
-      dest_path = f'{self._dest_root}/{basename}'
-      rename = None
+      dest_path = f'{self._dest_root}/{rel_path}'
+      rename_rel = None
     elif remote_hash == local_hash:
       if self._dry_run:
-        self._emit('DRY-RUN', f'{basename} — would skip ({bf_size.sizeof_fmt(file_size)}, destination has same checksum)')
+        self._emit('DRY-RUN', f'{rel_path} — would skip ({bf_size.sizeof_fmt(file_size)}, destination has same checksum)')
       else:
-        self._emit('SKIP', f'{basename} — destination exists, same checksum')
+        self._emit('SKIP', f'{rel_path} — destination exists, same checksum')
         os.remove(src)
-        self._emit('DELETED', f'{basename} — source removed')
+        self._emit('DELETED', f'{rel_path} — source removed')
       return ('skip', file_size)
     else:
-      rename = self._make_unique_name(basename, local_hash)
-      dest_path = f'{self._dest_root}/{rename}'
+      rel_dir = path.dirname(rel_path)
+      unique_basename = self._make_unique_name(path.basename(rel_path), local_hash)
+      rename_rel = path.join(rel_dir, unique_basename) if rel_dir else unique_basename
+      dest_path = f'{self._dest_root}/{rename_rel}'
 
     if self._dry_run:
       size_str = bf_size.sizeof_fmt(file_size)
-      if rename:
-        self._emit('DRY-RUN', f'{basename} → {rename} — would transfer ({size_str}, destination exists with different content)')
+      if rename_rel:
+        self._emit('DRY-RUN', f'{rel_path} → {rename_rel} — would transfer ({size_str}, destination exists with different content)')
       else:
-        self._emit('DRY-RUN', f'{basename} — would transfer ({size_str}, destination missing)')
+        self._emit('DRY-RUN', f'{rel_path} — would transfer ({size_str}, destination missing)')
       return ('transfer', file_size)
 
-    if rename:
-      self._emit('RENAME', f'{basename} → {rename} — destination exists, different content')
-    self._emit('TRANSFER', f'{basename} → {self._host}:{dest_path}')
+    if rename_rel:
+      self._emit('RENAME', f'{rel_path} → {rename_rel} — destination exists, different content')
+    self._emit('TRANSFER', f'{rel_path} → {self._host}:{dest_path}')
+    self._ssh_mkdir(path.dirname(dest_path))
     self._rsync(src, dest_path)
 
     verified_hash = self._ssh_sha256(dest_path)
     if verified_hash != local_hash:
-      raise bf_rsync_error(f'checksum mismatch after transfer: {basename}')
-    self._emit('VERIFIED', f'{basename} — checksum confirmed on NAS')
+      raise bf_rsync_error(f'checksum mismatch after transfer: {rel_path}')
+    self._emit('VERIFIED', f'{rel_path} — checksum confirmed on NAS')
 
     os.remove(src)
-    self._emit('DELETED', f'{basename} — source removed')
+    self._emit('DELETED', f'{rel_path} — source removed')
     return ('transfer', file_size)
 
   def _rsync(self, src, dest_path):
@@ -205,8 +208,19 @@ class bf_rsync_file_sync(object):
       return None
     return output.split()[0].lower()
 
+  def _ssh_mkdir(self, remote_dir):
+    ssh_args = ['-i', self._ssh_key, '-o', 'BatchMode=yes']
+    if self._ssh_port is not None:
+      ssh_args += ['-p', str(self._ssh_port)]
+    if not self._strict_host_checking:
+      ssh_args += ['-o', 'StrictHostKeyChecking=no']
+    if self._known_hosts_file:
+      ssh_args += ['-o', f'UserKnownHostsFile={self._known_hosts_file}']
+    ssh_args += [self._host, f'mkdir -p "{remote_dir}"']
+    bssh_command.call_command(ssh_args, quote=False)
+
   def _cleanup_partial(self):
-    'Best-effort removal of .rsync-partial dir on the NAS after a clean run.'
+    'Best-effort recursive removal of .rsync-partial dirs on the NAS after a clean run.'
     try:
       ssh_args = ['-i', self._ssh_key, '-o', 'BatchMode=yes']
       if self._ssh_port is not None:
@@ -215,9 +229,10 @@ class bf_rsync_file_sync(object):
         ssh_args += ['-o', 'StrictHostKeyChecking=no']
       if self._known_hosts_file:
         ssh_args += ['-o', f'UserKnownHostsFile={self._known_hosts_file}']
-      ssh_args += [self._host, f'rm -rf "{self._dest_root}/.rsync-partial"']
+      remote_cmd = f'find "{self._dest_root}" -type d -name .rsync-partial -exec rm -rf {{}} +'
+      ssh_args += [self._host, remote_cmd]
       bssh_command.call_command(ssh_args, quote=False)
-      self._emit('CLEANUP', f'{self._host}:{self._dest_root}/.rsync-partial removed')
+      self._emit('CLEANUP', f'{self._host}:{self._dest_root} .rsync-partial dirs removed')
     except Exception as ex:
       self._log.log_w(f'cleanup of .rsync-partial failed (non-fatal): {ex}')
 
