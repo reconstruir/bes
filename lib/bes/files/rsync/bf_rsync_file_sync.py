@@ -7,9 +7,11 @@ from datetime import datetime
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.files.bf_file_type import bf_file_type
 from bes.files.bf_size import bf_size
 from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
 from bes.files.bf_filename import bf_filename
+from bes.files.find.bf_file_finder import bf_file_finder
 from bes.ssh.bssh_command import bssh_command
 
 from .bf_rsync_command import bf_rsync_command
@@ -115,13 +117,14 @@ class bf_rsync_file_sync(object):
       if not path.isdir(src_dir):
         self._emit('ERROR', f'source dir not found: {src_dir}')
         continue
-      for entry in sorted(os.listdir(src_dir)):
-        if entry == '.DS_Store':
-          continue
-        full = path.join(src_dir, entry)
-        if path.isfile(full):
-          files.append(full)
-    return files
+      result = bf_file_finder.find_with_fnmatch(
+        [src_dir],
+        file_type=bf_file_type.FILE,
+        exclude_patterns=['.DS_Store'],
+      )
+      for entry in result.entries:
+        files.append(entry.absolute_filename)
+    return sorted(files)
 
   def _sync_one(self, src):
     basename = path.basename(src)

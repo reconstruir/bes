@@ -703,6 +703,53 @@ class test_bf_rsync_file_sync_unit(unit_test):
     summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
     self.assertIn('no files', summary)
 
+  # recursion tests
+  def test_collect_files_recursive(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'sub')
+    os.makedirs(sub)
+    top_file = path.join(src_dir, 'top.mp4')
+    sub_file = path.join(sub, 'deep.mp4')
+    open(top_file, 'w').close()
+    open(sub_file, 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    files = syncer._collect_files()
+    self.assertIn(top_file, files)
+    self.assertIn(sub_file, files)
+
+  def test_collect_files_deeply_nested(self):
+    src_dir = self.make_temp_dir()
+    deep = path.join(src_dir, 'a', 'b', 'c')
+    os.makedirs(deep)
+    deep_file = path.join(deep, 'movie.mp4')
+    open(deep_file, 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    files = syncer._collect_files()
+    self.assertIn(deep_file, files)
+
+  def test_collect_files_excludes_ds_store_in_subdir(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'sub')
+    os.makedirs(sub)
+    ds_store = path.join(sub, '.DS_Store')
+    real_file = path.join(sub, 'movie.mp4')
+    open(ds_store, 'w').close()
+    open(real_file, 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    files = syncer._collect_files()
+    self.assertNotIn(ds_store, files)
+    self.assertIn(real_file, files)
+
+  def test_collect_files_sorted(self):
+    src_dir = self.make_temp_dir()
+    sub = path.join(src_dir, 'sub')
+    os.makedirs(sub)
+    open(path.join(src_dir, 'z.mp4'), 'w').close()
+    open(path.join(sub, 'a.mp4'), 'w').close()
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    files = syncer._collect_files()
+    self.assertEqual(files, sorted(files))
+
 
 class test_bf_rsync_file_sync_integration(unit_test):
   'Integration tests — real sshd + rsync via bssh_sandbox.'
