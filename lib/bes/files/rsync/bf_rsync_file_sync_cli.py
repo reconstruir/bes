@@ -19,6 +19,8 @@ class bf_rsync_file_sync_cli(object):
                         help='One or more local directories to sync from')
     parser.add_argument('--log-file', default=None, metavar='PATH',
                         help='Write operational log to this file (default: stdout only)')
+    parser.add_argument('--dry-run', action='store_true', default=False,
+                        help='Show what would be transferred without moving any data')
     args = parser.parse_args()
 
     syncer = bf_rsync_file_sync(
@@ -26,5 +28,6 @@ class bf_rsync_file_sync_cli(object):
       args.destination,
       args.source_dirs,
       log_file=args.log_file,
+      dry_run=args.dry_run,
     )
     syncer.run()

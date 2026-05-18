@@ -557,6 +557,152 @@ class test_bf_rsync_file_sync_unit(unit_test):
       syncer._cleanup_partial()
     self.assertIn('CLEANUP', lines)
 
+  # dry-run tests
+  def test_dry_run_no_rsync_call(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    rsync_calls = []
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
+      syncer._ssh_sha256 = lambda p: None
+      with mock.patch.object(bf_rsync_command, 'call_command', side_effect=lambda a, **kw: rsync_calls.append(a)):
+        syncer._run_loop()
+    self.assertEqual([], rsync_calls)
+
+  def test_dry_run_source_not_deleted(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='b' * 64):
+      syncer._ssh_sha256 = lambda p: None
+      syncer._run_loop()
+    self.assertTrue(path.exists(src))
+
+  def test_dry_run_skip_source_not_deleted(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='c' * 64):
+      syncer._ssh_sha256 = lambda p: 'c' * 64
+      syncer._run_loop()
+    self.assertTrue(path.exists(src))
+
+  def test_dry_run_emits_dry_run_tag(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
+    tags = []
+    syncer._emit = lambda tag, msg: tags.append(tag)
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
+      syncer._ssh_sha256 = lambda p: None
+      syncer._run_loop()
+    self.assertIn('DRY-RUN', tags)
+
+  def test_dry_run_no_cleanup_partial(self):
+    syncer = self._make_syncer(dry_run=True)
+    cleanup_calls = []
+    syncer._cleanup_partial = lambda: cleanup_calls.append(True)
+    syncer._run_loop()
+    self.assertEqual([], cleanup_calls)
+
+  # summary tests
+  def test_summary_emitted_after_run(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    tags = []
+    syncer._emit = lambda tag, msg: tags.append(tag)
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='e' * 64):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        return None if call_count[0] == 1 else 'e' * 64
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: None
+      with mock.patch.object(os, 'remove'):
+        syncer._run_loop()
+    self.assertIn('SUMMARY', tags)
+
+  def test_summary_transfer_count_and_bytes(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'x' * 2048)
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    messages = []
+    syncer._emit = lambda tag, msg: messages.append((tag, msg))
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='f' * 64):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        return None if call_count[0] == 1 else 'f' * 64
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: None
+      with mock.patch.object(os, 'remove'):
+        syncer._run_loop()
+    summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
+    self.assertIn('1 transferred', summary)
+    self.assertIn('0 skipped', summary)
+    self.assertIn('2.0KiB', summary)
+
+  def test_summary_skip_count_and_bytes(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'y' * 4096)
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    messages = []
+    syncer._emit = lambda tag, msg: messages.append((tag, msg))
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='0' * 64):
+      syncer._ssh_sha256 = lambda p: '0' * 64
+      with mock.patch.object(os, 'remove'):
+        syncer._run_loop()
+    summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
+    self.assertIn('1 skipped', summary)
+    self.assertIn('0 transferred', summary)
+    self.assertIn('4.0KiB', summary)
+
+  def test_summary_dry_run_label(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'z' * 1024)
+    syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
+    messages = []
+    syncer._emit = lambda tag, msg: messages.append((tag, msg))
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='1' * 64):
+      syncer._ssh_sha256 = lambda p: None
+      syncer._run_loop()
+    summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
+    self.assertIn('would transfer', summary)
+    self.assertIn('[dry run]', summary)
+
+  def test_summary_empty_source(self):
+    syncer = self._make_syncer(source_dirs=[self.make_temp_dir()])
+    messages = []
+    syncer._emit = lambda tag, msg: messages.append((tag, msg))
+    syncer._run_loop()
+    summary = next(msg for tag, msg in messages if tag == 'SUMMARY')
+    self.assertIn('no files', summary)
+
 
 class test_bf_rsync_file_sync_integration(unit_test):
   'Integration tests — real sshd + rsync via bssh_sandbox.'
