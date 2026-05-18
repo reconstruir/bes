@@ -39,20 +39,37 @@ class bf_rsync_progress_tracker(object):
         self._log_fh.write(line + '\n')
         self._log_fh.flush()
 
-  def finish_file(self, entry, status, file_size, is_transfer):
+  def finish_file(self, entry, status, file_size, is_transfer, reason=''):
     if is_transfer:
       self._bytes_done += file_size
     index_str = f'[{self._current_index}/{self._total_files}]'
+    rel_path = entry.relative_filename
     done_str = bf_size.sizeof_fmt(self._bytes_done)
     total_str = bf_size.sizeof_fmt(self._total_bytes)
     eta_str = self._compute_eta()
-    line = f'{index_str} {status:<10} transferred {done_str} of {total_str}  ETA {eta_str}'
+    accounting = f'{done_str} / {total_str}  ETA {eta_str}'
+
     if self._compact:
+      if status in ('RENAME', 'DRY-RENAME') and reason:
+        path_part = f'{rel_path} → {reason}'
+      elif reason:
+        path_part = f'{rel_path}  {reason}'
+      else:
+        path_part = rel_path
+      line = f'{index_str} {status:<10} {path_part}  {accounting}'
       sys.stdout.write(f'\033[2K\r{line}\n')
       sys.stdout.flush()
     else:
+      if status in ('RENAME', 'DRY-RENAME') and reason:
+        detail = f'→ {reason}  '
+      elif reason:
+        detail = f'{reason}  '
+      else:
+        detail = ''
+      line = f'{index_str} {status:<10} {detail}{accounting}'
       print(line, flush=True)
       print(flush=True)
+
     if self._log_fh:
       ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
       self._log_fh.write(f'{ts} {line}\n')

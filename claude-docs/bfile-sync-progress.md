@@ -128,22 +128,23 @@ Printed as plain scrolling text. Each file produces three writes.
 
 ```
 [1/10] good-movies/_something/lemon/v1.mp4
-[1/10] SKIP        transferred 0 B of 45.2 GB  ETA --:--
+[1/10] SKIP       same checksum  0.0B / 45.2GiB  ETA --:--
 
 [2/10] good-movies/_something/lemon/v2.mp4
-[2/10] TRANSFER    transferred 1.23 GB of 45.2 GB  ETA 00:42
+[2/10] TRANSFER   1.23GiB / 45.2GiB  ETA 00:42
 
 [3/10] good-movies/_something/lemon/v3.mp4
-[3/10] RENAME      transferred 2.45 GB of 45.2 GB  ETA 00:39
+[3/10] RENAME     → v3-abc12345.mp4  2.45GiB / 45.2GiB  ETA 00:39
 
 ```
 
 - Line 1 printed **before** the work starts (checksum lookup, transfer).
-- Line 2 printed **after** the work completes.
+- Line 2 printed **after** the work completes; no duplicate path (line 1 still visible).
+- Reason appears in line 2: `same checksum` for SKIP, `→ newname` for RENAME, nothing for TRANSFER.
 - One blank line after each line 2.
-- Status tokens: `SKIP`, `TRANSFER`, `RENAME`, `ERROR` (on retry).
-- No timestamps.
-- Line 2 goes to the log file; line 1 and the blank line also go to the log file.
+- Status tokens: `SKIP`, `TRANSFER`, `RENAME`; dry-run variants `DRY-SKIP`, `DRY-XFER`, `DRY-RENAME`.
+- No timestamps on stdout; log file prefixes each entry with a timestamp.
+- Both lines go to the log file; blank separator also logged.
 
 ---
 
@@ -157,33 +158,29 @@ One overwritable line per file. Uses ANSI `\033[2K\r` to erase and reposition.
 [2/10] good-movies/_something/lemon/v2.mp4 ...
 ```
 
-Printed with `sys.stdout.write(f'\033[2K\r[{i}/{n}] {rel_path} ...')` and
-`sys.stdout.flush()`. No newline — stays on the same line.
+No newline — stays on the same terminal line until the file completes.
 
 **When the file finishes**, overwrite with the status line and end with `\n` to
-lock it in:
+lock it in. The path is included in the final line so scrollback is self-contained
+even though the `...` line was erased:
 
 ```
-[2/10] TRANSFER    transferred 1.23 GB of 45.2 GB  ETA 00:42
+[1/10] SKIP       good-movies/_something/lemon/v1.mp4  same checksum  0.0B / 45.2GiB  ETA --:--
+[2/10] TRANSFER   good-movies/_something/lemon/v2.mp4  1.23GiB / 45.2GiB  ETA 00:42
+[3/10] RENAME     good-movies/_something/lemon/v3.mp4 → v3-abc12345.mp4  2.45GiB / 45.2GiB  ETA 00:39
 ```
 
-`sys.stdout.write(f'\033[2K\r[{i}/{n}] {status:<10} transferred {done} of {total}  ETA {eta}\n')`
+- Path always present → no "mystery STATUS with no filename" in scrollback.
+- `→ newname` appended to path for RENAME; `  reason` appended for SKIP.
+- Only the finalized status line goes to the log file (no `...` line).
 
-The final `\n` freezes this line in the scrollback and moves to the next line for
-the next file.
+---
 
-**Only the finalized status line** (the one with `\n`) goes to the log file. The
-intermediate `...` line is terminal-only.
+## Why path is in the compact status line but not the verbose status line
 
-**Example compact scrollback** — what you see after 3 files complete:
-
-```
-[1/10] SKIP        transferred 0 B of 45.2 GB  ETA --:--
-[2/10] TRANSFER    transferred 1.23 GB of 45.2 GB  ETA 00:42
-[3/10] RENAME      transferred 2.45 GB of 45.2 GB  ETA 00:39
-```
-
-Clean, one line per file, no blank separators (the blank separator is verbose-only).
+Compact mode erases the `begin_file` line when `finish_file` runs, so the path
+would be lost from scrollback without it. Verbose mode keeps both lines, so the
+path on line 1 is already frozen; repeating it on line 2 would be redundant.
 
 ---
 
@@ -196,7 +193,7 @@ In compact mode, that callback calls:
 ```python
 sys.stdout.write(
   f'\033[2K\r[{i}/{n}] {rel_path}  {event.percent}%  {event.rate}  '
-  f'transferred {done} of {total}  ETA {eta}'
+  f'{done} / {total}  ETA {eta}'
 )
 sys.stdout.flush()
 ```

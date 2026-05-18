@@ -84,7 +84,7 @@ class bf_rsync_file_sync(object):
       for entry in pending:
         try:
           tracker.begin_file(entry)
-          action, size = self._sync_one(entry)
+          action, size, reason = self._sync_one(entry)
           is_transfer = action in ('transfer', 'rename')
           if is_transfer:
             transfer_count += 1
@@ -93,7 +93,7 @@ class bf_rsync_file_sync(object):
             skip_count += 1
             skip_bytes += size
           status = _STATUS_MAP_DRY[action] if self._dry_run else _STATUS_MAP[action]
-          tracker.finish_file(entry, status, size, is_transfer)
+          tracker.finish_file(entry, status, size, is_transfer, reason)
           completed.append(entry)
         except Exception as ex:
           self._emit('RETRY', f'error on {entry.relative_filename}: {ex}, waiting {self._retry_wait_seconds}s...')
@@ -150,13 +150,13 @@ class bf_rsync_file_sync(object):
     local_hash = bf_checksum_cache.get_checksum(src, 'sha256')
     remote_hash = self._ssh_sha256(f'{self._dest_root}/{rel_path}')
 
+    rename_rel = None
     if remote_hash is None:
       dest_path = f'{self._dest_root}/{rel_path}'
-      rename_rel = None
     elif remote_hash == local_hash:
       if not self._dry_run:
         os.remove(src)
-      return ('skip', file_size)
+      return ('skip', file_size, 'same checksum')
     else:
       rel_dir = path.dirname(rel_path)
       unique_basename = self._make_unique_name(path.basename(rel_path), local_hash)
@@ -164,7 +164,9 @@ class bf_rsync_file_sync(object):
       dest_path = f'{self._dest_root}/{rename_rel}'
 
     if self._dry_run:
-      return ('rename' if rename_rel else 'transfer', file_size)
+      if rename_rel:
+        return ('rename', file_size, path.basename(rename_rel))
+      return ('transfer', file_size, '')
 
     self._ssh_mkdir(path.dirname(dest_path))
     self._rsync(src, dest_path)
@@ -174,7 +176,9 @@ class bf_rsync_file_sync(object):
       raise bf_rsync_error(f'checksum mismatch after transfer: {rel_path}')
 
     os.remove(src)
-    return ('rename' if rename_rel else 'transfer', file_size)
+    if rename_rel:
+      return ('rename', file_size, path.basename(rename_rel))
+    return ('transfer', file_size, '')
 
   def _ssh_args(self):
     'Base SSH args for bssh_command calls, with keepalive and connection timeout.'

@@ -498,7 +498,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='7' * 64):
       syncer._ssh_sha256 = lambda p: '7' * 64
       with mock.patch.object(os, 'remove'):
-        action, _ = syncer._sync_one(self._make_entry(src))
+        action, *_ = syncer._sync_one(self._make_entry(src))
     self.assertEqual('skip', action)
 
   def test_log_transfer_line(self):
@@ -514,7 +514,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
       syncer._rsync = lambda s, d: None
       syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
-        action, _ = syncer._sync_one(self._make_entry(src))
+        action, *_ = syncer._sync_one(self._make_entry(src))
     self.assertEqual('transfer', action)
 
   def test_log_has_timestamps(self):
