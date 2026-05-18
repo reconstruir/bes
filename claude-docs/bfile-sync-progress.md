@@ -300,3 +300,139 @@ class bf_rsync_progress_tracker:
 - The log file for session-level events.
 - `bf_rsync_command.call_command` (no progress) for the non-compact path — the
   rsync progress hook is wired in `_rsync`, not in `call_command`.
+
+---
+
+## SSH remote checksum progress
+
+### Design
+
+A standalone script `bin/bfile-checksum.py` implements the remote checksum. It
+imports nothing from `bes` — plain Python 3 stdlib only — so it runs on any NAS
+with Python 3 available. It can be run and tested locally without any SSH machinery:
+`python3 bin/bfile-checksum.py /path/to/file`.
+
+At session start, before the first file is processed, `bf_rsync_file_sync` copies
+this script to `/tmp/bfile-checksum.py` on the NAS via SSH. Each subsequent
+`_ssh_sha256` call invokes it as `python3 /tmp/bfile-checksum.py '/path/to/file'`
+and streams its stdout through `execute.execute_with_progress()`.
+
+---
+
+### Output protocol
+
+The script emits structured lines to stdout prefixed with the algorithm name so the
+local parser can identify them and ignore any incidental Python runtime output.
+
+```
+sha256: PROGRESS: 1048576/21474836480
+sha256: PROGRESS: 2097152/21474836480
+...
+sha256: PROGRESS: 21474836480/21474836480
+sha256: CHECKSUM: e3b0c44298fc1c149afbf4c8996fb924...
+```
+
+Units are bytes. The local side derives percent as `bytes_done / total_bytes * 100`.
+File-not-found:
+
+```
+sha256: MISSING
+```
+
+All other lines are silently ignored by the local parser.
+
+---
+
+### Chunk strategy
+
+`chunk_size = max(file_size // 100, 1_048_576)` computed once from `os.path.getsize`
+before the read loop. Every file produces exactly 100 `PROGRESS` lines regardless of
+size. The display advances in 1% steps. For files smaller than 100 MB the 1 MB floor
+means fewer events, but those files complete fast enough that coarser granularity
+does not matter.
+
+---
+
+### Script delivery
+
+The script is copied once per session using an SSH call that pipes the file content
+via stdin to `cat > /tmp/bfile-checksum.py` on the NAS. No chmod needed — the
+script is always invoked as `python3 /tmp/bfile-checksum.py`, never executed
+directly, so `noexec` mounts on `/tmp` are not a problem.
+
+The script is overwritten on every session start so version drift is impossible.
+If the NAS `/tmp` is read-only or full the copy fails immediately with a clear
+`bf_rsync_error` before any file work begins.
+
+Piping via stdin requires `bssh_command.call_command` to accept and forward
+`input_data` bytes to `popen()`. `popen()` already handles `input_data`; the gap
+is threading it through `call_command`.
+
+---
+
+### Local consumption
+
+`_ssh_sha256` changes from a blocking `bssh_command.call_command()` to a streaming
+`execute.execute_with_progress()` call. The line parser recognises:
+
+- `sha256: PROGRESS: N/M` → fires `progress_callback(bytes_done, total_bytes)`
+- `sha256: CHECKSUM: hex` → captures the return value
+- `sha256: MISSING` → return `None`
+- anything else → ignored
+
+`_ssh_sha256` gains an optional `progress_callback` parameter. Callers that pass
+`None` get silent behaviour identical to today. `_sync_one` passes a callback only
+when `_show_progress` is True, consistent with the gate used for rsync and local
+checksum progress.
+
+---
+
+## Implementation plan
+
+### Step 1 — `bin/bfile-checksum.py`
+
+New file. Plain Python 3, no `bes` imports. Takes the file path as `sys.argv[1]`
+and the algorithm as `sys.argv[2]` (default `sha256`). Reads in chunks of
+`max(file_size // 100, 1_048_576)` bytes, prints `algo: PROGRESS: done/total` after
+each chunk, prints `algo: CHECKSUM: hex` at the end, prints `algo: MISSING` if the
+file does not exist.
+
+### Step 2 — `bssh_command.call_command` gains `input_data`
+
+Add an `input_data` parameter (bytes, default `None`) that is passed through to
+`popen()`. When set, the subprocess stdin receives the bytes before stdout reading
+begins. This is a small change: `popen()` already opens `stdin=PIPE` when
+`input_data` is not None; the call_command wrapper just needs to write and close it.
+
+### Step 3 — `bf_rsync_file_sync._install_remote_checksum_script`
+
+New private method called once at the top of `run()` (before `_run_loop`). Reads
+`bin/bfile-checksum.py` from the local filesystem relative to the installed package,
+calls `bssh_command.call_command` with `input_data=` and remote command
+`cat > /tmp/bfile-checksum.py`. Raises `bf_rsync_error` with a clear message on
+failure.
+
+### Step 4 — `_ssh_sha256` rewritten as streaming call
+
+Replaces the current single `bssh_command.call_command()` call with
+`execute.execute_with_progress()` using a line parser for the protocol above.
+Gains an optional `progress_callback` parameter. The existing call signature and
+return type (`str | None`) are preserved.
+
+### Step 5 — `_sync_one` wires up the callback
+
+After the `_update_status('chk_remote')` call, determines whether to pass a progress
+callback to `_ssh_sha256` using the same `_show_progress` gate already used for
+rsync and local checksum progress. The callback writes
+`\r[N/M] size - basename  chk_remote  NN%` to the terminal.
+
+### Step 6 — tests
+
+- Unit tests for `bfile-checksum.py` directly (run it against temp files, verify
+  protocol output).
+- Unit tests for `_install_remote_checksum_script` (mock SSH call, verify
+  `input_data` contains expected script content).
+- Unit tests for the updated `_ssh_sha256` (mock `execute_with_progress`, verify
+  parser handles PROGRESS / CHECKSUM / MISSING / garbage lines correctly).
+- Existing `_ssh_sha256` callers pass `None` → behaviour unchanged (existing tests
+  cover this implicitly).
