@@ -2,6 +2,7 @@
 
 import os
 import os.path as path
+import sys
 import time
 from datetime import datetime
 
@@ -17,6 +18,7 @@ from bes.ssh.bssh_command import bssh_command
 
 from .bf_rsync_command import bf_rsync_command
 from .bf_rsync_error import bf_rsync_error
+from .bf_rsync_progress_tracker import bf_rsync_progress_tracker
 
 class bf_rsync_file_sync(object):
   'Sync files from local dirs to a remote NAS over rsync+SSH with retry and checksum verification.'
@@ -27,7 +29,7 @@ class bf_rsync_file_sync(object):
 
   def __init__(self, ssh_key, destination, source_dirs,
                log_file=None, known_hosts_file=None, strict_host_checking=True,
-               retry_wait_seconds=None, ssh_port=None, dry_run=False):
+               retry_wait_seconds=None, ssh_port=None, dry_run=False, compact=None):
     check.check_string(ssh_key)
     check.check_string(destination)
     check.check_string_seq(source_dirs)
@@ -37,6 +39,7 @@ class bf_rsync_file_sync(object):
     check.check_int(retry_wait_seconds, allow_none=True)
     check.check_int(ssh_port, allow_none=True)
     check.check_bool(dry_run)
+    check.check_bool(compact, allow_none=True)
 
     if not path.exists(ssh_key):
       raise bf_rsync_error(f'ssh key not found: {ssh_key}')
@@ -52,6 +55,7 @@ class bf_rsync_file_sync(object):
     self._retry_wait_seconds = retry_wait_seconds if retry_wait_seconds is not None else self.RETRY_WAIT_SECONDS
     self._ssh_port = ssh_port
     self._dry_run = dry_run
+    self._compact = compact
     self._log_fh = None
 
   def run(self):
@@ -66,7 +70,10 @@ class bf_rsync_file_sync(object):
         self._log_fh = None
 
   def _run_loop(self):
-    pending = self._collect_files()
+    all_entries = self._collect_files()
+    compact = self._compact if self._compact is not None else sys.stdout.isatty()
+    tracker = bf_rsync_progress_tracker(all_entries, compact, self._log_fh)
+    pending = list(all_entries)
     skip_count = 0
     skip_bytes = 0
     transfer_count = 0
@@ -76,13 +83,17 @@ class bf_rsync_file_sync(object):
       completed = []
       for entry in pending:
         try:
+          tracker.begin_file(entry)
           action, size = self._sync_one(entry)
-          if action == 'skip':
-            skip_count += 1
-            skip_bytes += size
-          else:
+          is_transfer = action in ('transfer', 'rename')
+          if is_transfer:
             transfer_count += 1
             transfer_bytes += size
+          else:
+            skip_count += 1
+            skip_bytes += size
+          status = _STATUS_MAP_DRY[action] if self._dry_run else _STATUS_MAP[action]
+          tracker.finish_file(entry, status, size, is_transfer)
           completed.append(entry)
         except Exception as ex:
           self._emit('RETRY', f'error on {entry.relative_filename}: {ex}, waiting {self._retry_wait_seconds}s...')
@@ -91,7 +102,9 @@ class bf_rsync_file_sync(object):
           break
       pending = [e for e in pending if e not in completed]
       if failed:
+        tracker.pause_clock()
         time.sleep(self._retry_wait_seconds)
+        tracker.resume_clock()
     if not self._dry_run:
       self._cleanup_partial()
     self._emit_summary(skip_count, skip_bytes, transfer_count, transfer_bytes)
@@ -141,12 +154,8 @@ class bf_rsync_file_sync(object):
       dest_path = f'{self._dest_root}/{rel_path}'
       rename_rel = None
     elif remote_hash == local_hash:
-      if self._dry_run:
-        self._emit('DRY-RUN', f'{rel_path} — would skip ({bf_size.sizeof_fmt(file_size)}, destination has same checksum)')
-      else:
-        self._emit('SKIP', f'{rel_path} — destination exists, same checksum')
+      if not self._dry_run:
         os.remove(src)
-        self._emit('DELETED', f'{rel_path} — source removed')
       return ('skip', file_size)
     else:
       rel_dir = path.dirname(rel_path)
@@ -155,27 +164,17 @@ class bf_rsync_file_sync(object):
       dest_path = f'{self._dest_root}/{rename_rel}'
 
     if self._dry_run:
-      size_str = bf_size.sizeof_fmt(file_size)
-      if rename_rel:
-        self._emit('DRY-RUN', f'{rel_path} → {rename_rel} — would transfer ({size_str}, destination exists with different content)')
-      else:
-        self._emit('DRY-RUN', f'{rel_path} — would transfer ({size_str}, destination missing)')
-      return ('transfer', file_size)
+      return ('rename' if rename_rel else 'transfer', file_size)
 
-    if rename_rel:
-      self._emit('RENAME', f'{rel_path} → {rename_rel} — destination exists, different content')
-    self._emit('TRANSFER', f'{rel_path} → {self._host}:{dest_path}')
     self._ssh_mkdir(path.dirname(dest_path))
     self._rsync(src, dest_path)
 
     verified_hash = self._ssh_sha256(dest_path)
     if verified_hash != local_hash:
       raise bf_rsync_error(f'checksum mismatch after transfer: {rel_path}')
-    self._emit('VERIFIED', f'{rel_path} — checksum confirmed on NAS')
 
     os.remove(src)
-    self._emit('DELETED', f'{rel_path} — source removed')
-    return ('transfer', file_size)
+    return ('rename' if rename_rel else 'transfer', file_size)
 
   def _rsync(self, src, dest_path):
     ssh_cmd = f'ssh -i {self._ssh_key}'
@@ -249,9 +248,21 @@ class bf_rsync_file_sync(object):
     return bf_filename.add_extension(new_stem, ext) if ext else new_stem
 
   def _emit(self, tag, message):
-    ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    line = f'{ts} [{tag:<8}] {message}'
+    line = f'[{tag:<8}] {message}'
     print(line, flush=True)
     if self._log_fh:
-      self._log_fh.write(line + '\n')
+      ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+      self._log_fh.write(f'{ts} {line}\n')
       self._log_fh.flush()
+
+_STATUS_MAP = {
+  'skip': 'SKIP',
+  'transfer': 'TRANSFER',
+  'rename': 'RENAME',
+}
+
+_STATUS_MAP_DRY = {
+  'skip': 'DRY-SKIP',
+  'transfer': 'DRY-XFER',
+  'rename': 'DRY-RENAME',
+}

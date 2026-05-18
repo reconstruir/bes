@@ -21,7 +21,19 @@ class bf_rsync_file_sync_cli(object):
                         help='Write operational log to this file (default: stdout only)')
     parser.add_argument('--dry-run', action='store_true', default=False,
                         help='Show what would be transferred without moving any data')
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument('--compact', action='store_true', default=False,
+                            help='One line per file with in-place overwrite (default on TTY)')
+    mode_group.add_argument('--verbose', action='store_true', default=False,
+                            help='Two lines plus blank separator per file (default when not a TTY)')
     args = parser.parse_args()
+
+    if args.compact:
+      compact = True
+    elif args.verbose:
+      compact = False
+    else:
+      compact = None
 
     syncer = bf_rsync_file_sync(
       args.ssh_key,
@@ -29,5 +41,6 @@ class bf_rsync_file_sync_cli(object):
       args.source_dirs,
       log_file=args.log_file,
       dry_run=args.dry_run,
+      compact=compact,
     )
     syncer.run()

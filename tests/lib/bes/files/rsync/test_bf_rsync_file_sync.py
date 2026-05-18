@@ -494,21 +494,16 @@ class test_bf_rsync_file_sync_unit(unit_test):
   def test_log_skip_line(self):
     syncer = self._make_syncer()
     src = self.make_temp_file(content=b'log', suffix='.mp4')
-    lines = []
-    orig_emit = syncer._emit
-    syncer._emit = lambda tag, msg: lines.append((tag, msg))
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='7' * 64):
       syncer._ssh_sha256 = lambda p: '7' * 64
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(self._make_entry(src))
-    self.assertTrue(any(tag == 'SKIP' for tag, _ in lines))
+        action, _ = syncer._sync_one(self._make_entry(src))
+    self.assertEqual('skip', action)
 
   def test_log_transfer_line(self):
     syncer = self._make_syncer()
     src = self.make_temp_file(content=b'xfer', suffix='.mp4')
-    lines = []
-    syncer._emit = lambda tag, msg: lines.append((tag, msg))
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='8' * 64):
       call_count = [0]
@@ -519,8 +514,8 @@ class test_bf_rsync_file_sync_unit(unit_test):
       syncer._rsync = lambda s, d: None
       syncer._ssh_mkdir = lambda d: None
       with mock.patch.object(os, 'remove'):
-        syncer._sync_one(self._make_entry(src))
-    self.assertTrue(any(tag == 'TRANSFER' for tag, _ in lines))
+        action, _ = syncer._sync_one(self._make_entry(src))
+    self.assertEqual('transfer', action)
 
   def test_log_has_timestamps(self):
     import re
@@ -562,7 +557,7 @@ class test_bf_rsync_file_sync_unit(unit_test):
     self.assertTrue(path.exists(log_path))
     with open(log_path) as f:
       content = f.read()
-    self.assertIn('[SKIP', content)
+    self.assertIn('SKIP', content)
 
   def test_log_cleanup_line(self):
     syncer = self._make_syncer()
@@ -612,18 +607,19 @@ class test_bf_rsync_file_sync_unit(unit_test):
     self.assertTrue(path.exists(src))
 
   def test_dry_run_emits_dry_run_tag(self):
+    import io
     src_dir = self.make_temp_dir()
     src = path.join(src_dir, 'video.mp4')
     with open(src, 'wb') as f:
       f.write(b'data')
     syncer = self._make_syncer(source_dirs=[src_dir], dry_run=True)
-    tags = []
-    syncer._emit = lambda tag, msg: tags.append(tag)
     from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    captured = io.StringIO()
     with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='d' * 64):
       syncer._ssh_sha256 = lambda p: None
-      syncer._run_loop()
-    self.assertIn('DRY-RUN', tags)
+      with mock.patch('sys.stdout', new=captured):
+        syncer._run_loop()
+    self.assertIn('DRY-XFER', captured.getvalue())
 
   def test_dry_run_no_cleanup_partial(self):
     syncer = self._make_syncer(dry_run=True)
@@ -884,7 +880,12 @@ class test_bf_rsync_file_sync_integration(unit_test):
       ssh_port=self._sandbox.port,
     )
 
+  def _make_src_dir(self):
+    'Create a stable named subdirectory so the re-rooted destination is predictable.'
+    return path.join(self.make_temp_dir(), 'source')
+
   def _write_file(self, directory, filename, content=b'data'):
+    os.makedirs(directory, exist_ok=True)
     p = path.join(directory, filename)
     with open(p, 'wb') as f:
       f.write(content)
@@ -899,31 +900,31 @@ class test_bf_rsync_file_sync_integration(unit_test):
 
   # 94
   def test_integration_transfer_new_file(self):
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
     src = self._write_file(src_dir, 'new.mp4', b'new content')
     syncer = self._make_syncer([src_dir])
     syncer.run()
     self.assertFalse(path.exists(src))
-    dest = path.join(self._sandbox.nas_root, 'new.mp4')
+    dest = path.join(self._sandbox.nas_root, 'source', 'new.mp4')
     self.assertTrue(path.exists(dest))
 
   # 95
   def test_integration_skip_same_file(self):
-    nas_dir = self._sandbox.nas_root
+    src_dir = self._make_src_dir()
     content = b'identical content'
-    existing = self._write_file(nas_dir, 'same.mp4', content)
-    src_dir = self.make_temp_dir()
     src = self._write_file(src_dir, 'same.mp4', content)
+    nas_dest = path.join(self._sandbox.nas_root, 'source', 'same.mp4')
+    self._write_file(path.join(self._sandbox.nas_root, 'source'), 'same.mp4', content)
     syncer = self._make_syncer([src_dir])
     syncer.run()
     self.assertFalse(path.exists(src))
-    self.assertTrue(path.exists(existing))
+    self.assertTrue(path.exists(nas_dest))
 
   # 96
   def test_integration_rename_different_content(self):
-    nas_dir = self._sandbox.nas_root
-    self._write_file(nas_dir, 'differ.mp4', b'nas version')
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
+    nas_src_dir = path.join(self._sandbox.nas_root, 'source')
+    self._write_file(nas_src_dir, 'differ.mp4', b'nas version')
     src_content = b'local version'
     src = self._write_file(src_dir, 'differ.mp4', src_content)
     local_hash = self._sha256(src)
@@ -931,27 +932,25 @@ class test_bf_rsync_file_sync_integration(unit_test):
     syncer.run()
     self.assertFalse(path.exists(src))
     unique_name = f'differ-{local_hash[:8]}.mp4'
-    self.assertTrue(path.exists(path.join(nas_dir, unique_name)))
+    self.assertTrue(path.exists(path.join(nas_src_dir, unique_name)))
 
   # 97
   def test_integration_multiple_files(self):
-    nas_dir = self._sandbox.nas_root
-    # pre-existing same
-    self._write_file(nas_dir, 'a.mp4', b'aaa')
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
+    nas_src_dir = path.join(self._sandbox.nas_root, 'source')
+    self._write_file(nas_src_dir, 'a.mp4', b'aaa')
     self._write_file(src_dir, 'a.mp4', b'aaa')   # same → skip
     self._write_file(src_dir, 'b.mp4', b'bbb')   # new
     self._write_file(src_dir, 'c.mp4', b'ccc')   # new
     syncer = self._make_syncer([src_dir])
     syncer.run()
     self.assertEqual([], [f for f in os.listdir(src_dir) if f.endswith('.mp4')])
-    self.assertTrue(path.exists(path.join(nas_dir, 'b.mp4')))
-    self.assertTrue(path.exists(path.join(nas_dir, 'c.mp4')))
+    self.assertTrue(path.exists(path.join(nas_src_dir, 'b.mp4')))
+    self.assertTrue(path.exists(path.join(nas_src_dir, 'c.mp4')))
 
   # 98
   def test_integration_partial_resume(self):
-    # write a file, pre-create a truncated partial on the NAS, run — should complete
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
     content = b'partial resume test ' * 1024
     src = self._write_file(src_dir, 'partial.mp4', content)
     partial_dir = path.join(self._sandbox.nas_root, '.rsync-partial')
@@ -961,17 +960,18 @@ class test_bf_rsync_file_sync_integration(unit_test):
     syncer = self._make_syncer([src_dir])
     syncer.run()
     self.assertFalse(path.exists(src))
-    self.assertEqual(content, open(path.join(self._sandbox.nas_root, 'partial.mp4'), 'rb').read())
+    dest = path.join(self._sandbox.nas_root, 'source', 'partial.mp4')
+    self.assertEqual(content, open(dest, 'rb').read())
 
   # 99
   def test_integration_large_file(self):
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
     content = os.urandom(10 * 1024 * 1024)  # 10 MB (keep test fast)
     src = self._write_file(src_dir, 'large.mp4', content)
     expected_hash = self._sha256(src)
     syncer = self._make_syncer([src_dir])
     syncer.run()
-    dest = path.join(self._sandbox.nas_root, 'large.mp4')
+    dest = path.join(self._sandbox.nas_root, 'source', 'large.mp4')
     self.assertTrue(path.exists(dest))
     self.assertEqual(expected_hash, self._sha256(dest))
 
@@ -986,24 +986,28 @@ class test_bf_rsync_file_sync_integration(unit_test):
 
   # 101 — SSH refused mid-run: hard to test deterministically; verify retry logic structure
   def test_integration_checksum_verified_on_nas(self):
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
     content = b'verify me'
     src = self._write_file(src_dir, 'verify.mp4', content)
     expected = self._sha256(src)
     syncer = self._make_syncer([src_dir])
     syncer.run()
-    dest = path.join(self._sandbox.nas_root, 'verify.mp4')
+    dest = path.join(self._sandbox.nas_root, 'source', 'verify.mp4')
     self.assertEqual(expected, self._sha256(dest))
 
   # 102
   def test_integration_source_preserved_on_interrupted_transfer(self):
-    src_dir = self.make_temp_dir()
+    src_dir = self._make_src_dir()
     src = self._write_file(src_dir, 'interrupt.mp4', b'interrupt')
     syncer = self._make_syncer([src_dir])
-    # simulate rsync failure
     syncer._rsync = lambda s, d: (_ for _ in ()).throw(bf_rsync_error('simulated interrupt'))
-    with self.assertRaises(Exception):
-      syncer._sync_one(src)
+    syncer._ssh_sha256 = lambda p: None
+    syncer._ssh_mkdir = lambda d: None
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    entry = bf_entry('source/interrupt.mp4', root_dir=path.dirname(src_dir))
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
+      with self.assertRaises(bf_rsync_error):
+        syncer._sync_one(entry)
     self.assertTrue(path.exists(src))
 
   # 103
