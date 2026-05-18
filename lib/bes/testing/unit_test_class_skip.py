@@ -4,6 +4,7 @@
 
 import unittest, sys
 from bes.system.host import host
+from bes.system.which import which
 
 class unit_test_class_skip(object):
 
@@ -49,3 +50,10 @@ class unit_test_class_skip(object):
   def raise_skip_if_not_python_major_version_matches(clazz, major, message):
     if sys.version_info.major == major:
       clazz.raise_skip(message)
+
+  @classmethod
+  def raise_skip_if_not_has_command(clazz, command):
+    clazz.raise_skip_if_not(
+      which.which(command) is not None,
+      f'command not available: {command}'
+    )
