@@ -346,36 +346,52 @@ def _rsync(self, src, dest_path):
   ]
   progress_cb = self._on_rsync_progress if self._show_progress else None
   bf_rsync_command.call_command_with_progress(cmd, progress_cb=progress_cb, quote=False)
-  if self._show_progress:
-    sys.stdout.write('\n')
-    sys.stdout.flush()
 ```
+
+No `\n` is emitted here. `finish_file` in the tracker owns the finalizing newline via its
+`\033[2K\r{line}\n` write. Emitting `\n` here would freeze the last rsync progress tick in
+scrollback and leave `finish_file` operating on a blank line below it — two lines per file
+instead of one.
 
 ### `_on_rsync_progress`
 
 ```python
 def _on_rsync_progress(self, event):
-  line = (f'\r  {bf_size.sizeof_fmt(event.bytes_done)}'
-          f'  {event.percent}%  {event.rate}  {event.elapsed}   ')
+  line = f'\r{self._progress_prefix}  {event.percent}%  {event.rate}  {event.elapsed}   '
   sys.stdout.write(line)
   sys.stdout.flush()
 ```
 
-`\r` overwrites the same terminal line on every event. Trailing spaces erase
-leftover characters when a shorter line follows a longer one. The `\n` written
-after the call freezes the final state in the scrollback.
+`\r` overwrites the same terminal line on every event. The `_progress_prefix` carries
+the `[N/M] size - basename` context so the line stays readable mid-transfer. Trailing
+spaces erase leftover characters when a shorter line follows a longer one.
 
-### TTY guard
-
-Set in `__init__` or `_run_loop` so it is computed once per run:
+`_progress_prefix` is an instance variable set by `_run_loop` immediately before
+calling `_sync_one` for each file:
 
 ```python
-self._show_progress = sys.stdout.isatty()
+index_str = f'[{tracker._current_index}/{self._total_files}]'
+size_str = bf_size.sizeof_fmt(path.getsize(entry.absolute_filename))
+basename = path.basename(entry.relative_filename)
+self._progress_prefix = f'{index_str} {size_str} - {basename}'
 ```
 
-When stdout is redirected (log file, pipe), progress updates are suppressed
-by passing `progress_cb=None`. The file still receives the final transferred/skipped
-line from the progress tracker.
+It is initialised to `''` in `__init__` so `_on_rsync_progress` is safe to call even
+if the prefix has not been set (e.g. in tests that call `_rsync` directly).
+
+### TTY guard and prefix initialisation
+
+Set in `__init__` so both are computed once and safe before `_run_loop` starts:
+
+```python
+self._show_progress = self._compact and sys.stdout.isatty()
+self._progress_prefix = ''
+```
+
+`_show_progress` gates on `_compact` as well as TTY: in verbose mode `begin_file`
+emits a hard newline, so `\r`-based overwriting would scroll instead of overwrite.
+When stdout is redirected (log file, pipe), progress updates are suppressed by passing
+`progress_cb=None`. The file still receives the final status line from the tracker.
 
 ### Integration with `bf_rsync_progress_tracker`
 

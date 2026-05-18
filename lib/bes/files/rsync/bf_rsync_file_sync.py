@@ -60,6 +60,8 @@ class bf_rsync_file_sync(object):
     self._dry_run = dry_run
     self._compact = compact
     self._simplify = simplify
+    self._show_progress = False
+    self._progress_prefix = ''
     self._log_fh = None
 
   def run(self):
@@ -76,6 +78,7 @@ class bf_rsync_file_sync(object):
   def _run_loop(self):
     all_entries = self._collect_files()
     compact = self._compact if self._compact is not None else sys.stdout.isatty()
+    self._show_progress = compact and sys.stdout.isatty()
     tracker = bf_rsync_progress_tracker(all_entries, compact, self._log_fh)
     pending = list(all_entries)
     skip_count = 0
@@ -88,6 +91,9 @@ class bf_rsync_file_sync(object):
       for entry in pending:
         try:
           tracker.begin_file(entry)
+          size_str = bf_size.sizeof_fmt(path.getsize(entry.absolute_filename))
+          basename = path.basename(entry.relative_filename)
+          self._progress_prefix = f'[{tracker.current_index}/{tracker.total_files}] {size_str} - {basename}'
           action, size, reason = self._sync_one(entry)
           is_transfer = action in ('transfer', 'rename', 'server_rename')
           if is_transfer:
@@ -264,6 +270,11 @@ class bf_rsync_file_sync(object):
       f'{self._host}:{dest_path}',
     ]
     bf_rsync_command.call_command(cmd, quote=False)
+
+  def _on_rsync_progress(self, event):
+    line = f'\r{self._progress_prefix}  {event.percent}%  {event.rate}  {event.elapsed}   '
+    sys.stdout.write(line)
+    sys.stdout.flush()
 
   def _ssh_sha256(self, remote_path):
     'Return sha256 of remote_path, or None if the file is missing.'

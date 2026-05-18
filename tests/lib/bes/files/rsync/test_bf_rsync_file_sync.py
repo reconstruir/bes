@@ -849,6 +849,137 @@ class test_bf_rsync_file_sync_unit(unit_test):
     self.assertIn('-' + 'c' * 8, dest)
 
 
+class test_bf_rsync_file_sync_progress(unit_test):
+  'Unit tests for _show_progress, _progress_prefix, and _on_rsync_progress.'
+
+  def _make_syncer(self, source_dirs=None, **kwargs):
+    tmp_dir = self.make_temp_dir()
+    key = path.join(tmp_dir, 'key')
+    open(key, 'w').close()
+    source_dirs = source_dirs or [self.make_temp_dir()]
+    return bf_rsync_file_sync(
+      key, 'nas2:/mnt/stuff/p', source_dirs,
+      strict_host_checking=False, **kwargs
+    )
+
+  def test_show_progress_false_by_default(self):
+    syncer = self._make_syncer()
+    self.assertFalse(syncer._show_progress)
+
+  def test_show_progress_false_when_not_compact(self):
+    syncer = self._make_syncer(compact=False)
+    syncer._cleanup_partial = lambda: None
+    syncer._run_loop()
+    self.assertFalse(syncer._show_progress)
+
+  def test_show_progress_false_when_compact_but_not_tty(self):
+    syncer = self._make_syncer(compact=True)
+    syncer._cleanup_partial = lambda: None
+    with mock.patch('sys.stdout') as mock_stdout:
+      mock_stdout.isatty.return_value = False
+      syncer._run_loop()
+    self.assertFalse(syncer._show_progress)
+
+  def test_progress_prefix_empty_by_default(self):
+    syncer = self._make_syncer()
+    self.assertEqual('', syncer._progress_prefix)
+
+  def test_progress_prefix_set_before_sync(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'x' * 1024)
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    captured_prefixes = []
+    file_size = path.getsize(src)
+    def mock_sync_one(entry):
+      captured_prefixes.append(syncer._progress_prefix)
+      return ('skip', file_size, 'same checksum')
+    syncer._sync_one = mock_sync_one
+    syncer._cleanup_partial = lambda: None
+    syncer._run_loop()
+    self.assertEqual(1, len(captured_prefixes))
+    prefix = captured_prefixes[0]
+    self.assertIn('[1/1]', prefix)
+    self.assertIn('video.mp4', prefix)
+
+  def test_progress_prefix_includes_size(self):
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'clip.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'x' * 2048)
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    captured_prefixes = []
+    file_size = path.getsize(src)
+    def mock_sync_one(entry):
+      captured_prefixes.append(syncer._progress_prefix)
+      return ('skip', file_size, 'same checksum')
+    syncer._sync_one = mock_sync_one
+    syncer._cleanup_partial = lambda: None
+    syncer._run_loop()
+    self.assertIn('2.0KiB', captured_prefixes[0])
+
+  def test_progress_prefix_index_counts_correctly(self):
+    src_dir = self.make_temp_dir()
+    for name in ('a.mp4', 'b.mp4', 'c.mp4'):
+      with open(path.join(src_dir, name), 'wb') as f:
+        f.write(b'x')
+    syncer = self._make_syncer(source_dirs=[src_dir])
+    captured_prefixes = []
+    def mock_sync_one(entry):
+      captured_prefixes.append(syncer._progress_prefix)
+      return ('skip', 1, 'same checksum')
+    syncer._sync_one = mock_sync_one
+    syncer._cleanup_partial = lambda: None
+    syncer._run_loop()
+    self.assertEqual(3, len(captured_prefixes))
+    self.assertIn('[1/3]', captured_prefixes[0])
+    self.assertIn('[2/3]', captured_prefixes[1])
+    self.assertIn('[3/3]', captured_prefixes[2])
+
+  def test_on_rsync_progress_writes_to_stdout(self):
+    import io
+    from collections import namedtuple
+    syncer = self._make_syncer()
+    syncer._progress_prefix = '[2/5] 1.5MiB - movie.mp4'
+    FakeEvent = namedtuple('FakeEvent', 'bytes_done percent rate elapsed')
+    event = FakeEvent(bytes_done=1572864, percent=75, rate='25.0MB/s', elapsed='0:00:02')
+    captured = io.StringIO()
+    with mock.patch('sys.stdout', new=captured):
+      syncer._on_rsync_progress(event)
+    output = captured.getvalue()
+    self.assertTrue(output.startswith('\r'))
+    self.assertIn('[2/5] 1.5MiB - movie.mp4', output)
+    self.assertIn('75%', output)
+    self.assertIn('25.0MB/s', output)
+    self.assertIn('0:00:02', output)
+
+  def test_on_rsync_progress_uses_current_prefix(self):
+    import io
+    from collections import namedtuple
+    syncer = self._make_syncer()
+    FakeEvent = namedtuple('FakeEvent', 'bytes_done percent rate elapsed')
+    event = FakeEvent(bytes_done=0, percent=10, rate='5.0MB/s', elapsed='0:00:01')
+    syncer._progress_prefix = '[1/1] 500.0B - small.mp4'
+    captured = io.StringIO()
+    with mock.patch('sys.stdout', new=captured):
+      syncer._on_rsync_progress(event)
+    self.assertIn('[1/1] 500.0B - small.mp4', captured.getvalue())
+
+  def test_on_rsync_progress_safe_with_empty_prefix(self):
+    import io
+    from collections import namedtuple
+    syncer = self._make_syncer()
+    FakeEvent = namedtuple('FakeEvent', 'bytes_done percent rate elapsed')
+    event = FakeEvent(bytes_done=0, percent=0, rate='0.00kB/s', elapsed='0:00:00')
+    captured = io.StringIO()
+    with mock.patch('sys.stdout', new=captured):
+      syncer._on_rsync_progress(event)
+    output = captured.getvalue()
+    self.assertTrue(output.startswith('\r'))
+    self.assertIn('0%', output)
+
+
 class test_bf_rsync_file_sync_simplify(unit_test):
   'Unit tests for --simplify behaviour — all subprocess calls mocked.'
 

@@ -25,6 +25,14 @@ class bf_rsync_progress_tracker(object):
     self._current_entry_path = None
     self._current_dir = None
 
+  @property
+  def current_index(self):
+    return self._current_index
+
+  @property
+  def total_files(self):
+    return self._total_files
+
   def begin_file(self, entry):
     absolute_path = entry.absolute_filename
     if absolute_path != self._current_entry_path:
