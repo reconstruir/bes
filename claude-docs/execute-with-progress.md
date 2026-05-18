@@ -1,7 +1,7 @@
 # execute_with_progress
 
 > **Status**: engine (`execute.execute_with_progress`) already implemented.
-> ABC layer (`execute_with_progress` class) and rsync wiring are not yet implemented.
+> ABC layer (`system_command_with_progress` class) and rsync wiring are not yet implemented.
 > `claude-docs/execute-with-progress-new.md` superseded by this document — delete it.
 
 ---
@@ -16,7 +16,7 @@ execute.execute_with_progress()          ← engine: low-level, always available
         ↑
         used by
         ↑
-execute_with_progress  (ABC)             ← convention for system_command subclasses
+system_command_with_progress  (ABC)      ← convention for system_command subclasses
         ↑
         inherited by
         ↑
@@ -159,9 +159,9 @@ summary = {e.key: e.value for e in rv.events if e.kind == 'summary'}
 
 ---
 
-## Layer 2 — ABC: `execute_with_progress`
+## Layer 2 — ABC: `system_command_with_progress`
 
-File: `lib/bes/system/execute_with_progress.py`
+File: `lib/bes/system/system_command_with_progress.py`
 
 An abstract base class in the `system_command` hierarchy. Commands that emit
 parseable progress inherit from it, implement two abstract classmethods, and
@@ -171,7 +171,7 @@ get `call_command_with_progress` for free.
 
 ```
 system_command  (ABC — lib/bes/system/system_command.py)          unchanged
-    └── execute_with_progress  (ABC — lib/bes/system/execute_with_progress.py)  NEW
+    └── system_command_with_progress  (ABC — lib/bes/system/system_command_with_progress.py)  NEW
             ├── bf_rsync_command   (lib/bes/files/rsync/bf_rsync_command.py)
             └── ffmpeg_command     (bav — migrate later, out of scope now)
 ```
@@ -210,7 +210,7 @@ from abc import abstractmethod
 from bes.system.execute import execute
 from bes.system.system_command import system_command
 
-class execute_with_progress(system_command):
+class system_command_with_progress(system_command):
   'system_command subclass for commands that emit parseable progress output.'
 
   @classmethod
@@ -276,7 +276,7 @@ Change base class from `system_command` to `execute_with_progress`. Add the
 import re
 from collections import namedtuple
 
-from bes.system.execute_with_progress import execute_with_progress
+from bes.system.system_command_with_progress import system_command_with_progress
 
 from .bf_rsync_error import bf_rsync_error
 
@@ -284,7 +284,7 @@ rsync_progress = namedtuple('rsync_progress', 'bytes_done, percent, rate, elapse
 
 _PROGRESS_RE = re.compile(r'^\s*([\d,]+)\s+(\d+)%\s+(\S+)\s+(\d+:\d+:\d+)')
 
-class bf_rsync_command(execute_with_progress):
+class bf_rsync_command(system_command_with_progress):
 
   @classmethod
   def exe_name(clazz): return 'rsync'
@@ -457,7 +457,7 @@ Pass an rsync stats line (`'total size is …'`) and a blank line. Assert `None`
 - `execute_result` type — unchanged.
 - Dry-run path in `bf_rsync_file_sync` — never calls `_rsync`, so progress is never shown.
 - `ffmpeg_command` / `ffmpeg_transcode._run_with_progress` in `bav` — unchanged for now;
-  migrate to `execute_with_progress` ABC in a separate session when ffmpeg work resumes.
+  migrate to `system_command_with_progress` ABC in a separate session when ffmpeg work resumes.
 - The retry loop, `_run_loop`, and `bf_rsync_progress_tracker` — no structural changes.
 
 ---
@@ -467,8 +467,8 @@ Pass an rsync stats line (`'total size is …'`) and a blank line. Assert `None`
 | file | change |
 |---|---|
 | `lib/bes/system/execute.py` | add `_execute_progress_result` namedtuple; add `execute_with_progress` classmethod with `progress_source` parameter |
-| `lib/bes/system/execute_with_progress.py` | **new** — ABC with `progress_source`, `parse_progress_line`, `call_command_with_progress` |
-| `lib/bes/files/rsync/bf_rsync_command.py` | change base to `execute_with_progress`; add `rsync_progress` namedtuple, `progress_source`, `parse_progress_line` |
+| `lib/bes/system/system_command_with_progress.py` | **new** — ABC with `progress_source`, `parse_progress_line`, `call_command_with_progress` |
+| `lib/bes/files/rsync/bf_rsync_command.py` | change base to `system_command_with_progress`; add `rsync_progress` namedtuple, `progress_source`, `parse_progress_line` |
 | `lib/bes/files/rsync/bf_rsync_file_sync.py` | update `_rsync` to use `call_command_with_progress`; add `_on_rsync_progress`; add `_show_progress` TTY guard |
 | `tests/lib/bes/system/test_execute_with_progress.py` | **new** — 13 engine tests |
 | `tests/lib/bes/files/rsync/test_bf_rsync_command.py` | add 4 parser tests |
