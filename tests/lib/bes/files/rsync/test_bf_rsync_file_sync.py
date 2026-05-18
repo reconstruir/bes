@@ -779,7 +779,8 @@ class test_bf_rsync_file_sync_unit(unit_test):
     syncer = self._make_syncer(source_dirs=[src_dir])
     entries = syncer._collect_files()
     rel_paths = [e.relative_filename for e in entries]
-    self.assertIn(path.join('action', 'movie.mp4'), rel_paths)
+    expected = path.join(path.basename(src_dir), 'action', 'movie.mp4')
+    self.assertIn(expected, rel_paths)
 
   def test_dest_path_uses_relative_filename(self):
     src_dir = self.make_temp_dir()

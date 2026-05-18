@@ -7,6 +7,7 @@ from datetime import datetime
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.files.bf_entry import bf_entry
 from bes.files.bf_file_type import bf_file_type
 from bes.files.bf_size import bf_size
 from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
@@ -122,7 +123,11 @@ class bf_rsync_file_sync(object):
         file_type=bf_file_type.FILE,
         exclude_patterns=['.DS_Store'],
       )
-      entries.extend(result.entries)
+      parent_dir = path.dirname(src_dir)
+      src_basename = path.basename(src_dir)
+      for found_entry in result.entries:
+        rel = path.join(src_basename, found_entry.relative_filename)
+        entries.append(bf_entry(rel, root_dir=parent_dir))
     return sorted(entries, key=lambda e: e.absolute_filename)
 
   def _sync_one(self, entry):
