@@ -21,6 +21,8 @@ class bf_rsync_file_sync_cli(object):
                         help='Write operational log to this file (default: stdout only)')
     parser.add_argument('--dry-run', action='store_true', default=False,
                         help='Show what would be transferred without moving any data')
+    parser.add_argument('--simplify', action='store_true', default=False,
+                        help='Simplify destination filenames: lowercase, strip diacritics, replace spaces/punctuation with underscores')
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument('--compact', action='store_true', default=False,
                             help='One line per file with in-place overwrite (default on TTY)')
@@ -42,5 +44,6 @@ class bf_rsync_file_sync_cli(object):
       log_file=args.log_file,
       dry_run=args.dry_run,
       compact=compact,
+      simplify=args.simplify,
     )
     syncer.run()

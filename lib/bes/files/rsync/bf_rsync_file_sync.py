@@ -13,6 +13,7 @@ from bes.files.bf_file_type import bf_file_type
 from bes.files.bf_size import bf_size
 from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
 from bes.files.bf_filename import bf_filename
+from bes.files.bf_filename_simplify import bf_filename_simplify
 from bes.files.find.bf_file_finder import bf_file_finder
 from bes.ssh.bssh_command import bssh_command
 
@@ -29,7 +30,8 @@ class bf_rsync_file_sync(object):
 
   def __init__(self, ssh_key, destination, source_dirs,
                log_file=None, known_hosts_file=None, strict_host_checking=True,
-               retry_wait_seconds=None, ssh_port=None, dry_run=False, compact=None):
+               retry_wait_seconds=None, ssh_port=None, dry_run=False, compact=None,
+               simplify=False):
     check.check_string(ssh_key)
     check.check_string(destination)
     check.check_string_seq(source_dirs)
@@ -40,6 +42,7 @@ class bf_rsync_file_sync(object):
     check.check_int(ssh_port, allow_none=True)
     check.check_bool(dry_run)
     check.check_bool(compact, allow_none=True)
+    check.check_bool(simplify)
 
     if not path.exists(ssh_key):
       raise bf_rsync_error(f'ssh key not found: {ssh_key}')
@@ -56,6 +59,7 @@ class bf_rsync_file_sync(object):
     self._ssh_port = ssh_port
     self._dry_run = dry_run
     self._compact = compact
+    self._simplify = simplify
     self._log_fh = None
 
   def run(self):
@@ -85,7 +89,7 @@ class bf_rsync_file_sync(object):
         try:
           tracker.begin_file(entry)
           action, size, reason = self._sync_one(entry)
-          is_transfer = action in ('transfer', 'rename')
+          is_transfer = action in ('transfer', 'rename', 'server_rename')
           if is_transfer:
             transfer_count += 1
             transfer_bytes += size
@@ -148,26 +152,58 @@ class bf_rsync_file_sync(object):
     rel_path = entry.relative_filename
     file_size = path.getsize(src)
     local_hash = bf_checksum_cache.get_checksum(src, 'sha256')
-    remote_hash = self._ssh_sha256(f'{self._dest_root}/{rel_path}')
+    rel_dir = path.dirname(rel_path)
+    original_basename = path.basename(rel_path)
 
-    rename_rel = None
-    if remote_hash is None:
-      dest_path = f'{self._dest_root}/{rel_path}'
-    elif remote_hash == local_hash:
+    if self._simplify:
+      try:
+        target_basename = bf_filename_simplify.simplify(original_basename)
+      except ValueError:
+        self._emit('WARN', f'cannot simplify "{original_basename}", using original name')
+        target_basename = original_basename
+    else:
+      target_basename = original_basename
+
+    target_rel = path.join(rel_dir, target_basename) if rel_dir else target_basename
+    name_changed = (target_rel != rel_path)
+
+    remote_at_target = self._ssh_sha256(f'{self._dest_root}/{target_rel}')
+    if remote_at_target == local_hash:
       if not self._dry_run:
         os.remove(src)
       return ('skip', file_size, 'same checksum')
+
+    target_occupied = (remote_at_target is not None)
+
+    if name_changed:
+      remote_at_original = self._ssh_sha256(f'{self._dest_root}/{rel_path}')
+      if remote_at_original == local_hash:
+        if target_occupied:
+          dest_basename = self._make_unique_name(target_basename, local_hash)
+          dest_rel = path.join(rel_dir, dest_basename) if rel_dir else dest_basename
+        else:
+          dest_basename = target_basename
+          dest_rel = target_rel
+        if not self._dry_run:
+          self._ssh_mv(f'{self._dest_root}/{rel_path}', f'{self._dest_root}/{dest_rel}')
+          os.remove(src)
+        return ('server_rename', file_size, dest_basename)
+
+    if target_occupied:
+      dest_basename = self._make_unique_name(target_basename, local_hash)
+      dest_rel = path.join(rel_dir, dest_basename) if rel_dir else dest_basename
     else:
-      rel_dir = path.dirname(rel_path)
-      unique_basename = self._make_unique_name(path.basename(rel_path), local_hash)
-      rename_rel = path.join(rel_dir, unique_basename) if rel_dir else unique_basename
-      dest_path = f'{self._dest_root}/{rename_rel}'
+      dest_basename = target_basename
+      dest_rel = target_rel
 
     if self._dry_run:
-      if rename_rel:
-        return ('rename', file_size, path.basename(rename_rel))
+      if target_occupied:
+        return ('rename', file_size, dest_basename)
+      if name_changed:
+        return ('transfer', file_size, dest_basename)
       return ('transfer', file_size, '')
 
+    dest_path = f'{self._dest_root}/{dest_rel}'
     self._ssh_mkdir(path.dirname(dest_path))
     self._rsync(src, dest_path)
 
@@ -176,8 +212,10 @@ class bf_rsync_file_sync(object):
       raise bf_rsync_error(f'checksum mismatch after transfer: {rel_path}')
 
     os.remove(src)
-    if rename_rel:
-      return ('rename', file_size, path.basename(rename_rel))
+    if target_occupied:
+      return ('rename', file_size, dest_basename)
+    if name_changed:
+      return ('transfer', file_size, dest_basename)
     return ('transfer', file_size, '')
 
   def _ssh_args(self):
@@ -243,6 +281,11 @@ class bf_rsync_file_sync(object):
     ssh_args += [self._host, f'mkdir -p "{remote_dir}"']
     bssh_command.call_command(ssh_args, quote=False)
 
+  def _ssh_mv(self, remote_src, remote_dst):
+    ssh_args = self._ssh_args()
+    ssh_args += [self._host, f'mv "{remote_src}" "{remote_dst}"']
+    bssh_command.call_command(ssh_args, quote=False)
+
   def _cleanup_partial(self):
     'Best-effort recursive removal of .rsync-partial dirs on the NAS after a clean run.'
     try:
@@ -273,10 +316,12 @@ _STATUS_MAP = {
   'skip': 'SKIP',
   'transfer': 'TRANSFER',
   'rename': 'RENAME',
+  'server_rename': 'MV',
 }
 
 _STATUS_MAP_DRY = {
   'skip': 'DRY-SKIP',
   'transfer': 'DRY-XFER',
   'rename': 'DRY-RENAME',
+  'server_rename': 'DRY-MV',
 }

@@ -849,6 +849,319 @@ class test_bf_rsync_file_sync_unit(unit_test):
     self.assertIn('-' + 'c' * 8, dest)
 
 
+class test_bf_rsync_file_sync_simplify(unit_test):
+  'Unit tests for --simplify behaviour — all subprocess calls mocked.'
+
+  def _make_syncer(self, source_dirs=None, **kwargs):
+    tmp_dir = self.make_temp_dir()
+    key = path.join(tmp_dir, 'key')
+    open(key, 'w').close()
+    if source_dirs is None:
+      source_dirs = [tmp_dir]
+    return bf_rsync_file_sync(
+      key, 'nas2:/mnt/stuff/p', source_dirs,
+      strict_host_checking=False, **kwargs
+    )
+
+  def _make_entry_named(self, name):
+    'Create a real file on disk with the given basename and return an entry for it.'
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, name)
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    return bf_entry(name, root_dir=src_dir), src
+
+  def test_simplify_skip_already_at_simplified_path(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      syncer._ssh_sha256 = lambda p: local_hash if path.basename(p) == 'my_movie.mp4' else None
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('skip', action)
+    self.assertEqual('same checksum', reason)
+
+  def test_simplify_transfer_to_simplified_path(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    transferred = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        if call_count[0] <= 2:
+          return None   # simplified slot empty, original not on server
+        return local_hash  # post-transfer verify
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: transferred.append(d)
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('transfer', action)
+    self.assertEqual('my_movie.mp4', reason)
+    self.assertTrue(any('my_movie.mp4' in d for d in transferred))
+    self.assertFalse(any('My Movie.mp4' in d for d in transferred))
+
+  def test_simplify_server_mv_original_to_simplified(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    mv_calls = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      def ssh_sha256(p):
+        basename = path.basename(p)
+        if basename == 'my_movie.mp4':
+          return None       # simplified slot empty
+        if basename == 'My Movie.mp4':
+          return local_hash  # original has correct content
+        return None
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._ssh_mv = lambda s, d: mv_calls.append((s, d))
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('server_rename', action)
+    self.assertEqual('my_movie.mp4', reason)
+    self.assertEqual(1, len(mv_calls))
+    self.assertIn('My Movie.mp4', mv_calls[0][0])
+    self.assertIn('my_movie.mp4', mv_calls[0][1])
+
+  def test_simplify_server_mv_when_simplified_slot_has_collision(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    other_hash = 'b' * 64
+    mv_calls = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      def ssh_sha256(p):
+        basename = path.basename(p)
+        if basename == 'my_movie.mp4':
+          return other_hash   # simplified slot taken by different content
+        if basename == 'My Movie.mp4':
+          return local_hash   # original has our content
+        return None
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._ssh_mv = lambda s, d: mv_calls.append((s, d))
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('server_rename', action)
+    # should have moved to hash-suffixed simplified name, not plain simplified
+    self.assertIn('my_movie-', reason)
+    self.assertTrue(reason.endswith('.mp4'))
+    self.assertEqual(1, len(mv_calls))
+    self.assertIn('My Movie.mp4', mv_calls[0][0])   # from original
+    self.assertIn('my_movie-', mv_calls[0][1])       # to hash-suffixed simplified
+
+  def test_simplify_rename_when_simplified_occupied_and_original_absent(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    other_hash = 'b' * 64
+    transferred = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        basename = path.basename(p)
+        if basename == 'my_movie.mp4':
+          return other_hash   # simplified slot collision
+        if basename == 'My Movie.mp4':
+          return None          # original not on server
+        return local_hash      # post-transfer verify
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: transferred.append(d)
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('rename', action)
+    self.assertIn('my_movie-', reason)
+    self.assertTrue(any('my_movie-' in d for d in transferred))
+
+  def test_simplify_clean_name_makes_no_extra_ssh_call(self):
+    syncer = self._make_syncer(simplify=True)
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'video.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    entry = bf_entry('video.mp4', root_dir=src_dir)
+    local_hash = 'a' * 64
+    sha256_calls = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      call_count = [0]
+      def ssh_sha256(p):
+        sha256_calls.append(p)
+        call_count[0] += 1
+        return None if call_count[0] == 1 else local_hash
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        syncer._sync_one(entry)
+    # clean name: pre-check (1) + verify (2) — no extra call for original
+    self.assertEqual(2, len(sha256_calls))
+
+  def test_simplify_dirty_name_checks_original_slot(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    sha256_calls = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      call_count = [0]
+      def ssh_sha256(p):
+        sha256_calls.append(p)
+        call_count[0] += 1
+        if call_count[0] <= 2:
+          return None
+        return local_hash
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: None
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        syncer._sync_one(entry)
+    # dirty name: simplified check (1) + original check (2) + verify (3)
+    self.assertEqual(3, len(sha256_calls))
+    basenames = [path.basename(p) for p in sha256_calls]
+    self.assertIn('my_movie.mp4', basenames)
+    self.assertIn('My Movie.mp4', basenames)
+
+  def test_simplify_dry_run_server_mv(self):
+    syncer = self._make_syncer(simplify=True, dry_run=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    mv_calls = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      def ssh_sha256(p):
+        basename = path.basename(p)
+        if basename == 'my_movie.mp4':
+          return None
+        if basename == 'My Movie.mp4':
+          return local_hash
+        return None
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._ssh_mv = lambda s, d: mv_calls.append((s, d))
+      with mock.patch.object(os, 'remove') as mock_remove:
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('server_rename', action)
+    self.assertEqual([], mv_calls)           # no actual mv in dry run
+    mock_remove.assert_not_called()          # local not deleted in dry run
+
+  def test_simplify_dry_run_transfer_shows_simplified_name(self):
+    import io
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'My Movie.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir], simplify=True, dry_run=True)
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    captured = io.StringIO()
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value='a' * 64):
+      syncer._ssh_sha256 = lambda p: None
+      with mock.patch('sys.stdout', new=captured):
+        syncer._run_loop()
+    output = captured.getvalue()
+    self.assertIn('DRY-XFER', output)
+    self.assertIn('my_movie.mp4', output)
+
+  def test_simplify_dry_run_server_mv_shows_dry_mv_tag(self):
+    import io
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, 'My Movie.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    syncer = self._make_syncer(source_dirs=[src_dir], simplify=True, dry_run=True)
+    local_hash = 'a' * 64
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    captured = io.StringIO()
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      def ssh_sha256(p):
+        basename = path.basename(p)
+        if basename == 'my_movie.mp4':
+          return None
+        if basename == 'My Movie.mp4':
+          return local_hash
+        return None
+      syncer._ssh_sha256 = ssh_sha256
+      with mock.patch('sys.stdout', new=captured):
+        syncer._run_loop()
+    self.assertIn('DRY-MV', captured.getvalue())
+
+  def test_simplify_unsimplifiable_filename_falls_back_to_original(self):
+    syncer = self._make_syncer(simplify=True)
+    src_dir = self.make_temp_dir()
+    src = path.join(src_dir, '!!!!!.mp4')
+    with open(src, 'wb') as f:
+      f.write(b'data')
+    entry = bf_entry('!!!!!.mp4', root_dir=src_dir)
+    local_hash = 'a' * 64
+    warn_tags = []
+    syncer._emit = lambda tag, msg: warn_tags.append(tag)
+    transferred = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        return None if call_count[0] == 1 else local_hash
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: transferred.append(d)
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertIn('WARN', warn_tags)
+    self.assertTrue(any('!!!!!.mp4' in d for d in transferred))
+    self.assertEqual('transfer', action)
+
+  def test_simplify_server_mv_deletes_local_file(self):
+    syncer = self._make_syncer(simplify=True)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    removed = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      def ssh_sha256(p):
+        basename = path.basename(p)
+        if basename == 'my_movie.mp4':
+          return None
+        if basename == 'My Movie.mp4':
+          return local_hash
+        return None
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._ssh_mv = lambda s, d: None
+      with mock.patch.object(os, 'remove', side_effect=lambda p: removed.append(p)):
+        syncer._sync_one(entry)
+    self.assertIn(src, removed)
+
+  def test_simplify_false_does_not_simplify(self):
+    syncer = self._make_syncer(simplify=False)
+    entry, src = self._make_entry_named('My Movie.mp4')
+    local_hash = 'a' * 64
+    transferred = []
+    from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
+    with mock.patch.object(bf_checksum_cache, 'get_checksum', return_value=local_hash):
+      call_count = [0]
+      def ssh_sha256(p):
+        call_count[0] += 1
+        return None if call_count[0] == 1 else local_hash
+      syncer._ssh_sha256 = ssh_sha256
+      syncer._rsync = lambda s, d: transferred.append(d)
+      syncer._ssh_mkdir = lambda d: None
+      with mock.patch.object(os, 'remove'):
+        action, size, reason = syncer._sync_one(entry)
+    self.assertEqual('transfer', action)
+    self.assertEqual('', reason)
+    self.assertTrue(any('My Movie.mp4' in d for d in transferred))
+    self.assertFalse(any('my_movie.mp4' in d for d in transferred))
+
+
 class test_bf_rsync_file_sync_integration(unit_test):
   'Integration tests — real sshd + rsync via bssh_sandbox.'
 
@@ -1029,6 +1342,51 @@ class test_bf_rsync_file_sync_integration(unit_test):
     syncer.run()
     partial_dir = path.join(self._sandbox.nas_root, '.rsync-partial')
     self.assertFalse(path.exists(partial_dir))
+
+  def _make_simplify_syncer(self, source_dirs):
+    return bf_rsync_file_sync(
+      self._sandbox.key,
+      f'127.0.0.1:{self._sandbox.nas_root}',
+      source_dirs,
+      known_hosts_file=self._sandbox.known_hosts,
+      strict_host_checking=False,
+      retry_wait_seconds=5,
+      ssh_port=self._sandbox.port,
+      simplify=True,
+    )
+
+  def test_integration_simplify_transfer_new_file(self):
+    src_dir = self._make_src_dir()
+    src = self._write_file(src_dir, 'My Movie (2024).mp4', b'movie data')
+    syncer = self._make_simplify_syncer([src_dir])
+    syncer.run()
+    self.assertFalse(path.exists(src))
+    nas_dir = path.join(self._sandbox.nas_root, 'source')
+    self.assertTrue(path.exists(path.join(nas_dir, 'my_movie_2024.mp4')))
+    self.assertFalse(path.exists(path.join(nas_dir, 'My Movie (2024).mp4')))
+
+  def test_integration_simplify_server_mv_original_to_simplified(self):
+    src_dir = self._make_src_dir()
+    content = b'already on nas'
+    src = self._write_file(src_dir, 'My Movie.mp4', content)
+    nas_dir = path.join(self._sandbox.nas_root, 'source')
+    self._write_file(nas_dir, 'My Movie.mp4', content)  # original on NAS
+    syncer = self._make_simplify_syncer([src_dir])
+    syncer.run()
+    self.assertFalse(path.exists(src))
+    self.assertTrue(path.exists(path.join(nas_dir, 'my_movie.mp4')))
+    self.assertFalse(path.exists(path.join(nas_dir, 'My Movie.mp4')))
+
+  def test_integration_simplify_skip_already_at_simplified(self):
+    src_dir = self._make_src_dir()
+    content = b'already simplified'
+    src = self._write_file(src_dir, 'My Movie.mp4', content)
+    nas_dir = path.join(self._sandbox.nas_root, 'source')
+    self._write_file(nas_dir, 'my_movie.mp4', content)  # simplified already on NAS
+    syncer = self._make_simplify_syncer([src_dir])
+    syncer.run()
+    self.assertFalse(path.exists(src))
+    self.assertTrue(path.exists(path.join(nas_dir, 'my_movie.mp4')))
 
 
 def _fake_rv(stdout):
