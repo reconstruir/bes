@@ -3,13 +3,13 @@
 
 import os.path as path, unittest
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.python.setup_tools import setup_tools
 
 class test_setup_tools(unittest.TestCase):
 
   def test_update_egg_directory(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     eggs = [
       'foo-1.2.3-py2.7.egg',
       'bar-6.6.6-py2.7.egg',
@@ -24,20 +24,20 @@ class test_setup_tools(unittest.TestCase):
     self.assertEqual( sorted(eggs), sorted(actual_eggs) )
 
   def test_update_egg_directory_empty_dir(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     bf_file_ops.remove(tmp_dir)
     setup_tools.update_egg_directory(tmp_dir)
     easy_install_dot_pth_path = path.join(tmp_dir, setup_tools.EASY_INSTALL_DOT_PTH_FILENAME)
     self.assertFalse( path.exists(easy_install_dot_pth_path) )
     
   def test_update_site_dot_py(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     setup_tools.update_site_dot_py(tmp_dir)
     site_py_path = path.join(tmp_dir, setup_tools.SITE_DOT_PY_FILENAME)
     self.assertEqual( setup_tools.SITE_DOT_PY_CONTENT.encode('utf-8'), bf_file_ops.read(site_py_path) )
 
   def test_update_site_dot_py_empty_dir(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     bf_file_ops.remove(tmp_dir)
     setup_tools.update_site_dot_py(tmp_dir)
     site_py_path = path.join(tmp_dir, setup_tools.SITE_DOT_PY_FILENAME)

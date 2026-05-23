@@ -9,7 +9,7 @@ from bes.fs.file_sync import file_sync
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
 
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
@@ -29,7 +29,7 @@ class test_file_find(unit_test):
       'file emptyfile.txt',
       'dir emptydir',
     ])
-    tmp_dst_dir = temp_file.make_temp_dir()
+    tmp_dst_dir = bf_temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
     expected = [
       self.native_filename('emptyfile.txt'),
@@ -53,7 +53,7 @@ class test_file_find(unit_test):
       'file emptyfile.txt',
       'dir emptydir',
     ])
-    tmp_dst_dir = temp_file.make_temp_dir()
+    tmp_dst_dir = bf_temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir1, tmp_dst_dir)
     file_sync.sync(tmp_src_dir2, tmp_dst_dir)
     expected = [
@@ -78,7 +78,7 @@ class test_file_find(unit_test):
       'file emptyfile.txt',
       'dir emptydir',
     ])
-    tmp_dst_dir = temp_file.make_temp_dir()
+    tmp_dst_dir = bf_temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir1, tmp_dst_dir)
     file_sync.sync(tmp_src_dir2, tmp_dst_dir)
     expected = [
@@ -98,7 +98,7 @@ class test_file_find(unit_test):
       'file emptyfile.txt',
       'dir emptydir',
     ])
-    tmp_dst_dir = temp_file.make_temp_dir()
+    tmp_dst_dir = bf_temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir, exclude = [
       self.native_filename('foo.txt'),
       self.native_filename('subdir/subberdir/baz.txt'),
@@ -115,7 +115,7 @@ class test_file_find(unit_test):
       'file foo.txt "foo.txt\n" 644',
       'file bar.sh "#!/bin/bash\necho bar\n" 755',
     ])
-    tmp_dst_dir = temp_file.make_temp_dir()
+    tmp_dst_dir = bf_temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
     self.assertEqual( 0o0755, bf_entry(path.join(tmp_dst_dir, 'bar.sh')).mode )
     self.assertEqual( 0o0644, bf_entry(path.join(tmp_dst_dir, 'foo.txt')).mode )
@@ -126,7 +126,7 @@ class test_file_find(unit_test):
       'file foo.txt "foo.txt\n" 644',
       'file bar.sh "#!/bin/bash\necho bar\n" 755',
     ])
-    tmp_dst_dir = temp_file.make_temp_dir()
+    tmp_dst_dir = bf_temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
     self.assertEqual( 0o0755, bf_entry(path.join(tmp_dst_dir, 'bar.sh')).mode )
     self.assertEqual( 0o0644, bf_entry(path.join(tmp_dst_dir, 'foo.txt')).mode )

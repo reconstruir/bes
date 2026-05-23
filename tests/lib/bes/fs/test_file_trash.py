@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 from bes.files.bf_dir import bf_dir
 from bes.fs.file_trash import file_trash
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.log import log
 import os.path as path
 from collections import namedtuple
@@ -40,10 +40,10 @@ class test_file_trash(unit_test):
     ctx.trash.stop()
     
   def _make_context(self, niceness_level = None, timeout = None, deleter = None):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     trash_dir = path.join(tmp_dir, 'trash')
     stuff_dir = path.join(tmp_dir, 'stuff')
-    trash = file_trash(temp_file.make_temp_dir(),
+    trash = file_trash(bf_temp_file.make_temp_dir(),
                        niceness_level = niceness_level,
                        timeout = timeout,
                        deleter = deleter)

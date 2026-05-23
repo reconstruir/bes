@@ -14,7 +14,7 @@ from bes.fs.file_find import file_find
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_filename import bf_filename
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git import git
 from bes.git.git_exe import git_exe
 from bes.key_value.key_value_list import key_value_list
@@ -260,7 +260,7 @@ def main():
   if args.compile_only:
     total_files = len(ar.all_files)
     for i, f in enumerate(ar.all_files):
-      tmp = temp_file.make_temp_file()
+      tmp = bf_temp_file.make_temp_file()
       filename_count_blurb = ' ' + _make_count_blurb(i + 1, total_files)
       short_filename = bf_filename.remove_head(f, cwd)
       blurb = '%7s:%s %s ' % ('compile', filename_count_blurb, short_filename)
@@ -346,7 +346,7 @@ def main():
   env.update(args.env)
 
   # Use a custom TMP dir so that we can catch temporary side effects and flag them
-  tmp_tmp = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.tmp.dir', delete = False)
+  tmp_tmp = bf_temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.tmp.dir', delete = False)
   env.update({
     'TMPDIR': tmp_tmp,
     'TEMP': tmp_tmp,
@@ -392,8 +392,8 @@ def main():
   ar.cleanup_python_compiled_files()
 
   # Do all our work with a temporary working directory to be able to check for side effects
-  tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.cwd.dir', delete = False)
-  tmp_home = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.home.dir', delete = False)
+  tmp_cwd = bf_temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.cwd.dir', delete = False)
+  tmp_home = bf_temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.home.dir', delete = False)
   os.environ['HOME'] = tmp_home
   os.chdir(tmp_cwd)
   

@@ -10,7 +10,7 @@ from bes.system.compat import compat
 from bes.compat import url_compat
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_filename import bf_filename
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from urllib import parse as urllib_parse
 from urllib import request as urllib_request
@@ -70,9 +70,9 @@ class url_util(object):
     'Download url to a temporary file.'
     if basename:
       assert bf_filename.is_basename(basename)
-      tmp = path.join(temp_file.make_temp_dir(delete = delete), basename)
+      tmp = path.join(bf_temp_file.make_temp_dir(delete = delete), basename)
     else:  
-      tmp = temp_file.make_temp_file(suffix = suffix)
+      tmp = bf_temp_file.make_temp_file(suffix = suffix)
     with open(tmp, 'wb') as fout:
       result = clazz.download_to_stream(url, fout, chunk_size = chunk_size, cookies = cookies, auth = auth)
       fout.close()

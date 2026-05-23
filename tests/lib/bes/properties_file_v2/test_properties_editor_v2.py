@@ -3,7 +3,7 @@
 
 from os import path
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.testing.unit_test import unit_test
 from bes.properties_file_v2.properties_editor import properties_editor as PE

@@ -7,7 +7,7 @@ from .git_lfs import git_lfs
 from .git_repo import git_repo
 from .git_clone_options import git_clone_options
 
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class git_lfs_util(object):
   'Misc git lfs util.'
@@ -35,7 +35,7 @@ Encountered 3 file(s) that should have been pointers, but weren't:
 	lemon.bytes
 	subdir/organic banana.bytes
 '''    
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     repo = git_repo(tmp_dir, address = address)
     options = git_clone_options()
     options.branch = branch

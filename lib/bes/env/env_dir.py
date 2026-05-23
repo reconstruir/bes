@@ -6,7 +6,7 @@ from enum import IntEnum
 from bes.compat.StringIO import StringIO
 from bes.files.bf_dir import bf_dir
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.env_var import env_var
 from bes.system.execute import execute
 from bes.system.log import logger
@@ -98,7 +98,7 @@ class env_dir(object):
     buf.write('echo "----4----"\n')
     script_content = buf.getvalue()
     self._log.log_d(f'env_dir.instructions: script_content={script_content}', multi_line = True)
-    script = temp_file.make_temp_file(content = script_content, delete = not self._debug, perm = 0o755)
+    script = bf_temp_file.make_temp_file(content = script_content, delete = not self._debug, perm = 0o755)
     self._log.log_d(f'env_dir.instructions: script={script}')
     try:
       rv = execute.execute(script, raise_error = True, shell = True, env = env)

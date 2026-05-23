@@ -8,7 +8,7 @@ from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.os_env import os_env
 from bes.system.which import which
 
@@ -106,4 +106,4 @@ class sudo(object):
 #!/bin/sh
 echo "{password}"
 '''.format(password = password)
-    return temp_file.make_temp_file(content = content, delete = True, perm = 0o700)
+    return bf_temp_file.make_temp_file(content = content, delete = True, perm = 0o700)

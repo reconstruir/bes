@@ -1,6 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.files.bf_file_ops import bf_file_ops
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_repo_document_db import git_repo_document_db
@@ -8,7 +8,7 @@ from bes.git.git_repo_document_db import git_repo_document_db
 import multiprocessing
 
 def worker(n, address, debug):
-  tmp_working_dir = temp_file.make_temp_dir(delete = not debug)
+  tmp_working_dir = bf_temp_file.make_temp_dir(delete = not debug)
   db = git_repo_document_db(tmp_working_dir, address, 'master')
 
   def attempt_update(content):

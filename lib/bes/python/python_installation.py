@@ -10,7 +10,7 @@ from ..files.bf_entry import bf_entry
 from bes.property.cached_property import cached_property
 from bes.system.host import host
 from bes.system.log import logger
-from bes.fs.filename_util import filename_util
+from bes.files.bf_filename import bf_filename
 
 from .python_error import python_error
 from .python_exe import python_exe
@@ -68,8 +68,8 @@ class python_installation(object):
 
   _WINDOWS_PYTHON_EXTENSIONS = ( 'exe', 'bat', 'cmd' )
   def _exe_basename_version(clazz, exe_type, basename):
-    if filename_util.has_any_extension(basename, clazz._WINDOWS_PYTHON_EXTENSIONS, ignore_case = True):
-      root = filename_util.without_extension(basename)
+    if bf_filename.has_any_extension(basename, clazz._WINDOWS_PYTHON_EXTENSIONS, ignore_case = True):
+      root = bf_filename.without_extension(basename)
     else:
       root = basename
     f = re.findall(r'^{}(\d.*)$'.format(exe_type), root)

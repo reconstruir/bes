@@ -10,7 +10,7 @@ from bes.property.cached_property import cached_property
 from bes.system.host import host
 from bes.system.log import logger
 from bes.files.bf_path import bf_path
-from bes.fs.filename_util import filename_util
+from bes.files.bf_filename import bf_filename
 
 from .python_error import python_error
 from .python_exe import python_exe

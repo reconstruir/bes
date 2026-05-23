@@ -12,7 +12,7 @@ from bes.testing.unit_test import unit_test
 from bes.web.file_web_server import file_web_server
 from bes.web.web_server_controller import web_server_controller
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.url.http_download_cache import http_download_cache
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.compressed_file import compressed_file
@@ -21,7 +21,7 @@ class test_http_download_cache(unit_test):
 
   @classmethod
   def _make_temp_content(clazz, items):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
   
@@ -38,7 +38,7 @@ class test_http_download_cache(unit_test):
     server.start(root_dir = tmp_dir)
     port = server.address[1]
 
-    cache = http_download_cache(temp_file.make_temp_dir())
+    cache = http_download_cache(bf_temp_file.make_temp_dir())
 
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )
@@ -76,7 +76,7 @@ class test_http_download_cache(unit_test):
     server.start(root_dir = tmp_dir)
     port = server.address[1]
 
-    cache = http_download_cache(temp_file.make_temp_dir(), compressed = True)
+    cache = http_download_cache(bf_temp_file.make_temp_dir(), compressed = True)
 
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )
@@ -115,7 +115,7 @@ class test_http_download_cache(unit_test):
     server.start(root_dir = tmp_dir)
     port = server.address[1]
 
-    cache = http_download_cache(temp_file.make_temp_dir(), compressed = True)
+    cache = http_download_cache(bf_temp_file.make_temp_dir(), compressed = True)
 
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )

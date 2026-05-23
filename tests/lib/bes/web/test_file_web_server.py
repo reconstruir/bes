@@ -9,7 +9,7 @@ from bes.testing.unit_test import unit_test
 from bes.web.file_web_server import file_web_server
 from bes.web.web_server_controller import web_server_controller
 from bes.archive.archiver import archiver
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_file_ops import bf_file_ops
 from bes.url.url_util import url_util
 from bes.fs.testing.temp_content import temp_content
@@ -36,12 +36,12 @@ class test_file_web_server(unit_test):
 
     url = tester.make_url('foo.txt')
     download_tmp = url_util.download_to_temp_file(url, suffix = '.txt')
-    self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
+    self.assertEqual( 'text/plain', bf_mime.mime_type(download_tmp) )
     self.assertEqual( 'this is foo.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     url = tester.make_url('subdir/subberdir/baz.txt')
     download_tmp = url_util.download_to_temp_file(url, suffix = '.txt')
-    self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
+    self.assertEqual( 'text/plain', bf_mime.mime_type(download_tmp) )
     self.assertEqual( 'this is baz.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:
@@ -63,12 +63,12 @@ class test_file_web_server(unit_test):
 
     url = tester.make_url('foo.txt')
     download_tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'), suffix = '.txt')
-    self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
+    self.assertEqual( 'text/plain', bf_mime.mime_type(download_tmp) )
     self.assertEqual( 'this is foo.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     url = tester.make_url('subdir/subberdir/baz.txt')
     download_tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'), suffix = '.txt')
-    self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp) )
+    self.assertEqual( 'text/plain', bf_mime.mime_type(download_tmp) )
     self.assertEqual( 'this is baz.txt\n', bf_file_ops.read(download_tmp, encoding = 'utf8') )
 
     with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:

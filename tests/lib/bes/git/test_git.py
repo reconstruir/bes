@@ -5,7 +5,7 @@ import os.path as path, os, unittest
 
 from bes.testing.unit_test import unit_test
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.archive.archiver import archiver
 from bes.git.git_unit_test import git_temp_home_func
 from bes.system.env_override import env_override_temp_home_func

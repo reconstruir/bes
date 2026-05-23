@@ -4,7 +4,7 @@ import os.path as path
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from .git import git
 from .git_address_util import git_address_util

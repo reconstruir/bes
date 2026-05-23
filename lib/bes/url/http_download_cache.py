@@ -8,7 +8,7 @@ from bes.common.string_util import string_util
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.checksum.bf_checksum import bf_checksum
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.fs.compressed_file import compressed_file
 from bes.git.git_address_util import git_address_util
 from bes.url.url_util import url_util
@@ -114,7 +114,7 @@ class http_download_cache(object):
 
   def _local_checksum(self, filename):
     if self.compressed:
-      tmp_uncompressed_file = temp_file.make_temp_file()
+      tmp_uncompressed_file = bf_temp_file.make_temp_file()
       compressed_file.uncompress(filename, tmp_uncompressed_file)
       result = bf_checksum.checksum(tmp_uncompressed_file, 'sha256')
       bf_file_ops.remove(tmp_uncompressed_file)
@@ -124,7 +124,7 @@ class http_download_cache(object):
   def _uncompress_if_needed(self, filename, uncompress):
     if self.compressed:
       if uncompress:
-        tmp_uncompressed_file = temp_file.make_temp_file()
+        tmp_uncompressed_file = bf_temp_file.make_temp_file()
         compressed_file.uncompress(filename, tmp_uncompressed_file)
         result = tmp_uncompressed_file
       else:

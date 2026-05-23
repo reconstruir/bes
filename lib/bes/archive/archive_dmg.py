@@ -2,7 +2,7 @@
 
 import os, os.path as path, tarfile
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.execute import execute
 from bes.system.host import host
 
@@ -68,9 +68,9 @@ class archive_dmg(archive):
     return
     # Cheat by using a temporary zip file to do the actual work.  Super innefecient but
     # easy since theres no library to extract just some stuff from dmg files.
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     dmg.extract(self.filename, tmp_dir)
-    tmp_zip = temp_file.make_temp_file(suffix = '.zip')
+    tmp_zip = bf_temp_file.make_temp_file(suffix = '.zip')
     az = archive_zip(tmp_zip)
     az.create(tmp_dir)
     az.extract(dest_dir,
@@ -87,7 +87,7 @@ class archive_dmg(archive):
              extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     for item in items:
       bf_file_ops.copy(item.filename, path.join(tmp_dir, item.arcname))
     cmd = 'hdiutil create -srcfolder %s -ov -format UDZO %s' % (tmp_dir, self.filename)

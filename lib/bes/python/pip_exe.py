@@ -10,8 +10,8 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.common.string_util import string_util
-from bes.fs.file_mime import file_mime
-from bes.fs.filename_util import filename_util
+from bes.files.mime.bf_mime import bf_mime
+from bes.files.bf_filename import bf_filename
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
@@ -50,9 +50,9 @@ class pip_exe(object):
 
     if host.is_windows():
       pip_exe_lower = pip_exe.lower()
-      ext = filename_util.extension(pip_exe_lower)
+      ext = bf_filename.extension(pip_exe_lower)
       if ext in ( 'cmd', 'exe', 'bat', 'ps1' ):
-        basename = filename_util.without_extension(path.basename(pip_exe_lower))
+        basename = bf_filename.without_extension(path.basename(pip_exe_lower))
       else:
         basename = path.basename(pip_exe_lower)
     else:
@@ -104,7 +104,7 @@ class pip_exe(object):
     'Return True if the pip_exe is an executable instead of a python script'
     check.check_string(pip_exe)
 
-    return file_mime.is_binary(pip_exe)
+    return bf_mime.is_binary(pip_exe)
   
   @classmethod
   def find_exe_for_python(clazz, python_exe):

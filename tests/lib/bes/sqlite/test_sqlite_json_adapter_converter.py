@@ -7,13 +7,13 @@ from datetime import timezone
 
 from bes.testing.unit_test import unit_test
 from bes.sqlite.sqlite import sqlite
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class test_sqlite_boolean_adapter_converter(unit_test):
 
   @classmethod
   def _make_tmp_db(clazz):
-    tmp_filename = path.join(temp_file.make_temp_dir(), 'db.sqlite')
+    tmp_filename = path.join(bf_temp_file.make_temp_dir(), 'db.sqlite')
     return sqlite(tmp_filename)
 
   def test_BES_JSON(self):

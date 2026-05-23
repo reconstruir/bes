@@ -4,7 +4,7 @@
 from collections import namedtuple
 
 from os import path
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.testing.unit_test import unit_test
 from bes.properties_file_v2.properties_file import properties_file as PF
@@ -17,7 +17,7 @@ fruit: 'kiwi'
 status: 'doomed'
 version: '1.2.3'
 """
-    tmp = temp_file.make_temp_file(content = text)
+    tmp = bf_temp_file.make_temp_file(content = text)
     self.assertEqual( {
       'fruit': 'kiwi',
       'status': 'doomed',
@@ -30,7 +30,7 @@ fruit: 'kiwi'
 status: 'doomed'
 version: '1.2.3'
 """
-    tmp = temp_file.make_temp_file(content = text)
+    tmp = bf_temp_file.make_temp_file(content = text)
 
     TC = namedtuple('TC', 'fruit, status, version')
     self.assertEqual( ( 'kiwi', 'doomed', '1.2.3' ), PF.read_to_tuple(tmp, TC) )
@@ -40,13 +40,13 @@ version: '1.2.3'
 fruit: 'kiwi'
 version: '1.2.3'
 """
-    tmp = temp_file.make_temp_file(content = text)
+    tmp = bf_temp_file.make_temp_file(content = text)
 
     TC = namedtuple('TC', 'fruit, status, version')
     self.assertEqual( ( 'kiwi', None, '1.2.3' ), PF.read_to_tuple(tmp, TC) )
     
   def test_read_to_tuple_empty(self):
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     TC = namedtuple('TC', 'fruit, status, version')
     self.assertEqual( ( None, None, None ), PF.read_to_tuple(tmp, TC) )
 
@@ -56,7 +56,7 @@ version: '1.2.3'
  status: 'doomed'
 version: '1.2.3'
 """
-    tmp = temp_file.make_temp_file(content = text)
+    tmp = bf_temp_file.make_temp_file(content = text)
     self.assertEqual( {
       'fruit': 'kiwi',
       'status': 'doomed',
@@ -74,8 +74,8 @@ fruit: 'orange'
 status: 'doomed'
 version: '1.2.4'
 """
-    tmp1 = temp_file.make_temp_file(content = text1)
-    tmp2 = temp_file.make_temp_file(content = text2)
+    tmp1 = bf_temp_file.make_temp_file(content = text1)
+    tmp2 = bf_temp_file.make_temp_file(content = text2)
 
     TC = namedtuple('TC', 'fruit, status, version')
     self.assertEqual( ( 'orange', 'doomed', '1.2.4' ), PF.read_to_tuple_layered([ tmp1, tmp2 ], TC) )

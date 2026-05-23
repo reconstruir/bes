@@ -6,7 +6,7 @@ from bes.property.cached_property import cached_property
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
 from bes.files.checksum.bf_checksum import bf_checksum
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from .properties import properties
 
@@ -108,7 +108,7 @@ class properties_editor(object):
       old_checksum = bf_checksum.checksum(self.filename, 'sha256')
     else:
       old_checksum = None
-    tmp_file = temp_file.make_temp_file()
+    tmp_file = bf_temp_file.make_temp_file()
     self._properties.save(tmp_file, self._formatter)
     new_checksum = bf_checksum.checksum(tmp_file, 'sha256')
     if old_checksum == new_checksum:

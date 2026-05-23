@@ -4,7 +4,7 @@ import os.path as path
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from .git import git
 from .git_address_util import git_address_util
@@ -29,7 +29,7 @@ class git_archive_cache(object):
     tarball_path = path.join(local_address_path, tarball_filename)
     if path.exists(tarball_path):
       return tarball_path
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     if path.isdir(address):
       name = path.basename(address)
     else:

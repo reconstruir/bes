@@ -5,7 +5,7 @@ import copy
 from bes.factory.singleton_class_registry import singleton_class_registry
 from ..system.check import check
 from bes.python.code import code
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from .vfs_error import vfs_error
 from .vfs_config import vfs_config
@@ -28,7 +28,7 @@ class vfs_registry(singleton_class_registry):
     vfs_class_path = values.get('vfs_class_path', None)
     if vfs_class_path:
       load_code = 'from {} import {}'.format(vfs_class_path, vfs_class_path.split('.')[-1])
-      load_filename = temp_file.make_temp_file(suffix = '.py', content = load_code)
+      load_filename = bf_temp_file.make_temp_file(suffix = '.py', content = load_code)
       code.execfile(load_filename, globals(), locals())
       del values['vfs_class_path']
 

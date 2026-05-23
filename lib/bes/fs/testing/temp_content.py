@@ -7,7 +7,7 @@ from datetime import datetime
 from bes.text.string_list_parser import string_list_parser
 from bes.common.string_util import string_util
 from bes.system.check import check
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.files.bf_path import bf_path
 
 class multiplied_temp_content(namedtuple('multiplied_temp_content', 'name, num, size')):
@@ -203,7 +203,7 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
   @classmethod
   def write_items_to_temp_dir(clazz, items, delete = True, **kargs):
     'Write temp content items to a temporary dir.'
-    root_dir = temp_file.make_temp_dir(delete = delete, **kargs)
+    root_dir = bf_temp_file.make_temp_dir(delete = delete, **kargs)
     clazz.write_items(items, root_dir)
     return root_dir
 

@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.host import host
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
@@ -46,14 +46,14 @@ class test_archive_dmg(unit_test):
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
     self.assertFalse( archive_dmg.file_is_valid(tmp_tar_gz) )
 
-    self.assertFalse( archive_dmg.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
+    self.assertFalse( archive_dmg.file_is_valid(bf_temp_file.make_temp_file(content = 'junk\n')) )
     
   def test_members(self):
     tmp_dmg = self._make_test_dmg()
     self.assertEqual( [ 'foo.txt', 'link_to_foo.txt', 'subdir/bar.txt' ], archive_dmg(tmp_dmg).members )
     
   def test_extract_all(self):
-    tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    tmp_dir = bf_temp_file.make_temp_dir(delete = not self.DEBUG)
     tmp_dmg = self._make_test_dmg()
     archive_dmg(tmp_dmg).extract_all(tmp_dir)
     self.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )

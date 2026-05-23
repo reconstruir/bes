@@ -4,7 +4,7 @@
 from os import path, getcwd, remove
 from bes.git.git_temp_repo import git_temp_repo
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git_unit_test import git_temp_home_func
 
 from bes.testing.program_unit_test import program_unit_test
@@ -46,7 +46,7 @@ class test_git_repo_document_cli_args(program_unit_test):
     # Since we now have a file in the repo, let's also test whether load_document can read it.
 
     # Here's an auto-delete temp directory for the document DB's local repository.
-    tmp_db_dir2 = temp_file.make_temp_dir(delete = not self.DEBUG)
+    tmp_db_dir2 = bf_temp_file.make_temp_dir(delete = not self.DEBUG)
 
     # By default, the CLI will put the output file in a file with the same name as the file in
     # the repo, in the current directory.

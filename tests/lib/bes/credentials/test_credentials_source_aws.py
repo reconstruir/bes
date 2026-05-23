@@ -4,7 +4,7 @@
 import os
 from bes.testing.unit_test import unit_test
 from bes.credentials.credentials_source_aws import credentials_source_aws as CSA
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class test_credentials_source_aws(unit_test):
 
@@ -16,7 +16,7 @@ aws_secret_access_key = abcdefghijklmnopqrtuvwxyz1234567890abcde
 output = text
 region = us-west-2
 '''
-    cs = CSA(filename = temp_file.make_temp_file(content = text))
+    cs = CSA(filename = bf_temp_file.make_temp_file(content = text))
     self.assertEqual( True, cs.is_valid() )
     c = cs.credentials()
     self.assertEqual( 'ABCDEFGHIJKLMNOPQRST', c.aws_access_key_id )
@@ -27,7 +27,7 @@ region = us-west-2
     
   def test_invalid(self):
     text = 'notvalid'
-    cs = CSA(filename = temp_file.make_temp_file(content = text))
+    cs = CSA(filename = bf_temp_file.make_temp_file(content = text))
     self.assertEqual( False, cs.is_valid() )
     c = cs.credentials()
     

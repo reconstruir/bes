@@ -9,7 +9,7 @@ from bes.files.bf_entry import bf_entry
 
 from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.file_find import file_find
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.fs.testing.temp_content import temp_content
 
 from ..files.find.bf_file_finder import bf_file_finder
@@ -23,7 +23,7 @@ class file_web_server_tester(object):
   'A class to test a file_web_server'
 
   def __init__(self, root_dir = None, debug = False, items = None, users = None):
-    self.root_dir = root_dir or temp_file.make_temp_dir(delete = not debug)
+    self.root_dir = root_dir or bf_temp_file.make_temp_dir(delete = not debug)
     if items:
       self.write_temp_content(items)
     self.server = None

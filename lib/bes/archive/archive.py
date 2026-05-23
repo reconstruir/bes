@@ -11,7 +11,7 @@ from bes.fs.file_find import file_find
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.file_copy import file_copy
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.match.matcher_filename import matcher_multiple_filename
 from bes.match.matcher_always_false import matcher_always_false
 from bes.match.matcher_always_true import matcher_always_true
@@ -49,7 +49,7 @@ class archive(archive_base):
     return [ member for member in self.members() if member.endswith('/') ]
   
   def extract_member_to_file(self, member, filename):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     tmp_member = path.join(tmp_dir, member)
     self.extract(tmp_dir, include = [ member ])
     if not path.exists(tmp_member):
@@ -59,7 +59,7 @@ class archive(archive_base):
     bf_file_ops.rename(tmp_member, filename)
 
   def extract_member_to_string(self, member, encoding = None):
-    tmp_file = temp_file.make_temp_file(non_existent = True)
+    tmp_file = bf_temp_file.make_temp_file(non_existent = True)
     self.extract_member_to_file(member, tmp_file)
     result = bf_file_ops.read(tmp_file, encoding = encoding)
     bf_file_ops.remove(tmp_file)

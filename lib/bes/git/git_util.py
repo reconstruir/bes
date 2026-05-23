@@ -11,7 +11,7 @@ from bes.common.object_util import object_util
 from bes.fs.file_type import file_type
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_filename import bf_filename
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.script.blurber import blurber
@@ -71,7 +71,7 @@ class git_util(object):
   @classmethod
   def clone_to_temp_dir(clazz, address, options = None, debug = False):
     'Clone a git address to a temp dir'
-    tmp_dir = temp_file.make_temp_dir(delete = not debug)
+    tmp_dir = bf_temp_file.make_temp_dir(delete = not debug)
     clazz._LOG.log_d('clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
     if debug:
       print('clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))

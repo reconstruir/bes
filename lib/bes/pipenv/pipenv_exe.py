@@ -10,9 +10,9 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.common.string_util import string_util
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_path import bf_path
-from bes.fs.filename_util import filename_util
+from bes.files.bf_filename import bf_filename
 from bes.system.env_override import env_override
 from bes.system.execute import execute
 from bes.system.host import host

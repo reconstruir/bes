@@ -5,7 +5,7 @@ import sys
 import os.path as path
 
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git import git
 from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
@@ -30,7 +30,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_exists_false(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     r = git_repo(tmp_dir)
     self.assertFalse( r.exists() )
 
@@ -80,7 +80,7 @@ class test_git_repo(unit_test):
     r1.add('.')
     r1.commit('foo', '.')
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     git.clone(r1.root, tmp_dir)
     r2 = git_repo(tmp_dir)
     self.assertEqual( [], r2.status('.') )
@@ -105,7 +105,7 @@ class test_git_repo(unit_test):
     r1.add('.')
     r1.commit('foo', '.')
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     r2 = git_repo(tmp_dir, address = r1.root)
     r2.clone()
     r2.pull()
@@ -130,7 +130,7 @@ class test_git_repo(unit_test):
     r1.add('.')
     r1.commit('foo', '.')
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     r2 = git_repo(tmp_dir, address = r1.root)
     r2.clone_or_pull()
     self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt')], r2.find_all_files() )

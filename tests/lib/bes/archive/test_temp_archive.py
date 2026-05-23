@@ -4,7 +4,7 @@
 import os.path as path, tarfile, zipfile
 from bes.testing.unit_test import unit_test
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.host import host
 from bes.archive.temp_archive import temp_archive
 from bes.archive.macos.dmg import dmg
@@ -49,12 +49,12 @@ class test_temp_archive(unit_test):
     self.assertFalse( tarfile.is_tarfile(a) )
 
   def test_make_temp_archive_from_file(self):
-    tmp_file = temp_file.make_temp_file(content = 'foo.txt\n', suffix = '.foo.txt')
+    tmp_file = bf_temp_file.make_temp_file(content = 'foo.txt\n', suffix = '.foo.txt')
     tmp_archive = self._make_temp_archive('tgz', items = [ temp_archive.item('foo.txt', filename = tmp_file) ])
     self.assertTrue( path.isfile(tmp_archive) )
     self.assertTrue( tarfile.is_tarfile(tmp_archive) )
     self.assertFalse( zipfile.is_zipfile(tmp_archive) )
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
 
     with tarfile.open(tmp_archive, mode = 'r') as archive:
       archive.extractall(path = tmp_dir, filter = lambda info, _: info)

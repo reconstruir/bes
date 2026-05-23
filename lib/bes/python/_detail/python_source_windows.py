@@ -6,7 +6,7 @@ import os
 from bes.system.check import check
 from bes.system.environment import environment
 from bes.files.bf_dir import bf_dir
-from bes.fs.filename_util import filename_util
+from bes.files.bf_filename import bf_filename
 from bes.python.python_error import python_error
 from bes.python.python_version import python_version
 
@@ -78,9 +78,9 @@ class python_source_windows(python_source_base):
   def exe_name(clazz, exe):
     'Return the name of a python exe.  without possible extensions or absolute paths.'
     basename = path.basename(exe).lower()
-    if not filename_util.has_any_extension(exe, ( 'exe', 'bat', 'cmd' )):
+    if not bf_filename.has_any_extension(exe, ( 'exe', 'bat', 'cmd' )):
       raise python_error('windows executable filename not valid.  should have exe, cmd or bat extension: "{}"'.format(exe))
-    return filename_util.without_extension(basename)
+    return bf_filename.without_extension(basename)
 
   @classmethod
   #@abstractmethod

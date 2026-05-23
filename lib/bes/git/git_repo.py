@@ -10,7 +10,7 @@ from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.common.object_util import object_util
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.text.line_break import line_break
 from bes.version.software_version import software_version
@@ -606,7 +606,7 @@ class git_repo(object):
     if path.exists(tarball_path):
       return tarball_path
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     name = git_address_util.name(self.address)
     tmp_full_path = path.join(tmp_dir, tarball_filename)
 

@@ -8,7 +8,7 @@ from bes.credentials.credentials_source_aws import credentials_source_aws
 from bes.credentials.credentials_source_env import credentials_source_env
 from bes.gradle.credentials_source_gradle import credentials_source_gradle
 from bes.system.env_override import env_override
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class test_credentials_manager(unit_test):
 
@@ -39,7 +39,7 @@ devPassword=xflintpass
 systemProp.gradle.wrapperUser=tuser
 systemProp.gradle.wrapperPassword=tpassword
 '''
-    cm.add_source(credentials_source_gradle(temp_file.make_temp_file(content = text), 'dev'))
+    cm.add_source(credentials_source_gradle(bf_temp_file.make_temp_file(content = text), 'dev'))
 
     with env_override( { 'MY_USERNAME': 'fred', 'MY_PASSWORD': 'flintpass' }) as env:
       self.assertEqual( True, cm.is_valid() )

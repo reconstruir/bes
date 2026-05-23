@@ -3,7 +3,7 @@
 
 from os import path
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config_editor import simple_config_editor as SCE
@@ -12,7 +12,7 @@ class test_simple_config_file_editor(unit_test):
 
   def test_set_value_non_existent_file(self):
     'Set the first value for a non existent config file.'
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     bf_file_ops.remove(tmp)
     e = SCE(tmp)
     e.set_value('something', 'fruit', 'kiwi')
@@ -24,7 +24,7 @@ something
 
   def test_replace_value(self):
     'Set the first value for a non existent config file.'
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     bf_file_ops.remove(tmp)
     e = SCE(tmp)
     e.set_value('something', 'fruit', 'kiwi')
@@ -45,7 +45,7 @@ something
 something
   fruit: kiwi
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = SCE(tmp)
     self.assert_text_file_equal(content, tmp, native_line_breaks = True )
     self.assertEqual( 'kiwi', e.get_value('something', 'fruit') )
@@ -55,7 +55,7 @@ something
 something
   fruit: kiwi
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = SCE(tmp)
     self.assert_text_file_equal(content, tmp, native_line_breaks = True )
     with self.assertRaises(KeyError) as ctx:
@@ -74,11 +74,11 @@ something
 something
   wine: barolo
 '''
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     e = SCE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content1))
-    e.import_file(temp_file.make_temp_file(content = content2))
-    e.import_file(temp_file.make_temp_file(content = content3))
+    e.import_file(bf_temp_file.make_temp_file(content = content1))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content3))
 
     expected = '''\
 something
@@ -103,12 +103,12 @@ something
 '''
     content4 = '''\
 '''
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     e = SCE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content1))
-    e.import_file(temp_file.make_temp_file(content = content2))
-    e.import_file(temp_file.make_temp_file(content = content3))
-    e.import_file(temp_file.make_temp_file(content = content4))
+    e.import_file(bf_temp_file.make_temp_file(content = content1))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content3))
+    e.import_file(bf_temp_file.make_temp_file(content = content4))
 
     expected = '''\
 something
@@ -125,9 +125,9 @@ something
 '''
     content2 = '''\
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = SCE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
 
     expected = '''\
 something
@@ -148,11 +148,11 @@ something
 something
   fruit: lemon
 '''
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     e = SCE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content1))
-    e.import_file(temp_file.make_temp_file(content = content2))
-    e.import_file(temp_file.make_temp_file(content = content3))
+    e.import_file(bf_temp_file.make_temp_file(content = content1))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content3))
 
     expected = '''\
 something
@@ -168,7 +168,7 @@ something
   cheese: brie
   wine: barolo
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = SCE(tmp)
     expected = '''\
 something

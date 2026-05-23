@@ -3,7 +3,7 @@
 import os.path as path
 
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git_clone_manager import git_clone_manager
 from bes.git.git_clone_options import git_clone_options
 from bes.git.git_repo import git_repo
@@ -83,7 +83,7 @@ class shell_framework(object):
   def _fetch_framework(self, revision):
     assert revision != 'latest'
     
-    tmp_dir = temp_file.make_temp_dir(prefix = path.basename(self.framework_dir),
+    tmp_dir = bf_temp_file.make_temp_dir(prefix = path.basename(self.framework_dir),
                                       dir = path.normpath(path.join(self.framework_dir, path.pardir)),
                                       delete = False)
     options = git_clone_options(depth = 1,

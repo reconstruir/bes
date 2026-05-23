@@ -11,7 +11,7 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.files.bf_dir import bf_dir
 from bes.fs.file_copy import file_copy
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.host import host
 from bes.system.log import logger
 from bes.version.software_version import software_version
@@ -369,7 +369,7 @@ class git(git_lfs):
   @classmethod
   def commit(clazz, root_dir, message, filenames):
     filenames = object_util.listify(filenames)
-    tmp_msg = temp_file.make_temp_file(content = message)
+    tmp_msg = bf_temp_file.make_temp_file(content = message)
     args = [ 'commit', '-F', tmp_msg ] + filenames
     try:
       rv = git_exe.call_git(root_dir, args)
@@ -395,7 +395,7 @@ class git(git_lfs):
   def archive(clazz, address, revision, base_name, output_filename,
               untracked = False, override_gitignore = None, debug = False):
     'git archive with additional support to include untracked files for local repos.'
-    tmp_repo_dir = temp_file.make_temp_dir(delete = not debug)
+    tmp_repo_dir = bf_temp_file.make_temp_dir(delete = not debug)
     
     if path.isdir(address):
       excludes = git_ignore.read_gitignore_file(address)
@@ -434,7 +434,7 @@ class git(git_lfs):
       if clazz.is_long_hash(revision):
         revision = clazz.short_hash(root, revision)
     clazz.log.log_d('archive_to_file: revision={} output_filename={} archive_format={}'.format(revision, output_filename, archive_format))
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     clazz.archive_to_dir(root, revision, tmp_dir)
     archiver.create(output_filename, tmp_dir, base_dir = prefix, extension = archive_format)
 
@@ -442,7 +442,7 @@ class git(git_lfs):
   def archive_to_dir(clazz, root, revision, output_dir):
     'git archive to a dir.'
     bf_file_ops.mkdir(output_dir)
-    tmp_archive = temp_file.make_temp_file(suffix = '.tar')
+    tmp_archive = bf_temp_file.make_temp_file(suffix = '.tar')
     args = [
       'archive',
       '--format=tar',

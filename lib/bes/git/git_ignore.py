@@ -4,7 +4,7 @@ from os import path
 
 from ..system.check import check
 from bes.fs.file_ignore import file_ignore_item
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class git_ignore(object):
   'A class to deal with .gitignore files.'
@@ -26,5 +26,5 @@ class git_ignore(object):
   def read_gitignore_text(clazz, text):
     'Return the contents of .gitignore with comments stripped from text.'
 
-    tmp = temp_file.make_temp_file(content = text, suffix = '.gitignore')
+    tmp = bf_temp_file.make_temp_file(content = text, suffix = '.gitignore')
     return clazz.read_ignore_file(tmp)

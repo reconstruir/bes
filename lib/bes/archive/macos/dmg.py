@@ -10,7 +10,7 @@ from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
 from bes.fs.file_copy import file_copy
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.system.execute import execute
 from bes.system.host import host
@@ -77,7 +77,7 @@ class dmg(object):
   @classmethod
   def _mount_at_temp_dir(clazz, dmg):
     bf_check.check_file(dmg)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     rv = clazz._execute_cmd('hdiutil', 'attach', '-mountpoint', tmp_dir, '-plist', '-readonly', dmg)
     entries = plistlib_loads(rv.stdout.encode('utf-8'))
     return clazz.mount_info(dmg, tmp_dir, entries.get('system-entities', []))

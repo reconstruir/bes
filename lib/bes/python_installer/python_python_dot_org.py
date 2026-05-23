@@ -7,7 +7,7 @@ from ..system.check import check
 from bes.compat import url_compat
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.checksum.bf_checksum import bf_checksum
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.python.python_source import python_source
 from bes.python.python_version import python_version
 from bes.python.python_version_list import python_version_list
@@ -113,7 +113,7 @@ class python_python_dot_org(object):
   def _downlod_url(clazz, url, debug = False):
     if not url_util.exists(url):
       raise python_installer_error('No python.org package found: "{}"'.format(url))
-    tmp_dir = temp_file.make_temp_dir(suffix = '-python-download', delete = not debug)
+    tmp_dir = bf_temp_file.make_temp_dir(suffix = '-python-download', delete = not debug)
     basename = path.basename(url)
     tmp_package = path.join(tmp_dir, basename)
     url_util.download_to_file(url, tmp_package)

@@ -4,7 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.fs.file_cache import file_cache
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class test_file_cache(unit_test):
 

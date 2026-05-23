@@ -12,7 +12,7 @@ from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
 
 from bes.fs.tar_util import tar_util
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.os_env import os_env
 from bes.testing.unit_test import unit_test
 from bes.git.git_temp_repo import git_temp_repo

@@ -9,7 +9,7 @@ from bes.common.string_list_util import string_list_util
 from bes.common.string_util import string_util
 from bes.compat.plistlib import plistlib_loads
 from bes.files.bf_dir import bf_dir
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_path import bf_path
 from bes.macos.pkgutil.pkgutil import pkgutil
 from bes.macos.pkgutil.pkgutil_error import pkgutil_error
@@ -135,7 +135,7 @@ class native_package_macos(native_package_base):
     if not path.isfile(package_filename):
       raise native_package_error('Package file not found: "{}"'.format(package_filename))
 
-    mime_type = file_mime.mime_type(package_filename)
+    mime_type = bf_mime.mime_type(package_filename)
     if mime_type != 'application/x-xar':
       raise native_package_error('Invalid package file: "{}"'.format(package_filename))
 

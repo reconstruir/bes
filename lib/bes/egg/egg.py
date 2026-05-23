@@ -7,7 +7,7 @@ from bes.archive.archiver import archiver
 from ..system.check import check
 from bes.common.time_util import time_util
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git import git 
 from bes.git.git_clone_options import git_clone_options
 from bes.git.git_remote import git_remote
@@ -31,14 +31,14 @@ class egg(object):
     
     options = options or egg_options()
     project_name = path.basename(root_dir)
-    tmp_archive_filename = temp_file.make_temp_file(delete = not options.debug,
+    tmp_archive_filename = bf_temp_file.make_temp_file(delete = not options.debug,
                                                     prefix = '%s.egg.'.format(options.project_name),
                                                     suffix = '.tar.gz')
     if options.debug:
       print('tmp_archive_filename: %s' % (tmp_archive_filename))
     git.archive(root_dir, revision, project_name, tmp_archive_filename, untracked = untracked)
       
-    tmp_extract_dir = temp_file.make_temp_dir(delete = not debug)
+    tmp_extract_dir = bf_temp_file.make_temp_dir(delete = not debug)
     if debug:
       print('tmp_extract_dir: %s' % (tmp_extract_dir))
     archiver.extract_all(tmp_archive_filename, tmp_extract_dir, strip_common_ancestor = True)

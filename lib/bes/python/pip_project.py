@@ -14,7 +14,7 @@ from bes.files.bf_dir import bf_dir
 from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.checksum.bf_checksum import bf_checksum
-from bes.fs.filename_util import filename_util
+from bes.files.bf_filename import bf_filename
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
@@ -420,8 +420,8 @@ class pip_project(object):
     check.check_string(program)
 
     if host.is_windows():
-      if not filename_util.has_extension(program, 'exe', ignore_case = True):
-        program = filename_util.add_extension(program, 'exe')
+      if not bf_filename.has_extension(program, 'exe', ignore_case = True):
+        program = bf_filename.add_extension(program, 'exe')
     return path.join(self.bin_dir, program)
 
   def has_program(self, program):

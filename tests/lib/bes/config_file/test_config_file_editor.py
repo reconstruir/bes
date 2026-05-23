@@ -3,7 +3,7 @@
 
 from os import path
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.testing.unit_test import unit_test
 from bes.config_file.config_file_editor import config_file_editor as CFE
@@ -12,7 +12,7 @@ class test_config_file_editor(unit_test):
 
   def test_set_value_non_existent_file(self):
     'Set the first value for a non existent config file.'
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     bf_file_ops.remove(tmp)
     e = CFE(tmp)
     e.set_value('something', 'fruit', 'kiwi')
@@ -24,7 +24,7 @@ fruit = kiwi
 
   def test_set_value_non_existent_file_quoted(self):
     'Set the first value for a non existent config file.'
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     bf_file_ops.remove(tmp)
     e = CFE(tmp, string_quote_char = '"')
     e.set_value('something', 'fruit', 'kiwi')
@@ -36,7 +36,7 @@ fruit = "kiwi"
     
   def test_replace_value(self):
     'Set the first value for a non existent config file.'
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     bf_file_ops.remove(tmp)
     e = CFE(tmp)
     e.set_value('something', 'fruit', 'kiwi')
@@ -54,7 +54,7 @@ fruit = apple
     
   def test_replace_value_quoted(self):
     'Set the first value for a non existent config file.'
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     bf_file_ops.remove(tmp)
     e = CFE(tmp, string_quote_char = '"')
     e.set_value('something', 'fruit', 'kiwi')
@@ -75,7 +75,7 @@ fruit = "apple"
 [something]
 fruit = kiwi
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = CFE(tmp)
     self.assertMultiLineEqual(content, bf_file_ops.read(tmp, encoding = 'utf-8') )
     self.assertEqual( 'kiwi', e.get_value('something', 'fruit') )
@@ -85,7 +85,7 @@ fruit = kiwi
 [something]
 ver = 1.2.3
 '''
-    e = CFE(temp_file.make_temp_file(content = content))
+    e = CFE(bf_temp_file.make_temp_file(content = content))
     self.assertEqual( '1.2.3', e.get_value('something', 'ver') )
     e.bump_version('something', 'ver', 'revision')
     self.assertEqual( '1.2.4', e.get_value('something', 'ver') )
@@ -101,7 +101,7 @@ ver = 1.2.3
 [something]
 ver = 1.2.3
 '''
-    e = CFE(temp_file.make_temp_file(content = content))
+    e = CFE(bf_temp_file.make_temp_file(content = content))
     self.assertEqual( '1.2.3', e.get_value('something', 'ver') )
     e.change_version('something', 'ver', 'major', 9)
     self.assertEqual( '9.2.3', e.get_value('something', 'ver') )
@@ -115,7 +115,7 @@ ver = 1.2.3
 [something]
 fruit = kiwi
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = CFE(tmp)
     self.assertMultiLineEqual(content, bf_file_ops.read(tmp, encoding = 'utf-8') )
     with self.assertRaises(KeyError) as ctx:
@@ -134,11 +134,11 @@ cheese = brie
 [something]
 wine = barolo
 '''
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     e = CFE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content1))
-    e.import_file(temp_file.make_temp_file(content = content2))
-    e.import_file(temp_file.make_temp_file(content = content3))
+    e.import_file(bf_temp_file.make_temp_file(content = content1))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content3))
 
     expected = '''\
 [something]
@@ -163,12 +163,12 @@ wine = barolo
 '''
     content4 = '''\
 '''
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     e = CFE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content1))
-    e.import_file(temp_file.make_temp_file(content = content2))
-    e.import_file(temp_file.make_temp_file(content = content3))
-    e.import_file(temp_file.make_temp_file(content = content4))
+    e.import_file(bf_temp_file.make_temp_file(content = content1))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content3))
+    e.import_file(bf_temp_file.make_temp_file(content = content4))
 
     expected = '''\
 [something]
@@ -185,9 +185,9 @@ fruit = kiwi
 '''
     content2 = '''\
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = CFE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
 
     expected = '''\
 [something]
@@ -208,11 +208,11 @@ cheese = brie
 [something]
 fruit = lemon
 '''
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     e = CFE(tmp)
-    e.import_file(temp_file.make_temp_file(content = content1))
-    e.import_file(temp_file.make_temp_file(content = content2))
-    e.import_file(temp_file.make_temp_file(content = content3))
+    e.import_file(bf_temp_file.make_temp_file(content = content1))
+    e.import_file(bf_temp_file.make_temp_file(content = content2))
+    e.import_file(bf_temp_file.make_temp_file(content = content3))
 
     expected = '''\
 [something]
@@ -228,7 +228,7 @@ fruit = kiwi
 cheese = brie
 wine = barolo
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = CFE(tmp)
     expected = '''\
 [something]
@@ -246,7 +246,7 @@ fruit = kiwi
 cheese = brie
 wine = barolo
 '''
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = bf_temp_file.make_temp_file(content = content)
     e = CFE(tmp)
     e.update_config({
       'something': {

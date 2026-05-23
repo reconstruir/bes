@@ -3,7 +3,7 @@
 from os import path
 
 from ..system.check import check
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from .python_exe import python_exe as bes_python_exe
 from .python_version import python_version
@@ -20,7 +20,7 @@ class pip_installer_tester(object):
 
     self.python_exe = python_exe
     self.name = name
-    self.tmp_dir = temp_file.make_temp_dir(suffix = '-pip-installer-tester', delete = not debug)
+    self.tmp_dir = bf_temp_file.make_temp_dir(suffix = '-pip-installer-tester', delete = not debug)
     if debug:
       print('tmp_dir: {}'.format(self.tmp_dir))
     options = pip_installer_options(root_dir = self.tmp_dir,

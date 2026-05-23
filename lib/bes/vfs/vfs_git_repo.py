@@ -7,7 +7,7 @@ from ..system.check import check
 from bes.common.node import node
 from bes.fs.file_attributes import file_attributes
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 from bes.git.git_clone_manager import git_clone_manager
@@ -115,7 +115,7 @@ class vfs_git_repo(vfs_base):
     proxy.fs.upload_file(local_filename, remote_filename)
     proxy.repo.add(remote_filename)
     if self._use_lfs:
-      if not file_mime.content_is_text(local_filename):
+      if not bf_mime.content_is_text(local_filename):
         pattern = '*.{}'.format(bf_filename.extension(remote_filename))
         proxy.repo.lfs_track(remote_filename)
     comment = 'add {}'.format(remote_filename)

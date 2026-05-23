@@ -3,7 +3,7 @@
 
 from os import path
 from bes.testing.unit_test import unit_test
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.gradle.gradle_properties import gradle_properties as GP
 
@@ -16,7 +16,7 @@ devPassword=flintpass
 systemProp.gradle.wrapperUser=tuser
 systemProp.gradle.wrapperPassword=tpassword
 '''
-    g = GP(temp_file.make_temp_file(content = content))
+    g = GP(bf_temp_file.make_temp_file(content = content))
     self.assertEqual( {
       'devUser': 'fred@flintstone.com',
       'devPassword': 'flintpass',

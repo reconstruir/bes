@@ -8,7 +8,7 @@ from collections import namedtuple
 from abc import abstractmethod, ABCMeta
 
 from ..system.check import check
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_filename import bf_filename
@@ -179,4 +179,4 @@ class web_server(object, metaclass = ABCMeta):
     return self._path_info(path_info, filename, fragment, rooted_filename)
 
   def mime_type(self, filename):
-    return file_mime.mime_type(filename)
+    return bf_mime.mime_type(filename)

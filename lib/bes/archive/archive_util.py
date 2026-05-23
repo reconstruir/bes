@@ -11,7 +11,7 @@ from bes.fs.file_match import file_match
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.which import which
@@ -141,7 +141,7 @@ class archive_util(object):
       if dups:
         raise RuntimeError('Archives have duplicate members with different content\n{}.'.format(pprint.pformat(dups)))
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     for archive in archives:
       archiver.extract_all(archive, tmp_dir)
     archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = bf_path.xp_path_list(exclude))
@@ -176,7 +176,7 @@ class archive_util(object):
       cmd.append('-w')
     cmd.extend([ pattern, '.' ])
       
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     archiver.extract(tarball, tmp_dir, strip_common_ancestor = True)
     result = execute.execute(cmd, cwd = tmp_dir, shell = True, raise_error = False)
     bf_file_ops.remove(tmp_dir)
@@ -189,8 +189,8 @@ class archive_util(object):
     members2 = archiver.members(archive2)
     content1 = '\n'.join(members1)
     content2 = '\n'.join(members2)
-    tmp_file1 = temp_file.make_temp_file(content = content1)
-    tmp_file2 = temp_file.make_temp_file(content = content2)
+    tmp_file1 = bf_temp_file.make_temp_file(content = content1)
+    tmp_file2 = bf_temp_file.make_temp_file(content = content2)
     cmd = [ 'diff', '-u', '-r', tmp_file1, tmp_file2 ]
     rv = execute.execute(cmd, raise_error = False, stderr_to_stdout = True)
     return rv
@@ -198,7 +198,7 @@ class archive_util(object):
   @classmethod
   def diff_contents(clazz, archive1, archive2, strip_common_ancestor = False):
     'Return the output of diffing the contents of 2 archives.'
-    tmp_dir = temp_file.make_temp_dir(delete = True)
+    tmp_dir = bf_temp_file.make_temp_dir(delete = True)
     tmp_dir1 = path.join(tmp_dir, 'a')
     tmp_dir2 = path.join(tmp_dir, 'b')
     archiver.extract_all(archive1, tmp_dir1, strip_common_ancestor = strip_common_ancestor)

@@ -11,10 +11,10 @@ from bes.web.web_server import web_server
 from bes.web.web_server_controller import web_server_controller
 from bes.archive.archiver import archiver
 from bes.archive.temp_archive import temp_archive
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_filename import bf_filename
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.url.url_util import url_util
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.system.host import host
@@ -95,7 +95,7 @@ class test_web_server(unit_test):
           temp_archive.item('orange.txt', content = 'orange.txt\n'),
         ]
       tmp_archive = temp_archive.make_temp_archive(items, extension)
-      tmp_mime_type = file_mime.mime_type(tmp_archive)
+      tmp_mime_type = bf_mime.mime_type(tmp_archive)
       content = bf_file_ops.read(tmp_archive)
       headers = [
         ( 'Content-Type', str(tmp_mime_type) ),
@@ -119,14 +119,14 @@ class test_web_server(unit_test):
     tmp = url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
     self.debug_spew_filename('tmp', tmp)
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
-    self.assertTrue( file_mime.is_gzip(tmp) )
+    self.assertTrue( bf_mime.is_gzip(tmp) )
     bf_file_ops.remove(tmp)
     
     url = self._make_url(port, 'sources/bar/bar-1.2.3.zip')
     tmp = url_util.download_to_temp_file(url, basename = 'bar-1.2.3.zip')
     self.debug_spew_filename('tmp', tmp)
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
-    self.assertTrue( file_mime.is_zip(tmp) )
+    self.assertTrue( bf_mime.is_zip(tmp) )
     bf_file_ops.remove(tmp)
     
     server.stop()
@@ -162,7 +162,7 @@ class test_web_server(unit_test):
     tmp = url_util.download_to_temp_file(url, basename = 'large-1.2.3.tar.gz')
     self.debug_spew_filename('tmp', tmp)
     self.assertEqual( [ 'kiwi.bin' ], archiver.members(tmp) )
-    self.assertTrue( file_mime.is_gzip(tmp) )
+    self.assertTrue( bf_mime.is_gzip(tmp) )
     bf_file_ops.remove(tmp)
 
     server.stop()

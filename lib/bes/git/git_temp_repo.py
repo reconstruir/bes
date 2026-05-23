@@ -5,7 +5,7 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.common.string_util import string_util
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.fs.file_mode import file_mode
 from bes.config.simple_config import simple_config
 from bes.config.simple_config_options import simple_config_options
@@ -56,7 +56,7 @@ class git_temp_repo(object):
       local_prefix = '{}local-'.format(prefix)
     else:
       local_prefix = 'local-'
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = local_prefix, dir = where)
+    tmp_dir = bf_temp_file.make_temp_dir(delete = not self._debug, prefix = local_prefix, dir = where)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = self._remote_repo.root)
@@ -74,7 +74,7 @@ class git_temp_repo(object):
     return self._local_repo
     
   def _init_local(self, content, prefix, commit_message = None, where = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix, dir = where)
+    tmp_dir = bf_temp_file.make_temp_dir(delete = not self._debug, prefix = prefix, dir = where)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = None)
@@ -94,7 +94,7 @@ class git_temp_repo(object):
       setattr(self, method_name, _method_caller(target, method_name))
       
   def make_temp_cloned_repo(self, prefix = None, where = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix, dir = where)
+    tmp_dir = bf_temp_file.make_temp_dir(delete = not self._debug, prefix = prefix, dir = where)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = self._remote_repo.root)
@@ -105,7 +105,7 @@ class git_temp_repo(object):
   def _make_temp_repo(clazz, init_args = None, content = None, debug = False,
                       prefix = None, commit_message = None, suffix = None,
                       where = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix,
+    tmp_dir = bf_temp_file.make_temp_dir(delete = not debug, prefix = prefix,
                                       suffix = suffix, dir = where)
     if debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))

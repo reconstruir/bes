@@ -10,8 +10,8 @@ import sys
 from ..system.check import check
 from bes.common.string_util import string_util
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.filename_util import filename_util
-from bes.fs.temp_file import temp_file
+from bes.files.bf_filename import bf_filename
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.command_line import command_line
 from bes.system.log import logger
 from bes.system.host import host
@@ -88,7 +88,7 @@ class pyinstaller_build(object):
 
   @classmethod                          
   def _binary_filename(clazz, script_filename):
-    basename = path.basename(filename_util.without_extension(script_filename))
+    basename = path.basename(bf_filename.without_extension(script_filename))
     if host.is_windows():
       return basename + '.exe'
     return basename

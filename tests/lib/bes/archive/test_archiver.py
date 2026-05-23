@@ -4,7 +4,7 @@
 from os import path
 from bes.testing.unit_test import unit_test
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archiver import archiver
 from bes.archive.archive_extension import archive_extension
@@ -13,7 +13,7 @@ from bes.fs.testing.temp_content import temp_content
 class test_archiver(unit_test):
 
   def test_find_archives(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = bf_temp_file.make_temp_dir()
     tmp_zip = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)

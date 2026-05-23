@@ -6,7 +6,7 @@ from os import path
 import subprocess
 
 from ..system.check import check
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.files.bf_file_ops import bf_file_ops
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
@@ -150,7 +150,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
 
     self._log.log_method_d()
 
-    log_dir = temp_file.make_temp_dir(prefix = 'python_install_',
+    log_dir = bf_temp_file.make_temp_dir(prefix = 'python_install_',
                                       suffix = '.dir',
                                       delete = not self.options.debug)
     install_log = path.join(log_dir, 'install.log')
@@ -203,7 +203,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
 
     old_package = self.download(full_version)
     self._log.log_d('uninstall: old_package={}'.format(old_package))
-    log_dir = temp_file.make_temp_dir(prefix = 'python_install_',
+    log_dir = bf_temp_file.make_temp_dir(prefix = 'python_install_',
                                       suffix = '.dir',
                                       delete = not self.options.debug)
     uninstall_log = path.join(log_dir, 'uninstall.log')

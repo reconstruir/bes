@@ -5,7 +5,7 @@ from os import path
 
 from bes.testing.unit_test import unit_test
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from bes.config_file.config import config
 
@@ -75,7 +75,7 @@ fruit = "durian"
       },
       'antartica': {
       },
-    }, config._make_parser_from_file(temp_file.make_temp_file(content = text)).to_dict() )
+    }, config._make_parser_from_file(bf_temp_file.make_temp_file(content = text)).to_dict() )
 
   def test___str__(self):
     text = '''\
@@ -221,7 +221,7 @@ fruit = durian
 [antartica]
 '''
     c = config.load_from_text(text, '<unittest>')
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     c.save(tmp, encoding = 'utf-8')
     self.assertMultiLineEqual( text, bf_file_ops.read(tmp, encoding = 'utf-8') )
 
@@ -242,7 +242,7 @@ fruit = "durian"
 [antartica]
 '''
     c = config.load_from_text(text, '<unittest>', string_quote_char = '"')
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     c.save(tmp, encoding = 'utf-8')
     self.assertMultiLineEqual( text, bf_file_ops.read(tmp, encoding = 'utf-8') )
     
@@ -479,7 +479,7 @@ fruit = durian
       'antartica': {'color': 'red', 'fruit': 'apple'},
     }, c.to_dict() )
 
-    tmp = temp_file.make_temp_file()
+    tmp = bf_temp_file.make_temp_file()
     c.save(tmp, encoding = 'utf-8')
 
     expected = '''\

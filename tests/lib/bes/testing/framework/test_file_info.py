@@ -5,7 +5,7 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.testing.framework.config_env import config_env
 from bes.testing.framework.file_info import file_info as FI
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git import git
 from bes.git.git_temp_repo import git_temp_repo
 from bes.testing.unit_test_class_skip import unit_test_class_skip
@@ -53,7 +53,7 @@ class test_file_info(unit_test):
   def test_not_git_tracked(self):
     tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
     ce = config_env(tmp_dir)
-    a = FI(ce, temp_file.make_temp_file(content = 'def foo(): return 666\n'))
+    a = FI(ce, bf_temp_file.make_temp_file(content = 'def foo(): return 666\n'))
     self.assertEqual( None, a.git_root )
     self.assertEqual( False, a.git_tracked )
     self.assertEqual( None, a.config )

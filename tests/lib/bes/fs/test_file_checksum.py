@@ -9,7 +9,7 @@ from bes.fs.file_checksum import file_checksum as FC
 from bes.fs.file_checksum import file_checksum_list as FCL
 from bes.fs.file_checksum import file_checksum
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
   
 class test_file_checksum(unit_test):
 
@@ -78,7 +78,7 @@ class test_file_checksum(unit_test):
     
   def test_save_checksums_file(self):
     tmp_dir = self._make_test_data()
-    tmp_file = temp_file.make_temp_file()
+    tmp_file = bf_temp_file.make_temp_file()
     a = FCL.from_files([ self._FILE_1, self._FILE_2 ], root_dir = tmp_dir)
     a.save_checksums_file(tmp_file)
     expected = '''\
@@ -107,7 +107,7 @@ class test_file_checksum(unit_test):
     "5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953"
   ]
 ]'''
-    tmp_file = temp_file.make_temp_file(content = content)
+    tmp_file = bf_temp_file.make_temp_file(content = content)
     expected = FCL.from_files([ self._FILE_1, self._FILE_2 ], root_dir = tmp_dir)
     self.assertEqual( expected, FCL.load_checksums_file(tmp_file) )
 

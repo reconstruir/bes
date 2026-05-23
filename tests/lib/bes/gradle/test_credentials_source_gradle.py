@@ -5,7 +5,7 @@ import os
 from bes.testing.unit_test import unit_test
 from bes.gradle.credentials_source_gradle import credentials_source_gradle as CSG
 from bes.system.env_override import env_override
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 class test_credentials_source_gradle(unit_test):
 
@@ -16,7 +16,7 @@ devPassword=flintpass
 systemProp.gradle.wrapperUser=tuser
 systemProp.gradle.wrapperPassword=tpassword
 '''
-    cs = CSG(temp_file.make_temp_file(content = text), 'dev')
+    cs = CSG(bf_temp_file.make_temp_file(content = text), 'dev')
     self.assertEqual( True, cs.is_valid() )
     c = cs.credentials()
     self.assertEqual( 'fred@flintstone.com', c.username )
@@ -24,7 +24,7 @@ systemProp.gradle.wrapperPassword=tpassword
     
   def test_invalid(self):
     text = 'notvalid'
-    cs = CSG(temp_file.make_temp_file(content = text), 'dev')
+    cs = CSG(bf_temp_file.make_temp_file(content = text), 'dev')
     self.assertEqual( False, cs.is_valid() )
     c = cs.credentials()
     

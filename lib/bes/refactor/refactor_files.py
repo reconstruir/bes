@@ -6,7 +6,7 @@ from os import path
 
 from bes.common.algorithm import algorithm
 from bes.files.bf_dir import bf_dir
-from bes.fs.file_mime import file_mime
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.bf_path import bf_path
 from bes.fs.file_replace import file_replace
 from bes.fs.file_resolver import file_resolver
@@ -14,7 +14,7 @@ from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.file_search import file_search
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
-from bes.fs.filename_util import filename_util
+from bes.files.bf_filename import bf_filename
 from bes.system.check import check
 from bes.system.log import logger
 from bes.system.python import python
@@ -38,7 +38,7 @@ class refactor_files(object):
         return False
       if python.is_python_script(filename):
         return True
-      return filename_util.has_extension(filename.lower(), 'py')
+      return bf_filename.has_extension(filename.lower(), 'py')
     resolver_options = file_resolver_options(recursive = True,
                                              match_function = _match_python_files,
                                              match_basename = False)

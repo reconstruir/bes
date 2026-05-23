@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from .vfs_list_options import vfs_list_options
 from .vfs_file_info_options import vfs_file_info_options
 

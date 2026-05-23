@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.system.log import logger
 
 class python_script(object):
@@ -24,7 +24,7 @@ class python_script(object):
     check.check_string_seq(args, allow_none = True)
 
     args = list(args or [])
-    tmp_script = temp_file.make_temp_file(content = script, suffix = '.py')
+    tmp_script = bf_temp_file.make_temp_file(content = script, suffix = '.py')
     cmd = [ exe, tmp_script ] + args
     clazz._log.log_d('run_script: exe={} cmd={}'.format(exe, cmd))
     clazz._log.log_d('run_script: script=\n{}\n'.format(script))
@@ -57,7 +57,7 @@ with open(_filename, 'w') as f:
   f.write(sys.executable)
 raise SystemExit(0)
 '''
-    tmp_output = temp_file.make_temp_file()
+    tmp_output = bf_temp_file.make_temp_file()
     clazz.run_script(exe, script, [ tmp_output ])
     return bf_file_ops.read(tmp_output, encoding = 'utf-8').strip()
 

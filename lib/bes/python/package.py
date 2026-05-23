@@ -3,7 +3,7 @@
 import os, os.path as path, pkgutil, sys
 from bes.files.bf_path import bf_path
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
 
 from ..files.bf_entry import bf_entry
 
@@ -18,7 +18,7 @@ class package(object):
         if not bf_entry(exe_data).is_executable:
           return None
         return exe_data
-      exe_tmp = temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path) + '-')
+      exe_tmp = bf_temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path) + '-')
       os.chmod(exe_tmp, 0o755)
       return exe_tmp
     except Exception as ex:

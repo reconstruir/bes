@@ -7,8 +7,8 @@ from bes.git.git import git
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_repo import git_repo
 from bes.files.bf_file_ops import bf_file_ops
-from bes.fs.temp_file import temp_file
-from bes.fs.temp_file import temp_file
+from bes.files.bf_temp_file import bf_temp_file
+from bes.files.bf_temp_file import bf_temp_file
 from bes.git.git_unit_test import git_temp_home_func
 
 from bes.testing.unit_test import unit_test
