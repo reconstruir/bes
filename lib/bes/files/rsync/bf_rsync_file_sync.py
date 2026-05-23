@@ -223,7 +223,8 @@ class bf_rsync_file_sync(object):
     self._ssh_mkdir(path.dirname(dest_path))
     self._rsync(src, dest_path)
 
-    verified_hash = self._ssh_sha256(dest_path)
+    self._update_status('chk_verify')
+    verified_hash = self._ssh_sha256(dest_path, progress_callback=chk_remote_callback)
     if verified_hash != local_hash:
       raise bf_rsync_error(f'checksum mismatch after transfer: {rel_path}')
 
