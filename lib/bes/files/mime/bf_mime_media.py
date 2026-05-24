@@ -4,32 +4,37 @@ from bes.system.check import check
 
 class bf_mime_media(object):
 
-  EXTENSIONS = frozenset([
-    'asf',
-    'avi',
-    'divx',
-    'flv',
+  IMAGE_EXTENSIONS = frozenset([
     'gif',
     'jfif',
     'jpeg',
     'jpg',
+    'png',
+    'webp',
+  ])
+
+  VIDEO_EXTENSIONS = frozenset([
+    'asf',
+    'avi',
+    'divx',
+    'flv',
+    'm1v',
+    'm2v',
     'm4v',
     'mkv',
     'mov',
     'mp4',
     'mp4v',
-    'mpg4',
-    'mpeg',
     'mpe',
-    'm1v',
-    'm2v',
+    'mpeg',
     'mpg',
-    'png',
+    'mpg4',
     'ts',
     'webm',
-    'webp',
     'wmv',
   ])
+
+  EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
 
   MIME_TYPE_TO_EXT_MAP = {
     'image/gif': 'gif',
