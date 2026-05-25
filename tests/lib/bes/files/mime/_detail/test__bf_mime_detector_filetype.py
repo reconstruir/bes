@@ -14,8 +14,9 @@ class test__bf_mime_detector_filetype(make_test_case(_bf_mime_type_detector_file
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip_if(_bf_mime_type_detector_filetype.is_supported(), 'filetype not found')
 
+  # filetype is binary-signatures only; text-based formats return None
+
   def test_text_plain(self):
-    'filetype only covers binary signatures; plain text returns None.'
     tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
     self.assertIsNone(_bf_mime_type_detector_filetype.detect_mime_type(tmp))
 

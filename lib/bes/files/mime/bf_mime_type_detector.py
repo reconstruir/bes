@@ -5,9 +5,7 @@ from bes.files.bf_check import bf_check
 
 from ._detail._bf_mime_type_detector_base import _bf_mime_type_detector_base
 from ._detail._bf_mime_type_detector_cheesy  import _bf_mime_type_detector_cheesy
-from ._detail._bf_mime_type_detector_file_exe  import _bf_mime_type_detector_file_exe
 from ._detail._bf_mime_type_detector_filetype  import _bf_mime_type_detector_filetype
-from ._detail._bf_mime_type_detector_mimetypes  import _bf_mime_type_detector_mimetypes
 from ._detail._bf_mime_type_detector_puremagic  import _bf_mime_type_detector_puremagic
 
 class bf_mime_type_detector(_bf_mime_type_detector_base):
@@ -22,12 +20,9 @@ class bf_mime_type_detector(_bf_mime_type_detector_base):
     _bf_mime_type_detector_filetype,
     _bf_mime_type_detector_cheesy,
     _bf_mime_type_detector_puremagic,
-#    _bf_mime_type_detector_file_exe,
-#    _bf_mime_type_detector_mimetypes,
   ]
   _POSSIBLE_DETECTORS = [ p for p in _ALL_DETECTORS if p.is_supported() ]
-  _FILE_EXE_SUPPORTED = _bf_mime_type_detector_file_exe in _POSSIBLE_DETECTORS
-  
+
   @classmethod
   #@abstractmethod
   def detect_mime_type(clazz, filename):
@@ -38,9 +33,5 @@ class bf_mime_type_detector(_bf_mime_type_detector_base):
     for next_detector in clazz._POSSIBLE_DETECTORS:
       mime_type = next_detector.detect_mime_type(filename)
       if mime_type:
-#        print(f'used {next_detector} for {filename}')
         break
-    if mime_type in ( 'application/octet-stream', ):
-      if clazz._FILE_EXE_SUPPORTED:
-        mime_type = _bf_mime_type_detector_file_exe.detect_mime_type(filename)
     return mime_type

@@ -27,6 +27,15 @@ class test__bf_mime_type_detector_magic(unit_test, unit_test_media_files):
   def test_mp4(self):
     self.assertEqual( 'video/mp4', _bf_mime_type_detector_cheesy.detect_mime_type(self.mp4_file) )
 
+  def test_zip(self):
+    self.assertEqual( 'application/zip', _bf_mime_type_detector_cheesy.detect_mime_type(self.zip_file) )
+
+  def test_xz(self):
+    self.assertEqual( 'application/x-xz', _bf_mime_type_detector_cheesy.detect_mime_type(self.xz_file) )
+
+  def test_unknown_returns_none(self):
+    self.assertIsNone( _bf_mime_type_detector_cheesy.detect_mime_type(self.unknown_file) )
+
   def test_elf(self):
     tmp = self.make_temp_file(content = b'\x7fELF\x02\x01\x01\x00' + b'\x00' * 8)
     self.assertEqual( 'application/x-elf', _bf_mime_type_detector_cheesy.detect_mime_type(tmp) )
