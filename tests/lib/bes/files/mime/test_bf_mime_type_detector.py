@@ -8,7 +8,10 @@ from _detail._bf_mime_type_detector_tester import make_test_case
 
 from bes.files.mime.bf_mime_type_detector import bf_mime_type_detector
 class test__bf_mime_type_detector_mimetypes(make_test_case(bf_mime_type_detector)):
-  pass
+
+  def test_unknown_returns_none(self):
+    result = bf_mime_type_detector.detect_mime_type(self.unknown_file)
+    self.assertIn(result, (None, 'application/octet-stream'))
 
 if __name__ == '__main__':
   unit_test.main()

@@ -17,7 +17,11 @@ class test__bf_mime_type_detector_puremagic(make_test_case(_bf_mime_type_detecto
   def test_text_plain(self):
     tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
     self.assertEqual( 'text/plain', _bf_mime_type_detector_puremagic.detect_mime_type(tmp) )
-      
+
+  def test_unknown_returns_none(self):
+    result = _bf_mime_type_detector_puremagic.detect_mime_type(self.unknown_file)
+    self.assertIn(result, (None, 'application/octet-stream'))
+
 if __name__ == '__main__':
   unit_test.main()
     
