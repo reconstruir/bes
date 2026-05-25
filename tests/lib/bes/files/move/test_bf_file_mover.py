@@ -12,16 +12,18 @@ def _cross_device_stat(source_dirs, dest_dirs):
   source_dev = 1001
   dest_dev = 1002
   real_stat = os.stat
+  def _under(p_str, d):
+    return p_str == d or p_str.startswith(d + '/') or p_str.startswith(d + os.sep)
   def fake(p, *args, **kwargs):
     r = real_stat(p, *args, **kwargs)
     p_str = str(p)
     for d in source_dirs:
-      if p_str == d or p_str.startswith(d + '/'):
+      if _under(p_str, d):
         return os.stat_result((r.st_mode, r.st_ino, source_dev, r.st_nlink,
                                r.st_uid, r.st_gid, r.st_size,
                                int(r.st_atime), int(r.st_mtime), int(r.st_ctime)))
     for d in dest_dirs:
-      if p_str == d or p_str.startswith(d + '/'):
+      if _under(p_str, d):
         return os.stat_result((r.st_mode, r.st_ino, dest_dev, r.st_nlink,
                                r.st_uid, r.st_gid, r.st_size,
                                int(r.st_atime), int(r.st_mtime), int(r.st_ctime)))

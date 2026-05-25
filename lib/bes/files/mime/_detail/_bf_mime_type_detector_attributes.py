@@ -20,4 +20,4 @@ class _bf_mime_type_detector_attributes(_bf_mime_type_detector_base):
     'Detect the mime type for file.'
     filename = bf_check.check_file(filename)
     entry = bf_entry(filename)
-    return entry.mime_type
+    return entry.mime_type or None

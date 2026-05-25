@@ -25,7 +25,7 @@ class bf_filename_simplify(object):
     check.check_string(basename)
     check.check_string(separator)
 
-    if path.sep in basename:
+    if '/' in basename or path.sep in basename:
       raise ValueError(f'basename must not contain path separators: "{basename}"')
 
     ext = bf_filename.extension(basename)

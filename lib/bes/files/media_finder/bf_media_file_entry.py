@@ -17,7 +17,7 @@ class bf_media_file_entry:
 
   @property
   def relative_filename(self):
-    return path.relpath(self.filename, self.root_dir)
+    return path.relpath(self.filename, self.root_dir).replace(path.sep, '/')
 
   def __str__(self):
     return self.filename

@@ -17,7 +17,9 @@
       "Bash(./r *)",
       "Bash(git -C /Users/test1/proj/bes diff --stat HEAD)",
       "Bash(git -C /Users/test1/proj/bes status --short)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "PowerShell(.\\\\t tests/lib/bes/files/media_finder/test_bf_media_file_entry.py tests/lib/bes/files/media_finder/test_bf_media_finder.py \"tests/lib/bes/files/mime/_detail/test__bf_mime_detector_attributes.py\" tests/lib/bes/files/move/test_bf_file_mover.py tests/lib/bes/files/rsync/test_bf_rsync_file_sync.py tests/lib/bes/files/test_bf_filename_simplify.py 2>&1 | Select-Object -Last 30)",
+      "PowerShell(git *)"
     ]
   }
 }

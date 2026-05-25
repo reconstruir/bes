@@ -156,7 +156,7 @@ class bf_rsync_file_sync(object):
       parent_dir = path.dirname(src_dir)
       src_basename = path.basename(src_dir)
       for found_entry in result.entries:
-        rel = path.join(src_basename, found_entry.relative_filename)
+        rel = path.join(src_basename, found_entry.relative_filename).replace(path.sep, '/')
         entries.append(bf_entry(rel, root_dir=parent_dir))
     return sorted(entries, key=lambda e: e.absolute_filename)
 
@@ -180,7 +180,7 @@ class bf_rsync_file_sync(object):
     else:
       target_basename = original_basename
 
-    target_rel = path.join(rel_dir, target_basename) if rel_dir else target_basename
+    target_rel = f'{rel_dir}/{target_basename}' if rel_dir else target_basename
     name_changed = (target_rel != rel_path)
 
     remote_at_target = self._ssh_sha256(f'{self._dest_root}/{target_rel}', progress_callback=chk_remote_callback)
@@ -196,7 +196,7 @@ class bf_rsync_file_sync(object):
       if remote_at_original == local_hash:
         if target_occupied:
           dest_basename = self._make_unique_name(target_basename, local_hash)
-          dest_rel = path.join(rel_dir, dest_basename) if rel_dir else dest_basename
+          dest_rel = f'{rel_dir}/{dest_basename}' if rel_dir else dest_basename
         else:
           dest_basename = target_basename
           dest_rel = target_rel
@@ -207,7 +207,7 @@ class bf_rsync_file_sync(object):
 
     if target_occupied:
       dest_basename = self._make_unique_name(target_basename, local_hash)
-      dest_rel = path.join(rel_dir, dest_basename) if rel_dir else dest_basename
+      dest_rel = f'{rel_dir}/{dest_basename}' if rel_dir else dest_basename
     else:
       dest_basename = target_basename
       dest_rel = target_rel
