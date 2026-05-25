@@ -71,6 +71,17 @@ class _bf_mime_type_detector_cheesy(_bf_mime_type_detector_base):
     _magic_item('application/applefile', 0, {
       b'\x00\x05\x16\x07'
     }),
+    _magic_item('application/x-elf', 0, {
+      b'\x7f\x45\x4c\x46',
+    }),
+    _magic_item('application/x-mach-binary', 0, {
+      b'\xcf\xfa\xed\xfe',
+      b'\xce\xfa\xed\xfe',
+      b'\xca\xfe\xba\xbe',
+    }),
+    _magic_item('application/x-dosexec', 0, {
+      b'\x4d\x5a',
+    }),
   ]
   
   _NUM_BYTES = 32

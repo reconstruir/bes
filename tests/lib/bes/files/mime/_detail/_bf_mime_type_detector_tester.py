@@ -16,6 +16,18 @@ def make_test_case(impl):
       tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
       self.assertEqual( 'text/plain', impl.detect_mime_type(tmp) )
 
+    def test_xml(self):
+      tmp = self.make_temp_file(content = '<?xml version="1.0"?>\n<root/>\n', suffix = '.xml')
+      self.assertIn( impl.detect_mime_type(tmp), ('application/xml', 'text/xml') )
+
+    def test_html(self):
+      tmp = self.make_temp_file(content = '<!DOCTYPE html>\n<html><body></body></html>\n', suffix = '.html')
+      self.assertEqual( 'text/html', impl.detect_mime_type(tmp) )
+
+    def test_json(self):
+      tmp = self.make_temp_file(content = '{"key": "value"}\n', suffix = '.json')
+      self.assertEqual( 'application/json', impl.detect_mime_type(tmp) )
+
     def test_png(self):
       self.assertEqual( 'image/png', impl.detect_mime_type(self.png_file) )
   
