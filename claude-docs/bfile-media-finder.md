@@ -37,8 +37,6 @@ Only the last sort and resolve are triggered when the active sort type is one of
 ### Phase 1 — Scan
 
 - Accepts one or more root directories and a set of media types (`image`, `video`).
-- Translates media types to extension sets using `bf_mime_media.IMAGE_EXTENSIONS` and
-  `bf_mime_media.VIDEO_EXTENSIONS`.
 - Uses `bf_file_scanner` (via `scan_btask`) in a btask worker.
 - Respects `.bes_ignore` files to skip directories.
 - Filters out files ending in `.part` and files whose basenames start with `._`.
@@ -318,14 +316,9 @@ Wraps `bf_file_scanner` and adds inline Tier 1 detection. Single btask, single p
 
 - Accepts root dirs, a set of requested media types (`image`, `video`), optional ignore
   filename.
-- Extension pre-filter (optional, enabled by default): translates requested media types
-  to the union of known extensions and skips files with non-matching extensions before
-  reading magic bytes. This avoids opening `.txt`, `.pdf`, `.exe` files in mixed-content
-  directories. It is a performance hint only — the definitive accept/reject decision is
-  made by mime detection, not by extension. It can be disabled to find media files with
-  non-standard or missing extensions.
-- For each file passing the extension pre-filter: reads magic bytes via
-  `bf_mime_type_detector` (with optional xattr cache), derives `media_type`.
+- For each file: reads magic bytes via `bf_mime_type_detector` (with optional xattr
+  cache), derives `media_type`. Extension is ignored for acceptance; mime type is
+  authoritative.
 - Emits `bf_media_file_entry` objects only for files where `media_type` matches the
   requested types. Corrupted or misextended files are silently excluded.
 - Reports `(found: int, scanned: int)` counters in each progress batch.
@@ -357,10 +350,6 @@ Optional optimization layer over `bf_mime_type_detector`.
 
 - The component shall accept one or more root directory paths and a set of requested
   media types (`image`, `video`).
-- It shall translate media types to extension sets as an optional, cheap pre-filter; the
-  definitive accept/reject decision is made by mime type detection, not by extension.
-  The extension pre-filter shall be disableable to support files with non-standard or
-  missing extensions.
 - It shall delegate directory traversal to `bf_file_scanner` (via `bf_media_scanner`).
 - It shall support an optional ignore filename (e.g. `.bes_ignore`).
 - It shall apply built-in filename filters (`.part` suffix, `._` basename prefix,
@@ -564,7 +553,6 @@ Flag proposals (the user asked for a better name than `--match`):
 | `--sort` | `found_order`, `name`, `date`, `size`, `path`, `kind` | `found_order` | `kind` = by mime_type; string sorts are case-insensitive by default |
 | `--case-sensitive` | flag | off | make string sorts (`name`, `path`, `kind`) case-sensitive |
 | `--ignore-file` | basename string | `.bes_ignore` | per-directory ignore file; `""` to disable |
-| `--no-ext-filter` | flag | off | disable extension pre-filter; finds media with non-standard extensions |
 | `--verbose` / `-v` | flag | off | print one filename per result as scan progresses |
 | `--count` | flag | off | print only final count, not filenames |
 
@@ -643,20 +631,17 @@ existing `scan_btask` / `slow_btask`.
 - `root_dirs`: list of str
 - `media_types`: frozenset of `'image'`|`'video'`
 - `ignore_filename`: str | None (e.g. `'.bes_ignore'`)
-- `use_extension_filter`: bool
 
 Logic:
-1. Build extension set from `media_types` via `bf_mime_media.IMAGE_EXTENSIONS` /
-   `VIDEO_EXTENSIONS` (only used if `use_extension_filter` is True).
-2. Build `bf_file_ignore(ignore_filename)` if `ignore_filename` is set.
-3. Walk with `bf_file_scanner`, applying `bf_file_ignore.should_ignore()` per dir.
-4. Per file: apply filename filters (skip `.part` suffix, `._` prefix); apply
-   extension pre-filter if enabled.
-5. Read mime type via `bf_mime_type_detector.detect_mime_type(filename)`.
-6. Derive `media_type` from mime type using `bf_mime_media` map.
-7. If `media_type` not in requested `media_types`: skip.
-8. Construct `bf_media_file_entry` and add to batch.
-9. Every 50 accepted files (or when batch fills): emit `btask_status` with
+1. Build `bf_file_ignore(ignore_filename)` if `ignore_filename` is set.
+2. Walk with `bf_file_scanner`, applying `bf_file_ignore.should_ignore()` per dir.
+3. Per file: apply filename filters (skip `.part` suffix, `._` prefix).
+4. Read mime type via `bf_mime_type_detector.detect_mime_type(filename)`.
+   Extension is ignored — mime is authoritative.
+5. Derive `media_type` from mime type using `bf_mime_media` map.
+6. If `media_type` not in requested `media_types`: skip.
+7. Construct `bf_media_file_entry` and add to batch.
+8. Every 50 accepted files (or when batch fills): emit `btask_status` with
    `{'entries': batch, 'found': found_so_far, 'scanned': scanned_so_far}`.
 10. After emit: check `context.was_cancelled()`; if True, return immediately.
 
@@ -688,7 +673,6 @@ Options desc:
    media_types  bf_media_cli_type  default=ALL
      sort_type  bf_media_sort_type default=FOUND_ORDER
    ignore_file  str                default=.bes_ignore
- no_ext_filter  bool               default=False
  case_sensitive bool               default=False
 ```
 
@@ -747,7 +731,6 @@ Options desc (all finder fields plus CLI-only additions):
    media_types  bf_media_cli_type  default=ALL
      sort_type  bf_media_sort_type default=FOUND_ORDER
    ignore_file  str                default=.bes_ignore
- no_ext_filter  bool               default=False
  case_sensitive bool               default=False
        verbose  bool               default=False
          count  bool               default=False
@@ -762,7 +745,6 @@ def finder_options(self):
         media_types=self.media_types,
         sort_type=self.sort_type,
         ignore_file=self.ignore_file,
-        no_ext_filter=self.no_ext_filter,
         case_sensitive=self.case_sensitive,
     )
 ```

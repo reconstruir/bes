@@ -179,16 +179,14 @@ class test_bf_media_finder(unit_test):
     self.assertEqual(1, len(r.entries))
     self.assertEqual('image/png', r.entries[0].mime_type)
 
-  def test_no_ext_filter_finds_media_without_extension(self):
-    'PNG bytes in a .dat file is found when extension filter is disabled.'
+  def test_non_standard_extension_found(self):
+    'PNG bytes in a .dat file are found; extension is ignored.'
     tmp = self._make_dir({
       'image.dat': self.PNG,
-      'real.png': self.PNG,
+      'real.png':  self.PNG,
     })
-    r_with_filter    = self._run_scan(tmp, bf_media_finder_options(media_types='image'))
-    r_without_filter = self._run_scan(tmp, bf_media_finder_options(media_types='image', no_ext_filter=True))
-    self.assertEqual(1, len(r_with_filter.entries))
-    self.assertEqual(2, len(r_without_filter.entries))
+    r = self._run_scan(tmp, bf_media_finder_options(media_types='image'))
+    self.assertEqual(2, len(r.entries))
 
   # ---------------------------------------------------------------------------
   # Scan phase — entry fields

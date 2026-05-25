@@ -22,7 +22,6 @@ class _bf_media_find_cli_options_desc(bcli_options_desc):
    media_types  bf_media_type      default=all
      sort_type  bf_media_sort_type default=found_order
    ignore_file  str                default=.bes_ignore
- no_ext_filter  bool               default=False
  case_sensitive bool               default=False
        verbose  bool               default=False
          count  bool               default=False
@@ -47,7 +46,6 @@ class bf_media_find_cli_options(bcli_options):
       media_types    = self.media_types,
       sort_type      = self.sort_type,
       ignore_file    = self.ignore_file,
-      no_ext_filter  = self.no_ext_filter,
       case_sensitive = self.case_sensitive,
     )
 

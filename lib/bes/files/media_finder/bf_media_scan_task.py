@@ -5,7 +5,6 @@ import os.path as path
 from bes.files.find.bf_file_scanner import bf_file_scanner
 from bes.files.find.bf_file_scanner_options import bf_file_scanner_options
 from bes.files.mime.bf_mime_type_detector import bf_mime_type_detector
-from bes.files.mime.bf_mime_media import bf_mime_media
 
 from .bf_media_file_entry import bf_media_file_entry
 from .bf_media_scan_status import bf_media_scan_status
@@ -27,18 +26,9 @@ def _media_type_from_mime(mime_type):
   return 'other'
 
 def bf_media_scan_task(context, args):
-  root_dirs         = args['root_dirs']
-  media_types       = args['media_types']          # frozenset of 'image'/'video'
-  ignore_filename   = args.get('ignore_filename')  # str | None
-  use_ext_filter    = args.get('use_ext_filter', True)
-
-  ext_filter = None
-  if use_ext_filter:
-    ext_filter = frozenset()
-    if 'image' in media_types:
-      ext_filter = ext_filter | bf_mime_media.IMAGE_EXTENSIONS
-    if 'video' in media_types:
-      ext_filter = ext_filter | bf_mime_media.VIDEO_EXTENSIONS
+  root_dirs       = args['root_dirs']
+  media_types     = args['media_types']          # frozenset of 'image'/'video'
+  ignore_filename = args.get('ignore_filename')  # str | None
 
   scanner_kwargs = {}
   if ignore_filename:
@@ -65,11 +55,6 @@ def bf_media_scan_task(context, args):
       continue
 
     ext = path.splitext(filename)[1].lower().lstrip('.')
-
-    # extension pre-filter (performance hint only)
-    if ext_filter is not None and ext not in ext_filter:
-      scanned += 1
-      continue
 
     # Tier 1: mime detection
     try:

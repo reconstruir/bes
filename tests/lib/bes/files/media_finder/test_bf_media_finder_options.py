@@ -13,7 +13,6 @@ class test_bf_media_finder_options(unit_test):
     self.assertEqual(frozenset(['image', 'video']), o.media_types)
     self.assertEqual(bf_media_sort_type.FOUND_ORDER, o.sort_type)
     self.assertEqual('.bes_ignore', o.ignore_file)
-    self.assertFalse(o.no_ext_filter)
     self.assertFalse(o.case_sensitive)
 
   def test_media_types_image(self):
@@ -43,10 +42,6 @@ class test_bf_media_finder_options(unit_test):
   def test_ignore_file_custom(self):
     o = bf_media_finder_options(ignore_file='.myignore')
     self.assertEqual('.myignore', o.ignore_file)
-
-  def test_no_ext_filter(self):
-    o = bf_media_finder_options(no_ext_filter=True)
-    self.assertTrue(o.no_ext_filter)
 
   def test_check_register(self):
     o = bf_media_finder_options()

@@ -48,9 +48,6 @@ class bf_media_find_command_factory(bcli_command_factory_base):
     p.add_argument('--ignore-file', dest='ignore_file', action='store',
                    default=default_ignore_file,
                    help='Per-directory ignore filename [ .bes_ignore ]; pass "" to disable')
-    p.add_argument('--no-ext-filter', dest='no_ext_filter', action='store_true',
-                   default=False,
-                   help='Disable extension pre-filter; finds media with non-standard extensions')
     p.add_argument('--case-sensitive', dest='case_sensitive', action='store_true',
                    default=False,
                    help='Make string sorts (name, path, kind) case-sensitive')

@@ -69,7 +69,6 @@ class bf_media_finder(object):
         'root_dirs':       root_dirs,
         'media_types':     options.media_types,
         'ignore_filename': options.ignore_file or None,
-        'use_ext_filter':  not options.no_ext_filter,
       },
     )
     with self._lock:
