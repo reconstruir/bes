@@ -77,6 +77,25 @@ class _ErrorOnNameResolver(bf_media_attr_resolver_base):
       return os.path.getsize(filename)
     return None
 
+class _MixedResolver(bf_media_attr_resolver_base):
+  'Alternates between None and BF_ATTR_NOT_AVAILABLE based on file size parity.'
+  name = '_test_mixed_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    if attr_name == 'mix':
+      import os
+      return BF_ATTR_NOT_AVAILABLE if os.path.getsize(filename) % 2 == 0 else None
+    return None
+
+class _ConstResolver(bf_media_attr_resolver_base):
+  'Always returns 42 for attr "const".'
+  name = '_test_const_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    return 42 if attr_name == 'const' else None
+
 class test_bf_media_finder(unit_test):
 
   # ---------------------------------------------------------------------------
@@ -714,17 +733,6 @@ class test_bf_media_finder(unit_test):
   def test_sort_extended_not_available_and_none_together(self):
     'Mixed BF_ATTR_NOT_AVAILABLE and None values sort without TypeError.'
     tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
-
-    class _MixedResolver(bf_media_attr_resolver_base):
-      name = '_test_mixed_resolver'
-      _calls = [0]
-      @classmethod
-      def resolve(cls, filename, mime_type, attr_name):
-        if attr_name == 'mix':
-          cls._calls[0] += 1
-          return BF_ATTR_NOT_AVAILABLE if cls._calls[0] % 2 == 0 else None
-        return None
-
     opts = bf_media_finder_options(sort_type='mix', attr_resolver=_MixedResolver)
     r = self._run_resolve_scan(tmp, opts)
     self.assertEqual(2, len(r.entries))  # no TypeError
@@ -743,16 +751,8 @@ class test_bf_media_finder(unit_test):
   def test_sort_extended_filename_tiebreaker(self):
     'Two files with identical resolved value sort by basename then dirname.'
     tmp = self._make_dir({'b.jpg': self.JPG, 'a.jpg': self.JPG})
-
-    class _ConstResolver(bf_media_attr_resolver_base):
-      name = '_test_const_resolver'
-      @classmethod
-      def resolve(cls, filename, mime_type, attr_name):
-        return 42 if attr_name == 'const' else None
-
     opts = bf_media_finder_options(sort_type='const', attr_resolver=_ConstResolver)
     r = self._run_resolve_scan(tmp, opts)
-    import os.path as path
     names = [path.basename(e.filename) for e in r.entries]
     self.assertEqual(sorted(names, key=str.lower), names)
 
