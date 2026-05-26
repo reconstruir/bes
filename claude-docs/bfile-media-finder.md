@@ -223,15 +223,24 @@ class bf_media_attr_resolver_base:
 ```
 
 `attr_sort_key` is a classmethod on the base so it is available without a concrete
-resolver instance. Usage in the finder:
+resolver instance. The finder builds the full sort key as:
 
 ```python
-key = lambda e: resolver.attr_sort_key(e.resolved_attrs.get(options.sort_type))
+import os.path as path
+
+key = lambda e: (
+    resolver.attr_sort_key(e.resolved_attrs.get(options.sort_type)),
+    path.basename(e.filename).lower(),
+    path.dirname(e.filename).lower(),
+)
 entries.sort(key=key)
 ```
 
 This avoids type-comparison errors (e.g. comparing `(1920, 1080)` with
-`BF_ATTR_NOT_AVAILABLE`) and consistently places non-values at the end.
+`BF_ATTR_NOT_AVAILABLE`) and consistently places non-values at the end. The
+`(basename, dirname)` tail is a universal stable tiebreaker applied by the finder;
+domain-specific secondaries are encoded by the resolver in the primary value itself
+(see Sort Criteria section).
 
 `attr_name` is the exact sort key string. The resolver computes only what is asked
 for — no wasted work.
@@ -286,6 +295,72 @@ resolver class is passed as part of the task args dict, which is serialised via
 pickle. Pickle stores a class by `module + qualname` reference and reimports it in
 the subprocess — so passing the class object works transparently provided the module
 is on `PYTHONPATH` in the worker process (which it will be via inherited env).
+
+---
+
+## Sort Criteria
+
+Every sort (intrinsic or extended) produces a comparison tuple of the form:
+
+```
+( primary_key, basename_lower, dirname_lower )
+```
+
+`(basename_lower, dirname_lower)` is the **universal filename tiebreaker** appended
+by the finder. It is always present and ensures a stable, deterministic order when
+the primary key is equal across multiple files (e.g. many videos at 1920×1080).
+
+### Intrinsic sort key table
+
+| Sort type | Primary key |
+|---|---|
+| `FOUND_ORDER` | no sort applied — emission order preserved |
+| `NAME` | `(basename_lower,)` — dirname is the tiebreaker |
+| `PATH` | `(filename_lower,)` — already fully qualified, dirname redundant but harmless |
+| `DATE` | `mtime` (float) |
+| `SIZE` | `size` (int bytes) |
+| `KIND` | `mime_type` (string) |
+
+### Extended sort key encoding
+
+For extended sorts the resolver returns the primary value. `attr_sort_key(value)`
+wraps it in `(0, value)` for real values or `(1, None)` for `BF_ATTR_NOT_AVAILABLE`
+/ `None`, so non-values always sort **to the end**.
+
+The old code placed not-yet-resolved entries at the **beginning** (using zero/empty
+sentinel values such as `bav_size(0, 0)` or `0`). The new design puts them at the
+**end** via `BF_ATTR_NOT_AVAILABLE`. This is intentional and unambiguous.
+
+**Domain-specific secondaries are encoded inside the resolver's return value**, not
+added by the finder. When a sort type has a natural domain tiebreaker, the resolver
+returns a tuple whose elements encode that ordering:
+
+| attr_name | resolve() returns | Sort semantics |
+|---|---|---|
+| `resolution` | `(w, h)` | wider first; taller as secondary for same width |
+| `width` | `(w, h)` | wider first; height as secondary |
+| `height` | `(h, w)` | taller first; width as secondary |
+| `duration` | `float` seconds | shorter first |
+| `aspect_ratio` | `float` | narrower first |
+| `average_hash_v1` | `int` | by hash value |
+
+The finder sees an opaque value and applies `attr_sort_key` uniformly. It has no
+knowledge of what `resolution` or `width` means.
+
+**Full example** — `width` sort on a `1920×1080` file `b.mp4` in `/movies`:
+
+```
+( (0, (1920, 1080)), 'b.mp4', '/movies' )
+```
+
+**Full example** — same sort on a file with no readable video stream:
+
+```
+( (1, None), 'broken.mp4', '/movies' )
+```
+
+The broken file sorts after all files with real values, then by filename within the
+not-available group.
 
 ---
 
@@ -352,7 +427,7 @@ existing `test_frozen` test continues to pass; a separate test covers that
 
 ### `bf_media_sort_type`
 
-Enum of **builtin sort types only**: `FOUND_ORDER`, `NAME`, `PATH`, `DATE`, `SIZE`,
+Enum of **intrinsic sort types only**: `FOUND_ORDER`, `NAME`, `PATH`, `DATE`, `SIZE`,
 `KIND`. Extended sort types (resolution, duration, etc.) are not enum members — they
 are plain strings owned by the resolver implementation and never referenced in `bes`
 source. The `is_slow` property and all slow-type enum values are removed.
@@ -383,6 +458,7 @@ Name → class registry in `bes/files/media_finder/bf_media_attr_resolver_regist
 |---|---|---|---|
 | `media_types` | frozenset | `{'image','video'}` | |
 | `sort_type` | `bf_media_sort_type \| str` | `FOUND_ORDER` | string → extended sort |
+| `sort_reversed` | bool | `False` | reverse the final sort order; applies to all sort types including `found_order` |
 | `ignore_file` | `str \| None` | `None` | |
 | `case_sensitive` | bool | `False` | |
 | `attr_resolver` | `type[bf_media_attr_resolver_base] \| None` | `None` | required for extended sorts |
@@ -517,8 +593,8 @@ receives 100 tasks rather than 1,000.
 ### R6 — CLI
 
 - `best2.py media find <dir> [options]`
-- Flags: `--media-type`, `--sort`, `--attr-resolver`, `--ignore-file`,
-  `--case-sensitive`, `--verbose`/`-v`, `--count`
+- Flags: `--media-type`, `--sort`, `--sort-reversed`, `--attr-resolver`,
+  `--ignore-file`, `--case-sensitive`, `--verbose`/`-v`, `--count`
 - `--sort` accepts any string. Builtin enum values handled directly; any other string
   is an extended sort key requiring `--attr-resolver NAME`.
 - `--attr-resolver NAME` looks up the registry and stores the class in finder options.
@@ -527,33 +603,136 @@ receives 100 tasks rather than 1,000.
 
 ### R7 — Unit Tests
 
-**`bf_media_file_entry`**: fields, frozen field references, `resolved_attrs` dict
-contents mutable, relative_filename, check registration.
+#### `test_bf_attr_not_available.py` — new file
 
-**`bf_media_sort_type`**: intrinsic values only (`FOUND_ORDER`, `NAME`, `PATH`,
-`DATE`, `SIZE`, `KIND`); no extended/slow enum values; parse; parse invalid.
+1. `test_is_not_none` — sentinel is not `None`
+2. `test_is_singleton` — two references yield the same object (`is`)
+3. `test_is_falsy` — `bool(BF_ATTR_NOT_AVAILABLE) == False`
+4. `test_not_equal_to_zero` — `BF_ATTR_NOT_AVAILABLE != 0`
+5. `test_not_equal_to_false` — `BF_ATTR_NOT_AVAILABLE != False`
+6. `test_isinstance` — `isinstance(BF_ATTR_NOT_AVAILABLE, _bf_attr_not_available_type)`
+7. `test_repr_nonempty` — `repr(...)` returns a non-empty string
 
-**`bf_media_finder_options`**: defaults (`num_scan_workers=2`, `scan_chunk_size=50`,
-`num_resolve_workers=2`, `resolve_chunk_size=10`); all fields; `attr_resolver` field;
-check registration.
+#### `test_bf_media_attr_resolver_base.py` — new file (`attr_sort_key`)
 
-**`bf_media_finder` — scan phase** (existing): scan images/videos/all/empty; `.part`
-and `._` exclusion; corrupted file excluded; mime beats extension; non-standard
-extension found; entry fields populated; relative_filename; multiple roots; state
-transitions to READY_QUICK; done fired; progress counter validity and monotonicity;
-cancel mid-scan; second scan after cancel; sort name/size/date; extended sort without
-resolver routes to on_error.
+8. `test_int_value` — `attr_sort_key(42)` → `(0, 42)`
+9. `test_float_value` — `attr_sort_key(1.5)` → `(0, 1.5)`
+10. `test_tuple_value` — `attr_sort_key((1920, 1080))` → `(0, (1920, 1080))`
+11. `test_none_key` — `attr_sort_key(None)` → `(1, None)`
+12. `test_not_available_key` — `attr_sort_key(BF_ATTR_NOT_AVAILABLE)` → `(1, None)`
+13. `test_none_and_not_available_equal_key` — both produce identical tuples
+14. `test_real_before_none` — `attr_sort_key(42) < attr_sort_key(None)`
+15. `test_real_before_not_available` — `attr_sort_key(42) < attr_sort_key(BF_ATTR_NOT_AVAILABLE)`
+16. `test_smaller_real_before_larger` — `attr_sort_key(1.0) < attr_sort_key(2.0)`
+17. `test_tuple_ordering` — `attr_sort_key((640, 480)) < attr_sort_key((1920, 1080))`
+18. `test_sort_list_mixed` — list of real values, `None`, `BF_ATTR_NOT_AVAILABLE` sorts with real values first, non-values at end, no `TypeError`
 
-**`bf_media_finder` — resolve phase** (new):
-- Extended sort triggers RESOLVING → READY state transitions.
-- `on_resolve_progress(done, total)` fires once per completed file; `done` is
-  monotonically increasing; `total` equals entry count.
-- `on_resolve_done()` fires exactly once after all files resolved.
-- `resolved_attrs[attr_name]` populated on entries after resolve completes.
-- `BF_ATTR_NOT_AVAILABLE` entries sort after entries with real values.
-- `None` (missing key) sorts same position as `BF_ATTR_NOT_AVAILABLE`.
-- Cancel mid-resolve → IDLE; all entries discarded; `on_cancel` fires.
-- Second scan after mid-resolve cancel succeeds and reaches READY_QUICK.
+#### `test_bf_media_attr_resolver_registry.py` — new file
+
+19. `test_register_and_get` — registered class retrieved by name
+20. `test_get_unknown_raises` — `KeyError` for unregistered name
+21. `test_names_contains_registered` — registered name appears in `names()`
+22. `test_register_two_resolvers` — two different names both independently retrievable
+23. `test_register_overwrites_same_name` — second registration with same name replaces first
+24. `test_names_returns_list` — `names()` returns a `list`
+
+#### `test_bf_media_sort_type.py` — update
+
+**Remove:** `test_fast_types_not_slow` (`is_slow` gone), `test_slow_types_are_slow`
+(slow enum values gone).
+
+25. `test_all_intrinsic_values` — exactly six members: `FOUND_ORDER`, `NAME`, `PATH`, `DATE`, `SIZE`, `KIND`
+26. `test_intrinsic_isinstance` — each enum value satisfies `isinstance(v, bf_media_sort_type)`
+27. `test_string_not_isinstance` — `isinstance('resolution', bf_media_sort_type)` is `False`
+28. `test_extended_string_not_parseable` — `bf_media_sort_type('resolution')` raises
+
+#### `test_bf_media_file_entry.py` — update
+
+**Update:** `test_fields` to include `resolved_attrs` defaulting to `{}`.
+`test_frozen` updated: field assignment raises, but dict mutation does not.
+
+29. `test_resolved_attrs_default_empty` — `entry.resolved_attrs == {}`
+30. `test_resolved_attrs_mutable` — `entry.resolved_attrs['x'] = 1` succeeds; readable back
+31. `test_resolved_attrs_field_frozen` — `entry.resolved_attrs = {}` raises `FrozenInstanceError`
+
+#### `test_bf_media_finder_options.py` — update
+
+**Update:** `test_defaults` to cover all new fields.
+
+32. `test_sort_reversed_default` — `sort_reversed` defaults to `False`
+33. `test_sort_reversed_true` — `sort_reversed=True` accepted
+
+34. `test_scan_chunk_size_custom` — `scan_chunk_size=5` accepted
+35. `test_resolve_chunk_size_custom` — `resolve_chunk_size=3` accepted
+36. `test_num_scan_workers_custom` — `num_scan_workers=4` accepted
+37. `test_num_resolve_workers_custom` — `num_resolve_workers=8` accepted
+38. `test_attr_resolver_class` — `attr_resolver=SomeFakeResolverClass` accepted
+39. `test_sort_type_extended_string` — `sort_type='resolution'` accepted without error
+
+#### `test_bf_media_finder.py` — sort_reversed (new, in sort block)
+
+40. `test_sort_name_reversed` — `sort_type='name', sort_reversed=True` produces reverse-alphabetical order
+41. `test_sort_size_reversed` — `sort_type='size', sort_reversed=True` produces largest-first order
+42. `test_sort_found_order_reversed` — `sort_type='found_order', sort_reversed=True` reverses emission order
+
+#### `test_bf_media_finder.py` — update
+
+**Update:** `test_sort_slow_raises` → `test_extended_sort_no_resolver_fires_on_error`
+— extended sort with `attr_resolver=None` calls `on_error`; RESOLVING state never entered.
+
+**State machine (resolve path):**
+
+38. `test_resolve_state_transitions` — extended sort: `on_state_changed` sequence is SCANNING → READY_QUICK → RESOLVING → READY
+39. `test_resolve_not_triggered_for_intrinsic` — intrinsic sort: RESOLVING and READY never appear in transition log
+40. `test_final_state_ready_after_resolve` — `finder.state == READY` after extended sort completes
+
+**Callbacks — ordering and counts:**
+
+41. `test_on_scan_done_fires_before_resolving` — state at `on_scan_done` time is READY_QUICK, not RESOLVING
+42. `test_on_resolve_progress_fires` — `on_resolve_progress` called at least once
+43. `test_on_resolve_progress_done_monotonic` — `done` arg never decreases across calls
+44. `test_on_resolve_progress_total_constant` — `total` arg is the same value on every call
+45. `test_on_resolve_progress_total_equals_entry_count` — `total` matches entry count from `on_scan_done`
+46. `test_on_resolve_progress_final_done_equals_total` — last call has `done == total`
+47. `test_on_resolve_done_fires_once` — `on_resolve_done` called exactly once
+48. `test_on_resolve_done_after_scan_done` — `on_scan_done` observed before `on_resolve_done`
+
+**Resolved attrs population:**
+
+49. `test_resolved_attrs_empty_at_scan_done` — all entries have `resolved_attrs == {}` at `on_scan_done` time
+50. `test_resolved_attrs_populated_after_resolve` — after `run()` all entries have `resolved_attrs[attr_name]` set
+51. `test_resolved_attrs_not_available_stored` — resolver returning `BF_ATTR_NOT_AVAILABLE` → stored in `resolved_attrs`
+52. `test_resolved_attrs_none_stored` — resolver returning `None` → `None` stored in `resolved_attrs`
+
+**Sort correctness:**
+
+53. `test_sort_extended_real_values_ordered` — entries with real attr values appear in correct sorted order
+54. `test_sort_extended_not_available_at_end` — `BF_ATTR_NOT_AVAILABLE` entries appear after all real-value entries
+55. `test_sort_extended_none_at_end` — `None` entries appear after all real-value entries
+56. `test_sort_extended_not_available_and_none_together` — `BF_ATTR_NOT_AVAILABLE` and `None` sort to the same end group without `TypeError`
+57. `test_sort_extended_tuple_primary_domain_secondary` — resolver returning `(w, h)` tuple sorts correctly: wider before narrower, taller before shorter for same width
+58. `test_sort_extended_filename_tiebreaker` — two entries with identical primary value sort by basename then dirname
+
+**Chunk dispatch:**
+
+59. `test_scan_chunk_size_controls_progress_frequency` — `scan_chunk_size=2`, 6 found files → at least 3 `on_scan_progress` calls before done
+60. `test_resolve_single_chunk` — `resolve_chunk_size=100`, 5 entries → `on_resolve_progress` fires once with `done=5, total=5`
+61. `test_resolve_multiple_chunks` — `resolve_chunk_size=2`, 5 entries → fires 3 times with `done` sequence 2, 4, 5
+62. `test_resolve_chunk_size_one` — `resolve_chunk_size=1` → `on_resolve_progress` fires once per entry
+
+**Cancel during resolve:**
+
+63. `test_cancel_mid_resolve_transitions_to_idle` — cancel during RESOLVING → state becomes IDLE
+64. `test_cancel_mid_resolve_on_cancel_fires` — `on_cancel` fires
+65. `test_cancel_mid_resolve_no_progress_after` — `on_resolve_progress` does not fire after cancel
+66. `test_cancel_mid_resolve_no_done_after` — `on_resolve_done` does not fire after cancel
+67. `test_second_scan_after_mid_resolve_cancel` — scan after mid-resolve cancel completes cleanly to READY_QUICK
+
+**Cross-phase interactions:**
+
+68. `test_cancel_mid_scan_no_resolve_triggered` — cancel during SCANNING → RESOLVING never entered; `on_resolve_progress` never fires
+69. `test_new_scan_during_resolve_cancels_resolve` — calling `scan()` while RESOLVING cancels in-flight resolve tasks; new scan reaches READY_QUICK
+70. `test_resolver_exception_per_file_silently_skipped` — resolver raises for one file → that entry has no key in `resolved_attrs`; remaining entries resolved normally; `on_resolve_done` still fires
 
 ---
 

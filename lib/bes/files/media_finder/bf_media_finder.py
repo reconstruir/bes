@@ -137,7 +137,9 @@ class bf_media_finder(object):
           callbacks.on_error(exc)
         self._runner.main_loop_stop()
         return
-      entries = _sort_entries(entries, options.sort_type, options.case_sensitive)
+      entries = _sort_entries(entries, options.sort_type, options.case_sensitive, options.sort_reversed)
+    elif options.sort_reversed:
+      entries = list(reversed(entries))
 
     self._transition(bf_media_finder_state.READY_QUICK)
     if callbacks and callbacks.on_scan_done:
@@ -145,10 +147,8 @@ class bf_media_finder(object):
     self._runner.main_loop_stop()
 
 
-def _sort_entries(entries, sort_type, case_sensitive):
+def _sort_entries(entries, sort_type, case_sensitive, sort_reversed=False):
   if sort_type == bf_media_sort_type.NAME:
-    key = (lambda e: e.filename.lower()) if not case_sensitive else (lambda e: e.filename)
-    # sort by basename then full path as tiebreak
     import os.path as path
     key = (lambda e: (path.basename(e.filename).lower(), e.filename.lower())) if not case_sensitive \
       else (lambda e: (path.basename(e.filename), e.filename))
@@ -163,4 +163,4 @@ def _sort_entries(entries, sort_type, case_sensitive):
       else (lambda e: (e.mime_type, e.filename))
   else:
     return entries
-  return sorted(entries, key=key)
+  return sorted(entries, key=key, reverse=sort_reversed)

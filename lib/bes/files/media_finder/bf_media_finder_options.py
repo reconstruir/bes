@@ -55,6 +55,7 @@ class _bf_media_finder_options_desc(bcli_options_desc):
     return '''
    media_types  bf_media_type  default=all
      sort_type  bf_media_sort_type  default=found_order
+ sort_reversed  bool  default=False
    ignore_file  str  default=.bes_ignore
  case_sensitive bool  default=False
 '''

@@ -39,6 +39,14 @@ class test_bf_media_finder_options(unit_test):
     o = bf_media_finder_options(case_sensitive=True)
     self.assertTrue(o.case_sensitive)
 
+  def test_sort_reversed_default(self):
+    o = bf_media_finder_options()
+    self.assertFalse(o.sort_reversed)
+
+  def test_sort_reversed_true(self):
+    o = bf_media_finder_options(sort_reversed=True)
+    self.assertTrue(o.sort_reversed)
+
   def test_ignore_file_custom(self):
     o = bf_media_finder_options(ignore_file='.myignore')
     self.assertEqual('.myignore', o.ignore_file)

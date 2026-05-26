@@ -351,6 +351,36 @@ class test_bf_media_finder(unit_test):
     mtimes = [e.mtime for e in r.entries]
     self.assertEqual(sorted(mtimes), mtimes)
 
+  def test_sort_name_reversed(self):
+    tmp = self._make_dir({
+      'charlie.jpg': self.JPG,
+      'alpha.png':   self.PNG,
+      'bravo.jpg':   self.JPG,
+    })
+    r = self._run_scan(tmp, bf_media_finder_options(sort_type='name', sort_reversed=True))
+    names = self._basenames(r.entries)
+    self.assertEqual(sorted(names, key=str.lower, reverse=True), names)
+
+  def test_sort_size_reversed(self):
+    tmp = self._make_dir({
+      'large.jpg':  self.JPG * 3,
+      'small.jpg':  self.JPG,
+      'medium.jpg': self.JPG * 2,
+    })
+    r = self._run_scan(tmp, bf_media_finder_options(sort_type='size', sort_reversed=True))
+    sizes = [e.size for e in r.entries]
+    self.assertEqual(sorted(sizes, reverse=True), sizes)
+
+  def test_sort_found_order_reversed(self):
+    tmp = self._make_dir({'a.png': self.PNG, 'b.png': self.PNG, 'c.png': self.PNG})
+    r_fwd = self._run_scan(tmp, bf_media_finder_options(sort_type='found_order'))
+    r_rev = self._run_scan(tmp, bf_media_finder_options(sort_type='found_order', sort_reversed=True))
+    self.assertEqual(3, len(r_rev.entries))
+    self.assertEqual(
+      [e.filename for e in r_fwd.entries],
+      list(reversed([e.filename for e in r_rev.entries])),
+    )
+
   def test_sort_slow_raises(self):
     'Slow sort types raise NotImplementedError until Tier 2 is implemented.'
     tmp = self._make_dir({'a.jpg': self.JPG})
