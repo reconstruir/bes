@@ -14,6 +14,7 @@ from .bf_media_file_entry import bf_media_file_entry
 from .bf_media_finder_callbacks import bf_media_finder_callbacks
 from .bf_media_finder_options import bf_media_finder_options
 from .bf_media_finder_state import bf_media_finder_state
+from .bf_media_feature_resolver_base import bf_media_feature_resolver_base
 from .bf_media_resolve_task import bf_media_resolve_task
 from .bf_media_scan_status import bf_media_scan_status
 from .bf_media_scan_task import bf_media_scan_task
@@ -178,9 +179,9 @@ class bf_media_finder(object):
 
     # Decide whether to start the resolve phase
     if isinstance(options.sort_type, str):
-      if options.attr_resolver is None:
+      if options.feature_resolver is None:
         exc = ValueError(
-          f'sort_type "{options.sort_type}" requires attr_resolver to be set in options'
+          f'sort_type "{options.sort_type}" requires feature_resolver to be set in options'
         )
         self._entries = []
         self._transition(bf_media_finder_state.IDLE)
@@ -189,7 +190,7 @@ class bf_media_finder(object):
         self._runner.main_loop_stop()
         return
       self._start_resolve_phase(entries, options, callbacks, gen)
-    else:
+    else:  # intrinsic sort — READY_QUICK is terminal
       # Intrinsic sort — READY_QUICK is terminal
       self._runner.main_loop_stop()
 
@@ -205,9 +206,9 @@ class bf_media_finder(object):
       self._runner.main_loop_stop()
       return
 
-    chunk_size = options.resolve_chunk_size
-    attr_name  = options.sort_type   # a string (extended sort key)
-    resolver   = options.attr_resolver
+    chunk_size   = options.resolve_chunk_size
+    feature_name = options.sort_type   # a string (extended sort key)
+    resolver     = options.feature_resolver
 
     chunks = [ entries[i:i+chunk_size] for i in range(0, len(entries), chunk_size) ]
 
@@ -232,9 +233,9 @@ class bf_media_finder(object):
         callback=_resolve_done_cb,
         config=config,
         args={
-          'entries':   entry_dicts,
-          'attr_name': attr_name,
-          'resolver':  resolver,
+          'entries':      entry_dicts,
+          'feature_name': feature_name,
+          'resolver':     resolver,
         },
       )
       with self._lock:
@@ -265,7 +266,7 @@ class bf_media_finder(object):
         for item in results:
           entry = self._filename_index.get(item['filename'])
           if entry is not None:
-            entry.resolved_attrs[item['attr_name']] = item['value']
+            entry.resolved_features[item['feature_name']] = item['value']
 
     with self._lock:
       self._resolve_done_count += chunk_file_count
@@ -276,12 +277,12 @@ class bf_media_finder(object):
       callbacks.on_resolve_progress(done, total)
 
     if all_done:
-      resolver = options.attr_resolver
-      sort_attr = options.sort_type
+      resolver     = options.feature_resolver
+      sort_feature = options.sort_type
 
       def key(e):
-        val = e.resolved_attrs.get(sort_attr)
-        return (resolver.attr_sort_key(val), path.basename(e.filename).lower(), path.dirname(e.filename).lower())
+        val = e.resolved_features.get(sort_feature)
+        return (resolver.feature_sort_key(val), path.basename(e.filename).lower(), path.dirname(e.filename).lower())
 
       with self._lock:
         entries = sorted(self._entries, key=key, reverse=options.sort_reversed)

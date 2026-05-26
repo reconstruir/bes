@@ -142,10 +142,10 @@ how expensive the computation is.
 - **READY_QUICK**: all files have Tier 0 + Tier 1 attributes. If sort type is a builtin,
   this state is terminal (or a synchronous sort pass runs at transition time).
 - **RESOLVING**: only triggered if sort type is an extended sort key.
-- **READY**: extended attrs resolved, final sort applied.
+- **READY**: extended features resolved, final sort applied.
 
 **IDLE transition always discards all accumulated entries regardless of which state
-is active.** `resolved_attrs` on individual entries does not need explicit clearing
+is active.** `resolved_features` on individual entries does not need explicit clearing
 because the entries themselves are dropped.
 
 ### Sort Type Classification
@@ -157,8 +157,8 @@ Always available without a resolver. READY_QUICK is terminal (or a synchronous s
 pass runs at transition time). Values are `bf_media_sort_type` enum members:
 `FOUND_ORDER`, `NAME`, `PATH`, `DATE`, `SIZE`, `KIND`.
 
-**Extended** — sort key requires an injected attr resolver (Tier 2). Sort type is a
-plain string matching the `attr_name` the resolver handles (e.g. `'resolution'`,
+**Extended** — sort key requires an injected feature resolver (Tier 2). Sort type is a
+plain string matching the `feature_name` the resolver handles (e.g. `'resolution'`,
 `'duration'`). These strings never appear in `bes` source — they are owned entirely
 by the resolver implementation in `rui` (or wherever the concrete resolver lives).
 Triggers RESOLVING → READY after READY_QUICK.
@@ -179,13 +179,13 @@ Progress message: `found {found}  scanned {scanned}` with no percentage.
 
 ---
 
-## Attr Resolver Interface
+## Feature Resolver Interface
 
 `bes` defines the interface and registry. No PIL, av, opencv, or bav imports anywhere
 in `bes`. Concrete implementations live in `rui` (or `bav`) and are injected at
 startup.
 
-### `BF_ATTR_NOT_AVAILABLE` sentinel
+### `BF_FEATURE_NOT_AVAILABLE` sentinel
 
 A module-level singleton distinct from `None`. Used when a resolver attempted
 computation but the file genuinely has no data for the requested attribute (e.g. a
@@ -193,43 +193,43 @@ video container format that does not store duration in its header).
 
 ```
 return value                  — successfully computed
-return BF_ATTR_NOT_AVAILABLE  — tried; file has no data for this attr
-return None                   — this resolver does not handle this attr_name at all
+return BF_FEATURE_NOT_AVAILABLE  — tried; file has no data for this feature
+return None                   — this resolver does not handle this feature_name at all
 ```
 
-For sorting, both `None` (missing key or unsupported) and `BF_ATTR_NOT_AVAILABLE`
+For sorting, both `None` (missing key or unsupported) and `BF_FEATURE_NOT_AVAILABLE`
 (data absent from file) sort to the end. They carry different display semantics:
-"—" (data absent) vs blank (attr not applicable to this file/resolver).
+"—" (data absent) vs blank (feature not applicable to this file/resolver).
 
-### `bf_media_attr_resolver_base`
+### `bf_media_feature_resolver_base`
 
 Abstract base class in `bes`. No external dependencies.
 
 ```python
-class bf_media_attr_resolver_base:
+class bf_media_feature_resolver_base:
     name: ClassVar[str]   # unique string, e.g. 'pil_av'
 
     @classmethod
-    def resolve(cls, filename: str, mime_type: str, attr_name: str) -> Any:
-        # Returns: a value, BF_ATTR_NOT_AVAILABLE, or None
+    def resolve(cls, filename: str, mime_type: str, feature_name: str) -> Any:
+        # Returns: a value, BF_FEATURE_NOT_AVAILABLE, or None
         raise NotImplementedError
 
     @classmethod
-    def attr_sort_key(cls, value) -> tuple:
+    def feature_sort_key(cls, value) -> tuple:
         'Return a sort key that places real values before None/NOT_AVAILABLE.'
-        if value is None or isinstance(value, _bf_attr_not_available_type):
+        if value is None or isinstance(value, _bf_feature_not_available_type):
             return (1, None)
         return (0, value)
 ```
 
-`attr_sort_key` is a classmethod on the base so it is available without a concrete
+`feature_sort_key` is a classmethod on the base so it is available without a concrete
 resolver instance. The finder builds the full sort key as:
 
 ```python
 import os.path as path
 
 key = lambda e: (
-    resolver.attr_sort_key(e.resolved_attrs.get(options.sort_type)),
+    resolver.feature_sort_key(e.resolved_features.get(options.sort_type)),
     path.basename(e.filename).lower(),
     path.dirname(e.filename).lower(),
 )
@@ -237,33 +237,33 @@ entries.sort(key=key)
 ```
 
 This avoids type-comparison errors (e.g. comparing `(1920, 1080)` with
-`BF_ATTR_NOT_AVAILABLE`) and consistently places non-values at the end. The
+`BF_FEATURE_NOT_AVAILABLE`) and consistently places non-values at the end. The
 `(basename, dirname)` tail is a universal stable tiebreaker applied by the finder;
 domain-specific secondaries are encoded by the resolver in the primary value itself
 (see Sort Criteria section).
 
-`attr_name` is the exact sort key string. The resolver computes only what is asked
+`feature_name` is the exact sort key string. The resolver computes only what is asked
 for — no wasted work.
 
-### `bf_media_attr_resolver_registry`
+### `bf_media_feature_resolver_registry`
 
 Plain name → class dict in `bes`. Resolvers register themselves at import time.
 
 ```python
-bf_media_attr_resolver_registry.register(MyResolver)   # keyed by MyResolver.name
-bf_media_attr_resolver_registry.get('pil_av')          # → class; KeyError if unknown
-bf_media_attr_resolver_registry.names()                # → list[str]
+bf_media_feature_resolver_registry.register(MyResolver)   # keyed by MyResolver.name
+bf_media_feature_resolver_registry.get('pil_av')          # → class; KeyError if unknown
+bf_media_feature_resolver_registry.names()                # → list[str]
 ```
 
 ### Concrete resolver — lives in `rui`
 
 ```python
-class rui_media_attr_resolver(bf_media_attr_resolver_base):
+class rui_media_feature_resolver(bf_media_feature_resolver_base):
     name = 'pil_av'
 
     @classmethod
-    def resolve(cls, filename, mime_type, attr_name):
-        if attr_name == 'resolution':
+    def resolve(cls, filename, mime_type, feature_name):
+        if feature_name == 'resolution':
             if mime_type and mime_type.startswith('image/'):
                 from PIL import Image
                 with Image.open(filename) as img:
@@ -274,18 +274,18 @@ class rui_media_attr_resolver(bf_media_attr_resolver_base):
                     for s in f.streams.video:
                         return (s.codec_context.width, s.codec_context.height)
             return None
-        elif attr_name == 'duration':
+        elif feature_name == 'duration':
             if mime_type and mime_type.startswith('video/'):
                 import av
                 with av.open(filename) as f:
                     for s in f.streams.video:
                         if s.duration and s.time_base:
                             return float(s.duration * s.time_base)
-                return BF_ATTR_NOT_AVAILABLE  # video but no duration metadata
+                return BF_FEATURE_NOT_AVAILABLE  # video but no duration metadata
             return None
         return None
 
-bf_media_attr_resolver_registry.register(rui_media_attr_resolver)
+bf_media_feature_resolver_registry.register(rui_media_feature_resolver)
 ```
 
 ### Subprocess pickle behaviour
@@ -323,19 +323,19 @@ the primary key is equal across multiple files (e.g. many videos at 1920×1080).
 
 ### Extended sort key encoding
 
-For extended sorts the resolver returns the primary value. `attr_sort_key(value)`
-wraps it in `(0, value)` for real values or `(1, None)` for `BF_ATTR_NOT_AVAILABLE`
+For extended sorts the resolver returns the primary value. `feature_sort_key(value)`
+wraps it in `(0, value)` for real values or `(1, None)` for `BF_FEATURE_NOT_AVAILABLE`
 / `None`, so non-values always sort **to the end**.
 
 The old code placed not-yet-resolved entries at the **beginning** (using zero/empty
 sentinel values such as `bav_size(0, 0)` or `0`). The new design puts them at the
-**end** via `BF_ATTR_NOT_AVAILABLE`. This is intentional and unambiguous.
+**end** via `BF_FEATURE_NOT_AVAILABLE`. This is intentional and unambiguous.
 
 **Domain-specific secondaries are encoded inside the resolver's return value**, not
 added by the finder. When a sort type has a natural domain tiebreaker, the resolver
 returns a tuple whose elements encode that ordering:
 
-| attr_name | resolve() returns | Sort semantics |
+| feature_name | resolve() returns | Sort semantics |
 |---|---|---|
 | `resolution` | `(w, h)` | wider first; taller as secondary for same width |
 | `width` | `(w, h)` | wider first; height as secondary |
@@ -344,7 +344,7 @@ returns a tuple whose elements encode that ordering:
 | `aspect_ratio` | `float` | narrower first |
 | `average_hash_v1` | `int` | by hash value |
 
-The finder sees an opaque value and applies `attr_sort_key` uniformly. It has no
+The finder sees an opaque value and applies `feature_sort_key` uniformly. It has no
 knowledge of what `resolution` or `width` means.
 
 **Full example** — `width` sort on a `1920×1080` file `b.mp4` in `/movies`:
@@ -369,17 +369,17 @@ not-available group.
 `bf_media_resolve_task` returns a plain dict:
 
 ```python
-{'filename': str, 'attr_name': str, 'value': Any}
+{'filename': str, 'feature_name': str, 'value': Any}
 ```
 
-`value` may be a computed result, `BF_ATTR_NOT_AVAILABLE`, or `None`.
+`value` may be a computed result, `BF_FEATURE_NOT_AVAILABLE`, or `None`.
 
 The finder builds a lookup table `{e.filename: e for e in self._entries}` before
 dispatching resolve tasks. In the done callback it writes:
 
 ```python
 entry = filename_index[result['filename']]
-entry.resolved_attrs[result['attr_name']] = result['value']
+entry.resolved_features[result['feature_name']] = result['value']
 ```
 
 ---
@@ -394,7 +394,7 @@ same pattern already in place for scan cancel (avoids re-entrant deadlock when c
 from a status or done callback that holds the processor lock).
 
 On transition to IDLE from any state, `self._entries = []`. All accumulated entries
-and their `resolved_attrs` are discarded.
+and their `resolved_features` are discarded.
 
 ---
 
@@ -416,14 +416,14 @@ This is a future optimization; the scan always works correctly without it.
 ### `bf_media_file_entry`
 
 Frozen dataclass. Fields: `root_dir`, `filename` (absolute), `size`, `mtime`,
-`extension`, `mime_type`, `media_type`, `resolved_attrs` (dict, default empty via
+`extension`, `mime_type`, `media_type`, `resolved_features` (dict, default empty via
 `field(default_factory=dict)`). `relative_filename` property computed from the two
 path fields. `__str__` returns `filename`. Registered with `check`.
 
-The dataclass is frozen (field references immutable) but `resolved_attrs` is a plain
+The dataclass is frozen (field references immutable) but `resolved_features` is a plain
 `dict` whose contents can be mutated. The resolve phase writes into it in place. The
 existing `test_frozen` test continues to pass; a separate test covers that
-`resolved_attrs` contents are mutable.
+`resolved_features` contents are mutable.
 
 ### `bf_media_sort_type`
 
@@ -432,19 +432,19 @@ Enum of **intrinsic sort types only**: `FOUND_ORDER`, `NAME`, `PATH`, `DATE`, `S
 are plain strings owned by the resolver implementation and never referenced in `bes`
 source. The `is_slow` property and all slow-type enum values are removed.
 
-### `BF_ATTR_NOT_AVAILABLE`
+### `BF_FEATURE_NOT_AVAILABLE`
 
-Module-level singleton in `bes/files/media_finder/bf_media_attr_not_available.py`.
+Module-level singleton in `bes/files/media_finder/bf_media_feature_not_available.py`.
 Returned by resolvers when computation was attempted but the file has no data.
 
-### `bf_media_attr_resolver_base`
+### `bf_media_feature_resolver_base`
 
-Abstract base in `bes/files/media_finder/bf_media_attr_resolver_base.py`. Provides
-`attr_sort_key(value)` classmethod for consistent sort ordering.
+Abstract base in `bes/files/media_finder/bf_media_feature_resolver_base.py`. Provides
+`feature_sort_key(value)` classmethod for consistent sort ordering.
 
-### `bf_media_attr_resolver_registry`
+### `bf_media_feature_resolver_registry`
 
-Name → class registry in `bes/files/media_finder/bf_media_attr_resolver_registry.py`.
+Name → class registry in `bes/files/media_finder/bf_media_feature_resolver_registry.py`.
 
 ### `bf_media_finder_state`
 
@@ -461,13 +461,13 @@ Name → class registry in `bes/files/media_finder/bf_media_attr_resolver_regist
 | `sort_reversed` | bool | `False` | reverse the final sort order; applies to all sort types including `found_order` |
 | `ignore_file` | `str \| None` | `None` | |
 | `case_sensitive` | bool | `False` | |
-| `attr_resolver` | `type[bf_media_attr_resolver_base] \| None` | `None` | required for extended sorts |
+| `feature_resolver` | `type[bf_media_feature_resolver_base] \| None` | `None` | required for extended sorts |
 | `num_scan_workers` | int | 2 | populates `btask_config(limit=...)` for scan task |
 | `scan_chunk_size` | int | 50 | files per `report_status` call in the scan worker |
 | `num_resolve_workers` | int | 2 | populates `btask_config(limit=...)` for resolve tasks |
 | `resolve_chunk_size` | int | 10 | files per resolve btask |
 
-`attr_resolver` holds the **class itself** (not a name string) so it passes through
+`feature_resolver` holds the **class itself** (not a name string) so it passes through
 pickle to btask worker processes without a registry lookup in the subprocess.
 `None` means extended sorts route to `on_error`.
 
@@ -503,7 +503,7 @@ injected (CLI creates its own; Qt app injects shared one).
 deferred to a daemon thread to avoid re-entrant deadlock.
 `run()` — blocks until scan (and resolve, if triggered) completes or is cancelled.
 
-If `sort_type` is a string and `attr_resolver` is `None`, routes `ValueError` through
+If `sort_type` is a string and `feature_resolver` is `None`, routes `ValueError` through
 `on_error` without starting the resolve phase.
 
 Maintains `self._resolve_task_ids: set` during RESOLVING; cleared on IDLE transition.
@@ -523,12 +523,12 @@ Uses `raise_cancelled_if_needed` for proper CANCELLED result state.
 ### `bf_media_resolve_task`
 
 btask worker. Args: `entries` (list of `{'filename', 'mime_type'}` dicts, up to
-`resolve_chunk_size` items), `attr_name`, `resolver` (class).
+`resolve_chunk_size` items), `feature_name`, `resolver` (class).
 
-For each entry calls `resolver.resolve(filename, mime_type, attr_name)`. Returns a
-list of result dicts: `[{'filename': ..., 'attr_name': ..., 'value': ...}, ...]`.
+For each entry calls `resolver.resolve(filename, mime_type, feature_name)`. Returns a
+list of result dicts: `[{'filename': ..., 'feature_name': ..., 'value': ...}, ...]`.
 Per-file exceptions are caught silently; that file's result dict is omitted from the
-list (the finder leaves the entry's `resolved_attrs` key absent).
+list (the finder leaves the entry's `resolved_features` key absent).
 
 The finder groups `self._entries` into chunks of `resolve_chunk_size` before
 dispatching. For 1,000 entries with the default chunk size of 10, the processor
@@ -544,7 +544,7 @@ receives 100 tasks rather than 1,000.
 - No dependency on Qt, rapp, rui, bav, PIL, av, or opencv.
 - All callbacks are plain Python callables, not Qt signals.
 - Resolver implementations live outside `bes` and are injected via registry +
-  `bf_media_finder_options.attr_resolver`.
+  `bf_media_finder_options.feature_resolver`.
 
 ### R2 — Scan Phase
 
@@ -564,11 +564,11 @@ receives 100 tasks rather than 1,000.
 ### R3 — Metadata Resolution Phase (Tier 2)
 
 - Triggered when `sort_type` is a string (extended sort).
-- If `attr_resolver` is `None`, routes `ValueError` through `on_error` immediately.
-- Dispatches one btask per file calling `resolver.resolve(filename, mime_type, attr_name)`.
-- Resolver returns a value, `BF_ATTR_NOT_AVAILABLE`, or `None`; stored in
-  `entry.resolved_attrs[attr_name]`.
-- Sort uses `resolver.attr_sort_key(value)` to place non-values at the end without
+- If `feature_resolver` is `None`, routes `ValueError` through `on_error` immediately.
+- Dispatches one btask per file calling `resolver.resolve(filename, mime_type, feature_name)`.
+- Resolver returns a value, `BF_FEATURE_NOT_AVAILABLE`, or `None`; stored in
+  `entry.resolved_features[feature_name]`.
+- Sort uses `resolver.feature_sort_key(value)` to place non-values at the end without
   type-comparison errors.
 - Debounces intermediate re-sort (default 250 ms); final sort when all resolved.
 - Reports `on_resolve_progress(done, total)` and `on_resolve_done()`.
@@ -593,41 +593,41 @@ receives 100 tasks rather than 1,000.
 ### R6 — CLI
 
 - `best2.py media find <dir> [options]`
-- Flags: `--media-type`, `--sort`, `--sort-reversed`, `--attr-resolver`,
+- Flags: `--media-type`, `--sort`, `--sort-reversed`, `--feature-resolver`,
   `--ignore-file`, `--case-sensitive`, `--verbose`/`-v`, `--count`
 - `--sort` accepts any string. Builtin enum values handled directly; any other string
-  is an extended sort key requiring `--attr-resolver NAME`.
-- `--attr-resolver NAME` looks up the registry and stores the class in finder options.
+  is an extended sort key requiring `--feature-resolver NAME`.
+- `--feature-resolver NAME` looks up the registry and stores the class in finder options.
 - Progress to stderr; filenames to stdout (pipeable).
 - SIGINT → cancel → exit 1.
 
 ### R7 — Unit Tests
 
-#### `test_bf_attr_not_available.py` — new file
+#### `test_bf_feature_not_available.py` — new file
 
 1. `test_is_not_none` — sentinel is not `None`
 2. `test_is_singleton` — two references yield the same object (`is`)
-3. `test_is_falsy` — `bool(BF_ATTR_NOT_AVAILABLE) == False`
-4. `test_not_equal_to_zero` — `BF_ATTR_NOT_AVAILABLE != 0`
-5. `test_not_equal_to_false` — `BF_ATTR_NOT_AVAILABLE != False`
-6. `test_isinstance` — `isinstance(BF_ATTR_NOT_AVAILABLE, _bf_attr_not_available_type)`
+3. `test_is_falsy` — `bool(BF_FEATURE_NOT_AVAILABLE) == False`
+4. `test_not_equal_to_zero` — `BF_FEATURE_NOT_AVAILABLE != 0`
+5. `test_not_equal_to_false` — `BF_FEATURE_NOT_AVAILABLE != False`
+6. `test_isinstance` — `isinstance(BF_FEATURE_NOT_AVAILABLE, _bf_feature_not_available_type)`
 7. `test_repr_nonempty` — `repr(...)` returns a non-empty string
 
-#### `test_bf_media_attr_resolver_base.py` — new file (`attr_sort_key`)
+#### `test_bf_media_feature_resolver_base.py` — new file (`feature_sort_key`)
 
-8. `test_int_value` — `attr_sort_key(42)` → `(0, 42)`
-9. `test_float_value` — `attr_sort_key(1.5)` → `(0, 1.5)`
-10. `test_tuple_value` — `attr_sort_key((1920, 1080))` → `(0, (1920, 1080))`
-11. `test_none_key` — `attr_sort_key(None)` → `(1, None)`
-12. `test_not_available_key` — `attr_sort_key(BF_ATTR_NOT_AVAILABLE)` → `(1, None)`
+8. `test_int_value` — `feature_sort_key(42)` → `(0, 42)`
+9. `test_float_value` — `feature_sort_key(1.5)` → `(0, 1.5)`
+10. `test_tuple_value` — `feature_sort_key((1920, 1080))` → `(0, (1920, 1080))`
+11. `test_none_key` — `feature_sort_key(None)` → `(1, None)`
+12. `test_not_available_key` — `feature_sort_key(BF_FEATURE_NOT_AVAILABLE)` → `(1, None)`
 13. `test_none_and_not_available_equal_key` — both produce identical tuples
-14. `test_real_before_none` — `attr_sort_key(42) < attr_sort_key(None)`
-15. `test_real_before_not_available` — `attr_sort_key(42) < attr_sort_key(BF_ATTR_NOT_AVAILABLE)`
-16. `test_smaller_real_before_larger` — `attr_sort_key(1.0) < attr_sort_key(2.0)`
-17. `test_tuple_ordering` — `attr_sort_key((640, 480)) < attr_sort_key((1920, 1080))`
-18. `test_sort_list_mixed` — list of real values, `None`, `BF_ATTR_NOT_AVAILABLE` sorts with real values first, non-values at end, no `TypeError`
+14. `test_real_before_none` — `feature_sort_key(42) < feature_sort_key(None)`
+15. `test_real_before_not_available` — `feature_sort_key(42) < feature_sort_key(BF_FEATURE_NOT_AVAILABLE)`
+16. `test_smaller_real_before_larger` — `feature_sort_key(1.0) < feature_sort_key(2.0)`
+17. `test_tuple_ordering` — `feature_sort_key((640, 480)) < feature_sort_key((1920, 1080))`
+18. `test_sort_list_mixed` — list of real values, `None`, `BF_FEATURE_NOT_AVAILABLE` sorts with real values first, non-values at end, no `TypeError`
 
-#### `test_bf_media_attr_resolver_registry.py` — new file
+#### `test_bf_media_feature_resolver_registry.py` — new file
 
 19. `test_register_and_get` — registered class retrieved by name
 20. `test_get_unknown_raises` — `KeyError` for unregistered name
@@ -648,12 +648,12 @@ receives 100 tasks rather than 1,000.
 
 #### `test_bf_media_file_entry.py` — update
 
-**Update:** `test_fields` to include `resolved_attrs` defaulting to `{}`.
+**Update:** `test_fields` to include `resolved_features` defaulting to `{}`.
 `test_frozen` updated: field assignment raises, but dict mutation does not.
 
-29. `test_resolved_attrs_default_empty` — `entry.resolved_attrs == {}`
-30. `test_resolved_attrs_mutable` — `entry.resolved_attrs['x'] = 1` succeeds; readable back
-31. `test_resolved_attrs_field_frozen` — `entry.resolved_attrs = {}` raises `FrozenInstanceError`
+29. `test_resolved_features_default_empty` — `entry.resolved_features == {}`
+30. `test_resolved_features_mutable` — `entry.resolved_features['x'] = 1` succeeds; readable back
+31. `test_resolved_features_field_frozen` — `entry.resolved_features = {}` raises `FrozenInstanceError`
 
 #### `test_bf_media_finder_options.py` — update
 
@@ -666,7 +666,7 @@ receives 100 tasks rather than 1,000.
 35. `test_resolve_chunk_size_custom` — `resolve_chunk_size=3` accepted
 36. `test_num_scan_workers_custom` — `num_scan_workers=4` accepted
 37. `test_num_resolve_workers_custom` — `num_resolve_workers=8` accepted
-38. `test_attr_resolver_class` — `attr_resolver=SomeFakeResolverClass` accepted
+38. `test_feature_resolver_class` — `feature_resolver=SomeFakeResolverClass` accepted
 39. `test_sort_type_extended_string` — `sort_type='resolution'` accepted without error
 
 #### `test_bf_media_finder.py` — sort_reversed (new, in sort block)
@@ -678,7 +678,7 @@ receives 100 tasks rather than 1,000.
 #### `test_bf_media_finder.py` — update
 
 **Update:** `test_sort_slow_raises` → `test_extended_sort_no_resolver_fires_on_error`
-— extended sort with `attr_resolver=None` calls `on_error`; RESOLVING state never entered.
+— extended sort with `feature_resolver=None` calls `on_error`; RESOLVING state never entered.
 
 **State machine (resolve path):**
 
@@ -697,19 +697,19 @@ receives 100 tasks rather than 1,000.
 47. `test_on_resolve_done_fires_once` — `on_resolve_done` called exactly once
 48. `test_on_resolve_done_after_scan_done` — `on_scan_done` observed before `on_resolve_done`
 
-**Resolved attrs population:**
+**Resolved features population:**
 
-49. `test_resolved_attrs_empty_at_scan_done` — all entries have `resolved_attrs == {}` at `on_scan_done` time
-50. `test_resolved_attrs_populated_after_resolve` — after `run()` all entries have `resolved_attrs[attr_name]` set
-51. `test_resolved_attrs_not_available_stored` — resolver returning `BF_ATTR_NOT_AVAILABLE` → stored in `resolved_attrs`
-52. `test_resolved_attrs_none_stored` — resolver returning `None` → `None` stored in `resolved_attrs`
+49. `test_resolved_features_empty_at_scan_done` — all entries have `resolved_features == {}` at `on_scan_done` time
+50. `test_resolved_features_populated_after_resolve` — after `run()` all entries have `resolved_features[feature_name]` set
+51. `test_resolved_features_not_available_stored` — resolver returning `BF_FEATURE_NOT_AVAILABLE` → stored in `resolved_features`
+52. `test_resolved_features_none_stored` — resolver returning `None` → `None` stored in `resolved_features`
 
 **Sort correctness:**
 
-53. `test_sort_extended_real_values_ordered` — entries with real attr values appear in correct sorted order
-54. `test_sort_extended_not_available_at_end` — `BF_ATTR_NOT_AVAILABLE` entries appear after all real-value entries
+53. `test_sort_extended_real_values_ordered` — entries with real feature values appear in correct sorted order
+54. `test_sort_extended_not_available_at_end` — `BF_FEATURE_NOT_AVAILABLE` entries appear after all real-value entries
 55. `test_sort_extended_none_at_end` — `None` entries appear after all real-value entries
-56. `test_sort_extended_not_available_and_none_together` — `BF_ATTR_NOT_AVAILABLE` and `None` sort to the same end group without `TypeError`
+56. `test_sort_extended_not_available_and_none_together` — `BF_FEATURE_NOT_AVAILABLE` and `None` sort to the same end group without `TypeError`
 57. `test_sort_extended_tuple_primary_domain_secondary` — resolver returning `(w, h)` tuple sorts correctly: wider before narrower, taller before shorter for same width
 58. `test_sort_extended_filename_tiebreaker` — two entries with identical primary value sort by basename then dirname
 
@@ -732,7 +732,7 @@ receives 100 tasks rather than 1,000.
 
 68. `test_cancel_mid_scan_no_resolve_triggered` — cancel during SCANNING → RESOLVING never entered; `on_resolve_progress` never fires
 69. `test_new_scan_during_resolve_cancels_resolve` — calling `scan()` while RESOLVING cancels in-flight resolve tasks; new scan reaches READY_QUICK
-70. `test_resolver_exception_per_file_silently_skipped` — resolver raises for one file → that entry has no key in `resolved_attrs`; remaining entries resolved normally; `on_resolve_done` still fires
+70. `test_resolver_exception_per_file_silently_skipped` — resolver raises for one file → that entry has no key in `resolved_features`; remaining entries resolved normally; `on_resolve_done` still fires
 
 ---
 

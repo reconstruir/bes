@@ -58,7 +58,7 @@ class _bf_media_finder_options_desc(bcli_options_desc):
        sort_reversed  bool  default=False
          ignore_file  str  default=.bes_ignore
       case_sensitive  bool  default=False
-       attr_resolver  type
+    feature_resolver  type
     num_scan_workers  int  default=2
      scan_chunk_size  int  default=50
  num_resolve_workers  int  default=2

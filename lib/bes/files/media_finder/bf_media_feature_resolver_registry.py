@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class bf_media_attr_resolver_registry:
-  'Name → class registry for bf_media_attr_resolver_base subclasses.'
+class bf_media_feature_resolver_registry:
+  'Name → class registry for bf_media_feature_resolver_base subclasses.'
 
   _registry = {}
 

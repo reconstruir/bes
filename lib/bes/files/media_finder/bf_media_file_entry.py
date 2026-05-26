@@ -15,7 +15,7 @@ class bf_media_file_entry:
   mime_type:      str
   media_type:     str   # 'image' | 'video' | 'other'
   # hash=False/compare=False: dict is mutable; exclude from frozen hash/eq
-  resolved_attrs: dict = dataclasses.field(default_factory=dict, hash=False, compare=False)
+  resolved_features: dict = dataclasses.field(default_factory=dict, hash=False, compare=False)
 
   @property
   def relative_filename(self):

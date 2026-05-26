@@ -2,15 +2,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.media_finder.bf_media_attr_resolver_base import bf_media_attr_resolver_base
+from bes.files.media_finder.bf_media_feature_resolver_base import bf_media_feature_resolver_base
 from bes.files.media_finder.bf_media_finder_options import bf_media_finder_options
 from bes.files.media_finder.bf_media_sort_type import bf_media_sort_type
 from bes.system.check import check
 
-class _FakeResolver(bf_media_attr_resolver_base):
+class _FakeResolver(bf_media_feature_resolver_base):
   name = '_test_fake_resolver_options'
   @classmethod
-  def resolve(cls, filename, mime_type, attr_name):
+  def resolve(cls, filename, mime_type, feature_name):
     return None
 
 class test_bf_media_finder_options(unit_test):
@@ -22,7 +22,7 @@ class test_bf_media_finder_options(unit_test):
     self.assertEqual('.bes_ignore', o.ignore_file)
     self.assertFalse(o.case_sensitive)
     self.assertFalse(o.sort_reversed)
-    self.assertIsNone(o.attr_resolver)
+    self.assertIsNone(o.feature_resolver)
     self.assertEqual(2,  o.num_scan_workers)
     self.assertEqual(50, o.scan_chunk_size)
     self.assertEqual(2,  o.num_resolve_workers)
@@ -80,9 +80,9 @@ class test_bf_media_finder_options(unit_test):
     o = bf_media_finder_options(num_resolve_workers=8)
     self.assertEqual(8, o.num_resolve_workers)
 
-  def test_attr_resolver_class(self):
-    o = bf_media_finder_options(attr_resolver=_FakeResolver)
-    self.assertIs(_FakeResolver, o.attr_resolver)
+  def test_feature_resolver_class(self):
+    o = bf_media_finder_options(feature_resolver=_FakeResolver)
+    self.assertIs(_FakeResolver, o.feature_resolver)
 
   def test_sort_type_extended_string(self):
     o = bf_media_finder_options(sort_type='resolution')
