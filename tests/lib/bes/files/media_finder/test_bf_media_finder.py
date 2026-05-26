@@ -840,6 +840,35 @@ class test_bf_media_finder(unit_test):
     r2 = self._run_scan(tmp, cancel_on_first_progress=True)
     self.assertNotIn(bf_media_finder_state.RESOLVING, r2.state_changes)
 
+  def test_new_scan_during_resolve_cancels_resolve(self):
+    'scan() called while RESOLVING cancels in-flight resolve tasks; new scan reaches READY_QUICK.'
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(30)})
+    processor = btask_processor('test', num_processes=4)
+    self.addCleanup(processor.stop)
+    finder = bf_media_finder(processor)
+
+    new_scan_states = []
+    rescan_triggered = [False]
+
+    def _resolve_progress(done, total):
+      if not rescan_triggered[0]:
+        rescan_triggered[0] = True
+        new_cbs = bf_media_finder_callbacks(
+          on_state_changed=lambda s: new_scan_states.append(s),
+        )
+        finder.scan([tmp], callbacks=new_cbs)
+
+    cbs = bf_media_finder_callbacks(on_resolve_progress=_resolve_progress)
+    opts = bf_media_finder_options(
+      sort_type='fsize', feature_resolver=_SizeResolver, resolve_chunk_size=1,
+    )
+    finder.scan([tmp], options=opts, callbacks=cbs)
+    finder.run()
+
+    self.assertTrue(rescan_triggered[0])
+    self.assertIn(bf_media_finder_state.READY_QUICK, new_scan_states)
+    self.assertEqual(bf_media_finder_state.READY_QUICK, finder.state)
+
   def test_resolver_exception_per_file_silently_skipped(self):
     'Resolver raising for one file: that entry has no resolved attr; others resolved normally.'
     import os.path as path

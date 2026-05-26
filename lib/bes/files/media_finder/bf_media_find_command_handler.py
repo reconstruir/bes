@@ -41,6 +41,13 @@ class bf_media_find_command_handler(bcli_command_handler):
         for entry in entries:
           print(entry.filename)
 
+    def _resolve_progress(done, total):
+      sys.stderr.write(f'\r  resolving: {done:,}/{total:,}    ')
+      sys.stderr.flush()
+
+    def _resolve_done():
+      pass  # final line cleared by the summary write below
+
     def _cancel():
       pass  # main_loop_stop already called; we detect via state below
 
@@ -48,10 +55,12 @@ class bf_media_find_command_handler(bcli_command_handler):
       sys.stderr.write(f'\nerror: {exc}\n')
 
     cbs = bf_media_finder_callbacks(
-      on_scan_progress = _progress,
-      on_scan_done     = _done,
-      on_cancel        = _cancel,
-      on_error         = _error,
+      on_scan_progress    = _progress,
+      on_scan_done        = _done,
+      on_resolve_progress = _resolve_progress,
+      on_resolve_done     = _resolve_done,
+      on_cancel           = _cancel,
+      on_error            = _error,
     )
 
     original_sigint = signal.getsignal(signal.SIGINT)
