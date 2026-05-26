@@ -3,10 +3,10 @@
 from bes.enum_util.checked_enum import checked_enum
 
 class bf_media_finder_state(checked_enum):
-  IDLE           = 'idle'
-  SCANNING       = 'scanning'
-  READY_QUICK    = 'ready_quick'
-  RESOLVING_SLOW = 'resolving_slow'
-  READY_SLOW     = 'ready_slow'
+  IDLE        = 'idle'
+  SCANNING    = 'scanning'
+  READY_QUICK = 'ready_quick'
+  RESOLVING   = 'resolving'
+  READY       = 'ready'
 
 bf_media_finder_state.register_check_class()

@@ -7,13 +7,15 @@ from bes.system.check import check
 
 @dataclasses.dataclass(frozen=True)
 class bf_media_file_entry:
-  root_dir:   str   # which scan root this file was found under
-  filename:   str   # absolute path (matches bf_entry.filename convention)
-  size:       int
-  mtime:      float
-  extension:  str
-  mime_type:  str
-  media_type: str   # 'image' | 'video' | 'other'
+  root_dir:       str   # which scan root this file was found under
+  filename:       str   # absolute path (matches bf_entry.filename convention)
+  size:           int
+  mtime:          float
+  extension:      str
+  mime_type:      str
+  media_type:     str   # 'image' | 'video' | 'other'
+  # hash=False/compare=False: dict is mutable; exclude from frozen hash/eq
+  resolved_attrs: dict = dataclasses.field(default_factory=dict, hash=False, compare=False)
 
   @property
   def relative_filename(self):

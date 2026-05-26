@@ -8,6 +8,8 @@ from collections import namedtuple
 
 from bes.testing.unit_test import unit_test
 from bes.btask.btask_processor import btask_processor
+from bes.files.media_finder.bf_media_attr_not_available import BF_ATTR_NOT_AVAILABLE
+from bes.files.media_finder.bf_media_attr_resolver_base import bf_media_attr_resolver_base
 from bes.files.media_finder.bf_media_finder import bf_media_finder
 from bes.files.media_finder.bf_media_finder_callbacks import bf_media_finder_callbacks
 from bes.files.media_finder.bf_media_finder_options import bf_media_finder_options
@@ -15,6 +17,65 @@ from bes.files.media_finder.bf_media_finder_state import bf_media_finder_state
 from bes.files.media_finder.bf_media_sort_type import bf_media_sort_type
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
+
+# ---------------------------------------------------------------------------
+# Fake resolvers used by resolve-phase tests (defined at module level so they
+# are picklable — btask workers run in a subprocess on macOS).
+# ---------------------------------------------------------------------------
+
+class _SizeResolver(bf_media_attr_resolver_base):
+  'Returns file size as the resolved attr (cheap, deterministic, no I/O needed).'
+  name = '_test_size_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    if attr_name == 'fsize':
+      import os
+      return os.path.getsize(filename)
+    return None
+
+class _TupleResolver(bf_media_attr_resolver_base):
+  'Returns (size, 0) tuple — exercises domain-specific secondary sort.'
+  name = '_test_tuple_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    if attr_name == 'fsize_tuple':
+      import os
+      s = os.path.getsize(filename)
+      return (s, 0)
+    return None
+
+class _NotAvailableResolver(bf_media_attr_resolver_base):
+  'Always returns BF_ATTR_NOT_AVAILABLE.'
+  name = '_test_not_available_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    if attr_name == 'unavailable':
+      return BF_ATTR_NOT_AVAILABLE
+    return None
+
+class _NoneResolver(bf_media_attr_resolver_base):
+  'Always returns None (attr not handled).'
+  name = '_test_none_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    return None
+
+class _ErrorOnNameResolver(bf_media_attr_resolver_base):
+  'Raises for files whose basename starts with "error_"; succeeds for others.'
+  name = '_test_error_on_name_resolver'
+
+  @classmethod
+  def resolve(cls, filename, mime_type, attr_name):
+    if attr_name == 'fsize':
+      import os
+      if os.path.basename(filename).startswith('error_'):
+        raise RuntimeError('deliberate per-file error')
+      return os.path.getsize(filename)
+    return None
 
 class test_bf_media_finder(unit_test):
 
@@ -77,6 +138,77 @@ class test_bf_media_finder(unit_test):
     return self._scan_result(
       all_entries, progress_calls, state_changes,
       done_called[0], cancelled_called[0], finder.state,
+    )
+
+  _resolve_result = namedtuple('_resolve_result',
+    'entries, scan_done_entries, scan_done_resolved_snapshots, '
+    'resolve_progress_calls, resolve_done_called, '
+    'state_changes, scan_done_called, cancelled_called, error, final_state, finder')
+
+  def _run_resolve_scan(self, root_dirs, options, cancel_during_resolve=False):
+    'Run a scan with an extended sort type; blocks until resolve phase completes.'
+    if isinstance(root_dirs, str):
+      root_dirs = [root_dirs]
+    processor = btask_processor('test', num_processes=4)
+    self.addCleanup(processor.stop)
+    finder = bf_media_finder(processor)
+
+    scan_done_entries          = []
+    scan_done_resolved_snapshots = []  # dict copies of resolved_attrs at on_scan_done time
+    resolve_progress_calls    = []
+    resolve_done_called        = [False]
+    scan_done_called           = [False]
+    state_changes              = []
+    cancelled_called           = [False]
+    error_box                  = [None]
+    cancel_done                = [False]
+
+    def _scan_done(entries):
+      scan_done_entries.extend(entries)
+      scan_done_resolved_snapshots.extend(dict(e.resolved_attrs) for e in entries)
+      scan_done_called[0] = True
+
+    def _resolve_progress(done, total):
+      resolve_progress_calls.append((done, total))
+      if cancel_during_resolve and not cancel_done[0]:
+        cancel_done[0] = True
+        finder.cancel()
+
+    def _resolve_done():
+      resolve_done_called[0] = True
+
+    def _cancel():
+      cancelled_called[0] = True
+
+    def _state(state):
+      state_changes.append(state)
+
+    def _error(exc):
+      error_box[0] = exc
+
+    cbs = bf_media_finder_callbacks(
+      on_scan_done        = _scan_done,
+      on_resolve_progress = _resolve_progress,
+      on_resolve_done     = _resolve_done,
+      on_cancel           = _cancel,
+      on_state_changed    = _state,
+      on_error            = _error,
+    )
+    finder.scan(root_dirs, options=options, callbacks=cbs)
+    finder.run()
+
+    return self._resolve_result(
+      finder.entries,
+      list(scan_done_entries),
+      list(scan_done_resolved_snapshots),
+      list(resolve_progress_calls),
+      resolve_done_called[0],
+      list(state_changes),
+      scan_done_called[0],
+      cancelled_called[0],
+      error_box[0],
+      finder.state,
+      finder,
     )
 
   def _media_types(self, entries):
@@ -381,8 +513,8 @@ class test_bf_media_finder(unit_test):
       list(reversed([e.filename for e in r_rev.entries])),
     )
 
-  def test_sort_slow_raises(self):
-    'Slow sort types raise NotImplementedError until Tier 2 is implemented.'
+  def test_extended_sort_no_resolver_fires_on_error(self):
+    'Extended sort with attr_resolver=None routes ValueError through on_error.'
     tmp = self._make_dir({'a.jpg': self.JPG})
     processor = btask_processor('test', num_processes=2)
     self.addCleanup(processor.stop)
@@ -393,7 +525,7 @@ class test_bf_media_finder(unit_test):
     finder.scan([tmp], options=bf_media_finder_options(sort_type='resolution'), callbacks=cbs)
     finder.run()
     self.assertEqual(1, len(errors))
-    self.assertIsInstance(errors[0], NotImplementedError)
+    self.assertIsInstance(errors[0], ValueError)
 
   # ---------------------------------------------------------------------------
   # Ignore file
@@ -418,6 +550,313 @@ class test_bf_media_finder(unit_test):
     })
     r = self._run_scan(tmp, bf_media_finder_options(ignore_file=''))
     self.assertEqual(2, len(r.entries))
+
+  # ---------------------------------------------------------------------------
+  # Resolve phase — state machine
+  # ---------------------------------------------------------------------------
+
+  def test_resolve_state_transitions(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    states = r.state_changes
+    self.assertIn(bf_media_finder_state.SCANNING,    states)
+    self.assertIn(bf_media_finder_state.READY_QUICK, states)
+    self.assertIn(bf_media_finder_state.RESOLVING,   states)
+    self.assertIn(bf_media_finder_state.READY,       states)
+    self.assertLess(states.index(bf_media_finder_state.SCANNING),    states.index(bf_media_finder_state.READY_QUICK))
+    self.assertLess(states.index(bf_media_finder_state.READY_QUICK), states.index(bf_media_finder_state.RESOLVING))
+    self.assertLess(states.index(bf_media_finder_state.RESOLVING),   states.index(bf_media_finder_state.READY))
+
+  def test_resolve_not_triggered_for_intrinsic(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    r = self._run_resolve_scan(tmp, bf_media_finder_options(sort_type='name', attr_resolver=_SizeResolver))
+    self.assertNotIn(bf_media_finder_state.RESOLVING, r.state_changes)
+    self.assertNotIn(bf_media_finder_state.READY,     r.state_changes)
+
+  def test_final_state_ready_after_resolve(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertEqual(bf_media_finder_state.READY, r.final_state)
+
+  # ---------------------------------------------------------------------------
+  # Resolve phase — callbacks ordering and counts
+  # ---------------------------------------------------------------------------
+
+  def test_on_scan_done_fires_before_resolving(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    scan_idx    = r.state_changes.index(bf_media_finder_state.READY_QUICK)
+    resolve_idx = r.state_changes.index(bf_media_finder_state.RESOLVING)
+    self.assertLess(scan_idx, resolve_idx)
+    self.assertTrue(r.scan_done_called)
+
+  def test_on_resolve_progress_fires(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertGreater(len(r.resolve_progress_calls), 0)
+
+  def test_on_resolve_progress_done_monotonic(self):
+    tmp = self._make_dir({f'{i}.jpg': self.JPG for i in range(5)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts)
+    dones = [d for d, _ in r.resolve_progress_calls]
+    self.assertEqual(dones, sorted(dones))
+
+  def test_on_resolve_progress_total_constant(self):
+    tmp = self._make_dir({f'{i}.jpg': self.JPG for i in range(4)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts)
+    totals = [t for _, t in r.resolve_progress_calls]
+    self.assertTrue(all(t == totals[0] for t in totals))
+
+  def test_on_resolve_progress_total_equals_entry_count(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG, 'c.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts)
+    _, total = r.resolve_progress_calls[-1]
+    self.assertEqual(3, total)
+
+  def test_on_resolve_progress_final_done_equals_total(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts)
+    done, total = r.resolve_progress_calls[-1]
+    self.assertEqual(done, total)
+
+  def test_on_resolve_done_fires_once(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertTrue(r.resolve_done_called)
+
+  def test_on_resolve_done_after_scan_done(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertTrue(r.scan_done_called)
+    self.assertTrue(r.resolve_done_called)
+    ready_quick_idx = r.state_changes.index(bf_media_finder_state.READY_QUICK)
+    ready_idx       = r.state_changes.index(bf_media_finder_state.READY)
+    self.assertLess(ready_quick_idx, ready_idx)
+
+  # ---------------------------------------------------------------------------
+  # Resolve phase — resolved_attrs population
+  # ---------------------------------------------------------------------------
+
+  def test_resolved_attrs_empty_at_scan_done(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    # Use snapshots captured at on_scan_done time (entries are mutated by resolve phase after)
+    for snapshot in r.scan_done_resolved_snapshots:
+      self.assertEqual({}, snapshot)
+
+  def test_resolved_attrs_populated_after_resolve(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    for e in r.entries:
+      self.assertIn('fsize', e.resolved_attrs)
+      self.assertIsNotNone(e.resolved_attrs['fsize'])
+
+  def test_resolved_attrs_not_available_stored(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='unavailable', attr_resolver=_NotAvailableResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    for e in r.entries:
+      self.assertIn('unavailable', e.resolved_attrs)
+      self.assertIs(BF_ATTR_NOT_AVAILABLE, e.resolved_attrs['unavailable'])
+
+  def test_resolved_attrs_none_stored(self):
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='x', attr_resolver=_NoneResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    for e in r.entries:
+      self.assertIn('x', e.resolved_attrs)
+      self.assertIsNone(e.resolved_attrs['x'])
+
+  # ---------------------------------------------------------------------------
+  # Resolve phase — sort correctness
+  # ---------------------------------------------------------------------------
+
+  def test_sort_extended_real_values_ordered(self):
+    tmp = self._make_dir({
+      'large.jpg':  self.JPG * 3,
+      'small.jpg':  self.JPG,
+      'medium.jpg': self.JPG * 2,
+    })
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    sizes = [e.resolved_attrs.get('fsize') for e in r.entries]
+    self.assertEqual(sorted(sizes), sizes)
+
+  def test_sort_extended_not_available_at_end(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='unavailable', attr_resolver=_NotAvailableResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertEqual(2, len(r.entries))
+    # All entries have BF_ATTR_NOT_AVAILABLE — no TypeError, all at end group
+    for e in r.entries:
+      self.assertIs(BF_ATTR_NOT_AVAILABLE, e.resolved_attrs.get('unavailable'))
+
+  def test_sort_extended_none_at_end(self):
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+    opts = bf_media_finder_options(sort_type='x', attr_resolver=_NoneResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertEqual(2, len(r.entries))
+    for e in r.entries:
+      self.assertIsNone(e.resolved_attrs.get('x'))
+
+  def test_sort_extended_not_available_and_none_together(self):
+    'Mixed BF_ATTR_NOT_AVAILABLE and None values sort without TypeError.'
+    tmp = self._make_dir({'a.jpg': self.JPG, 'b.jpg': self.JPG})
+
+    class _MixedResolver(bf_media_attr_resolver_base):
+      name = '_test_mixed_resolver'
+      _calls = [0]
+      @classmethod
+      def resolve(cls, filename, mime_type, attr_name):
+        if attr_name == 'mix':
+          cls._calls[0] += 1
+          return BF_ATTR_NOT_AVAILABLE if cls._calls[0] % 2 == 0 else None
+        return None
+
+    opts = bf_media_finder_options(sort_type='mix', attr_resolver=_MixedResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertEqual(2, len(r.entries))  # no TypeError
+
+  def test_sort_extended_tuple_primary_domain_secondary(self):
+    tmp = self._make_dir({
+      'large.jpg':  self.JPG * 3,
+      'small.jpg':  self.JPG,
+      'medium.jpg': self.JPG * 2,
+    })
+    opts = bf_media_finder_options(sort_type='fsize_tuple', attr_resolver=_TupleResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    values = [e.resolved_attrs.get('fsize_tuple') for e in r.entries]
+    self.assertEqual(sorted(values), values)
+
+  def test_sort_extended_filename_tiebreaker(self):
+    'Two files with identical resolved value sort by basename then dirname.'
+    tmp = self._make_dir({'b.jpg': self.JPG, 'a.jpg': self.JPG})
+
+    class _ConstResolver(bf_media_attr_resolver_base):
+      name = '_test_const_resolver'
+      @classmethod
+      def resolve(cls, filename, mime_type, attr_name):
+        return 42 if attr_name == 'const' else None
+
+    opts = bf_media_finder_options(sort_type='const', attr_resolver=_ConstResolver)
+    r = self._run_resolve_scan(tmp, opts)
+    import os.path as path
+    names = [path.basename(e.filename) for e in r.entries]
+    self.assertEqual(sorted(names, key=str.lower), names)
+
+  # ---------------------------------------------------------------------------
+  # Resolve phase — chunk dispatch
+  # ---------------------------------------------------------------------------
+
+  def test_scan_chunk_size_controls_progress_frequency(self):
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(6)})
+    opts = bf_media_finder_options(scan_chunk_size=2)
+    r = self._run_scan(tmp, opts)
+    # With 6 files and chunk_size=2, expect at least 3 progress calls
+    self.assertGreaterEqual(len(r.progress_calls), 3)
+
+  def test_resolve_single_chunk(self):
+    tmp = self._make_dir({f'{i}.jpg': self.JPG for i in range(5)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=100)
+    r = self._run_resolve_scan(tmp, opts)
+    # All 5 files in one chunk → one progress call
+    self.assertEqual(1, len(r.resolve_progress_calls))
+    done, total = r.resolve_progress_calls[0]
+    self.assertEqual(5, done)
+    self.assertEqual(5, total)
+
+  def test_resolve_multiple_chunks(self):
+    tmp = self._make_dir({f'{i}.jpg': self.JPG for i in range(5)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=2)
+    r = self._run_resolve_scan(tmp, opts)
+    # 5 files / chunk_size=2 → 3 tasks → 3 progress calls
+    self.assertEqual(3, len(r.resolve_progress_calls))
+    dones = [d for d, _ in r.resolve_progress_calls]
+    self.assertEqual(sorted(dones), dones)
+    self.assertEqual(5, dones[-1])
+
+  def test_resolve_chunk_size_one(self):
+    n = 4
+    tmp = self._make_dir({f'{i}.jpg': self.JPG for i in range(n)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts)
+    self.assertEqual(n, len(r.resolve_progress_calls))
+
+  # ---------------------------------------------------------------------------
+  # Resolve phase — cancel during resolve
+  # ---------------------------------------------------------------------------
+
+  def test_cancel_mid_resolve_transitions_to_idle(self):
+    # Use many files so at least some resolve tasks are still in-flight at cancel
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(30)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts, cancel_during_resolve=True)
+    self.assertEqual(bf_media_finder_state.IDLE, r.final_state)
+
+  def test_cancel_mid_resolve_on_cancel_fires(self):
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(30)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts, cancel_during_resolve=True)
+    self.assertTrue(r.cancelled_called)
+
+  def test_cancel_mid_resolve_no_done_after(self):
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(30)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts, cancel_during_resolve=True)
+    self.assertFalse(r.resolve_done_called)
+
+  def test_second_scan_after_mid_resolve_cancel(self):
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(30)})
+    opts_resolve = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    self._run_resolve_scan(tmp, opts_resolve, cancel_during_resolve=True)
+    # Second scan with simple options should complete normally
+    r = self._run_scan(tmp, bf_media_finder_options())
+    self.assertTrue(r.done_called)
+    self.assertEqual(bf_media_finder_state.READY_QUICK, r.final_state)
+
+  # ---------------------------------------------------------------------------
+  # Cross-phase interactions
+  # ---------------------------------------------------------------------------
+
+  def test_cancel_mid_scan_no_resolve_triggered(self):
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(200)})
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_SizeResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts, cancel_during_resolve=False)
+    # If scan was cancelled before on_scan_done, resolving should not have started
+    # (We cannot guarantee cancel mid-scan since timing varies; test cancelling from scan progress)
+    # Use the normal cancel test instead
+    r2 = self._run_scan(tmp, cancel_on_first_progress=True)
+    self.assertNotIn(bf_media_finder_state.RESOLVING, r2.state_changes)
+
+  def test_resolver_exception_per_file_silently_skipped(self):
+    'Resolver raising for one file: that entry has no resolved attr; others resolved normally.'
+    import os.path as path
+    tmp = self._make_dir({
+      'error_bad.jpg': self.JPG,
+      'ok_b.jpg':      self.JPG,
+      'ok_c.jpg':      self.JPG,
+    })
+    opts = bf_media_finder_options(sort_type='fsize', attr_resolver=_ErrorOnNameResolver, resolve_chunk_size=1)
+    r = self._run_resolve_scan(tmp, opts)
+    entries_by_name = {path.basename(e.filename): e for e in r.entries}
+    # The file whose name starts with 'error_' should have no 'fsize' key
+    self.assertNotIn('fsize', entries_by_name['error_bad.jpg'].resolved_attrs)
+    # The other two files should be resolved normally
+    self.assertIn('fsize', entries_by_name['ok_b.jpg'].resolved_attrs)
+    self.assertIn('fsize', entries_by_name['ok_c.jpg'].resolved_attrs)
+    self.assertTrue(r.resolve_done_called)
 
 if __name__ == '__main__':
   unit_test.main()

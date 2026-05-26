@@ -29,6 +29,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Run a single test**: `./t tests/lib/bes/files/test_bf_entry.py -k test_absolute_filename_only`
 - **Run tests in parallel**: `./t -n auto`
 
+**Always use `./t` to run unit tests, never `./r`.** `./t` invokes pytest with the correct setup. `./r` is only for running application scripts.
+
 ## PYTHONPATH / Dependencies
 
 The `./r` script sets up `PYTHONPATH` to include sibling project `lib/` directories (`bes`, `bav`, `bnet`) alongside this project's `lib/`. All runs must go through `./r` to have the correct path. Python 3.12 is required (`env/python.version`).

@@ -53,11 +53,16 @@ class _bf_media_finder_options_desc(bcli_options_desc):
   #@abstractmethod
   def _options_desc(self):
     return '''
-   media_types  bf_media_type  default=all
-     sort_type  bf_media_sort_type  default=found_order
- sort_reversed  bool  default=False
-   ignore_file  str  default=.bes_ignore
- case_sensitive bool  default=False
+         media_types  bf_media_type  default=all
+           sort_type  bf_media_sort_type  default=found_order
+       sort_reversed  bool  default=False
+         ignore_file  str  default=.bes_ignore
+      case_sensitive  bool  default=False
+       attr_resolver  type
+    num_scan_workers  int  default=2
+     scan_chunk_size  int  default=50
+ num_resolve_workers  int  default=2
+   resolve_chunk_size int  default=10
 '''
 
   #@abstractmethod
@@ -68,5 +73,15 @@ class _bf_media_finder_options_desc(bcli_options_desc):
 class bf_media_finder_options(bcli_options):
   def __init__(self, **kwargs):
     super().__init__(_bf_media_finder_options_desc(), **kwargs)
+
+  def __setattr__(self, name, value):
+    if name == 'sort_type' and isinstance(value, str):
+      try:
+        value = bf_media_sort_type.parse(value.strip().lower())
+      except ValueError:
+        # Extended sort type — store directly, bypassing framework type check
+        object.__getattribute__(self, '_options')[name] = value
+        return
+    super().__setattr__(name, value)
 
 bf_media_finder_options.register_check_class()

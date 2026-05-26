@@ -15,29 +15,28 @@ class test_bf_media_sort_type(unit_test):
   def test_parse_case_insensitive(self):
     self.assertEqual(bf_media_sort_type.NAME, bf_media_sort_type.parse('NAME'))
 
-  def test_fast_types_not_slow(self):
-    fast = [
+  def test_all_intrinsic_values(self):
+    members = set(bf_media_sort_type)
+    expected = {
       bf_media_sort_type.FOUND_ORDER,
       bf_media_sort_type.NAME,
       bf_media_sort_type.PATH,
       bf_media_sort_type.DATE,
       bf_media_sort_type.SIZE,
       bf_media_sort_type.KIND,
-    ]
-    for t in fast:
-      self.assertFalse(t.is_slow, f'{t} should not be slow')
+    }
+    self.assertEqual(expected, members)
 
-  def test_slow_types_are_slow(self):
-    slow = [
-      bf_media_sort_type.RESOLUTION,
-      bf_media_sort_type.WIDTH,
-      bf_media_sort_type.HEIGHT,
-      bf_media_sort_type.ASPECT_RATIO,
-      bf_media_sort_type.DURATION,
-      bf_media_sort_type.AVERAGE_HASH,
-    ]
-    for t in slow:
-      self.assertTrue(t.is_slow, f'{t} should be slow')
+  def test_intrinsic_isinstance(self):
+    for v in bf_media_sort_type:
+      self.assertIsInstance(v, bf_media_sort_type)
+
+  def test_string_not_isinstance(self):
+    self.assertNotIsInstance('resolution', bf_media_sort_type)
+
+  def test_extended_string_not_parseable(self):
+    with self.assertRaises(ValueError):
+      bf_media_sort_type('resolution')
 
   def test_parse_invalid(self):
     with self.assertRaises(ValueError):

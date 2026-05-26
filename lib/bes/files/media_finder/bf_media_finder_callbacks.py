@@ -5,8 +5,10 @@ import typing
 
 @dataclasses.dataclass
 class bf_media_finder_callbacks:
-  on_scan_progress: typing.Callable = None  # (found: int, scanned: int)
-  on_scan_done:     typing.Callable = None  # (entries: list[bf_media_file_entry])
-  on_cancel:        typing.Callable = None  # ()
-  on_state_changed: typing.Callable = None  # (state: bf_media_finder_state)
-  on_error:         typing.Callable = None  # (exc: Exception)
+  on_scan_progress:    typing.Callable = None  # (found: int, scanned: int)
+  on_scan_done:        typing.Callable = None  # (entries: list[bf_media_file_entry])
+  on_resolve_progress: typing.Callable = None  # (done: int, total: int)
+  on_resolve_done:     typing.Callable = None  # ()
+  on_cancel:           typing.Callable = None  # ()
+  on_state_changed:    typing.Callable = None  # (state: bf_media_finder_state)
+  on_error:            typing.Callable = None  # (exc: Exception)

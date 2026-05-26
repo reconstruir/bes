@@ -24,7 +24,7 @@ class bf_media_find_command_handler(bcli_command_handler):
     check.check_bf_media_find_cli_options(options)
 
     processor = btask_processor('media_find', num_processes=4)
-    finder = bf_media_finder(processor, num_scan_workers=2)
+    finder = bf_media_finder(processor)
 
     all_entries = []
     start = time.monotonic()

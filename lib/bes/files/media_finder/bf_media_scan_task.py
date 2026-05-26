@@ -13,8 +13,6 @@ from .bf_media_scan_status import bf_media_scan_status
 
 _log = logger('bf_media_scan')
 
-_BATCH_SIZE = 50
-
 # mime type prefix → media_type string
 _MIME_PREFIX_TO_MEDIA_TYPE = {
   'image/': 'image',
@@ -31,8 +29,9 @@ def _media_type_from_mime(mime_type):
 
 def bf_media_scan_task(context, args):
   root_dirs       = args['root_dirs']
-  media_types     = args['media_types']          # frozenset of 'image'/'video'
-  ignore_filename = args.get('ignore_filename')  # str | None
+  media_types     = args['media_types']           # frozenset of 'image'/'video'
+  ignore_filename = args.get('ignore_filename')   # str | None
+  chunk_size      = args.get('chunk_size', 50)    # from options.scan_chunk_size
 
   scanner_kwargs = {}
   if ignore_filename:
@@ -102,7 +101,7 @@ def bf_media_scan_task(context, args):
       media_type = media_type,
     ))
 
-    if len(batch) >= _BATCH_SIZE:
+    if len(batch) >= chunk_size:
       context.report_status(bf_media_scan_status(entries=batch[:], found=found, scanned=scanned))
       batch.clear()
 

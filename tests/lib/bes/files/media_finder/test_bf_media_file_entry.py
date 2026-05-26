@@ -61,5 +61,20 @@ class test_bf_media_file_entry(unit_test):
     e2 = self._make_entry(filename='/media/b.jpg')
     self.assertNotEqual(e1, e2)
 
+  def test_resolved_attrs_default_empty(self):
+    e = self._make_entry()
+    self.assertEqual({}, e.resolved_attrs)
+
+  def test_resolved_attrs_mutable(self):
+    e = self._make_entry()
+    e.resolved_attrs['width'] = 1920
+    self.assertEqual(1920, e.resolved_attrs['width'])
+
+  def test_resolved_attrs_field_frozen(self):
+    import dataclasses
+    e = self._make_entry()
+    with self.assertRaises((AttributeError, dataclasses.FrozenInstanceError, TypeError)):
+      e.resolved_attrs = {}
+
 if __name__ == '__main__':
   unit_test.main()
