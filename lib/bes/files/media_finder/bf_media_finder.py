@@ -24,11 +24,11 @@ class bf_media_finder(object):
 
   _log = logger('bf_media_finder')
 
-  def __init__(self, processor):
+  def __init__(self, processor, runner=None):
     check.check_btask_processor(processor)
 
     self._processor = processor
-    self._runner = btask_main_thread_runner_py()
+    self._runner = runner if runner is not None else btask_main_thread_runner_py()
     self._collector = btask_result_collector_py(processor, self._runner)
     self._state = bf_media_finder_state.IDLE
     self._lock = threading.Lock()
@@ -121,6 +121,10 @@ class bf_media_finder(object):
     self._runner.main_loop_start()
     self._collector.stop()
 
+  def stop(self):
+    'Stop the background result collector. Required when run() is never called (e.g., Qt mode).'
+    self._collector.stop()
+
   # ---------------------------------------------------------------------------
   # Internal — scan phase
   # ---------------------------------------------------------------------------
@@ -133,6 +137,8 @@ class bf_media_finder(object):
         return
       self._entries.extend(status.entries)
     cbs = self._callbacks
+    if cbs and cbs.on_scan_batch:
+      cbs.on_scan_batch(list(status.entries))
     if cbs and cbs.on_scan_progress:
       cbs.on_scan_progress(status.found, status.scanned)
 

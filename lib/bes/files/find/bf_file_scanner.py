@@ -145,6 +145,12 @@ class bf_file_scanner(object):
       return False
     if not self._options.include_resource_forks and bf_mime.is_apple_resource_fork(entry.filename):
       return False
+    if not self._options.include_empty_files:
+      try:
+        if entry.is_file and entry.stat.st_size == 0:
+          return False
+      except OSError:
+        pass
     return True
 
   def _should_ignore_entry(self, entry, root_dir):

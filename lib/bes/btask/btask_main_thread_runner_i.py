@@ -10,4 +10,10 @@ class btask_main_thread_runner_i(object, metaclass = ABCMeta):
   def call_in_main_thread(self, function, *args, **kwargs):
     raise NotImplementedError('call_in_main_thread')
 
+  def main_loop_start(self):
+    pass
+
+  def main_loop_stop(self):
+    pass
+
 check.register_class(btask_main_thread_runner_i, name = 'btask_main_thread_runner', include_seq = False)

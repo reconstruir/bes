@@ -887,5 +887,87 @@ class test_bf_media_finder(unit_test):
     self.assertIn('fsize', entries_by_name['ok_c.jpg'].resolved_features)
     self.assertTrue(r.resolve_done_called)
 
+  # ---------------------------------------------------------------------------
+  # on_scan_batch
+  # ---------------------------------------------------------------------------
+
+  def test_on_scan_batch_fires(self):
+    'on_scan_batch is called at least once during a scan.'
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(10)})
+    processor = btask_processor('test', num_processes=4)
+    self.addCleanup(processor.stop)
+    finder = bf_media_finder(processor)
+    batch_calls = []
+    cbs = bf_media_finder_callbacks(on_scan_batch=lambda entries: batch_calls.append(entries))
+    finder.scan([tmp], callbacks=cbs)
+    finder.run()
+    self.assertGreater(len(batch_calls), 0)
+
+  def test_on_scan_batch_entries_non_empty(self):
+    'Every on_scan_batch call receives a non-empty list.'
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(10)})
+    processor = btask_processor('test', num_processes=4)
+    self.addCleanup(processor.stop)
+    finder = bf_media_finder(processor)
+    batch_calls = []
+    cbs = bf_media_finder_callbacks(on_scan_batch=lambda entries: batch_calls.append(entries))
+    finder.scan([tmp], callbacks=cbs)
+    finder.run()
+    for batch in batch_calls:
+      self.assertGreater(len(batch), 0)
+
+  def test_on_scan_batch_cumulative_equals_scan_done(self):
+    'Union of all on_scan_batch entries equals the entries from on_scan_done.'
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(15)})
+    processor = btask_processor('test', num_processes=4)
+    self.addCleanup(processor.stop)
+    finder = bf_media_finder(processor)
+    batch_filenames = []
+    done_filenames = []
+    cbs = bf_media_finder_callbacks(
+      on_scan_batch = lambda entries: batch_filenames.extend(e.filename for e in entries),
+      on_scan_done  = lambda entries: done_filenames.extend(e.filename for e in entries),
+    )
+    finder.scan([tmp], callbacks=cbs)
+    finder.run()
+    self.assertEqual(sorted(batch_filenames), sorted(done_filenames))
+
+  def test_on_scan_batch_chunk_size_controls_frequency(self):
+    'Smaller scan_chunk_size produces more on_scan_batch calls.'
+    tmp = self._make_dir({f'{i:03d}.jpg': self.JPG for i in range(20)})
+
+    def _count_batches(chunk_size):
+      processor = btask_processor('test', num_processes=1)
+      self.addCleanup(processor.stop)
+      finder = bf_media_finder(processor)
+      count = [0]
+      cbs = bf_media_finder_callbacks(on_scan_batch=lambda entries: count.__setitem__(0, count[0]+1))
+      opts = bf_media_finder_options(scan_chunk_size=chunk_size)
+      finder.scan([tmp], options=opts, callbacks=cbs)
+      finder.run()
+      return count[0]
+
+    small_count = _count_batches(2)
+    large_count = _count_batches(20)
+    self.assertGreater(small_count, large_count)
+
+  # ---------------------------------------------------------------------------
+  # Runner injection
+  # ---------------------------------------------------------------------------
+
+  def test_runner_injection(self):
+    'A custom runner passed to bf_media_finder is used for main-thread delivery.'
+    from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
+    tmp = self._make_dir({'a.jpg': self.JPG})
+    processor = btask_processor('test', num_processes=4)
+    self.addCleanup(processor.stop)
+    runner = btask_main_thread_runner_py()
+    finder = bf_media_finder(processor, runner=runner)
+    done_entries = []
+    cbs = bf_media_finder_callbacks(on_scan_done=lambda entries: done_entries.extend(entries))
+    finder.scan([tmp], callbacks=cbs)
+    finder.run()
+    self.assertEqual(1, len(done_entries))
+
 if __name__ == '__main__':
   unit_test.main()

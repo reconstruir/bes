@@ -53,7 +53,6 @@ class test_bf_file_scanner(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
-      'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
@@ -69,7 +68,6 @@ class test_bf_file_scanner(unit_test):
     ]
     rv = self._scan(content)
     expected_relative = [
-      'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
@@ -86,7 +84,6 @@ class test_bf_file_scanner(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
-      'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
@@ -106,19 +103,39 @@ class test_bf_file_scanner(unit_test):
       'subdir/subberdir',
     ], self._scan(content, file_type = 'dir').sorted_relative_filenames )
 
+  def test_include_empty_files_false_is_default(self):
+    content = [
+      'file foo.txt "foo.txt\n"',
+      'file empty.txt',
+    ]
+    self.assert_filename_list_equal(
+      ['foo.txt'],
+      self._scan(content).sorted_relative_filenames,
+    )
+
+  def test_include_empty_files_true(self):
+    content = [
+      'file foo.txt "foo.txt\n"',
+      'file empty.txt',
+    ]
+    self.assert_filename_list_equal(
+      ['empty.txt', 'foo.txt'],
+      self._scan(content, include_empty_files=True).sorted_relative_filenames,
+    )
+
   def test_scan_with_max_depth(self):
     self.maxDiff = None
     content = [
-      'file 1a.f',
-      'file 1b.f',
-      'file 1.d/2a.f',
-      'file 1.d/2b.f',
-      'file 1.d/2.d/3a.f',
-      'file 1.d/2.d/3b.f',
-      'file 1.d/2.d/3.d/4a.f',
-      'file 1.d/2.d/3.d/4b.f',
-      'file 1.d/2.d/3.d/4.d/5a.f',
-      'file 1.d/2.d/3.d/4.d/5b.f',
+      'file 1a.f "x"',
+      'file 1b.f "x"',
+      'file 1.d/2a.f "x"',
+      'file 1.d/2b.f "x"',
+      'file 1.d/2.d/3a.f "x"',
+      'file 1.d/2.d/3b.f "x"',
+      'file 1.d/2.d/3.d/4a.f "x"',
+      'file 1.d/2.d/3.d/4b.f "x"',
+      'file 1.d/2.d/3.d/4.d/5a.f "x"',
+      'file 1.d/2.d/3.d/4.d/5b.f "x"',
     ]
 
     self.assert_filename_list_equal( sorted([
@@ -165,16 +182,16 @@ class test_bf_file_scanner(unit_test):
   def test_scan_with_min_depth(self):
     self.maxDiff = None
     content = [
-      'file 1a.f',
-      'file 1b.f',
-      'file 1.d/2a.f',
-      'file 1.d/2b.f',
-      'file 1.d/2.d/3a.f',
-      'file 1.d/2.d/3b.f',
-      'file 1.d/2.d/3.d/4a.f',
-      'file 1.d/2.d/3.d/4b.f',
-      'file 1.d/2.d/3.d/4.d/5a.f',
-      'file 1.d/2.d/3.d/4.d/5b.f',
+      'file 1a.f "x"',
+      'file 1b.f "x"',
+      'file 1.d/2a.f "x"',
+      'file 1.d/2b.f "x"',
+      'file 1.d/2.d/3a.f "x"',
+      'file 1.d/2.d/3b.f "x"',
+      'file 1.d/2.d/3.d/4a.f "x"',
+      'file 1.d/2.d/3.d/4b.f "x"',
+      'file 1.d/2.d/3.d/4.d/5a.f "x"',
+      'file 1.d/2.d/3.d/4.d/5b.f "x"',
     ]
 
     self.assert_filename_list_equal( sorted([
@@ -222,16 +239,16 @@ class test_bf_file_scanner(unit_test):
   def test_scan_with_min_and_max_depth(self):
     self.maxDiff = None
     content = [
-      'file 1a.f',
-      'file 1b.f',
-      'file 1.d/2a.f',
-      'file 1.d/2b.f',
-      'file 1.d/2.d/3a.f',
-      'file 1.d/2.d/3b.f',
-      'file 1.d/2.d/3.d/4a.f',
-      'file 1.d/2.d/3.d/4b.f',
-      'file 1.d/2.d/3.d/4.d/5a.f',
-      'file 1.d/2.d/3.d/4.d/5b.f',
+      'file 1a.f "x"',
+      'file 1b.f "x"',
+      'file 1.d/2a.f "x"',
+      'file 1.d/2b.f "x"',
+      'file 1.d/2.d/3a.f "x"',
+      'file 1.d/2.d/3b.f "x"',
+      'file 1.d/2.d/3.d/4a.f "x"',
+      'file 1.d/2.d/3.d/4b.f "x"',
+      'file 1.d/2.d/3.d/4.d/5a.f "x"',
+      'file 1.d/2.d/3.d/4.d/5b.f "x"',
     ]
 
     self.assert_filename_list_equal( sorted([
@@ -258,11 +275,11 @@ class test_bf_file_scanner(unit_test):
   @unit_test_function_skip.skip_if_not_unix()
   def test_scan_with_broken_symlink(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
+      'file fruit/strawberry.fruit "x"',
+      'file fruit/blueberry.fruit "x"',
+      'file cheese/brie.cheese "x"',
       'link cheese/cheddar.cheese "/foo/notthere"',
     ]
     self.assert_filename_list_equal( [
@@ -276,11 +293,11 @@ class test_bf_file_scanner(unit_test):
   @unit_test_function_skip.skip_if_not_unix()
   def test_scan_with_broken_symlink_without_ignore_broken_links(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
+      'file fruit/strawberry.fruit "x"',
+      'file fruit/blueberry.fruit "x"',
+      'file cheese/brie.cheese "x"',
       'link cheese/cheddar.cheese "/foo/notthere"',
     ]
     self.assert_filename_list_equal( [
@@ -295,11 +312,11 @@ class test_bf_file_scanner(unit_test):
   @unit_test_function_skip.skip_if_not_unix()
   def test_scan_with_broken_symlink_with_ignore_broken_links(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
+      'file fruit/strawberry.fruit "x"',
+      'file fruit/blueberry.fruit "x"',
+      'file cheese/brie.cheese "x"',
       'link cheese/cheddar.cheese "/foo/notthere"',
     ]
     self.assert_filename_list_equal( [
@@ -312,9 +329,9 @@ class test_bf_file_scanner(unit_test):
     
   def test_scan_with_stop_after(self):
     content = [
-      'file a/kiwi.txt',
-      'file b/kiwi.txt',
-      'file c/kiwi.txt',
+      'file a/kiwi.txt "x"',
+      'file b/kiwi.txt "x"',
+      'file c/kiwi.txt "x"',
     ]
     self.assert_filename_list_equal( [
       'a/kiwi.txt',
@@ -322,24 +339,24 @@ class test_bf_file_scanner(unit_test):
 
   def test_scan_with_multiple_dirs(self):
     content = [
-      'file 1/a/fruit/kiwi.fruit',
-      'file 1/a/fruit/lemon.fruit',
-      'file 1/a/fruit/strawberry.fruit',
-      'file 1/a/fruit/blueberry.fruit',
-      'file 1/a/cheese/brie.cheese',
-      'file 1/a/cheese/cheddar.cheese',
-      'file 2/b/fruit/kiwi.fruit',
-      'file 2/b/fruit/lemon.fruit',
-      'file 2/b/fruit/strawberry.fruit',
-      'file 2/b/fruit/blueberry.fruit',
-      'file 2/b/cheese/brie.cheese',
-      'file 2/b/cheese/cheddar.cheese',
-      'file 3/c/fruit/kiwi.fruit',
-      'file 3/c/fruit/lemon.fruit',
-      'file 3/c/fruit/strawberry.fruit',
-      'file 3/c/fruit/blueberry.fruit',
-      'file 3/c/cheese/brie.cheese',
-      'file 3/c/cheese/cheddar.cheese',
+      'file 1/a/fruit/kiwi.fruit "x"',
+      'file 1/a/fruit/lemon.fruit "x"',
+      'file 1/a/fruit/strawberry.fruit "x"',
+      'file 1/a/fruit/blueberry.fruit "x"',
+      'file 1/a/cheese/brie.cheese "x"',
+      'file 1/a/cheese/cheddar.cheese "x"',
+      'file 2/b/fruit/kiwi.fruit "x"',
+      'file 2/b/fruit/lemon.fruit "x"',
+      'file 2/b/fruit/strawberry.fruit "x"',
+      'file 2/b/fruit/blueberry.fruit "x"',
+      'file 2/b/cheese/brie.cheese "x"',
+      'file 2/b/cheese/cheddar.cheese "x"',
+      'file 3/c/fruit/kiwi.fruit "x"',
+      'file 3/c/fruit/lemon.fruit "x"',
+      'file 3/c/fruit/strawberry.fruit "x"',
+      'file 3/c/fruit/blueberry.fruit "x"',
+      'file 3/c/cheese/brie.cheese "x"',
+      'file 3/c/cheese/cheddar.cheese "x"',
     ]
     tmp_dir = self._make_temp_content(content)
     f = bf_file_scanner()
@@ -472,12 +489,12 @@ class test_bf_file_scanner(unit_test):
 
   def test_scan_with_ignore_filename_basic(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
-      'file cheese/cheddar.cheese',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
+      'file fruit/strawberry.fruit "x"',
+      'file fruit/blueberry.fruit "x"',
+      'file cheese/brie.cheese "x"',
+      'file cheese/cheddar.cheese "x"',
       'file cheese/.testing_test_ignore "cheddar.cheese\n" 644',
     ]
     self.assert_filename_list_equal( [
@@ -490,12 +507,12 @@ class test_bf_file_scanner(unit_test):
 
   def test_scan_with_ignore_filename_one_level_up(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
-      'file fruit/strawberry.fruit',
-      'file fruit/blueberry.fruit',
-      'file cheese/brie.cheese',
-      'file cheese/cheddar.cheese',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
+      'file fruit/strawberry.fruit "x"',
+      'file fruit/blueberry.fruit "x"',
+      'file cheese/brie.cheese "x"',
+      'file cheese/cheddar.cheese "x"',
       'file .testing_test_ignore "cheddar.cheese\n" 644',
     ]
     self.assert_filename_list_equal( [
@@ -508,8 +525,8 @@ class test_bf_file_scanner(unit_test):
     
   def test_scan_with_resource_forks(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
       'resource_fork fruit/._lemon.fruit',
     ]
     tmp_dir = self._make_temp_content(content)
@@ -522,8 +539,8 @@ class test_bf_file_scanner(unit_test):
     
   def test_scan_without_resource_forks(self):
     content = [
-      'file fruit/kiwi.fruit',
-      'file fruit/lemon.fruit',
+      'file fruit/kiwi.fruit "x"',
+      'file fruit/lemon.fruit "x"',
       'resource_fork fruit/._lemon.fruit',
     ]
     tmp_dir = self._make_temp_content(content)
