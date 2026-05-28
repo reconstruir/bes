@@ -20,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **No abbreviations in identifiers or filenames.** Spell words out in full: `musicbrainz` not `mb`, `accurate_rip` not `ar`, `command` not `cmd`, `directory` not `dir` in names (though `dir` is fine in local variables). Apply this to module names, class names, and function names.
 - **Never create `__init__.py` files.** This project does not use them.
 - **Classmethods use `clazz` not `cls`** as the first parameter name.
+- **Filename/extension operations**: Always use `bf_filename` (`bes.files.bf_filename`) for any filename or extension check or manipulation — `bf_filename.extension()`, `bf_filename.has_extension()`, `bf_filename.has_any_extension()`, etc. Never use raw `os.path.splitext`, `str.endswith`, or manual string slicing for extension work.
 
 ## Commands
 

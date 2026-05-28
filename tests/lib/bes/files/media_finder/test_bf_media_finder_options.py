@@ -36,6 +36,10 @@ class test_bf_media_finder_options(unit_test):
     o = bf_media_finder_options(media_types='video')
     self.assertEqual(frozenset(['video']), o.media_types)
 
+  def test_media_types_audio(self):
+    o = bf_media_finder_options(media_types='audio')
+    self.assertEqual(frozenset(['audio']), o.media_types)
+
   def test_media_types_all(self):
     o = bf_media_finder_options(media_types='all')
     self.assertEqual(frozenset(['image', 'video']), o.media_types)

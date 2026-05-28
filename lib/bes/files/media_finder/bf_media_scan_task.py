@@ -3,8 +3,10 @@
 import os.path as path
 import time
 
+from bes.files.bf_filename import bf_filename
 from bes.files.find.bf_file_scanner import bf_file_scanner
 from bes.files.find.bf_file_scanner_options import bf_file_scanner_options
+from bes.files.mime.bf_mime import bf_mime
 from bes.files.mime.bf_mime_type_detector import bf_mime_type_detector
 from bes.system.log import logger, log as _log_class
 
@@ -13,25 +15,12 @@ from .bf_media_scan_status import bf_media_scan_status
 
 _log = logger('bf_media_scan')
 
-# mime type prefix → media_type string
-_MIME_PREFIX_TO_MEDIA_TYPE = {
-  'image/': 'image',
-  'video/': 'video',
-}
-
-def _media_type_from_mime(mime_type):
-  if not mime_type:
-    return 'other'
-  for prefix, media_type in _MIME_PREFIX_TO_MEDIA_TYPE.items():
-    if mime_type.startswith(prefix):
-      return media_type
-  return 'other'
-
 def bf_media_scan_task(context, args):
-  root_dirs       = args['root_dirs']
-  media_types     = args['media_types']           # frozenset of 'image'/'video'
-  ignore_filename = args.get('ignore_filename')   # str | None
-  chunk_size      = args.get('chunk_size', 50)    # from options.scan_chunk_size
+  root_dirs         = args['root_dirs']
+  media_types       = args['media_types']             # frozenset of 'image', 'video', 'audio'
+  ignore_filename   = args.get('ignore_filename')     # str | None
+  chunk_size        = args.get('chunk_size', 50)      # from options.scan_chunk_size
+  ignore_extensions = args.get('ignore_extensions') or frozenset()
 
   scanner_kwargs = {}
   if ignore_filename:
@@ -53,15 +42,11 @@ def bf_media_scan_task(context, args):
     filename = entry.filename
     basename = path.basename(filename)
 
-    # cheap filename filters
-    if basename.endswith('.part'):
-      scanned += 1
-      continue
-    if basename.startswith('._'):
+    if ignore_extensions and bf_filename.has_any_extension(basename, list(ignore_extensions), ignore_case=True):
       scanned += 1
       continue
 
-    ext = path.splitext(filename)[1].lower().lstrip('.')
+    ext = (bf_filename.extension(filename) or '').lower()
 
     # Tier 1: mime detection
     if _measuring:
@@ -76,7 +61,7 @@ def bf_media_scan_task(context, args):
     if _measuring:
       _mime_time += time.monotonic() - _t0
 
-    media_type = _media_type_from_mime(mime_type)
+    media_type = bf_mime.media_type_for_mime_type(mime_type)
 
     scanned += 1
 

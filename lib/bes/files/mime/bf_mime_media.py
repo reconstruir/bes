@@ -34,27 +34,54 @@ class bf_mime_media(object):
     'wmv',
   ])
 
-  EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
+  AUDIO_EXTENSIONS = frozenset([
+    'aac',
+    'aif',
+    'aiff',
+    'flac',
+    'm4a',
+    'mp3',
+    'ogg',
+    'opus',
+    'wav',
+    'wma',
+  ])
+
+  EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS | AUDIO_EXTENSIONS
 
   MIME_TYPE_TO_EXT_MAP = {
-    'image/gif': 'gif',
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'video/divx': 'divx',
-    'video/mp2t': 'ts',
-    'video/mp4': 'mp4',
-    'video/mpeg': 'mpeg',
-    'video/quicktime': 'mov',
-    'video/webm': 'webm',
-    'video/x-flv': 'flv',
-    'video/x-m4v': 'm4v',
-    'video/x-matroska': 'mkv',
-    'video/x-ms-asf': 'asf',
-    'video/x-ms-wmv': 'wmv',
-    'video/x-msvideo': 'avi',
+    'image/gif':          'gif',
+    'image/jpeg':         'jpg',
+    'image/png':          'png',
+    'image/webp':         'webp',
+    'video/divx':         'divx',
+    'video/mp2t':         'ts',
+    'video/mp4':          'mp4',
+    'video/mpeg':         'mpeg',
+    'video/quicktime':    'mov',
+    'video/webm':         'webm',
+    'video/x-flv':        'flv',
+    'video/x-m4v':        'm4v',
+    'video/x-matroska':   'mkv',
+    'video/x-ms-asf':     'asf',
+    'video/x-ms-wmv':     'wmv',
+    'video/x-msvideo':    'avi',
+    'audio/aac':          'aac',
+    'audio/aiff':         'aiff',
+    'audio/flac':         'flac',
+    'audio/mp4':          'm4a',
+    'audio/mpeg':         'mp3',
+    'audio/ogg':          'ogg',
+    'audio/opus':         'opus',
+    'audio/wav':          'wav',
+    'audio/wave':         'wav',
+    'audio/x-aiff':       'aiff',
+    'audio/x-flac':       'flac',
+    'audio/x-ms-wma':     'wma',
+    'audio/x-wav':        'wav',
   }
-  def mime_type_to_extension(clazz, mime_type):
-    check.check_string(mime_types)    
 
+  @classmethod
+  def mime_type_to_extension(clazz, mime_type):
+    check.check_string(mime_type)
     return clazz.MIME_TYPE_TO_EXT_MAP.get(mime_type, None)

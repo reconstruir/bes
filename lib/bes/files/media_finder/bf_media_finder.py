@@ -95,10 +95,11 @@ class bf_media_finder(object):
       status_callback=_status_cb,
       config=config,
       args={
-        'root_dirs':       root_dirs,
-        'media_types':     options.media_types,
-        'ignore_filename': options.ignore_file or None,
-        'chunk_size':      options.scan_chunk_size,
+        'root_dirs':         root_dirs,
+        'media_types':       options.media_types,
+        'ignore_filename':   options.ignore_file or None,
+        'chunk_size':        options.scan_chunk_size,
+        'ignore_extensions': options.ignore_extensions,
       },
     )
     with self._lock:

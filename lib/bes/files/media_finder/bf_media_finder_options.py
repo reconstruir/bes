@@ -31,7 +31,33 @@ class _bf_media_cli_media_type(bcli_type_checked_enum):
       return frozenset(['image'])
     if text == 'video':
       return frozenset(['video'])
-    raise ValueError(f'invalid media type: "{text}" — expected image, video, or all')
+    if text == 'audio':
+      return frozenset(['audio'])
+    raise ValueError(f'invalid media type: "{text}" — expected image, video, audio, or all')
+
+  @classmethod
+  def check(clazz, value, allow_none=False):
+    if value is None and allow_none:
+      return None
+    if not isinstance(value, frozenset):
+      raise TypeError(f'expected frozenset, got {type(value)}')
+    return value
+
+class _bf_media_cli_extensions_type(bcli_type_checked_enum):
+  @classmethod
+  def name_str(clazz):
+    return 'bf_media_extensions'
+
+  @classmethod
+  def type_function(clazz):
+    return frozenset
+
+  @classmethod
+  def parse(clazz, text):
+    text = text.strip().lower()
+    if not text or text == 'none':
+      return frozenset()
+    return frozenset(e.strip() for e in text.split(',') if e.strip())
 
   @classmethod
   def check(clazz, value, allow_none=False):
@@ -48,21 +74,23 @@ class _bf_media_finder_options_desc(bcli_options_desc):
     return [
       _bf_media_cli_sort_type,
       _bf_media_cli_media_type,
+      _bf_media_cli_extensions_type,
     ]
 
   #@abstractmethod
   def _options_desc(self):
     return '''
-         media_types  bf_media_type  default=all
-           sort_type  bf_media_sort_type  default=found_order
-       sort_reversed  bool  default=False
-         ignore_file  str  default=.bes_ignore
-      case_sensitive  bool  default=False
-    feature_resolver  type
-    num_scan_workers  int  default=2
-     scan_chunk_size  int  default=50
- num_resolve_workers  int  default=2
-   resolve_chunk_size int  default=10
+          media_types  bf_media_type       default=all
+            sort_type  bf_media_sort_type  default=found_order
+        sort_reversed  bool               default=False
+          ignore_file  str                default=.bes_ignore
+       case_sensitive  bool               default=False
+     feature_resolver  type
+     num_scan_workers  int                default=2
+      scan_chunk_size  int                default=50
+  num_resolve_workers  int                default=2
+    resolve_chunk_size  int                default=10
+    ignore_extensions  bf_media_extensions default=none
 '''
 
   #@abstractmethod

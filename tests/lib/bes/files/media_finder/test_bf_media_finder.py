@@ -240,9 +240,12 @@ class test_bf_media_finder(unit_test):
   # Fixture content shorthands
   # ---------------------------------------------------------------------------
 
-  PNG = unit_test_media.PNG_SMALLEST_POSSIBLE
-  JPG = unit_test_media.JPG_SMALLEST_POSSIBLE
-  MP4 = unit_test_media.MP4_SMALLEST_POSSIBLE
+  PNG  = unit_test_media.PNG_SMALLEST_POSSIBLE
+  JPG  = unit_test_media.JPG_SMALLEST_POSSIBLE
+  MP4  = unit_test_media.MP4_SMALLEST_POSSIBLE
+  WAV  = unit_test_media.WAV_SMALLEST_POSSIBLE
+  MP3  = unit_test_media.MP3_SMALLEST_POSSIBLE
+  FLAC = unit_test_media.FLAC_SMALLEST_POSSIBLE
   JUNK = unit_test_media.UNKNOWN   # not a media file
 
   # ---------------------------------------------------------------------------
@@ -289,23 +292,32 @@ class test_bf_media_finder(unit_test):
   # Scan phase — file filters
   # ---------------------------------------------------------------------------
 
-  def test_part_file_excluded(self):
+  def test_part_file_excluded_via_ignore_extensions(self):
+    tmp = self._make_dir({
+      'good.jpg': self.JPG,
+      'download.jpg.part': self.JPG,
+    })
+    opts = bf_media_finder_options(ignore_extensions=frozenset(['part']))
+    r = self._run_scan(tmp, opts)
+    self.assertEqual(1, len(r.entries))
+    self.assertEqual('good.jpg', path.basename(r.entries[0].filename))
+
+  def test_part_file_included_without_ignore_extensions(self):
     tmp = self._make_dir({
       'good.jpg': self.JPG,
       'download.jpg.part': self.JPG,
     })
     r = self._run_scan(tmp)
-    self.assertEqual(1, len(r.entries))
-    self.assertEqual('good.jpg', path.basename(r.entries[0].filename))
+    self.assertEqual(2, len(r.entries))
 
-  def test_dotunderscore_file_excluded(self):
+  def test_dotunderscore_with_valid_content_is_included(self):
+    'A ._-prefixed file with valid JPEG content is not a resource fork and must be found.'
     tmp = self._make_dir({
       'good.jpg': self.JPG,
       '._resource.jpg': self.JPG,
     })
     r = self._run_scan(tmp)
-    self.assertEqual(1, len(r.entries))
-    self.assertEqual('good.jpg', path.basename(r.entries[0].filename))
+    self.assertEqual(2, len(r.entries))
 
   # ---------------------------------------------------------------------------
   # Scan phase — mime correctness
@@ -886,6 +898,53 @@ class test_bf_media_finder(unit_test):
     self.assertIn('fsize', entries_by_name['ok_b.jpg'].resolved_features)
     self.assertIn('fsize', entries_by_name['ok_c.jpg'].resolved_features)
     self.assertTrue(r.resolve_done_called)
+
+  # ---------------------------------------------------------------------------
+  # Audio media type
+  # ---------------------------------------------------------------------------
+
+  def test_scan_audio_found(self):
+    tmp = self._make_dir({
+      'a.wav':  self.WAV,
+      'b.mp3':  self.MP3,
+      'c.flac': self.FLAC,
+      'd.jpg':  self.JPG,
+      'e.mp4':  self.MP4,
+    })
+    r = self._run_scan(tmp, bf_media_finder_options(media_types='audio'))
+    self.assertEqual(3, len(r.entries))
+    media_types = self._media_types(r.entries)
+    self.assertEqual(['audio'], media_types)
+
+  def test_scan_audio_excluded_from_image_scan(self):
+    tmp = self._make_dir({
+      'a.wav': self.WAV,
+      'b.mp3': self.MP3,
+      'c.jpg': self.JPG,
+    })
+    r = self._run_scan(tmp, bf_media_finder_options(media_types='image'))
+    self.assertEqual(1, len(r.entries))
+    self.assertEqual(['image'], self._media_types(r.entries))
+
+  def test_scan_audio_excluded_from_video_scan(self):
+    tmp = self._make_dir({
+      'a.wav': self.WAV,
+      'b.mp4': self.MP4,
+    })
+    r = self._run_scan(tmp, bf_media_finder_options(media_types='video'))
+    self.assertEqual(1, len(r.entries))
+    self.assertEqual(['video'], self._media_types(r.entries))
+
+  def test_scan_audio_excluded_from_all_default(self):
+    'Default media_types (all = image+video) does not include audio.'
+    tmp = self._make_dir({
+      'a.wav': self.WAV,
+      'b.jpg': self.JPG,
+      'c.mp4': self.MP4,
+    })
+    r = self._run_scan(tmp)
+    self.assertEqual(2, len(r.entries))
+    self.assertNotIn('audio', self._media_types(r.entries))
 
   # ---------------------------------------------------------------------------
   # on_scan_batch
