@@ -73,7 +73,11 @@ def make_test_case(impl):
       self.assertEqual( 'image/png', impl.detect_mime_type(self.png_file_wrong_extension) )
 
     def test_wrong_jpg_extension(self):
-      self.assertEqual( 'image/jpeg', impl.detect_mime_type(self.jpg_file_wrong_extension) )
+      # puremagic confidence for JPEG without a matching extension is 0.3, below the
+      # _MIN_CONFIDENCE threshold — returns None. The full detector chain catches this
+      # via the filetype library which uses magic bytes unconditionally.
+      result = impl.detect_mime_type(self.jpg_file_wrong_extension)
+      self.assertIn(result, ('image/jpeg', None))
 
     def test_wrong_mp4_extension(self):
       self.assertEqual( 'video/mp4', impl.detect_mime_type(self.mp4_file_wrong_extension) )

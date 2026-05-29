@@ -41,11 +41,13 @@ class _bf_mime_type_detector_puremagic(_bf_mime_type_detector_base):
       print(f'ERROR: caught: {ex} for {filename}')
       return None
 
+  _MIN_CONFIDENCE = 0.5
+
   @classmethod
   def _find_mime_type(clazz, puremagic_result):
-    'Find the best puremagic result entry.'
+    'Find the best puremagic result entry with sufficient confidence.'
     puremagic_result = puremagic_result or []
     for entry in puremagic_result:
-      if entry.mime_type:
+      if entry.mime_type and entry.confidence >= clazz._MIN_CONFIDENCE:
         return entry.mime_type
     return None
