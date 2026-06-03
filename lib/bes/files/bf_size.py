@@ -4,6 +4,13 @@ from ..system.check import check
 
 from .bf_check import bf_check
 
+_SIZE_SUFFIXES = {
+  'k': 1024,
+  'm': 1024 ** 2,
+  'g': 1024 ** 3,
+  't': 1024 ** 4,
+}
+
 class bf_size(object):
   
   # from https://gist.github.com/cbwar/d2dfbc19b140bd599daccbe0fe925597
@@ -31,3 +38,22 @@ class bf_size(object):
         return "%3.1f%s%s" % (num, unit, suffix)
       num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
+
+  @classmethod
+  def parse_size(clazz, size_str):
+    'Parse a human-readable size string (rsync style: 100, 100k, 1M, 1G, 1T) and return bytes as int.'
+    check.check_string(size_str)
+    s = size_str.strip()
+    if not s:
+      raise ValueError(f'empty size string')
+    last = s[-1].lower()
+    if last in _SIZE_SUFFIXES:
+      multiplier = _SIZE_SUFFIXES[last]
+      number_part = s[:-1]
+    else:
+      multiplier = 1
+      number_part = s
+    try:
+      return int(number_part) * multiplier
+    except ValueError:
+      raise ValueError(f'invalid size string: {size_str!r}')

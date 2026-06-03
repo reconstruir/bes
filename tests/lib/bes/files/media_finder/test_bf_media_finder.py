@@ -10,6 +10,7 @@ from bes.testing.unit_test import unit_test
 from bes.btask.btask_processor import btask_processor
 from bes.files.media_finder.bf_media_feature_not_available import BF_FEATURE_NOT_AVAILABLE
 from bes.files.media_finder.bf_media_feature_resolver_base import bf_media_feature_resolver_base
+from bes.files.match.bf_file_matcher import bf_file_matcher
 from bes.files.media_finder.bf_media_finder import bf_media_finder
 from bes.files.media_finder.bf_media_finder_callbacks import bf_media_finder_callbacks
 from bes.files.media_finder.bf_media_finder_options import bf_media_finder_options
@@ -129,8 +130,8 @@ class test_bf_media_finder(unit_test):
     cancelled_called = [False]
     cancel_done      = [False]
 
-    def _progress(found, scanned):
-      progress_calls.append((found, scanned))
+    def _progress(found, media_matched, scanned):
+      progress_calls.append((found, media_matched, scanned))
       if cancel_on_first_progress and not cancel_done[0]:
         cancel_done[0] = True
         finder.cancel()
@@ -418,20 +419,21 @@ class test_bf_media_finder(unit_test):
     self.assertEqual(bf_media_finder_state.READY_QUICK, r.final_state)
 
   def test_progress_counters_valid(self):
-    'found <= scanned must hold for every progress report.'
+    'found <= media_matched <= scanned must hold for every progress report.'
     tmp = self._make_dir({f'{i:03d}.png': self.PNG for i in range(60)})
     r = self._run_scan(tmp)
-    for found, scanned in r.progress_calls:
-      self.assertLessEqual(found, scanned)
+    for found, media_matched, scanned in r.progress_calls:
+      self.assertLessEqual(found, media_matched)
+      self.assertLessEqual(media_matched, scanned)
       self.assertGreaterEqual(found, 0)
-      self.assertGreaterEqual(scanned, 0)
 
   def test_progress_counters_increase(self):
     tmp = self._make_dir({f'{i:03d}.png': self.PNG for i in range(60)})
     r = self._run_scan(tmp)
     if len(r.progress_calls) > 1:
-      for (f1, s1), (f2, s2) in zip(r.progress_calls, r.progress_calls[1:]):
+      for (f1, m1, s1), (f2, m2, s2) in zip(r.progress_calls, r.progress_calls[1:]):
         self.assertGreaterEqual(f2, f1)
+        self.assertGreaterEqual(m2, m1)
         self.assertGreaterEqual(s2, s1)
 
   # ---------------------------------------------------------------------------
@@ -1027,6 +1029,70 @@ class test_bf_media_finder(unit_test):
     finder.scan([tmp], callbacks=cbs)
     finder.run()
     self.assertEqual(1, len(done_entries))
+
+  # ---------------------------------------------------------------------------
+  # file_matcher
+  # ---------------------------------------------------------------------------
+
+  def test_file_matcher_none_finds_all(self):
+    'No file_matcher — all media files are returned.'
+    tmp = self._make_dir({
+      'a.jpg': self.JPG,
+      'b.jpg': self.JPG,
+      'c.mp4': self.MP4,
+    })
+    r = self._run_scan(tmp, bf_media_finder_options(media_types='image'))
+    self.assertEqual(2, len(r.entries))
+
+  def test_file_matcher_include_by_pattern(self):
+    'file_matcher with *.jpg pattern includes only matching files.'
+    tmp = self._make_dir({
+      'keep_a.jpg': self.JPG,
+      'keep_b.jpg': self.JPG,
+      'drop_c.png': self.PNG,
+    })
+    matcher = bf_file_matcher(patterns=['*.jpg'])
+    opts = bf_media_finder_options(media_types='image', file_matcher=matcher)
+    r = self._run_scan(tmp, opts)
+    self.assertEqual(2, len(r.entries))
+    basenames = sorted(path.basename(e.filename) for e in r.entries)
+    self.assertEqual(['keep_a.jpg', 'keep_b.jpg'], basenames)
+
+  def test_file_matcher_exclude_by_negated_pattern(self):
+    'file_matcher with negated pattern excludes matching files.'
+    tmp = self._make_dir({
+      'keep.jpg':  self.JPG,
+      'drop.jpg':  self.JPG,
+    })
+    matcher = bf_file_matcher()
+    matcher.add_item_fnmatch('drop*', negate=True)
+    opts = bf_media_finder_options(media_types='image', file_matcher=matcher)
+    r = self._run_scan(tmp, opts)
+    self.assertEqual(1, len(r.entries))
+    self.assertEqual('keep.jpg', path.basename(r.entries[0].filename))
+
+  def test_file_matcher_empty_matcher_passes_all(self):
+    'An empty bf_file_matcher (no items) matches everything.'
+    tmp = self._make_dir({
+      'a.jpg': self.JPG,
+      'b.jpg': self.JPG,
+    })
+    opts = bf_media_finder_options(media_types='image', file_matcher=bf_file_matcher())
+    r = self._run_scan(tmp, opts)
+    self.assertEqual(2, len(r.entries))
+
+  def test_file_matcher_combined_with_media_types(self):
+    'file_matcher and media_types filter independently — both must pass.'
+    tmp = self._make_dir({
+      'img_keep.jpg': self.JPG,
+      'img_drop.jpg': self.JPG,
+      'vid.mp4':      self.MP4,
+    })
+    matcher = bf_file_matcher(patterns=['img_keep*'])
+    opts = bf_media_finder_options(media_types='image', file_matcher=matcher)
+    r = self._run_scan(tmp, opts)
+    self.assertEqual(1, len(r.entries))
+    self.assertEqual('img_keep.jpg', path.basename(r.entries[0].filename))
 
 if __name__ == '__main__':
   unit_test.main()

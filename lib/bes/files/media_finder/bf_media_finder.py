@@ -100,6 +100,7 @@ class bf_media_finder(object):
         'ignore_filename':   options.ignore_file or None,
         'chunk_size':        options.scan_chunk_size,
         'ignore_extensions': options.ignore_extensions,
+        'file_matcher':      options.file_matcher,
       },
     )
     with self._lock:
@@ -141,7 +142,7 @@ class bf_media_finder(object):
     if cbs and cbs.on_scan_batch:
       cbs.on_scan_batch(list(status.entries))
     if cbs and cbs.on_scan_progress:
-      cbs.on_scan_progress(status.found, status.scanned)
+      cbs.on_scan_progress(status.found, status.media_matched, status.scanned)
 
   def _on_scan_task_done(self, result, gen):
     with self._lock:

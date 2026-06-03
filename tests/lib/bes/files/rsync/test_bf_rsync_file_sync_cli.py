@@ -85,5 +85,58 @@ class test_bf_rsync_file_sync_cli(unit_test):
     self.assertEqual(1, len(created))
     self.assertEqual(2, len(created[0]))
 
+  def _capture_kwargs(self, extra_args):
+    'Run the CLI with extra_args and return the kwargs passed to bf_rsync_file_sync.__init__.'
+    tmp_key = self.make_temp_file()
+    tmp_dir = self.make_temp_dir()
+    captured = []
+    def capture_init(self_inner, ssh_key, destination, source_dirs, **kwargs):
+      captured.append(kwargs)
+      raise SystemExit(0)
+    with mock.patch.object(bf_rsync_file_sync, '__init__', capture_init):
+      with mock.patch('sys.argv', ['bfile-sync', tmp_key, 'nas2:/dest', tmp_dir] + extra_args):
+        try:
+          bf_rsync_file_sync_cli.run()
+        except SystemExit:
+          pass
+    return captured[0] if captured else None
+
+  def test_cli_min_size_parsed_and_passed(self):
+    kwargs = self._capture_kwargs(['--min-size', '10M'])
+    self.assertEqual(10 * 1024 ** 2, kwargs['min_size'])
+
+  def test_cli_max_size_parsed_and_passed(self):
+    kwargs = self._capture_kwargs(['--max-size', '2G'])
+    self.assertEqual(2 * 1024 ** 3, kwargs['max_size'])
+
+  def test_cli_mime_type_passed(self):
+    kwargs = self._capture_kwargs(['--mime-type', 'video/*'])
+    self.assertEqual('video/*', kwargs['mime_type'])
+
+  def test_cli_no_size_filters_defaults_to_none(self):
+    kwargs = self._capture_kwargs([])
+    self.assertIsNone(kwargs['min_size'])
+    self.assertIsNone(kwargs['max_size'])
+
+  def test_cli_no_mime_type_defaults_to_none(self):
+    kwargs = self._capture_kwargs([])
+    self.assertIsNone(kwargs['mime_type'])
+
+  def test_cli_invalid_min_size_exits_with_error(self):
+    code = self._run_cli_with_key(['--min-size', 'notasize'])
+    self.assertNotEqual(0, code)
+
+  def test_cli_invalid_max_size_exits_with_error(self):
+    code = self._run_cli_with_key(['--max-size', 'bad'])
+    self.assertNotEqual(0, code)
+
+  def _run_cli_with_key(self, extra_args):
+    tmp_key = self.make_temp_file()
+    tmp_dir = self.make_temp_dir()
+    with mock.patch('sys.argv', ['bfile-sync', tmp_key, 'nas2:/dest', tmp_dir] + extra_args):
+      with self.assertRaises(SystemExit) as ctx:
+        bf_rsync_file_sync_cli.run()
+    return ctx.exception.code
+
 if __name__ == '__main__':
   unit_test.main()

@@ -3,6 +3,8 @@
 import argparse
 import sys
 
+from bes.files.bf_size import bf_size
+
 from .bf_rsync_file_sync import bf_rsync_file_sync
 
 class bf_rsync_file_sync_cli(object):
@@ -28,6 +30,12 @@ class bf_rsync_file_sync_cli(object):
                             help='One line per file with in-place overwrite (default on TTY)')
     mode_group.add_argument('--verbose', action='store_true', default=False,
                             help='Two lines plus blank separator per file (default when not a TTY)')
+    parser.add_argument('--min-size', default=None, metavar='SIZE',
+                        help='Skip files smaller than SIZE (e.g. 100, 500k, 10M, 1G)')
+    parser.add_argument('--max-size', default=None, metavar='SIZE',
+                        help='Skip files larger than SIZE (e.g. 100, 500k, 10M, 1G)')
+    parser.add_argument('--mime-type', default=None, metavar='MIME_TYPE',
+                        help='Include only files matching this mime type (e.g. image/jpeg, video/*, audio/*)')
     args = parser.parse_args()
 
     if args.compact:
@@ -37,6 +45,12 @@ class bf_rsync_file_sync_cli(object):
     else:
       compact = None
 
+    try:
+      min_size = bf_size.parse_size(args.min_size) if args.min_size else None
+      max_size = bf_size.parse_size(args.max_size) if args.max_size else None
+    except ValueError as ex:
+      parser.error(str(ex))
+
     syncer = bf_rsync_file_sync(
       args.ssh_key,
       args.destination,
@@ -45,5 +59,8 @@ class bf_rsync_file_sync_cli(object):
       dry_run=args.dry_run,
       compact=compact,
       simplify=args.simplify,
+      min_size=min_size,
+      max_size=max_size,
+      mime_type=args.mime_type,
     )
     syncer.run()

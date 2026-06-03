@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import fnmatch
 import os
 import os.path as path
 import sys
@@ -17,6 +18,7 @@ from bes.files.checksum.bf_checksum_cache import bf_checksum_cache
 from bes.files.bf_filename import bf_filename
 from bes.files.bf_filename_simplify import bf_filename_simplify
 from bes.files.find.bf_file_finder import bf_file_finder
+from bes.files.mime.bf_mime_type_detector import bf_mime_type_detector
 from bes.ssh.bssh_command import bssh_command
 from bes.ssh.bssh_error import bssh_error
 
@@ -37,7 +39,7 @@ class bf_rsync_file_sync(object):
   def __init__(self, ssh_key, destination, source_dirs,
                log_file=None, known_hosts_file=None, strict_host_checking=True,
                retry_wait_seconds=None, ssh_port=None, dry_run=False, compact=None,
-               simplify=False):
+               simplify=False, min_size=None, max_size=None, mime_type=None):
     check.check_string(ssh_key)
     check.check_string(destination)
     check.check_string_seq(source_dirs)
@@ -49,6 +51,9 @@ class bf_rsync_file_sync(object):
     check.check_bool(dry_run)
     check.check_bool(compact, allow_none=True)
     check.check_bool(simplify)
+    check.check_int(min_size, allow_none=True)
+    check.check_int(max_size, allow_none=True)
+    check.check_string(mime_type, allow_none=True)
 
     if not path.exists(ssh_key):
       raise bf_rsync_error(f'ssh key not found: {ssh_key}')
@@ -66,6 +71,9 @@ class bf_rsync_file_sync(object):
     self._dry_run = dry_run
     self._compact = compact
     self._simplify = simplify
+    self._min_size = min_size
+    self._max_size = max_size
+    self._mime_type = mime_type
     self._show_progress = False
     self._progress_prefix = ''
     self._log_fh = None
@@ -157,8 +165,22 @@ class bf_rsync_file_sync(object):
       src_basename = path.basename(src_dir)
       for found_entry in result.entries:
         rel = path.join(src_basename, found_entry.relative_filename).replace(path.sep, '/')
-        entries.append(bf_entry(rel, root_dir=parent_dir))
+        entry = bf_entry(rel, root_dir=parent_dir)
+        if not self._entry_passes_filters(entry):
+          continue
+        entries.append(entry)
     return sorted(entries, key=lambda e: e.absolute_filename)
+
+  def _entry_passes_filters(self, entry):
+    if self._min_size is not None and entry.size < self._min_size:
+      return False
+    if self._max_size is not None and entry.size > self._max_size:
+      return False
+    if self._mime_type is not None:
+      detected = bf_mime_type_detector.detect_mime_type(entry.absolute_filename)
+      if not fnmatch.fnmatch(detected or '', self._mime_type):
+        return False
+    return True
 
   def _sync_one(self, entry):
     src = entry.absolute_filename

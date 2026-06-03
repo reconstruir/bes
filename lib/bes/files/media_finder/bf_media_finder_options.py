@@ -5,6 +5,8 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.bcli.bcli_type_checked_enum import bcli_type_checked_enum
 from bes.system.check import check
 
+from ..match.bf_file_matcher import bf_cli_file_matcher
+
 from .bf_media_sort_type import bf_media_sort_type
 
 class _bf_media_cli_sort_type(bcli_type_checked_enum):
@@ -75,6 +77,7 @@ class _bf_media_finder_options_desc(bcli_options_desc):
       _bf_media_cli_sort_type,
       _bf_media_cli_media_type,
       _bf_media_cli_extensions_type,
+      bf_cli_file_matcher,
     ]
 
   #@abstractmethod
@@ -91,6 +94,7 @@ class _bf_media_finder_options_desc(bcli_options_desc):
   num_resolve_workers  int                default=2
     resolve_chunk_size  int                default=10
     ignore_extensions  bf_media_extensions default=none
+         file_matcher  bf_file_matcher
 '''
 
   #@abstractmethod

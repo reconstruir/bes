@@ -275,6 +275,11 @@ class bf_file_ops(object):
     return True
 
   @classmethod
+  def remove_dir(clazz, directory):
+    if path.exists(directory):
+      shutil.rmtree(directory)
+
+  @classmethod
   def touch(clazz, filename):
     'Update the modification date of filename to be now'
     entry = bf_entry(filename)

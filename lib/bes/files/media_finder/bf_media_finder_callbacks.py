@@ -5,7 +5,7 @@ import typing
 
 @dataclasses.dataclass
 class bf_media_finder_callbacks:
-  on_scan_progress:    typing.Callable = None  # (found: int, scanned: int)
+  on_scan_progress:    typing.Callable = None  # (found: int, media_matched: int, scanned: int)
   on_scan_batch:       typing.Callable = None  # (entries: list[bf_media_file_entry])
   on_scan_done:        typing.Callable = None  # (entries: list[bf_media_file_entry])
   on_resolve_progress: typing.Callable = None  # (done: int, total: int)

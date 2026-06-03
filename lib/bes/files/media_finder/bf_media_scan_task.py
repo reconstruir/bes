@@ -21,6 +21,7 @@ def bf_media_scan_task(context, args):
   ignore_filename   = args.get('ignore_filename')     # str | None
   chunk_size        = args.get('chunk_size', 50)      # from options.scan_chunk_size
   ignore_extensions = args.get('ignore_extensions') or frozenset()
+  file_matcher      = args.get('file_matcher')        # bf_file_matcher | None
 
   scanner_kwargs = {}
   if ignore_filename:
@@ -33,8 +34,9 @@ def bf_media_scan_task(context, args):
   _mime_time  = 0.0
 
   batch = []
-  found = 0
-  scanned = 0
+  found         = 0
+  media_matched = 0
+  scanned       = 0
 
   for entry in scanner.scan_gen(root_dirs):
     context.raise_cancelled_if_needed('scan cancelled')
@@ -68,6 +70,11 @@ def bf_media_scan_task(context, args):
     if media_type not in media_types:
       continue
 
+    media_matched += 1
+
+    if file_matcher and not file_matcher.match(entry):
+      continue
+
     try:
       st    = entry.stat
       size  = st.st_size
@@ -87,15 +94,17 @@ def bf_media_scan_task(context, args):
     ))
 
     if len(batch) >= chunk_size:
-      context.report_status(bf_media_scan_status(entries=batch[:], found=found, scanned=scanned))
+      context.report_status(bf_media_scan_status(entries=batch[:], found=found,
+                                                  media_matched=media_matched, scanned=scanned))
       batch.clear()
 
   if batch:
-    context.report_status(bf_media_scan_status(entries=batch, found=found, scanned=scanned))
+    context.report_status(bf_media_scan_status(entries=batch, found=found,
+                                                media_matched=media_matched, scanned=scanned))
 
   if _measuring:
     total = time.monotonic() - _scan_start
     pct   = 100 * _mime_time / total if total > 0 else 0
     _log.log_d(f'scan done: {scanned} files in {total:.3f}s | mime {_mime_time:.3f}s ({pct:.0f}%) | non-mime {total - _mime_time:.3f}s')
 
-  return {'found': found, 'scanned': scanned}
+  return {'found': found, 'media_matched': media_matched, 'scanned': scanned}

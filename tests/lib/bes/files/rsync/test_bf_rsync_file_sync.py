@@ -11,6 +11,7 @@ import unittest.mock as mock
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.files.bf_entry import bf_entry
+from bes.files.mime.bf_mime_type_detector import bf_mime_type_detector
 from bes.files.rsync.bf_rsync_command import bf_rsync_command
 from bes.files.rsync.bf_rsync_error import bf_rsync_error
 from bes.files.rsync.bf_rsync_file_sync import bf_rsync_file_sync
@@ -1322,6 +1323,148 @@ class test_bf_rsync_file_sync_simplify(unit_test):
     self.assertEqual('', reason)
     self.assertTrue(any('My Movie.mp4' in d for d in transferred))
     self.assertFalse(any('my_movie.mp4' in d for d in transferred))
+
+
+class test_bf_rsync_file_sync_filters(unit_test):
+  'Unit tests for --min-size, --max-size, and --mime-type filtering in _collect_files.'
+
+  def _make_syncer(self, src_dir, **kwargs):
+    tmp_dir = self.make_temp_dir()
+    key = path.join(tmp_dir, 'key')
+    open(key, 'w').close()
+    return bf_rsync_file_sync(
+      key, 'nas2:/mnt/stuff/p', [src_dir],
+      strict_host_checking=False, **kwargs
+    )
+
+  def _write(self, directory, filename, size):
+    p = path.join(directory, filename)
+    with open(p, 'wb') as f:
+      f.write(b'x' * size)
+    return p
+
+  def test_min_size_excludes_small_files(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'small.mp4', 100)
+    self._write(src_dir, 'big.mp4', 2000)
+    syncer = self._make_syncer(src_dir, min_size=1024)
+    entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertNotIn('small.mp4', names)
+    self.assertIn('big.mp4', names)
+
+  def test_min_size_includes_file_at_boundary(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'exact.mp4', 1024)
+    syncer = self._make_syncer(src_dir, min_size=1024)
+    entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertIn('exact.mp4', names)
+
+  def test_max_size_excludes_large_files(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'small.mp4', 100)
+    self._write(src_dir, 'big.mp4', 5000)
+    syncer = self._make_syncer(src_dir, max_size=1024)
+    entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertIn('small.mp4', names)
+    self.assertNotIn('big.mp4', names)
+
+  def test_max_size_includes_file_at_boundary(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'exact.mp4', 1024)
+    syncer = self._make_syncer(src_dir, max_size=1024)
+    entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertIn('exact.mp4', names)
+
+  def test_min_and_max_size_together(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'tiny.mp4', 50)
+    self._write(src_dir, 'medium.mp4', 500)
+    self._write(src_dir, 'huge.mp4', 5000)
+    syncer = self._make_syncer(src_dir, min_size=100, max_size=1000)
+    entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertNotIn('tiny.mp4', names)
+    self.assertIn('medium.mp4', names)
+    self.assertNotIn('huge.mp4', names)
+
+  def test_no_size_filter_includes_all(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'a.mp4', 1)
+    self._write(src_dir, 'b.mp4', 1000000)
+    syncer = self._make_syncer(src_dir)
+    entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertIn('a.mp4', names)
+    self.assertIn('b.mp4', names)
+
+  def test_mime_type_includes_matching_files(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'video.mp4', 100)
+    self._write(src_dir, 'image.jpg', 100)
+    syncer = self._make_syncer(src_dir, mime_type='video/mp4')
+    def fake_detect(filename):
+      return 'video/mp4' if filename.endswith('.mp4') else 'image/jpeg'
+    with mock.patch.object(bf_mime_type_detector, 'detect_mime_type', side_effect=fake_detect):
+      entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertIn('video.mp4', names)
+    self.assertNotIn('image.jpg', names)
+
+  def test_mime_type_excludes_nonmatching_files(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'clip.mp4', 100)
+    syncer = self._make_syncer(src_dir, mime_type='audio/flac')
+    with mock.patch.object(bf_mime_type_detector, 'detect_mime_type', return_value='video/mp4'):
+      entries = syncer._collect_files()
+    self.assertEqual([], entries)
+
+  def test_mime_type_wildcard_matches_subtype(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'clip.mp4', 100)
+    self._write(src_dir, 'movie.mkv', 100)
+    self._write(src_dir, 'photo.jpg', 100)
+    syncer = self._make_syncer(src_dir, mime_type='video/*')
+    def fake_detect(filename):
+      if filename.endswith('.mp4'):
+        return 'video/mp4'
+      if filename.endswith('.mkv'):
+        return 'video/x-matroska'
+      return 'image/jpeg'
+    with mock.patch.object(bf_mime_type_detector, 'detect_mime_type', side_effect=fake_detect):
+      entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertIn('clip.mp4', names)
+    self.assertIn('movie.mkv', names)
+    self.assertNotIn('photo.jpg', names)
+
+  def test_mime_type_undetectable_file_excluded(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'mystery.bin', 100)
+    syncer = self._make_syncer(src_dir, mime_type='video/*')
+    with mock.patch.object(bf_mime_type_detector, 'detect_mime_type', return_value=None):
+      entries = syncer._collect_files()
+    self.assertEqual([], entries)
+
+  def test_mime_type_and_min_size_combined(self):
+    src_dir = self.make_temp_dir()
+    self._write(src_dir, 'small_video.mp4', 50)
+    self._write(src_dir, 'big_video.mp4', 2000)
+    self._write(src_dir, 'big_audio.flac', 2000)
+    syncer = self._make_syncer(src_dir, min_size=100, mime_type='video/*')
+    def fake_detect(filename):
+      if filename.endswith('.mp4'):
+        return 'video/mp4'
+      return 'audio/flac'
+    with mock.patch.object(bf_mime_type_detector, 'detect_mime_type', side_effect=fake_detect):
+      entries = syncer._collect_files()
+    names = [path.basename(e.absolute_filename) for e in entries]
+    self.assertNotIn('small_video.mp4', names)
+    self.assertIn('big_video.mp4', names)
+    self.assertNotIn('big_audio.flac', names)
 
 
 class test_bf_rsync_file_sync_integration(unit_test):
