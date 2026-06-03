@@ -53,6 +53,7 @@ class test_bf_file_scanner(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
+      'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
@@ -68,10 +69,11 @@ class test_bf_file_scanner(unit_test):
     ]
     rv = self._scan(content)
     expected_relative = [
+      'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
-    ]    
+    ]
     expected = [ path.join(rv.tmp_dir, f) for f in expected_relative ]
     self.assert_filename_list_equal( expected, rv.sorted_absolute_filenames )
 
@@ -84,6 +86,7 @@ class test_bf_file_scanner(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
+      'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
@@ -103,14 +106,14 @@ class test_bf_file_scanner(unit_test):
       'subdir/subberdir',
     ], self._scan(content, file_type = 'dir').sorted_relative_filenames )
 
-  def test_include_empty_files_false_is_default(self):
+  def test_include_empty_files_false(self):
     content = [
       'file foo.txt "foo.txt\n"',
       'file empty.txt',
     ]
     self.assert_filename_list_equal(
       ['foo.txt'],
-      self._scan(content).sorted_relative_filenames,
+      self._scan(content, include_empty_files=False).sorted_relative_filenames,
     )
 
   def test_include_empty_files_true(self):

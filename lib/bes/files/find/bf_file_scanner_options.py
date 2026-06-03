@@ -49,7 +49,7 @@ class _bf_file_scanner_options_desc(bcli_options_desc):
           entry_list_class type                 default=${_bf_file_scanner_entry_list_default_type}
            ignore_filename str
     include_resource_forks bool                 default=False
-       include_empty_files bool                 default=False
+       include_empty_files bool                 default=True
 '''
   
   #@abstractmethod

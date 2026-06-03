@@ -23,10 +23,12 @@ from .bf_file_matcher_item_metadata import bf_file_matcher_item_metadata
 from .bf_file_matcher_item_re import bf_file_matcher_item_re
 from .bf_file_matcher_mode import bf_file_matcher_mode
 
+_matcher_item = namedtuple('_matcher_item', 'matcher, negate')
+
 class bf_file_matcher(object):
 
   _log = logger('bf_file_matcher')
-  
+
   def __init__(self, patterns = None, expressions = None, callables = None,
                attrs = None, metadatas = None):
     patterns = check.check_string_seq(patterns, allow_none = True, default_value = [])
@@ -57,12 +59,11 @@ class bf_file_matcher(object):
   def empty(self):
     return len(self._matchers) == 0
 
-  _matcher_item = namedtuple('_matcher_item', 'matcher, negate')
   def add_item(self, matcher, negate = False):
     check.check_bf_file_matcher_item(matcher)
     check.check_bool(negate)
 
-    self._matchers.append(self._matcher_item(matcher, negate))
+    self._matchers.append(_matcher_item(matcher, negate))
     
   def add_item_fnmatch(self,
                        pattern,

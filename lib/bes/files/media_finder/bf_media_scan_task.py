@@ -23,7 +23,9 @@ def bf_media_scan_task(context, args):
   ignore_extensions = args.get('ignore_extensions') or frozenset()
   file_matcher      = args.get('file_matcher')        # bf_file_matcher | None
 
-  scanner_kwargs = {}
+  scanner_kwargs = {
+    'include_empty_files': False,
+  }
   if ignore_filename:
     scanner_kwargs['ignore_filename'] = ignore_filename
   options = bf_file_scanner_options(**scanner_kwargs)
