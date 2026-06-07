@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- **Run the app**: `./r bin/best.py <args>` — uses `uv run` with the correct PYTHONPATH
+- **Run the app**: `./r bin/<app>.py <args>` — uses `uv run` with the correct PYTHONPATH
 - **Run all tests**: `./t`
 - **Run a single test file**: `./t tests/lib/bes/files/test_bf_entry.py`
 - **Run a single test**: `./t tests/lib/bes/files/test_bf_entry.py -k test_absolute_filename_only`
@@ -37,4 +37,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The `./r` script sets up `PYTHONPATH` to include sibling project `lib/` directories (`bes`, `bav`, `bnet`) alongside this project's `lib/`. All runs must go through `./r` to have the correct path. Python 3.12 is required (`env/python.version`).
 
 ### Testing
-- Tests live in `tests/lib/bes/`.
+- Tests live in `tests/lib/<name>/`.
