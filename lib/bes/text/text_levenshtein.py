@@ -10,7 +10,6 @@ class text_levenshtein(object):
     if len(s1) < len(s2):
       return clazz.distance(s2, s1)
 
-    # len(s1) >= len(s2)
     if len(s2) == 0:
       return len(s1)
 
