@@ -397,3 +397,119 @@ backends (aiohttp, asyncssh, aiobotocore) implement only the async interface.
 
 7. **Add S3-compatible backend** — first real remote backend, proves the
    capability + attribute abstraction works.
+
+---
+
+## `vfs_rclone` in detail
+
+`rclone` is a CLI tool that already knows how to talk to 70+ storage backends
+and presents them all through a uniform command set (`rclone ls`, `rclone copy`,
+`rclone delete`, `rclone cat`, ...).
+
+Instead of writing a `vfs_s3`, `vfs_sftp`, `vfs_dropbox`, etc., you write one
+`vfs_rclone` backend that shells out to rclone commands.  The user configures
+rclone normally (`~/.config/rclone/rclone.conf`) with a named remote like
+`mynas:` or `mys3bucket:`, and the VFS config just says `vfs_type = rclone` +
+`remote = mynas:files`.  Your code never needs to know it's SFTP vs S3 vs
+anything else — rclone handles all of that.
+
+### Option A — shell out directly
+
+Every VFS method maps to a `subprocess` call:
+
+```python
+def download_to_file(self, remote_filename, local_filename):
+    subprocess.run(['rclone', 'copyto', f'{self._remote}/{remote_filename}', local_filename], check=True)
+
+def upload_file(self, local_filename, remote_filename):
+    subprocess.run(['rclone', 'copyto', local_filename, f'{self._remote}/{remote_filename}'], check=True)
+
+def list_dir(self, remote_dir, recursive, options):
+    flags = ['--recursive'] if recursive else ['--max-depth', '1']
+    out = subprocess.check_output(['rclone', 'lsjson', f'{self._remote}/{remote_dir}'] + flags)
+    entries = json.loads(out)
+    # parse into vfs_file_info_list ...
+```
+
+`rclone lsjson` returns JSON with name, size, mtime, IsDir — maps directly to
+`vfs_file_info`.  Simple, works everywhere rclone works.
+
+### Option B — `rclone serve webdav`
+
+Spin up a local WebDAV server pointed at the remote:
+
+```bash
+rclone serve webdav mynas:files --addr localhost:8080
+```
+
+Then `vfs_rclone` is just `vfs_webdav` pointed at `localhost:8080`.  You get
+full WebDAV semantics including real properties (`PROPFIND`) for attributes.
+The subprocess management is slightly more involved (start on init, stop on
+teardown) but the VFS layer itself becomes trivially thin.
+
+### The attributes catch
+
+`rclone lsjson` gives name, size, mtime, IsDir — no metadata/attributes.
+`set_file_attributes` has no rclone equivalent.  So `vfs_rclone` has
+`ATTRIBUTES` absent from its capabilities and pairs with an external
+`vfs_attr_backend` (SQLite or YAML sidecar) when attributes are needed.
+This is exactly why the capability + separate attr backend proposal is the
+right foundation — `vfs_rclone` becomes a first-class citizen without faking
+attribute support.
+
+### The meta-backend composition bonus
+
+rclone backends stack.  You can layer `crypt` on top of `union` on top of two
+S3 buckets and rclone presents it as one encrypted remote.  `vfs_rclone` gets
+all of that for free — encryption, deduplication, sharding across providers —
+without your code knowing any of it is happening.
+
+---
+
+## rclone backend catalog
+
+Roughly 70+ backends grouped by category.
+
+### S3-compatible object storage
+
+One rclone provider, many targets: AWS S3, Cloudflare R2, Backblaze B2, Wasabi,
+MinIO, DigitalOcean Spaces, Scaleway, Linode Object Storage, IDrive e2, IONOS,
+Alibaba OSS, Tencent COS, Huawei OBS, IBM COS, Qiniu KODO, SeaweedFS, Storj
+(S3 mode), Synology C2, and ~15 more S3-compatible hosts.
+
+### Big cloud
+
+Google Cloud Storage, Azure Blob Storage, Azure Files.
+
+### Consumer cloud drives
+
+Google Drive, OneDrive, SharePoint, Dropbox, Box, pCloud, MEGA, Jottacloud,
+Yandex Disk, Zoho WorkDrive, Koofr, Proton Drive, Filen, Mail.ru Cloud,
+Mediafire, Pikpak, Put.io, Premiumize.me.
+
+### Protocol-based
+
+SFTP, FTP, WebDAV, SMB/CIFS, HTTP (read-only).
+
+### Meta / compositing backends
+
+These are the interesting ones — they layer on top of any other remote:
+
+| Backend | What it does |
+|---|---|
+| `crypt` | Transparent encryption layer over any other remote |
+| `compress` | Transparent compression layer over any other remote |
+| `chunker` | Splits files larger than a threshold across any backend |
+| `cache` | Caching layer in front of any slow remote |
+| `union` | Presents multiple remotes as a single merged filesystem |
+| `combine` | Mounts multiple remotes at different paths under one root |
+| `alias` | Rename/repath any remote |
+| `memory` | Ephemeral in-memory filesystem (useful for testing) |
+
+Because these compose, a single rclone remote name can represent something like
+"encrypted, compressed, striped across two S3 buckets" — and `vfs_rclone` sees
+none of that complexity.
+
+### Local / near-local
+
+Local filesystem, Storj (native), IPFS (via MFS).
