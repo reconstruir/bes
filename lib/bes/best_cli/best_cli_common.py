@@ -29,7 +29,6 @@ from bes.python.pip_installer_cli_args import pip_installer_cli_args
 from bes.python.pip_project_cli_args import pip_project_cli_args
 from bes.python.python_cli_args import python_cli_args
 from bes.python_installer.python_installer_cli_args import python_installer_cli_args
-from bes.refactor.refactor_cli_args import refactor_cli_args
 from bes.shell_framework.shell_framework_cli_args import shell_framework_cli_args
 
 from ..btl.btl_cli_args import btl_cli_args
@@ -64,7 +63,6 @@ COMMON_COMMAND_GROUPS = [
   cli_command('pyinstaller', 'pyinstaller_add_args', 'Deal with PyInstaller', pyinstaller_cli_args),
   cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
   cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
-  cli_command('refactor', 'refactor_add_args', 'Refactor python code', refactor_cli_args),
   cli_command('shell_framework', 'shell_framework_add_args', 'Deal with the bes_shell framework', shell_framework_cli_args),
   cli_command('btl', 'btl_add_args', 'Deal with text lexers', btl_cli_args),
 ]

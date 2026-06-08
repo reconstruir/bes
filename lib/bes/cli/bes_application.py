@@ -9,6 +9,7 @@ from ..files.duplicates.bf_file_duplicates_command_factory import bf_file_duplic
 from ..files.media_finder.bf_media_find_command_factory import bf_media_find_command_factory
 from ..files.metadata.bf_metadata_command_factory import bf_metadata_command_factory
 from ..files.resolve.bf_file_resolver_command_factory import bf_file_resolver_command_factory
+from ..refactor.refactor_command_factory import refactor_command_factory
 
 class bes_application(bcli_application):
 
@@ -24,4 +25,5 @@ class bes_application(bcli_application):
       bf_media_find_command_factory,
       bf_metadata_command_factory,
       bf_file_resolver_command_factory,
+      refactor_command_factory,
     ]
