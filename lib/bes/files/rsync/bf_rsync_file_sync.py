@@ -360,7 +360,7 @@ class bf_rsync_file_sync(object):
 
   @classmethod
   def _local_checksum_script_path(clazz):
-    return path.abspath(path.join(path.dirname(__file__), '..', '..', '..', '..', 'bin', 'bfile-checksum.py'))
+    return path.join(path.dirname(__file__), 'bfile_checksum_script.py')
 
   def _install_remote_checksum_script(self):
     local_path = self._local_checksum_script_path()

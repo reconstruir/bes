@@ -78,6 +78,7 @@ def main():
     _run(['uv', 'venv', '--python', sys.version.split()[0], venv_dir])
 
     venv_python = path.join(venv_dir, 'bin', 'python')
+    venv_pytest = path.join(venv_dir, 'bin', 'pytest')
 
     _p('\n==> installing wheel + pytest')
     _run(['uv', 'pip', 'install', '--python', venv_python, wheel, 'pytest'])
@@ -87,9 +88,9 @@ def main():
     env = {k: v for k, v in os.environ.items() if k != 'PYTHONPATH'}
 
     _p('\n==> running tests against wheel')
-    _p('+ ' + ' '.join([venv_python, '-m', 'pytest', '-v'] + test_files))
+    _p('+ ' + ' '.join([venv_pytest, '-v'] + test_files))
     result = subprocess.run(
-      [venv_python, '-m', 'pytest', '-v'] + test_files,
+      [venv_pytest, '-v'] + test_files,
       cwd=project_root,
       env=env,
     )
@@ -109,6 +110,7 @@ def main():
       _p(f'  wheel  : {dist_dir}')
       _p(f'  venv   : {venv_dir}')
       _p(f'  python : {path.join(venv_dir, "bin", "python")}')
+      _p(f'  pytest : {path.join(venv_dir, "bin", "pytest")}')
 
 if __name__ == '__main__':
   sys.exit(main())

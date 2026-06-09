@@ -1,3 +1,0 @@
-
-#alias go="./scripts/test_btl.sh _test_keyval2_lexer.btl test__test_keyval2_lexer.py"
-alias go="./scripts/test_btl.sh bc_ini_lexer.btl test_bc_ini_lexer.py"
