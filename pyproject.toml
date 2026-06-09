@@ -28,7 +28,6 @@ dependencies = [
 Homepage = "https://gitlab.com/rebuilder/bes"
 
 [project.scripts]
-bes_test = "bes.testing.bes_test_runner:main"
 bfile-checksum = "bes.files.rsync.bfile_checksum_script:main"
 
 [dependency-groups]
