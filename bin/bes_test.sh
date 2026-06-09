@@ -12,7 +12,7 @@ function main()
   local _site_bin_dir="${_root_dir}/VE/bes/bin"
   export PATH="${_site_bin_dir}:${PATH}"
   export PYTHONPATH="${_site_lib_dir}:${_python_lib_dir}:${PYTHONPATH}"
-  bin/bes_test.py bin/bes_test.py tests/lib/bes/btl/test_btl_document_base.py # ${1+"$@"}
+  ${_root_dir}/bin/bes_test.py ${1+"$@"}
   return 0
 }
 
