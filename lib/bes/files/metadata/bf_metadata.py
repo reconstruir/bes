@@ -146,3 +146,8 @@ class bf_metadata(object):
     if cache_key not in clazz._items:
       clazz._items[cache_key] = clazz._items_item()
     return clazz._items[cache_key]
+
+  @classmethod
+  def reset(clazz):
+    clazz._file_store_instance = None
+    clazz._items = {}

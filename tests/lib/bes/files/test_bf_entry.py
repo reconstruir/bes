@@ -18,8 +18,9 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+from _bes_unit_test_common.files.metadata.unit_test_bf_metadata_mixin import unit_test_bf_metadata_mixin
 
-class test_bf_entry(unit_test, unit_test_media_files):
+class test_bf_entry(unit_test_bf_metadata_mixin, unit_test, unit_test_media_files):
   
   def _make_test_entry(self, *args, **kargs):
     tmp = self.make_temp_file(*args, **kargs)

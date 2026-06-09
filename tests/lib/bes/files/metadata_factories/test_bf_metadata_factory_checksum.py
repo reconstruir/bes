@@ -14,7 +14,9 @@ from bes.files.metadata_factories.bf_metadata_factory_checksum import bf_metadat
 from bes.common.hash_util import hash_util
 from bes.testing.unit_test import unit_test
 
-class test_bf_metadata_factory_checksum(unit_test):
+from _bes_unit_test_common.files.metadata.unit_test_bf_metadata_mixin import unit_test_bf_metadata_mixin
+
+class test_bf_metadata_factory_checksum(unit_test_bf_metadata_mixin, unit_test):
 
   @classmethod
   def setUpClass(clazz):

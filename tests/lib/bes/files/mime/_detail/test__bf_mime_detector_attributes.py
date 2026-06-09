@@ -7,7 +7,9 @@ from bes.testing.unit_test_class_skip import unit_test_class_skip
 from _bf_mime_type_detector_tester import make_test_case
 
 from bes.files.mime._detail._bf_mime_type_detector_attributes import _bf_mime_type_detector_attributes
-class test__bf_mime_type_detector_attributes(make_test_case(_bf_mime_type_detector_attributes)):
+from _bes_unit_test_common.files.metadata.unit_test_bf_metadata_mixin import unit_test_bf_metadata_mixin
+
+class test__bf_mime_type_detector_attributes(unit_test_bf_metadata_mixin, make_test_case(_bf_mime_type_detector_attributes)):
 
   def test_unknown_returns_none(self):
     'Attributes detector may return application/octet-stream for unrecognised binaries.'

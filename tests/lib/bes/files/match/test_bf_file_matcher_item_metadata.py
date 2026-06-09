@@ -8,8 +8,9 @@ from bes.files.metadata.bf_metadata import bf_metadata
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.files.metadata.example_metadata_fruits_factory import example_metadata_fruits_factory
+from _bes_unit_test_common.files.metadata.unit_test_bf_metadata_mixin import unit_test_bf_metadata_mixin
 
-class test_bf_file_matcher_item_metadata(unit_test):
+class test_bf_file_matcher_item_metadata(unit_test_bf_metadata_mixin, unit_test):
   
   def test_match_one_metadata_any(self):
     tmp1 = self.make_temp_file(dir = __file__, content = b'1234')

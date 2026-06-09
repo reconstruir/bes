@@ -14,8 +14,9 @@ from bes.files.bf_date import bf_date
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+from _bes_unit_test_common.files.metadata.unit_test_bf_metadata_mixin import unit_test_bf_metadata_mixin
 
-class test_bf_metadata_factory_mime(unit_test, unit_test_media_files):
+class test_bf_metadata_factory_mime(unit_test_bf_metadata_mixin, unit_test, unit_test_media_files):
 
   @classmethod
   def setUpClass(clazz):
