@@ -400,6 +400,193 @@ backends (aiohttp, asyncssh, aiobotocore) implement only the async interface.
 
 ---
 
+## Attributes interface proposal
+
+### The core tension
+
+"Attributes" means five different things depending on the backend:
+
+1. **Native object metadata** — S3 `x-amz-meta-*`, GCS custom metadata, Azure
+   blob metadata. First-class, stored by the backend, comes back in list/stat
+   responses.
+2. **First-class properties** — WebDAV `PROPFIND`/`PROPPATCH`. The richest
+   attribute model of any protocol.
+3. **OS extended attributes** — `xattr` on local/SFTP. Inode-level, invisible
+   to file content, not portable across FSes.
+4. **Sidecar files** — `.vfs_attrs.yaml` or SQLite stored alongside files.
+   Works on any backend that stores arbitrary files, at the cost of extra
+   fetches.
+5. **Nothing** — plain HTTP, read-only backends, some NFS mounts.
+
+rclone is the hard case: at the `vfs_rclone` layer you don't know which of the
+above applies.  The underlying remote could be WebDAV (rich properties) or
+plain FTP (nothing).
+
+### Layer 1 — `vfs_attr_backend` interface
+
+Completely decouple attribute storage from the FS backend.  The VFS factory
+wires up an attr backend independently of the FS backend.
+
+```python
+class vfs_attr_backend(ABC):
+    @abstractmethod
+    def get(self, vfs_path: str, keys: list[str] | None = None) -> dict[str, str]: ...
+
+    @abstractmethod
+    def set(self, vfs_path: str, attributes: dict[str, str]) -> None: ...
+
+    @abstractmethod
+    def delete(self, vfs_path: str, keys: list[str]) -> None: ...
+
+    @classmethod
+    @abstractmethod
+    def supports_dirs(cls) -> bool: ...
+
+    @classmethod
+    @abstractmethod
+    def is_writable(cls) -> bool: ...
+```
+
+All paths are normalized VFS paths relative to root — never absolute local
+paths.
+
+### Layer 2 — concrete backends
+
+| Class | Mechanism | Portable | Diffable | Dir support |
+|---|---|---|---|---|
+| `vfs_attr_backend_none` | No-op; reads return `{}`; writes raise `vfs_capability_error` | — | — | — |
+| `vfs_attr_backend_sqlite` | SQLite keyed on VFS path (not absolute path) | No | No | Yes |
+| `vfs_attr_backend_yaml` | `.vfs_attrs.yaml` per directory uploaded as a regular file | Yes | Yes | Yes |
+| `vfs_attr_backend_native` | Delegates to the FS backend's own metadata API | Backend-specific | Backend-specific | Backend-specific |
+| `vfs_attr_backend_xattr` | OS `xattr` on inode | No (FAT/exFAT breaks) | No | Yes |
+
+### Layer 3 — YAML sidecar design (recommended default)
+
+One `.vfs_attrs.yaml` file per directory, stored as a regular file on the
+remote:
+
+```
+myremote/
+  foo/
+    bar.bin
+    baz.txt
+    .vfs_attrs.yaml
+```
+
+Contents of `.vfs_attrs.yaml`:
+
+```yaml
+bar.bin:
+  version: "1.2"
+  platform: linux
+baz.txt:
+  author: ramiro
+```
+
+Why this shape:
+- One fetch per directory during `list_dir`, not one fetch per file
+- Works on any backend that stores arbitrary files — S3, SFTP, rclone-anything
+- Human-readable and diffable in git (unlike SQLite)
+- Deleting a file doesn't orphan its attributes in a distant DB
+- Sidecar files are just regular VFS files; `list_dir` filters `.vfs_attrs.yaml`
+  from results the same way `.bes_vfs` is currently filtered
+
+### Layer 4 — `attr_backend` config key
+
+```ini
+[fsconfig]
+vfs_type = rclone
+remote = mynas:files
+attr_backend = auto       # default
+```
+
+| Value | Behavior |
+|---|---|
+| `auto` | Detect native support at init, fall back to yaml sidecar |
+| `native` | Require native support, raise at init if unavailable |
+| `yaml` | Always yaml sidecar regardless of native support |
+| `sqlite` | Always sqlite sidecar (current behavior, local only) |
+| `xattr` | OS xattr, fall back to sqlite if not supported by the mount |
+| `none` | No attributes — reads return `{}`, writes raise |
+
+### rclone specifically
+
+rclone added `--metadata` support in v1.59.  The feature is backend-dependent.
+Query it once at init time and cache the result:
+
+```bash
+rclone backend features mynas:
+```
+
+Returns JSON with a `Features` map including `ReadMetadata`, `WriteMetadata`,
+`UserMetadata`.
+
+```python
+class vfs_rclone(vfs_base):
+
+    def __init__(self, config_source, remote, attr_policy='auto'):
+        self._remote = remote
+        self._attr_backend = self._resolve_attr_backend(attr_policy)
+
+    def _resolve_attr_backend(self, policy):
+        if policy == 'none':
+            return vfs_attr_backend_none()
+        if policy == 'yaml':
+            return vfs_attr_backend_yaml(self)
+        if policy in ('native', 'auto'):
+            native_ok = self._probe_native_metadata()
+            if native_ok:
+                return vfs_attr_backend_rclone_native(self._remote)
+            elif policy == 'native':
+                raise vfs_error(f'native metadata not supported by remote: {self._remote}')
+            else:
+                return vfs_attr_backend_yaml(self)
+
+    def _probe_native_metadata(self):
+        out = subprocess.check_output(['rclone', 'backend', 'features', self._remote])
+        features = json.loads(out).get('Features', {})
+        return features.get('UserMetadata', False)
+```
+
+`vfs_attr_backend_rclone_native` uses `rclone lsjson --metadata` to read and
+`rclone copyto --metadata-set key=value` to write.  The write is a
+copy-to-self with new metadata — expensive but inherent to object storage
+backends.
+
+`vfs_attr_backend_yaml` on rclone uploads/downloads the sidecar file via the
+rclone VFS itself (regular `upload_file`/`download_to_bytes` calls).  Parse
+and cache per directory per session to avoid repeated fetches.
+
+### Per-backend mapping
+
+| Backend | `auto` resolves to | Notes |
+|---|---|---|
+| `vfs_local` | `xattr` → sqlite fallback | xattr on macOS/Linux, sqlite on FAT/network mounts |
+| `vfs_git_repo` | `yaml` | YAML sidecar committed alongside files, diffable |
+| `vfs_s3` | `native` | `x-amz-meta-*`, 2KB limit, copy-to-self on update |
+| `vfs_webdav` | `native` | `PROPFIND`/`PROPPATCH`, richest model |
+| `vfs_sftp` | `yaml` | No native metadata; sidecar files on the remote |
+| `vfs_azure_blob` | `native` | Blob metadata; same copy-to-self limitation as S3 |
+| `vfs_rclone` (S3 target) | `native` via probe | rclone `--metadata` |
+| `vfs_rclone` (SFTP target) | `yaml` via probe | probe returns false, falls back |
+| `vfs_rclone` (FTP target) | `yaml` via probe | probe returns false, falls back |
+| `vfs_rclone` (WebDAV target) | `native` via probe | rclone exposes WebDAV props via metadata |
+| `vfs_rclone` (local target) | `yaml` via probe | rclone doesn't expose xattr via metadata |
+
+### What this buys
+
+- `vfs_rclone` works correctly for all 70+ backends automatically — native
+  where possible, sidecar where not, without the caller or the user knowing
+  which is in use
+- Adding a new native backend (`vfs_gcs`, `vfs_azure`) only requires
+  implementing `vfs_attr_backend_native` for that SDK; the rest is inherited
+- `vfs_git_repo`'s SQLite-in-git problem disappears: swap to
+  `vfs_attr_backend_yaml` and attributes become a normal committed YAML file
+- The path key bug is structurally impossible: `vfs_attr_backend` only ever
+  sees VFS paths, never local paths
+
+---
+
 ## `vfs_rclone` in detail
 
 `rclone` is a CLI tool that already knows how to talk to 70+ storage backends
