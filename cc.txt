@@ -1,7 +1,1 @@
-migrate macos cli groups in best_cli_macos.py to bcli factory/handler pattern
-
-- add command_line_tools_command_options/factory/handler; remove command_line_tools_cli_args, command_line_tools_cli_command
-- add defaults_command_factory/handler; remove defaults_cli_args, defaults_cli_command
-- add scutil_command_factory/handler; remove scutil_cli_args, scutil_cli_command
-- clear MACOS_COMMAND_GROUPS in best_cli_macos.py (commands now registered via bes_application)
-- add command_line_tools_command_factory, defaults_command_factory, scutil_command_factory to bes_application
+remove native_package_cli now that native_package_command_factory/handler are in place
