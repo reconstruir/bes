@@ -7,7 +7,7 @@ from bes.testing.program_unit_test import program_unit_test
 
 class test_properties_file_cli_args(program_unit_test):
 
-  _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'best2.py')
+  _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'best.py')
   
   def test_set_non_existing_file(self):
     tmp_dir = self.make_temp_dir()

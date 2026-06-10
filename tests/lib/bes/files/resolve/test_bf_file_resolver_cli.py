@@ -7,7 +7,7 @@ from bes.testing.program_unit_test import program_unit_test
 
 class test_bf_file_resolver_cli(program_unit_test):
 
-  _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', '..', 'bin', 'best2.py')
+  _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', '..', 'bin', 'best.py')
 
   def test_set_get(self):
     tmp = self.make_temp_file(suffix = '.secret')

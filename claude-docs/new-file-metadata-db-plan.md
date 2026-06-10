@@ -330,11 +330,11 @@ Future work: once the xattr layer is fully replaced, `bf_metadata.get_metadata` 
 Path: `files/metadata`
 
 ```
-best2.py files/metadata list <file>
-best2.py files/metadata clear <file>
-best2.py files/metadata set <key> <value> <file>
-best2.py files/metadata get <key> <file>
-best2.py files/metadata keys <file>
+best.py files/metadata list <file>
+best.py files/metadata clear <file>
+best.py files/metadata set <key> <value> <file>
+best.py files/metadata get <key> <file>
+best.py files/metadata keys <file>
 ```
 
 ### 9.1 Command Descriptions

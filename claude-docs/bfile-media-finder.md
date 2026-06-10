@@ -592,7 +592,7 @@ receives 100 tasks rather than 1,000.
 
 ### R6 — CLI
 
-- `best2.py media find <dir> [options]`
+- `best.py media find <dir> [options]`
 - Flags: `--media-type`, `--sort`, `--sort-reversed`, `--feature-resolver`,
   `--ignore-file`, `--case-sensitive`, `--verbose`/`-v`, `--count`
 - `--sort` accepts any string. Builtin enum values handled directly; any other string

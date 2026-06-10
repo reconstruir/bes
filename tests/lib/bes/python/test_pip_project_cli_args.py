@@ -74,7 +74,7 @@ class test_pip_project_cli_args(program_unit_test):
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip('too slow')
   
-  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best2.py')
+  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
   def test_create(self):
     tester = _pip_project_tester(self)

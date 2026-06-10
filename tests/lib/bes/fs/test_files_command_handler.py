@@ -10,7 +10,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_files_command_handler(program_unit_test):
 
-  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best2.py')
+  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
   def test_move_files(self):
     items = [
