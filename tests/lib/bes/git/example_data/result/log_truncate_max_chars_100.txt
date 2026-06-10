@@ -1,2 +1,0 @@
-65ca65e Use full log info
-8adf766 [dropped]

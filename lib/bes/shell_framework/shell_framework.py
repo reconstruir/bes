@@ -4,10 +4,10 @@ import os.path as path
 
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_temp_file import bf_temp_file
-from bes.git.git_clone_manager import git_clone_manager
-from bes.git.git_clone_options import git_clone_options
-from bes.git.git_repo import git_repo
-from bes.git.git_util import git_util
+from bat.git.git_clone_manager import git_clone_manager
+from bat.git.git_clone_options import git_clone_options
+from bat.git.git_repo import git_repo
+from bat.git.git_util import git_util
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger

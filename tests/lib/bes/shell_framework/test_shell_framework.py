@@ -15,8 +15,8 @@ from bes.fs.tar_util import tar_util
 from bes.files.bf_temp_file import bf_temp_file
 from bes.system.os_env import os_env
 from bes.testing.unit_test import unit_test
-from bes.git.git_temp_repo import git_temp_repo
-from bes.git.git_unit_test import git_temp_home_func
+from bat.git.git_temp_repo import git_temp_repo
+from bat.git.git_unit_test import git_temp_home_func
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_shell_framework(unit_test):

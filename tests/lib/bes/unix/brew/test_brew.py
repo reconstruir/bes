@@ -3,7 +3,7 @@
 
 import os.path as path
 
-from bes.git.git_unit_test import git_temp_home_func
+from bat.git.git_unit_test import git_temp_home_func
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.testing.unit_test_function_skip import unit_test_function_skip
