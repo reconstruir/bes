@@ -83,7 +83,7 @@ class test_bes_project_cli_args(program_unit_test):
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip('too slow')
   
-  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
+  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best2.py')
 
   def test_ensure(self):
     tester = _bes_project_tester(self)
