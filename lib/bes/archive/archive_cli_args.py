@@ -1,4 +1,4 @@
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 class archive_cli_args(object):
 
@@ -10,20 +10,6 @@ class archive_cli_args(object):
     import os
     default_root = os.getcwd()
     default_format = 'zip'
-    
-    # create
-    p = subparser.add_parser('create_git', help = 'Create an archive from a git repo.')
-    p.add_argument('prefix', action = 'store', default = None,
-                   help = 'The prefix inside the archive (ie  foo-1.2.3/) [ None ]')
-    p.add_argument('revision', action = 'store', default = None,
-                   help = 'The git revision to archive. [ None ]')
-    p.add_argument('output_filename', action = 'store', default = None,
-                   help = 'The output filename. [ None ]')
-    p.add_argument('--root-dir', action = 'store', default = default_root,
-                   help = 'The root dir of the git repo to archive. [ None ]')
-    p.add_argument('--format', action = 'store', default = default_format,
-                   choices = ( 'zip', 'tgz' ), dest = 'archive_format',
-                   help = 'The format of the exported archive (zip or tgz) [ zip ]')
     
     # remove_members
     p = subparser.add_parser('remove_members', help = 'Remove members from the archive.')

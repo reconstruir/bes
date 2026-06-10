@@ -4,18 +4,10 @@ from os import path
 import os
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.git.git_repo import git_repo
 from bes.archive.archiver import archiver
 from bes.archive.archive_util import archive_util
 
 class archive_cli_handler(cli_command_handler):
-
-  def create_git(self, root_dir, prefix, revision, output_filename, archive_format):
-    r = git_repo(root_dir)
-    r.archive_to_file(prefix, revision, output_filename,
-                      archive_format = archive_format,
-                      short_hash = True)
-    return 0
 
   def remove_members(self, archive, members):
     archive_util.remove_members(archive, members)
