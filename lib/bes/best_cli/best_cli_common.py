@@ -42,5 +42,4 @@ COMMON_COMMAND_GROUPS = [
   cli_command('pyinstaller', 'pyinstaller_add_args', 'Deal with PyInstaller', pyinstaller_cli_args),
   cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
   cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
-  cli_command('shell_framework', 'shell_framework_add_args', 'Deal with the bes_shell framework', shell_framework_cli_args),
 ]
