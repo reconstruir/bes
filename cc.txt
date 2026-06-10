@@ -1,10 +1,7 @@
-migrate bes.fs CLI handlers to bcli factory/handler pattern
+migrate macos cli groups in best_cli_macos.py to bcli factory/handler pattern
 
-Migrate files, dir_combine, dir_split, file_duplicates, dir_partition, and file_split CLI
-handlers from bcli_deprecated_command_handler to the bcli command factory/handler pattern.
-Remove bcli_deprecated_command_handler now that it has no remaining users. Register all six
-new factories in bes_application. Clear best_cli_common.py of all remaining entries. Rename
-and update all related test files with corrected argument ordering (options-class fields
-before subcommand, per-command args after). Remove deleted softwareupdater_cli_args and
-sudo_cli_args imports from best_cli_macos.py and best_cli_unix.py. Update all factory-based
-tests to use best2.py (bes_application) instead of best.py (legacy best_cli).
+- add command_line_tools_command_options/factory/handler; remove command_line_tools_cli_args, command_line_tools_cli_command
+- add defaults_command_factory/handler; remove defaults_cli_args, defaults_cli_command
+- add scutil_command_factory/handler; remove scutil_cli_args, scutil_cli_command
+- clear MACOS_COMMAND_GROUPS in best_cli_macos.py (commands now registered via bes_application)
+- add command_line_tools_command_factory, defaults_command_factory, scutil_command_factory to bes_application
