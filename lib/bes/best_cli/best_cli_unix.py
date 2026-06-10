@@ -2,8 +2,6 @@
 
 from bes.cli.cli_command import cli_command
 
-from bes.unix.brew.brew_cli_args import brew_cli_args
-from bes.unix.brew_installer.brew_installer_cli_args import brew_installer_cli_args
 from bes.unix.shell.shell_cli_args import shell_cli_args
 from bes.unix.sudo.sudo_cli_args import sudo_cli_args
 

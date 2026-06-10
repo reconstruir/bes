@@ -7,8 +7,8 @@ from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
 from bes.python.python_version_list import python_version_list
 from bes.system.log import logger
-from bes.unix.brew.brew import brew
-from bes.unix.brew.brew_options import brew_options
+from bat.unix.brew.brew import brew
+from bat.unix.brew.brew_options import brew_options
 
 from .python_installer_base import python_installer_base
 from .python_installer_error import python_installer_error

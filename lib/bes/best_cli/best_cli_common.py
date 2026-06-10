@@ -21,7 +21,6 @@ from bes.python.pip_installer_cli_args import pip_installer_cli_args
 from bes.python.pip_project_cli_args import pip_project_cli_args
 from bes.python.python_cli_args import python_cli_args
 from bes.python_installer.python_installer_cli_args import python_installer_cli_args
-from bes.shell_framework.shell_framework_cli_args import shell_framework_cli_args
 
 from .system_cli_args import system_cli_args
   
