@@ -6,7 +6,6 @@ from ..system.check import check
 from bes.common.object_util import object_util
 from bes.files.bf_check import bf_check
 from bes.fs.file_find import file_find
-from bes.git.git import git
 
 class cli_helper(object):
   'A class to help implement cli tools'
@@ -49,10 +48,6 @@ class cli_helper(object):
   @classmethod
   def check_dir(clazz, dirname):
     bf_check.check_dir(dirname)
-
-  @classmethod
-  def check_dir_is_git_repo(clazz, d):
-    git.check_is_repo(d)
 
   @classmethod
   def resolve_file(clazz, filename, root_dir = None):

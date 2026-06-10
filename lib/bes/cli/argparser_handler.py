@@ -10,7 +10,6 @@ from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.system.log import log
 from bes.files.bf_check import bf_check
-from bes.git.git import git
 
 from .cli_missing_command_error import cli_missing_command_error
 
@@ -144,10 +143,6 @@ class argparser_handler(object):
   @classmethod
   def check_dir(clazz, dirname):
     bf_check.check_dir(dirname)
-
-  @classmethod
-  def check_dir_is_git_repo(clazz, d):
-    git.check_is_repo(d)
 
   @classmethod
   def resolve_file(clazz, filename, root_dir = None):
