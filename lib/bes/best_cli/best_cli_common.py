@@ -13,7 +13,6 @@ from bes.fs.file_split_cli_args import file_split_cli_args
 from bes.fs.files_cli_args import files_cli_args
 from bes.mermaid.mermaid_cli_args import mermaid_cli_args
 from bes.native_package.native_package_cli_args import native_package_cli_args
-from bes.pipenv_project.pipenv_project_cli_args import pipenv_project_cli_args
 from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
 from bes.pyinstaller.pyinstaller_cli_args import pyinstaller_cli_args
 from bes.python.pip_cli_args import pip_cli_args
@@ -39,7 +38,6 @@ COMMON_COMMAND_GROUPS = [
   cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
   cli_command('pip_installer', 'pip_installer_add_args', 'Pip installer stuff', pip_installer_cli_args),
   cli_command('pip_project', 'pip_project_add_args', 'Pip project stuff', pip_project_cli_args),
-  cli_command('pipenv_project', 'pipenv_project_add_args', 'Pipenv project stuff', pipenv_project_cli_args),
   cli_command('properties_file', 'properties_file_add_args', 'Deal with properties files', properties_file_cli_args),
   cli_command('pyinstaller', 'pyinstaller_add_args', 'Deal with PyInstaller', pyinstaller_cli_args),
   cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
