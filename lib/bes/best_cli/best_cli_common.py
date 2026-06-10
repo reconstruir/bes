@@ -11,13 +11,6 @@ from bes.fs.dirs_cli_args import dirs_cli_args
 from bes.fs.file_duplicates_cli_args import file_duplicates_cli_args
 from bes.fs.file_split_cli_args import file_split_cli_args
 from bes.fs.files_cli_args import files_cli_args
-from bat.git.git_cli_args import git_cli_args
-from bat.git.git_download_cli_args import git_download_cli_args
-from bat.git.git_identity_cli_args import git_identity_cli_args
-from bat.git.git_projects_cli_args import git_projects_cli_args
-from bat.git.git_repo_cli_args import git_repo_cli_args
-from bat.git.git_repo_document_cli_args import git_repo_document_cli_args
-from bat.git.git_repo_script_cli_args import git_repo_script_cli_args
 from bes.mermaid.mermaid_cli_args import mermaid_cli_args
 from bes.native_package.native_package_cli_args import native_package_cli_args
 from bes.pipenv_project.pipenv_project_cli_args import pipenv_project_cli_args
@@ -42,13 +35,6 @@ COMMON_COMMAND_GROUPS = [
   cli_command('file_duplicates', 'file_duplicates_add_args', 'Directory partition', file_duplicates_cli_args),
   cli_command('file_split', 'file_split_add_args', 'Directory partition', file_split_cli_args),
   cli_command('files', 'files_add_args', 'File stuff', files_cli_args),
-  cli_command('git', 'git_add_args', 'Deal with git', git_cli_args),
-  cli_command('git_download', 'git_download_add_args', 'Deal with git downloads', git_download_cli_args),
-  cli_command('git_identity', 'git_identity_add_args', 'Deal with git identity', git_identity_cli_args),
-  cli_command('git_projects', 'git_projects_add_args', 'Deal with git projects', git_projects_cli_args),    
-  cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
-  cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
-  cli_command('git_repo_script', 'git_repo_script_add_args', 'Deal with git repo scipts', git_repo_script_cli_args),
   cli_command('mermaid', 'mermaid_add_args', 'Mermaid python code', mermaid_cli_args),
   cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
   cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
