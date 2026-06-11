@@ -3,9 +3,6 @@
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-from ..cli.cli_options import cli_options
-from ..system.check import check
-
 from .files_cli_options import files_cli_options
 from .files_cli_options import _files_cli_options_desc
 from .dir_combine_defaults import dir_combine_defaults

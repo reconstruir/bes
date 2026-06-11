@@ -3,10 +3,6 @@
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-from bes.cli.cli_options import cli_options
-from ..system.check import check
-from bes.common.time_util import time_util
-
 from .dir_partition_criteria_base import cli_dir_partition_criteria
 from .dir_partition_defaults import dir_partition_defaults
 from .dir_partition_type import dir_partition_type

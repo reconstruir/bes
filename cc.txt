@@ -1,1 +1,11 @@
-remove native_package_cli now that native_package_command_factory/handler are in place
+convert bes options files from cli_options to bcli_options
+
+- convert softwareupdater_options to bcli_options
+- convert pip_project_options to bcli_options
+- convert pyinstaller_options to bcli_options; use _variables() for build_dir/log_level defaults
+- convert bes_project_options to bcli_options
+- convert native_package_options to bcli_options
+- convert mermaid_options to bcli_options
+- convert file_resolver_options to bcli_options; register cli_file_sort_order_type via _types()
+- convert dirs_cli_options to bcli_options
+- remove leftover cli_options import from dir_split_options, file_duplicates_options, dir_partition_options, dir_combine_options, bf_file_duplicates_finder_options

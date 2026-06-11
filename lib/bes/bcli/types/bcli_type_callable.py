@@ -19,9 +19,13 @@ class bcli_type_callable(bcli_type_i):
   @classmethod
   #@abstractmethod
   def parse(clazz, text):
-    print(f'text={text} - {type(text)}', flush = True)
-    assert False
-    return None
+    if text is None:
+      return None
+    if not isinstance(text, str):
+      return text
+    if text == 'None':
+      return None
+    raise ValueError(f'callable type cannot be parsed from string: "{text}"')
 
   @classmethod
   #@abstractmethod

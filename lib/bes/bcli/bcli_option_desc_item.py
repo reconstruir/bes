@@ -70,7 +70,9 @@ class bcli_option_desc_item(namedtuple('bcli_option_desc_item', 'name, type_name
       else:
         resolved_default_str = manager.substitute_variables(default_str)
         clazz._log.log_d(f'resolved_default_str={resolved_default_str}')
-        if type_item.parse:
+        if resolved_default_str == 'None':
+          default = None
+        elif type_item.parse:
           default = type_item.parse(resolved_default_str)
         else:
           default = ast.literal_eval(resolved_default_str)

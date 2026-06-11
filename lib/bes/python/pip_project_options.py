@@ -1,82 +1,28 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from os import path
-
-from bes.cli.cli_options import cli_options
-from ..system.check import check
-from bes.script.blurber import blurber
+from bes.bcli.bcli_options import bcli_options
+from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.data_output.data_output_options_mixin import data_output_options_mixin
 
 from .pip_error import pip_error
 
-class pip_project_options(cli_options, data_output_options_mixin):
+class _pip_project_options_desc(bcli_options_desc):
+  def _options_desc(self):
+    return '''
+  debug            bool  default=False
+  output_filename  str   default=None
+  output_style     str   default=table
+  python_exe       str   default=None
+  python_version   str   default=None
+  root_dir         str   default=None
+  verbose          bool  default=False
+  limit_num_items  int   default=None
+'''
+  def _error_class(self): return pip_error
 
-  def __init__(self, **kargs):
-    super().__init__(**kargs)
-
-  @classmethod
-  #@abstractmethod
-  def default_values(clazz):
-    'Return a dict of defaults for these options.'
-    return {
-      'blurber': blurber(),
-      'debug': False,
-      'output_filename': None,
-      'output_style': 'table',
-      'python_exe': None,
-      'python_version': None,
-      'root_dir': None,
-      'verbose': False,
-      'limit_num_items': None,
-    }
-  
-  @classmethod
-  #@abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    None
-  
-  @classmethod
-  #@abstractmethod
-  def value_type_hints(clazz):
-    return {
-      'verbose': bool,
-      'debug': bool,
-      'limit_num_items': int,
-    }
-
-  @classmethod
-  #@abstractmethod
-  def config_file_key(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def config_file_env_var_name(clazz):
-    return None
-  
-  @classmethod
-  #@abstractmethod
-  def config_file_section(clazz):
-    return None
-
-  @classmethod
-  #@abstractmethod
-  def error_class(clazz):
-    return pip_error
-
-  #@abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    check.check_blurber(self.blurber)
-    check.check_bool(self.verbose)
-    check.check_bool(self.debug)
-    check.check_string(self.root_dir, allow_none = True)
-    check.check_string(self.python_version, allow_none = True)
-    check.check_string(self.python_exe, allow_none = True)
-    check.check_string(self.output_filename, allow_none = True)
-    check.check_data_output_style(self.output_style, allow_none = True)
-    check.check_int(self.limit_num_items, allow_none = True)
+class pip_project_options(bcli_options, data_output_options_mixin):
+  def __init__(self, **kwargs):
+    super().__init__(_pip_project_options_desc(), **kwargs)
 
   def resolve_python_exe(self):
     if self.python_exe:
@@ -100,4 +46,4 @@ class pip_project_options(cli_options, data_output_options_mixin):
     import os
     return path.join(os.getcwd(), 'BES_PIP_ROOT')
 
-check.register_class(pip_project_options)
+pip_project_options.register_check_class()

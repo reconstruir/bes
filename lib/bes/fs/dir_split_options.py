@@ -6,10 +6,6 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from .files_cli_options import files_cli_options
 from .files_cli_options import _files_cli_options_desc
 
-from bes.cli.cli_options import cli_options
-from ..system.check import check
-from bes.common.time_util import time_util
-
 from .dir_split_defaults import dir_split_defaults
 from .file_sort_order import file_sort_order
 from .file_sort_order import cli_file_sort_order_type

@@ -5,11 +5,6 @@ from os import path
 from bes.bcli.bcli_options import bcli_options
 from bes.bcli.bcli_options_desc import bcli_options_desc
 
-from bes.cli.cli_options import cli_options
-from ..system.check import check
-from bes.common.time_util import time_util
-from bes.script.blurber import blurber
-
 from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 
 from .file_duplicates_setup import file_duplicates_setup

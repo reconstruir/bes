@@ -1,88 +1,44 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_options import cli_options
-from ..system.check import check
-from bes.script.blurber import blurber
+from bes.bcli.bcli_options import bcli_options
+from bes.bcli.bcli_options_desc import bcli_options_desc
 
 from .pyinstaller_error import pyinstaller_error
-from .pyinstaller_log_level import pyinstaller_log_level
-from .pyinstaller_defaults import pyinstaller_defaults
+from .pyinstaller_log_level import cli_pyinstaller_log_level_type
 
-class pyinstaller_options(cli_options):
+class _pyinstaller_options_desc(bcli_options_desc):
 
-  def __init__(self, **kargs):
-    super(pyinstaller_options, self).__init__(**kargs)
-    
-  @classmethod
-  #@abstractmethod
-  def default_values(clazz):
-    'Return a dict of defaults for these options.'
-    return {
-      'blurber': blurber(),
-      'build_dir': pyinstaller_defaults.BUILD_DIR,
-      'clean': True,
-      'debug': False,
-      'excludes': None,
-      'hidden_imports': None,
-      'log_level': pyinstaller_defaults.LOG_LEVEL,
-      'python_version': '3.8',
-      'verbose': False,
-      'windowed': pyinstaller_defaults.WINDOWED,
-      'osx_bundle_identifier': None,
-      'replace_env': None,
-    }
+  def _options_desc(self):
+    return '''
+          build_dir  str       default=${_build_dir}
+              clean  bool      default=True
+    config_filename  str       default=None
+              debug  bool      default=False
+           excludes  list[str] default=None
+    hidden_imports   list[str] default=None
+          log_level  pyinstaller_log_level  default=${_log_level}
+osx_bundle_identifier str      default=None
+     python_version  str       default=3.8
+        replace_env  dict      default=None
+            verbose  bool      default=False
+           windowed  bool      default=False
+'''
 
-  @classmethod
-  #@abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    return None
-  
-  @classmethod
-  #@abstractmethod
-  def value_type_hints(clazz):
-    return {
-      'clean': bool,
-      'debug': bool,
-      'excludes': list,
-      'hidden_imports': list,
-      'verbose': bool,
-      'windowed': bool,
-      'replace_env': dict,
-    }
+  def _types(self):
+    return [ cli_pyinstaller_log_level_type ]
 
-  @classmethod
-  #@abstractmethod
-  def config_file_key(clazz):
-    return 'config_filename'
-
-  @classmethod
-  #@abstractmethod
-  def config_file_env_var_name(clazz):
-    return None
-  
-  @classmethod
-  #@abstractmethod
-  def config_file_section(clazz):
-    return 'pyinstaller'
-
-  @classmethod
-  #@abstractmethod
-  def error_class(clazz):
+  def _error_class(self):
     return pyinstaller_error
 
-  #@abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    check.check_blurber(self.blurber)
-    check.check_bool(self.verbose)
-    check.check_bool(self.debug)
-    check.check_string(self.build_dir, allow_none = True)
-    check.check_string(self.python_version)
-    check.check_bool(self.clean)
-    check.check_bool(self.windowed)
-    check.check_string(self.osx_bundle_identifier, allow_none = True)
-    self.log_level = check.check_pyinstaller_log_level(self.log_level)
-    check.check_dict(self.replace_env, allow_none = True)
-    
-check.register_class(pyinstaller_options, include_seq = False)
+  def _variables(self):
+    from .pyinstaller_defaults import pyinstaller_defaults
+    return {
+      '_build_dir': lambda: pyinstaller_defaults.BUILD_DIR,
+      '_log_level': lambda: pyinstaller_defaults.LOG_LEVEL,
+    }
+
+class pyinstaller_options(bcli_options):
+  def __init__(self, **kwargs):
+    super().__init__(_pyinstaller_options_desc(), **kwargs)
+
+pyinstaller_options.register_check_class()
