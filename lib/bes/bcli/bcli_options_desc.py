@@ -39,6 +39,14 @@ class bcli_options_desc(bcli_options_desc_i):
   def _types(self):
     return None
 
+  #@abstractmethod
+  def _ignore_unknown_options(self):
+    return False
+
+  #@abstractmethod
+  def _config_file_section(self):
+    return None
+
   @cached_property
   def types(self):
     return self._types()

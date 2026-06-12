@@ -9,3 +9,6 @@ convert bes options files from cli_options to bcli_options
 - convert file_resolver_options to bcli_options; register cli_file_sort_order_type via _types()
 - convert dirs_cli_options to bcli_options
 - remove leftover cli_options import from dir_split_options, file_duplicates_options, dir_partition_options, dir_combine_options, bf_file_duplicates_finder_options
+- fix bcli_type_float.parse() to handle int inputs (int→float coercion)
+- add _ignore_unknown_options() and _config_file_section() hooks to bcli_options_desc
+- add from_config_file() classmethod and _ignore_unknown_options support to bcli_options

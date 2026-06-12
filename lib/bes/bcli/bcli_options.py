@@ -2,9 +2,10 @@
 
 import copy
 import pprint
- 
+
 from collections import namedtuple
 
+from bes.config.simple_config import simple_config
 from bes.system.check import check
 from bes.system.log import logger
 
@@ -13,13 +14,16 @@ from .bcli_options_desc import bcli_options_desc
 class bcli_options(object):
 
   _log = logger('bcli')
-  
+
   def __init__(self, desc, **kwargs):
     desc = check.check_bcli_options_desc(desc)
     super().__setattr__('_desc', desc)
     options = {}
     super().__setattr__('_options', options)
+    ignore_unknown = desc._ignore_unknown_options()
     for name, value in kwargs.items():
+      if ignore_unknown and not desc.has_option(name):
+        continue
       setattr(self, name, value)
     self.init_hook()
 
@@ -50,6 +54,13 @@ class bcli_options(object):
     desc = super().__getattribute__('_desc')
     return desc.keys()
 
+  def __dir__(self):
+    desc = super().__getattribute__('_desc')
+    result = set(super().__dir__())
+    result.update(desc.keys())
+    result.update(self.pass_through_keys())
+    return sorted(result)
+
   def secret_keys(self):
     desc = super().__getattribute__('_desc')
     result = []
@@ -69,12 +80,12 @@ class bcli_options(object):
   
   def __getattr__(self, name):
     self._log.log_method_d()
-    
+
     if name in self.pass_through_keys():
       return super().__getattribute__(name)
     desc = super().__getattribute__('_desc')
     if not desc.has_option(name):
-      raise KeyError(f'Unknown option: "{name}"')
+      raise AttributeError(f'Unknown option: "{name}"')
     options = super().__getattribute__('_options')
     if name in options:
       return options[name]
@@ -115,6 +126,22 @@ class bcli_options(object):
     dself = self.to_dict(hide_secrets = False)
     dother = other.to_dict(hide_secrets = False)
     return dself == dother
+
+  @classmethod
+  def from_config_file(clazz, config_filename):
+    check.check_string(config_filename)
+    tmp = clazz()
+    section_name = tmp._desc._config_file_section()
+    if not section_name:
+      raise RuntimeError(f'{clazz.__name__} does not define a config file section')
+    config = simple_config.from_file(config_filename)
+    if not config.has_section(section_name):
+      return clazz()
+    section = config.section(section_name)
+    values = section.to_dict()
+    known_keys = set(tmp._desc.keys())
+    filtered = {k: v for k, v in values.items() if k in known_keys}
+    return clazz(**filtered)
 
   @classmethod
   def clone_or_create(clazz, options, check_class_name = None):

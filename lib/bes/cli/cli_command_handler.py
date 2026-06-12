@@ -85,8 +85,11 @@ class cli_command_handler(object):
   @classmethod
   def _options_clazz_attributes(clazz, options_clazz):
     result = []
-    instance = options_clazz()
-    for name, _ in inspect.getmembers(instance, lambda m: not callable(m)):
+    try:
+      instance = options_clazz()
+    except TypeError:
+      return result
+    for name, value in inspect.getmembers(instance, lambda m: not callable(m)):
       if not name.startswith('_'):
         result.append(name)
     return result

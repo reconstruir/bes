@@ -20,6 +20,8 @@ class bcli_type_float(bcli_type_i):
   @classmethod
   #@abstractmethod
   def parse(clazz, text):
+    if isinstance(text, (int, float)):
+      return float(text)
     return number_util.to_float(text)
 
   @classmethod

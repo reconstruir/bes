@@ -143,6 +143,9 @@ class bf_entry(object):
   def __repr__(self):
     return self.filename
   
+  def __hash__(self):
+    return hash(self.filename)
+
   def __eq__(self, other):
     if other == None:
       return False
