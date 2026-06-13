@@ -10,11 +10,16 @@ from bes.python.python_testing import python_testing
 from bes.python.python_exe import python_exe
 from bes.python.python_virtual_env import python_virtual_env
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 def _skip(name, is_system, exe, version):
   return python_testing.skip_if_not(name, is_system, exe, version)
 
 class test_python_virtual_env(unit_test):
+
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('superseded by test_uv_venv')
 
   _test = namedtuple('_test', 'expected_version, actual_version, expected_path, actual_path, expected_exe, actual_exe, expected_pip_exe, actual_pip_exe')
   def _test_unix(self, exe):

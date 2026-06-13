@@ -11,9 +11,11 @@ class _bes_project_command_options_desc(bcli_options_desc):
     return '''
 verbose         bool  default=False
 debug           bool  default=False
+name            str   default=None
 root_dir        str
 output_filename str
 output_style    str   default=table
+uv_exe          str   default=None
 '''
 
   def _error_class(self):

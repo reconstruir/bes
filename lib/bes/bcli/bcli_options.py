@@ -121,7 +121,8 @@ class bcli_options(object):
     return self.__class__(**d)
 
   def __eq__(self, other):
-    check.check_bcli_options(other)
+    if not isinstance(other, bcli_options):
+      return NotImplemented
 
     dself = self.to_dict(hide_secrets = False)
     dother = other.to_dict(hide_secrets = False)
@@ -152,4 +153,11 @@ class bcli_options(object):
       options = check_func(options)
     return options.clone()
 
+  def __reduce__(self):
+    options = super().__getattribute__('_options')
+    return (_bcli_options_reconstruct, (self.__class__, dict(options)))
+
 check.register_class(bcli_options, include_seq = False)
+
+def _bcli_options_reconstruct(cls, values):
+  return cls(**values)

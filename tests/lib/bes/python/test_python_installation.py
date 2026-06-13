@@ -7,12 +7,17 @@ from bes.python.python_installation import python_installation
 from bes.python.python_testing import python_testing
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 def _skip(name, is_system, exe, version):
   return python_testing.skip_if_not(name, is_system, exe, version)
 
 class test_python_installation(unit_test):
+
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip('superseded by test_uv_venv')
 
   @_skip('test_macos_xcode_38', 'is_macos', python_testing._PYTHONS.PYTHON_38, '3.8')
   def test_macos_xcode_38(self):

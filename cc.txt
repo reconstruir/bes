@@ -1,14 +1,70 @@
-convert bes options files from cli_options to bcli_options
+add uv and uv_installer modules; rewrite bes_project to use uv
 
-- convert softwareupdater_options to bcli_options
-- convert pip_project_options to bcli_options
-- convert pyinstaller_options to bcli_options; use _variables() for build_dir/log_level defaults
-- convert bes_project_options to bcli_options
-- convert native_package_options to bcli_options
-- convert mermaid_options to bcli_options
-- convert file_resolver_options to bcli_options; register cli_file_sort_order_type via _types()
-- convert dirs_cli_options to bcli_options
-- remove leftover cli_options import from dir_split_options, file_duplicates_options, dir_partition_options, dir_combine_options, bf_file_duplicates_finder_options
-- fix bcli_type_float.parse() to handle int inputs (int→float coercion)
-- add _ignore_unknown_options() and _config_file_section() hooks to bcli_options_desc
-- add from_config_file() classmethod and _ignore_unknown_options support to bcli_options
+lib/bes/uv/ (new module — programmatic uv venv management):
+  uv_error.py: exception class with message and status_code
+  uv_exe_info.py: namedtuple(exe_path, version) returned by uv_exe.info()
+  uv_exe.py: locate the uv binary via explicit path, UV env var, ~/.local/bin/uv,
+    or shutil.which; find() raises uv_error if not found; version() parses uv --version
+  uv_venv.py: create and introspect a uv virtualenv; create() is idempotent; exposes
+    python_exe, bin_dir, site_packages_dir as cached_property; activate_script(variant)
+    returns the path to the venv activate script (supports fish/csh/bat variants)
+  uv_project_options.py: bcli_options with uv_exe, python, root_dir, uv_cache_dir,
+    verbose, debug; resolve_root_dir() defaults to cwd/UV_PROJECT_ROOT;
+    resolve_uv_exe() delegates to uv_exe; uv_cache_dir sets UV_CACHE_DIR env var
+  uv_project.py: high-level API analogous to pip_project; constructor has no side effects;
+    ensure_ready() creates the venv; install(), install_requirements() (with sha256
+    checksum cache to skip redundant reinstalls), installed(), outdated(), upgrade(),
+    call_uv(), call_program(), program_path(), env property (sets UV_CACHE_DIR when
+    uv_cache_dir is configured)
+  uv_project_command_options.py, uv_project_command_handler.py,
+  uv_project_command_factory.py: bcli CLI plumbing for all project operations
+
+lib/bes/uv_installer/ (new module — bootstrap the uv binary itself):
+  uv_installer_error.py: exception class
+  uv_installer_options.py: bcli_options with install_dir, install_script, version,
+    verbose, dry_run; resolve_install_dir() defaults to ~/.local/bin (Unix) or
+    %USERPROFILE%\.local\bin (Windows)
+  uv_installer_base.py: ABC with abstract install(), uninstall(), is_installed(),
+    installed_version(), exe_path()
+  uv_installer_macos.py, uv_installer_linux.py: download install.sh via curl then run
+    with sh; support offline mode via options.install_script; set UV_VERSION and
+    UV_INSTALL_DIR env vars; warn if install_dir not on PATH after install
+  uv_installer_windows.py: run install script via powershell -ExecutionPolicy ByPass;
+    support local script via -File; exe candidates are uv.exe and uvx.exe
+  uv_installer.py: dispatcher keyed on host platform; available_installers() classmethod
+  uv_installer_command_options.py, uv_installer_command_handler.py,
+  uv_installer_command_factory.py: bcli CLI plumbing for install/uninstall/is_installed/
+    installed_version/exe_path commands
+
+tests/lib/bes/uv/test_uv_exe.py: 6 tests; skip per-test if uv not present
+tests/lib/bes/uv/test_uv_venv.py: 7 tests; class-skipped if uv not present
+tests/lib/bes/uv/test_uv_project.py: 19 tests; class-skipped (too slow for unit suite)
+tests/lib/bes/uv_installer/test_uv_installer.py: 6 smoke tests + 3 install/uninstall
+  tests unconditionally skipped to avoid mutating the host environment
+
+lib/bes/bes_project/bes_project.py: rewrite to use uv_project and uv_installer instead
+  of pip_project; new directory layout:
+    root_dir/.uv_install/        uv binary (installed by uv_installer if not found)
+    root_dir/.uv_cache/          shared UV_CACHE_DIR for all projects/versions
+    root_dir/projects/<name>/    per-project base (name from bes_project_options.name)
+    root_dir/projects/<name>/<version>/  uv_project root_dir for each Python version
+  _uv_exe_path cached_property bootstraps uv if not present (tries system uv first,
+  falls back to uv_installer into .uv_install/); _make_uv_project() replaces
+  _make_pip_project(); version resolution logic preserved with a TODO to replace
+  python_exe.find_all_exes_info() with uv python list
+
+lib/bes/bes_project/bes_project_options.py: add name and uv_exe fields; move all
+  imports to top-level; add pass_through_keys() for data_output_options cached_property;
+  default env var renamed BES_PIP_ROOT → BES_PROJECT_ROOT
+
+lib/bes/bes_project/bes_project_command_handler.py: pass name and uv_exe through to
+  bes_project_options when constructing the project
+
+lib/bes/bes_project/bes_project_command_options.py: add name and uv_exe fields
+
+lib/bes/bcli/bcli_options.py:
+  __reduce__: make bcli_options subclasses picklable by serializing only the _options
+    dict and reconstructing via cls(**values); fixes PicklingError when options are
+    sent through a multiprocessing queue
+  __eq__: return NotImplemented instead of raising TypeError when other is not a
+    bcli_options instance, so comparisons like options != None work correctly

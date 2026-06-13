@@ -17,6 +17,8 @@ class bes_project_command_handler(bcli_command_handler):
       verbose=options.verbose,
       debug=options.debug,
       root_dir=options.root_dir,
+      name=options.name,
+      uv_exe=options.uv_exe,
     ))
 
   def _command_activate_script(self, version, variant, options):

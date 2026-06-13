@@ -4,26 +4,29 @@
 import sys
 from os import path
 
-from bes.python.pip_project import pip_project
-from bes.python.pip_project_options import pip_project_options
-from bes.python.python_testing import python_testing
 from bes.files.bf_file_ops import bf_file_ops
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_function_skip import unit_test_function_skip
+from bes.testing.unit_test_class_skip import unit_test_class_skip
+from bes.uv.uv_exe import uv_exe
+from bes.uv.uv_project import uv_project
+from bes.uv.uv_project_options import uv_project_options
 
 class test_pyinstaller_builder(unit_test):
 
-  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip_if(not uv_exe.find_or_none(), 'uv not found')
+
   def test_build(self):
-    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build', )
+    tmp_dir = self.make_temp_dir(suffix='.test_pyinstaller_build')
     venvs_dir = path.join(tmp_dir, 'venvs')
-    print(f'PYTHON: {python_testing._PYTHONS.ANY_PYTHON3}')
-    options = pip_project_options(root_dir = venvs_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
-                                  debug = self.DEBUG)
-    project = pip_project(options = options)
-    project.install('pyinstaller', version = '6.16.0')
+    options = uv_project_options(root_dir=venvs_dir,
+                                  python='3.13',
+                                  debug=self.DEBUG)
+    project = uv_project(options=options)
+    project.ensure_ready()
+    project.install('pyinstaller', version='6.16.0')
 
     program_content = r'''
 #!/usr/bin/env python3
@@ -93,51 +96,45 @@ tests = [
 for test in tests:
   test()
 
-#import json
-#from fakelib.foo import foo
-#f = foo()
-#sys.stdout.write(f.something)
-
 sys.stdout.write('\n')
 sys.stdout.flush()
 
 raise SystemExit()
 '''
-    program_source = bf_file_ops.save(path.join(tmp_dir, 'program', 'program.py'), content = program_content)
+    program_source = bf_file_ops.save(path.join(tmp_dir, 'program', 'program.py'),
+                                       content=program_content)
 
     fakelib1_content = r'''
 class fakelib1(object):
   def __init__(self):
     self.something = 'test_fakelib1:'
 '''
-  
     fakelib2_content = r'''
 class fakelib2(object):
   def __init__(self):
     self.something = 'test_fakelib2_hidden:'
 '''
-
-    bf_file_ops.save(path.join(tmp_dir, 'program', 'fakelib1.py'), content = fakelib1_content)
-    bf_file_ops.save(path.join(tmp_dir, 'program', 'fakelib2.py'), content = fakelib2_content)
+    bf_file_ops.save(path.join(tmp_dir, 'program', 'fakelib1.py'), content=fakelib1_content)
+    bf_file_ops.save(path.join(tmp_dir, 'program', 'fakelib2.py'), content=fakelib2_content)
 
     for p in project.PYTHONPATH:
       sys.path.insert(0, p)
 
     from bes.pyinstaller.pyinstaller_build import pyinstaller_build
     from bes.pyinstaller.pyinstaller_options import pyinstaller_options
-      
+
     build_dir = path.join(tmp_dir, 'BUILD')
-    options = pyinstaller_options(verbose = True,
-                                  log_level = 'INFO',
-                                  hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
-                                  build_dir = build_dir,
-                                  replace_env = project.env)
-    build_result = pyinstaller_build.build(program_source, options = options)
-    self.assertTrue( path.exists(build_result.output_exe) )
-    rv = execute.execute(build_result.output_exe, raise_error = False)
-    self.assertEqual( 0, rv.exit_code )
+    options = pyinstaller_options(verbose=True,
+                                   log_level='INFO',
+                                   hidden_imports=['json', 'fakelib1', 'fakelib2'],
+                                   build_dir=build_dir,
+                                   replace_env=project.env)
+    build_result = pyinstaller_build.build(program_source, options=options)
+    self.assertTrue(path.exists(build_result.output_exe))
+    rv = execute.execute(build_result.output_exe, raise_error=False)
+    self.assertEqual(0, rv.exit_code)
     expected = 'test_re:test_threading:test_subprocess:test_subprocess_with_shell:test_json_hidden:test_fakelib1:test_fakelib2_hidden:'
-    self.assertEqual( expected, rv.stdout.strip() )
-    
+    self.assertEqual(expected, rv.stdout.strip())
+
 if __name__ == '__main__':
   unit_test.main()
