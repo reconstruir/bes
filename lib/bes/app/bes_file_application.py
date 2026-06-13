@@ -2,13 +2,13 @@
 
 from os import path
 
+from bes.bcli.bcli_application import bcli_application
 from bes.common.object_util import object_util
 from bes.files.bf_check import bf_check
-from bes.files.bf_file_type import bf_file_type
 from bes.files.find.bf_file_finder import bf_file_finder
 from bes.system.check import check
 
-class bes_file_application(object):
+class bes_file_application(bcli_application):
 
   def resolve_files(self, what, func=None):
     '''
