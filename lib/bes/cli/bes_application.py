@@ -29,11 +29,6 @@ from ..mermaid.mermaid_command_factory import mermaid_command_factory
 from ..native_package.native_package_command_factory import native_package_command_factory
 from ..properties_file_v2.properties_file_command_factory import properties_file_command_factory
 from ..pyinstaller.pyinstaller_command_factory import pyinstaller_command_factory
-from ..python.pip_command_factory import pip_command_factory
-from ..python.pip_installer_command_factory import pip_installer_command_factory
-from ..python.pip_project_command_factory import pip_project_command_factory
-from ..python.python_command_factory import python_command_factory
-from ..python_installer.python_installer_command_factory import python_installer_command_factory
 from ..unix.sudo.sudo_command_factory import sudo_command_factory
 
 class bes_application(bcli_application):
@@ -64,13 +59,8 @@ class bes_application(bcli_application):
       linux_attr_command_factory,
       mermaid_command_factory,
       native_package_command_factory,
-      pip_command_factory,
-      pip_installer_command_factory,
-      pip_project_command_factory,
       properties_file_command_factory,
       pyinstaller_command_factory,
-      python_command_factory,
-      python_installer_command_factory,
       scutil_command_factory,
       softwareupdater_command_factory,
       sudo_command_factory,

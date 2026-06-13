@@ -14,7 +14,7 @@ class bes_project_command_factory(bcli_command_factory_base):
 
   def error_class(self):
     from .bes_project_error import bes_project_error
-    raise bes_project_error
+    return bes_project_error
 
   def options_class(self):
     from .bes_project_command_options import bes_project_command_options
@@ -29,6 +29,12 @@ class bes_project_command_factory(bcli_command_factory_base):
     parser.add_argument('-r', '--root-dir', action='store', default=None,
                         dest='root_dir',
                         help='The root directory [ None ]')
+    parser.add_argument('-n', '--name', action='store', default=None,
+                        dest='name',
+                        help='Project name within the root directory [ None ]')
+    parser.add_argument('--uv-exe', action='store', default=None,
+                        dest='uv_exe',
+                        help='Explicit path to the uv binary [ None ]')
 
   def add_commands(self, subparsers):
     p = subparsers.add_parser('ensure', help='Ensure a bes project is setup.')

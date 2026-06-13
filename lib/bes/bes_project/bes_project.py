@@ -8,6 +8,7 @@ from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_check import bf_check
 from bes.property.cached_property import cached_property
 from bes.system.check import check
+from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 from bes.uv.uv_exe import uv_exe
@@ -113,13 +114,39 @@ class bes_project(object):
     proj = self._make_uv_project(version)
     return proj._venv.activate_script(variant=variant)
 
-  # version resolution — keeps symbolic names ('all', 'all3', 'latest') working
-  # TODO: replace python_exe.find_all_exes_info() with 'uv python list'
+  def _list_uv_python_versions(self):
+    'Return unique sorted major.minor version strings installed per uv python list.'
+    command = [self._uv_exe_path, 'python', 'list', '--only-installed']
+    rv = execute.execute(command, raise_error=False, stderr_to_stdout=False,
+                         check_python_script=False)
+    if rv.exit_code != 0:
+      return []
+    seen = set()
+    result = []
+    for line in rv.stdout.splitlines():
+      parts = line.split()
+      if not parts:
+        continue
+      spec = parts[0]  # e.g. 'cpython-3.13.13-macos-aarch64-none'
+      if not spec.startswith('cpython-'):
+        continue
+      version_full = spec.split('-')[1]  # '3.13.13'
+      if '+' in version_full:
+        continue  # skip freethreaded variants
+      ver_parts = version_full.split('.')
+      if len(ver_parts) < 2:
+        continue
+      major_minor = f'{ver_parts[0]}.{ver_parts[1]}'
+      if major_minor not in seen:
+        seen.add(major_minor)
+        result.append(major_minor)
+    return result
+
   def _resolve_versions(self, versions):
-    from bes.python.python_exe import python_exe as python_exe_module
     result = []
     if not versions:
-      result = [str(python_exe_module.default_exe_version())]
+      installed = self._list_uv_python_versions()
+      result = [installed[0]] if installed else []
     else:
       flat = self._flatten_versions(versions)
       for v in flat:
@@ -127,18 +154,16 @@ class bes_project(object):
     return algorithm.unique(result)
 
   def _resolve_one_version(self, python_version):
-    from bes.python.python_exe import python_exe as python_exe_module
-    infos = python_exe_module.find_all_exes_info()
-    if python_version in ('all', 'all3'):
-      return [str(info.version) for _, info in infos.items() if info.version.major_version == 3]
-    elif python_version == 'all2':
-      return [str(info.version) for _, info in infos.items() if info.version.major_version == 2]
-    elif python_version == 'all23':
-      return [str(info.version) for _, info in infos.items()]
-    elif python_version == 'latest':
-      if not infos:
-        return []
-      return [str(list(infos.values())[0].version)]
+    if python_version in ('all', 'all3', 'all2', 'all23', 'latest'):
+      installed = self._list_uv_python_versions()
+      if python_version in ('all', 'all3'):
+        return [v for v in installed if v.startswith('3.')]
+      elif python_version == 'all2':
+        return [v for v in installed if v.startswith('2.')]
+      elif python_version == 'all23':
+        return installed
+      elif python_version == 'latest':
+        return [installed[0]] if installed else []
     return [python_version]
 
   def _flatten_versions(self, versions):
