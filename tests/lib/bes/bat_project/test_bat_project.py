@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.bes_project.bes_project import bes_project
-from bes.bes_project.bes_project_options import bes_project_options
+from bes.bat_project.bat_project import bat_project
+from bes.bat_project.bat_project_options import bat_project_options
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.uv.uv_exe import uv_exe
 
-class test_bes_project(unit_test):
+class test_bat_project(unit_test):
 
   @classmethod
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip_if(not uv_exe.find_or_none(), 'uv not found')
 
   def _make_project(self, tmp_dir):
-    return bes_project(options=bes_project_options(root_dir=tmp_dir,
+    return bat_project(options=bat_project_options(root_dir=tmp_dir,
                                                     name='test',
                                                     debug=self.DEBUG))
 

@@ -8,9 +8,9 @@ from bes.bcli.bcli_options_desc import bcli_options_desc
 from bes.data_output.data_output_options import data_output_options
 from bes.property.cached_property import cached_property
 
-from .bes_project_error import bes_project_error
+from .bat_project_error import bat_project_error
 
-class _bes_project_options_desc(bcli_options_desc):
+class _bat_project_options_desc(bcli_options_desc):
   def _options_desc(self):
     return '''
   debug            bool  default=False
@@ -21,11 +21,11 @@ class _bes_project_options_desc(bcli_options_desc):
   uv_exe           str   default=None
   verbose          bool  default=False
 '''
-  def _error_class(self): return bes_project_error
+  def _error_class(self): return bat_project_error
 
-class bes_project_options(bcli_options):
+class bat_project_options(bcli_options):
   def __init__(self, **kwargs):
-    super().__init__(_bes_project_options_desc(), **kwargs)
+    super().__init__(_bat_project_options_desc(), **kwargs)
 
   def resolve_root_dir(self):
     if self.root_dir:
@@ -40,4 +40,4 @@ class bes_project_options(bcli_options):
   def pass_through_keys(self):
     return ('data_output_options',)
 
-bes_project_options.register_check_class()
+bat_project_options.register_check_class()

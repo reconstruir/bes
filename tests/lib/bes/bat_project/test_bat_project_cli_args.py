@@ -8,7 +8,7 @@ from bes.system.system_command import system_command
 from bes.testing.program_unit_test import program_unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
-class _bes_project_tester(object):
+class _bat_project_tester(object):
 
   def __init__(self, ut):
     self._unit_test = ut
@@ -17,7 +17,7 @@ class _bes_project_tester(object):
 
   def make_args(self, command, *extra_args):
     args = [
-      'bes_project',
+      'bat_project',
       command,
       '--root-dir', self.root_dir,
       '--name', 'test',
@@ -42,7 +42,7 @@ class _bes_project_tester(object):
   def run(self, args, cwd=None, env=None):
     return self._unit_test.run_program(self._unit_test._program, args, cwd=cwd, env=env)
 
-class test_bes_project_cli_args(program_unit_test):
+class test_bat_project_cli_args(program_unit_test):
 
   @classmethod
   def setUpClass(clazz):
@@ -51,13 +51,13 @@ class test_bes_project_cli_args(program_unit_test):
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
   def test_ensure(self):
-    tester = _bes_project_tester(self)
+    tester = _bat_project_tester(self)
     requirements_tmp = self.make_temp_file(content='beautifulsoup4==4.9.3\n')
     rv = tester.ensure(requirements_tmp, versions=['3.13'])
     self.assertEqual(0, rv.exit_code)
 
   def test_activate_script(self):
-    tester = _bes_project_tester(self)
+    tester = _bat_project_tester(self)
     requirements_tmp = self.make_temp_file(content='beautifulsoup4==4.9.3\n')
     rv = tester.ensure(requirements_tmp, versions=['3.13'])
     self.assertEqual(0, rv.exit_code)

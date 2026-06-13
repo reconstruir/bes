@@ -2,23 +2,23 @@
 
 from bes.bcli.bcli_command_factory_base import bcli_command_factory_base
 
-class bes_project_command_factory(bcli_command_factory_base):
+class bat_project_command_factory(bcli_command_factory_base):
 
   @classmethod
   def path(clazz):
-    return 'bes_project'
+    return 'bat_project'
 
   @classmethod
   def description(clazz):
     return 'Manage bes python virtual environment projects'
 
   def error_class(self):
-    from .bes_project_error import bes_project_error
-    return bes_project_error
+    from .bat_project_error import bat_project_error
+    return bat_project_error
 
   def options_class(self):
-    from .bes_project_command_options import bes_project_command_options
-    return bes_project_command_options
+    from .bat_project_command_options import bat_project_command_options
+    return bat_project_command_options
 
   def has_commands(self):
     return True
@@ -54,8 +54,8 @@ class bes_project_command_factory(bcli_command_factory_base):
                    help='The virtual env variant (csh, fish, ps1) [ None ]')
 
   def handler_class(self):
-    from .bes_project_command_handler import bes_project_command_handler
-    return bes_project_command_handler
+    from .bat_project_command_handler import bat_project_command_handler
+    return bat_project_command_handler
 
   def supported_platforms(self):
     return 'all'

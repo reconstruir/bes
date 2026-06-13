@@ -18,18 +18,18 @@ from bes.uv_installer.uv_installer import uv_installer
 from bes.uv_installer.uv_installer_options import uv_installer_options
 from bes.version.semantic_version import semantic_version
 
-from .bes_project_error import bes_project_error
-from .bes_project_options import bes_project_options
+from .bat_project_error import bat_project_error
+from .bat_project_options import bat_project_options
 
-class bes_project(object):
+class bat_project(object):
   'Bes project — manages uv venvs for one named project across multiple Python versions.'
 
-  _log = logger('bes_project')
+  _log = logger('bat_project')
 
   def __init__(self, options=None):
-    check.check_bes_project_options(options, allow_none=True)
+    check.check_bat_project_options(options, allow_none=True)
 
-    self._options = options or bes_project_options()
+    self._options = options or bat_project_options()
     self._root_dir = self._options.resolve_root_dir()
     self._uv_install_dir = path.join(self._root_dir, '.uv_install')
     self._uv_cache_dir = path.join(self._root_dir, '.uv_cache')

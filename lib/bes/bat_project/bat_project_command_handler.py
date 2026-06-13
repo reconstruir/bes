@@ -4,16 +4,16 @@ from bes.bcli.bcli_command_handler import bcli_command_handler
 from bes.files.bf_check import bf_check
 from bes.system.check import check
 
-from .bes_project import bes_project
-from .bes_project_options import bes_project_options
+from .bat_project import bat_project
+from .bat_project_options import bat_project_options
 
-class bes_project_command_handler(bcli_command_handler):
+class bat_project_command_handler(bcli_command_handler):
 
   def name(self):
-    return 'bes_project'
+    return 'bat_project'
 
   def _make_project(self, options):
-    return bes_project(options=bes_project_options(
+    return bat_project(options=bat_project_options(
       verbose=options.verbose,
       debug=options.debug,
       root_dir=options.root_dir,
