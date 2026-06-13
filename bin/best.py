@@ -4,7 +4,7 @@
 def best_main():
   import sys
   sys.dont_write_bytecode = True
-  from bes.cli.bes_application import bes_application
+  from bes.app.bes_application import bes_application
   raise SystemExit(bes_application.main())
 
 if __name__ == '__main__':
