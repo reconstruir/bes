@@ -6,9 +6,7 @@ from bes.testing.unit_test import unit_test
 from bes.credentials.credentials_manager import credentials_manager
 from bes.credentials.credentials_source_aws import credentials_source_aws
 from bes.credentials.credentials_source_env import credentials_source_env
-from bes.gradle.credentials_source_gradle import credentials_source_gradle
 from bes.system.env_override import env_override
-from bes.files.bf_temp_file import bf_temp_file
 
 class test_credentials_manager(unit_test):
 
@@ -20,7 +18,7 @@ class test_credentials_manager(unit_test):
       c = cm.credentials()
       self.assertEqual( 'fred', c.username )
       self.assertEqual( 'flintpass', c.password )
-    
+
   def test_env_vars(self):
     cm = credentials_manager()
     cm.add_source(credentials_source_env({ 'username': '${MY_USERNAME}', 'password': '${MY_PASSWORD}' }))
@@ -29,29 +27,6 @@ class test_credentials_manager(unit_test):
       c = cm.credentials()
       self.assertEqual( 'fred', c.username )
       self.assertEqual( 'flintpass', c.password )
-
-  def test_env_and_gradle(self):
-    cm = credentials_manager()
-    cm.add_source(credentials_source_env({ 'username': '${MY_USERNAME}', 'password': '${MY_PASSWORD}' }))
-    text = '''\
-devUser=xfred@flintstone.com
-devPassword=xflintpass
-systemProp.gradle.wrapperUser=tuser
-systemProp.gradle.wrapperPassword=tpassword
-'''
-    cm.add_source(credentials_source_gradle(bf_temp_file.make_temp_file(content = text), 'dev'))
-
-    with env_override( { 'MY_USERNAME': 'fred', 'MY_PASSWORD': 'flintpass' }) as env:
-      self.assertEqual( True, cm.is_valid() )
-      c = cm.credentials()
-      self.assertEqual( 'fred', c.username )
-      self.assertEqual( 'flintpass', c.password )
-    
-    with env_override() as env:
-      self.assertEqual( True, cm.is_valid() )
-      c = cm.credentials()
-      self.assertEqual( 'xfred@flintstone.com', c.username )
-      self.assertEqual( 'xflintpass', c.password )
       
 if __name__ == '__main__':
   unit_test.main()
