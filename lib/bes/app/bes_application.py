@@ -18,8 +18,6 @@ from ..fs.dirs_command_factory import dirs_command_factory
 from ..fs.file_duplicates_command_factory import file_duplicates_command_factory
 from ..fs.file_split_command_factory import file_split_command_factory
 from ..fs.files_command_factory import files_command_factory
-from ..macos.defaults.defaults_command_factory import defaults_command_factory
-from ..macos.scutil.scutil_command_factory import scutil_command_factory
 from ..unix.sudo.sudo_command_factory import sudo_command_factory
 
 class bes_application(bcli_application):
@@ -44,8 +42,6 @@ class bes_application(bcli_application):
       file_duplicates_command_factory,
       file_split_command_factory,
       files_command_factory,
-      defaults_command_factory,
-      scutil_command_factory,
       sudo_command_factory,
       system_command_factory,
     ]
