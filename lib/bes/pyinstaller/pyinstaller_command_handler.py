@@ -34,6 +34,6 @@ class pyinstaller_command_handler(bcli_command_handler):
                                hidden_imports=hidden_imports,
                                log_level=log_level,
                                python_version=python_version)
-    result = pyinstaller_build.build(script_filename_abs, opts)
+    result = pyinstaller_build.build(script_filename_abs, options=opts)
     bf_file_ops.copy(result.output_exe, output_filename_abs)
     return 0
