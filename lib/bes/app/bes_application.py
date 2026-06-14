@@ -22,7 +22,6 @@ from ..linux.attr.linux_attr_command_factory import linux_attr_command_factory
 from ..macos.defaults.defaults_command_factory import defaults_command_factory
 from ..macos.scutil.scutil_command_factory import scutil_command_factory
 from ..macos.xattr_exe.xattr_exe_command_factory import xattr_exe_command_factory
-from ..mermaid.mermaid_command_factory import mermaid_command_factory
 from ..unix.sudo.sudo_command_factory import sudo_command_factory
 
 class bes_application(bcli_application):
@@ -49,7 +48,6 @@ class bes_application(bcli_application):
       files_command_factory,
       defaults_command_factory,
       linux_attr_command_factory,
-      mermaid_command_factory,
       scutil_command_factory,
       sudo_command_factory,
       system_command_factory,
