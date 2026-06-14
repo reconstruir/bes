@@ -5,7 +5,6 @@ from bes.system.check import check
 from bes.bcli.bcli_application import bcli_application
 
 from ..archive.archive_command_factory import archive_command_factory
-from ..best_cli.system_command_factory import system_command_factory
 from ..files.checksum.bf_checksum_command_factory import bf_checksum_command_factory
 from ..files.duplicates.bf_file_duplicates_command_factory import bf_file_duplicates_command_factory
 from ..files.media_finder.bf_media_find_command_factory import bf_media_find_command_factory
@@ -43,5 +42,4 @@ class bes_application(bcli_application):
       file_split_command_factory,
       files_command_factory,
       sudo_command_factory,
-      system_command_factory,
     ]
