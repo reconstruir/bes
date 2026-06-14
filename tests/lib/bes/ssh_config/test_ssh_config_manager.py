@@ -7,7 +7,7 @@ from bes.fs.file_find import file_find
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
 
-from bes.pyinstaller.pyinstaller import pyinstaller
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.ssh_config.ssh_config_manager import ssh_config_manager
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
@@ -17,7 +17,7 @@ class test_ssh_config_manager(unit_test):
   @classmethod
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip_if_not_unix()
-    pyinstaller.raise_skip_if_is_binary()
+    unit_test_class_skip.raise_skip_if_frozen()
 
   def test_nothing(self):
     tmp_dir = self.make_temp_dir(suffix = '.ssh')

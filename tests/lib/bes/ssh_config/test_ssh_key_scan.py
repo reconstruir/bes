@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.files.bf_file_ops import bf_file_ops
-from bes.pyinstaller.pyinstaller import pyinstaller
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.ssh_config.ssh_key_scan import ssh_key_scan
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_class_skip import unit_test_class_skip
@@ -12,7 +12,7 @@ class test_ssh_key_scan(unit_test):
   @classmethod
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip_if_not_unix()
-    pyinstaller.raise_skip_if_is_binary()
+    unit_test_class_skip.raise_skip_if_frozen()
 
   def test_scan(self):
     s = ssh_key_scan.scan('bitbucket.org')

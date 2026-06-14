@@ -36,5 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The `./r` script sets up `PYTHONPATH` to include sibling project `lib/` directories (`bes`, `bav`, `bnet`) alongside this project's `lib/`. All runs must go through `./r` to have the correct path. Python 3.12 is required (`env/python.version`).
 
+**`bes` must never import from any other project in `~/proj/`.** It is a foundational library. Importing from `bat`, `rebuild`, `bav`, `bnet`, or any other sibling project creates a circular dependency and breaks the dependency hierarchy. If `bes` code or tests need something from another project, the solution is to move that thing into `bes` instead.
+
 ### Testing
 - Tests live in `tests/lib/<name>/`.

@@ -28,7 +28,6 @@ from ..macos.xattr_exe.xattr_exe_command_factory import xattr_exe_command_factor
 from ..mermaid.mermaid_command_factory import mermaid_command_factory
 from ..native_package.native_package_command_factory import native_package_command_factory
 from ..properties_file_v2.properties_file_command_factory import properties_file_command_factory
-from ..pyinstaller.pyinstaller_command_factory import pyinstaller_command_factory
 from ..unix.sudo.sudo_command_factory import sudo_command_factory
 
 class bes_application(bcli_application):
@@ -60,7 +59,6 @@ class bes_application(bcli_application):
       mermaid_command_factory,
       native_package_command_factory,
       properties_file_command_factory,
-      pyinstaller_command_factory,
       scutil_command_factory,
       softwareupdater_command_factory,
       sudo_command_factory,

@@ -57,3 +57,8 @@ class unit_test_class_skip(object):
       which.which(command) is not None,
       f'command not available: {command}'
     )
+
+  @classmethod
+  def raise_skip_if_frozen(clazz):
+    if getattr(sys, 'frozen', False) or getattr(sys, '_MEIPASS', None) is not None:
+      clazz.raise_skip('not supported in frozen binary mode.')
