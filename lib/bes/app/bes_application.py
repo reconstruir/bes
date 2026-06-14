@@ -5,7 +5,6 @@ from bes.system.check import check
 from bes.bcli.bcli_application import bcli_application
 
 from ..archive.archive_command_factory import archive_command_factory
-from ..bat_project.bat_project_command_factory import bat_project_command_factory
 from ..best_cli.system_command_factory import system_command_factory
 from ..files.checksum.bf_checksum_command_factory import bf_checksum_command_factory
 from ..files.duplicates.bf_file_duplicates_command_factory import bf_file_duplicates_command_factory
@@ -40,7 +39,6 @@ class bes_application(bcli_application):
   def parser_factories(self):
     return [
       archive_command_factory,
-      bat_project_command_factory,
       bf_checksum_command_factory,
       bf_file_duplicates_command_factory,
       bf_media_find_command_factory,
