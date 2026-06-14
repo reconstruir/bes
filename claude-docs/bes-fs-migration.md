@@ -99,7 +99,19 @@ These cannot be swapped 1:1 because the old and new classes are architecturally 
 - `bf_attr_getter_mixin`: adds typed accessors (get_string, set_string, get_bool, etc.) on top of the storage layer.
 - These are **not** a replacement for `file_attributes_metadata`'s dispatch/registry/caching system.
 
-**What's needed:** Either port `file_attributes_metadata` + `file_metadata_getter_base` into `bes.files` as new classes (`bf_metadata_getter_base`, `bf_metadata_registry`) preserving their semantics, or rewrite `bav_file_attributes` to use the `bes.files.metadata` subpackage (`bf_metadata_store`, `bf_metadata_factory_base`, `bf_metadata_factory_registry`) which is the newer equivalent.
+**Relationship to `file_attributes`:** `file_attributes_metadata` uses `file_attributes` internally as its raw xattr storage layer. The two are distinct: `file_attributes` is just get/set of named byte blobs; `file_attributes_metadata` is the dispatch/cache/registry system built on top. Migrating the 20 callers of `file_attributes` to `bf_attr` is independent of and easier than this item.
+
+**What's needed:** Rewrite `bav_file_attributes` and all its getters to use the `bes.files.metadata` subpackage, which is the intended modern equivalent:
+
+- `file_metadata_getter_base` → implement `bf_metadata_factory_base` instead (same contract: one getter per metadata key, compute-on-demand, result stored as xattr bytes)
+- `file_attributes_metadata` registry + caching → replaced by `bf_metadata_store` / `bf_metadata_factory_registry`
+- `bav_file_attributes` (inherits from `file_attributes_metadata`, registers 7 getters) → rewrite to instantiate `bf_metadata_store` and register `bf_metadata_factory_base` subclasses
+
+**Steps:**
+1. Read `bes/files/metadata/bf_metadata_store.py` and `bf_metadata_factory_base.py` to confirm the API.
+2. Rewrite each `bav/lib/bav/base/bav_file_metadata_getter_*.py` to subclass `bf_metadata_factory_base` instead of `file_metadata_getter_base`.
+3. Rewrite `bav_file_attributes` to use `bf_metadata_store` / `bf_metadata_factory_registry` instead of inheriting from `file_attributes_metadata`.
+4. Delete `bes/fs/file_attributes_metadata.py` and `bes/fs/file_metadata_getter_base.py`.
 
 **Affected files:** `bav_file_attributes`, `bav_file_metadata_getter_durations`, `bav_file_metadata_getter_faces` (×4), `bav_file_metadata_getter_framerates`, `bav_file_metadata_getter_num_frames`, `bav_file_metadata_getter_quality_brisque_v1`, `fd_detect`, `opencv_image`, `checksum_db_cli_handler`, `fdui_dir_find_operations`, `firefox_cli_handler`, `image_search`, `rept_cli_handler`, `rept_gallery_dl`
 
@@ -120,6 +132,7 @@ These cannot be swapped 1:1 because the old and new classes are architecturally 
 | `file_multi_ignore` | `bes.files.ignore.bf_file_multi_ignore` | new class created; 3 direct callers + `bav_file_resolver` type-check migrated |
 | `file_ignore_options_mixin` | `bes.files.bf_file_ignore_options_mixin` | new class created; all 11 callers migrated (5 bav + 6 rmt options classes) |
 | `file_resolver_options` (dead properties) | removed | `post_process_cli_options`, `similar_images_options`, `reddit_cli_options`, `rept_cli_options` — property was never accessed externally |
+| `temp_content` | deleted | `rapp_temp_media.py` was the only caller; file deleted from `bes/fs/` with no replacement needed. 0 callers remaining. |
 
 **Also fixed:** `similar_images.py` and `rept_cli_handler.py` were passing `options.file_ignorer` (bound method) where the instance was needed — now both call `options.file_ignorer()`.
 
@@ -127,29 +140,30 @@ These cannot be swapped 1:1 because the old and new classes are architecturally 
 
 ## Remaining Import Count by Symbol
 
-As of 2026-05-23:
+As of 2026-06-14 (lib + test files; excludes `bes/lib/bes/fs/` itself):
 
-| Symbol | Files | Count |
+| Symbol | Files | Notes |
 |---|---|---|
-| `file_attributes_metadata` | 10 | 10 |
-| `file_metadata_getter_base` | 9 | 9 |
-| `dir_operation_item` | 7 | 7 |
-| `dir_operation_item_list` | 7 | 7 |
-| `file_duplicates` | 3 | 3 |
-| `file_duplicates_options` | 3 | 3 |
-| `dir_partition` / `dir_split` / related | 3 | 4 |
-| `file_split` | 2 | 2 |
-| `file_attributes` (bav_file_attributes only) | 1 | 1 |
-| `file_find` (vb only) | 1 | 1 |
-| `temp_content` | 1 | 1 |
-| **Total** | | **48** |
+| `file_find` | 35+ lib | `file_find.py` already delegates to `bf_file_finder` internally; callers still work but should eventually import `bf_file_finder` directly. Spread across rebuild (20+), eca (6), rehack (4), bat (3), rmt (2), bav, rapp, bes internal. |
+| `file_attributes` | 20 | Simple xattr get/set (not the metadata system). bat (2), bav (2), bnet (1), eca (1), rebuild (3), rem_pdf (2), rmusic (1), rmt (3), bes tests (2), other tests (3). |
+| `file_attributes_metadata` | 11 | — |
+| `file_metadata_getter_base` | 10 | — |
+| `dir_operation_item` | 9 | — |
+| `dir_operation_item_list` | 9 | — |
+| `file_duplicates_options` | 7 | — |
+| `file_duplicates` | 5 | — |
+| `dir_partition` | 3 | — |
+| `dir_split` | 3 | — |
+| `file_split` | 4 | rmt/vb only (lib: 2, tests: 2) |
+| **Total** | | **~116** |
 
 ---
 
 ## Suggested Order When Resuming
 
-1. **`dir_operation_item` / `dir_operation_item_list`** → `bes.files.move` (check `bf_file_mover_operation`; create `bf_dir_operation_item` / `bf_dir_operation_item_list` if needed; unblocks 7 files)
+1. **`dir_operation_item` / `dir_operation_item_list`** → `bes.files.move` (check `bf_file_mover_operation`; create `bf_dir_operation_item` / `bf_dir_operation_item_list` if needed; unblocks 9 files)
 2. **`file_attributes_metadata` + `file_metadata_getter_base`** → port or rewrite onto `bes.files.metadata`; highest impact (unblocks all `bav_file_metadata_getter_*` and `bav_file_attributes`)
 3. **`file_duplicates` / `file_duplicates_options`** → adapt callers to `bf_file_duplicates_finder` API
-4. **`dir_partition` / `dir_split` / `file_split`** → low priority; only used by `rept` and `vb`
-5. **`temp_content`** → low priority; testing only
+4. **`file_attributes`** → migrate 20 callers from `bes.fs.file_attributes` to `bes.files.attr.bf_attr`; blocked on auditing each caller's API usage
+5. **`file_find`** → large surface (35+ callers), but `file_find.py` already delegates so not urgent; batch-migrate when doing a rebuild/eca pass
+6. **`dir_partition` / `dir_split` / `file_split`** → low priority; only used by `rept` and `vb`

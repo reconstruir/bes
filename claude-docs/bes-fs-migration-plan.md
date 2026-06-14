@@ -129,6 +129,8 @@ sufficiently different that a semantics-only pass is not straightforward:
 - `file_search.py`, `file_replace.py`, `file_sync.py`, `file_copy.py`
 - `file_match.py` (used internally by `file_find`; covered by `bf_file_matcher`)
 - `file_attributes*.py`, `file_checksum_getter_*.py`
+  — `file_attributes_metadata` (cached/registered metadata getters) is
+  `bes.fs`-only and needs its own migration path (see migration status doc).
 - `file_cache.py`, `file_mode.py`, `file_open.py`
 - `compressed_file.py`, `tar_util.py`, `xcopy.py`, `dir_cleanup.py`
 - `dir_combine.py`, `dir_partition.py`, `dir_split.py` (already have bf_ command
