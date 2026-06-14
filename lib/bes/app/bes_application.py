@@ -19,13 +19,10 @@ from ..fs.file_duplicates_command_factory import file_duplicates_command_factory
 from ..fs.file_split_command_factory import file_split_command_factory
 from ..fs.files_command_factory import files_command_factory
 from ..linux.attr.linux_attr_command_factory import linux_attr_command_factory
-from ..macos.command_line_tools.command_line_tools_command_factory import command_line_tools_command_factory
 from ..macos.defaults.defaults_command_factory import defaults_command_factory
 from ..macos.scutil.scutil_command_factory import scutil_command_factory
-from ..macos.softwareupdater.softwareupdater_command_factory import softwareupdater_command_factory
 from ..macos.xattr_exe.xattr_exe_command_factory import xattr_exe_command_factory
 from ..mermaid.mermaid_command_factory import mermaid_command_factory
-from ..native_package.native_package_command_factory import native_package_command_factory
 from ..properties_file_v2.properties_file_command_factory import properties_file_command_factory
 from ..unix.sudo.sudo_command_factory import sudo_command_factory
 
@@ -51,14 +48,11 @@ class bes_application(bcli_application):
       file_duplicates_command_factory,
       file_split_command_factory,
       files_command_factory,
-      command_line_tools_command_factory,
       defaults_command_factory,
       linux_attr_command_factory,
       mermaid_command_factory,
-      native_package_command_factory,
       properties_file_command_factory,
       scutil_command_factory,
-      softwareupdater_command_factory,
       sudo_command_factory,
       system_command_factory,
       xattr_exe_command_factory,
