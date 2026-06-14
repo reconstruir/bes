@@ -11,7 +11,7 @@ _DEFAULT_FILE_SPLIT_OPTIONS = file_split_options()
 
 class test_file_split_command_handler(program_unit_test):
 
-  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
+  _program = program_unit_test.resolve_program(__file__, '../../../../bin/bes_app.py')
 
   def test_find_and_unsplit(self):
     items = [

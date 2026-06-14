@@ -11,7 +11,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_dirs_cli_args(program_unit_test):
 
-  _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
+  _program = program_unit_test.resolve_program(__file__, '../../../../bin/bes_app.py')
 
   def test_remove_empty(self):
     t = self._test([
