@@ -40,3 +40,9 @@ The `./r` script sets up `PYTHONPATH` to include sibling project `lib/` director
 
 ### Testing
 - Tests live in `tests/lib/<name>/`.
+
+## Git Commits
+
+- `cc.txt` in the repo root is never tracked in git (it should be in `.gitignore`).
+- After completing a coding task, write the git commit message to `cc.txt`, overwriting any previous content. It is not a changelog — just a convenient cut-and-paste staging area for the commit message covering the current staged changes.
+- Stage modified and new files with `git add` and removed files with `git rm` as appropriate before writing `cc.txt`.
