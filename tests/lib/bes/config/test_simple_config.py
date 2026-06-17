@@ -36,9 +36,9 @@ credential
 
     sections = s.find_all_sections('credential')
     self.assertEqual( 2, len(sections) )
-    self.assertEqual( 'credential', sections[0].header_.name )
+    self.assertEqual( 'credential', sections[0].header.name )
     self.assertEqual( 'download', sections[0].find_by_key('type') )
-    self.assertEqual( 'credential', sections[1].header_.name )
+    self.assertEqual( 'credential', sections[1].header.name )
     self.assertEqual( 'upload', sections[1].find_by_key('type') )
     self.assertEqual( {
       'provider': 'pcloud',
@@ -46,8 +46,8 @@ credential
       'email': 'email1@bar.com',
       'password': 'sekret1',
       }, sections[0].to_dict() )
-    self.assertTrue( s.has_unique_section('credential') )
-    self.assertFalse( s.has_unique_section('nothere') )
+    self.assertTrue( s.has_section('credential') )
+    self.assertFalse( s.has_section('nothere') )
 
   def test_wildcard(self):
     text = '''\
@@ -63,13 +63,13 @@ release-*
     s = simple_config.from_text(text)
 
     import re
-    matcher = lambda section, pattern: re.search(section.header_.name, pattern)
+    matcher = lambda section, pattern: re.search(section.header.name, pattern)
 
-    self.assertTrue( s.has_unique_section('release-1v.5166', matcher = matcher) )
-    self.assertTrue( s.has_unique_section('common', matcher = matcher) )
+    self.assertTrue( s.has_section('release-1v.5166', matcher = matcher) )
+    self.assertTrue( s.has_section('common', matcher = matcher) )
 
-    self.assertFalse( s.has_unique_section('commo-n', matcher = matcher) )
-    self.assertFalse( s.has_unique_section('releas-e', matcher = matcher) )
+    self.assertFalse( s.has_section('commo-n', matcher = matcher) )
+    self.assertFalse( s.has_section('releas-e', matcher = matcher) )
 
     sections = s.find_all_sections('release-1v.5166', matcher = matcher)
     self.assertEqual( 1, len(sections) )
@@ -157,8 +157,8 @@ kiwi extends fruit
 
     sections = s.find_all_sections('kiwi')
     self.assertEqual( 1, len(sections) )
-    self.assertEqual( 'kiwi', sections[0].header_.name )
-    self.assertEqual( 'fruit', sections[0].header_.extends )
+    self.assertEqual( 'kiwi', sections[0].header.name )
+    self.assertEqual( 'fruit', sections[0].header.extends )
     self.assertEqual( 'green', sections[0].find_by_key('color') )
     self.assertEqual( 'apple', sections[0].find_by_key('name') )
     self.assertEqual( 'fructose', sections[0].find_by_key('base') )
@@ -222,28 +222,28 @@ fruit
     sections = s.find_all_sections('fruit')
     self.assertEqual( 4, len(sections) )
     
-    self.assertEqual( 'fruit', sections[0].header_.name )
+    self.assertEqual( 'fruit', sections[0].header.name )
     self.assertEqual( 'lemon', sections[0].find_by_key('name') )
     self.assertEqual( 'true', sections[0].find_by_key('tart') )
     self.assertEqual( 'true', sections[0].find_by_key('is_good') )
     self.assertEqual( KVL([ ( 'annotation1', None), ( 'annotation2', None ) ]),
                       sections[0].find_entry('is_good').annotations )
 
-    self.assertEqual( 'fruit', sections[1].header_.name )
+    self.assertEqual( 'fruit', sections[1].header.name )
     self.assertEqual( 'apple', sections[1].find_by_key('name') )
     self.assertEqual( 'true', sections[1].find_by_key('tart') )
     self.assertEqual( 'true', sections[1].find_by_key('is_good') )
     self.assertEqual( KVL([ ( 'annotation2', None ) ]),
                       sections[1].find_entry('is_good').annotations )
     
-    self.assertEqual( 'fruit', sections[2].header_.name )
+    self.assertEqual( 'fruit', sections[2].header.name )
     self.assertEqual( 'watermelon', sections[2].find_by_key('name') )
     self.assertEqual( 'false', sections[2].find_by_key('tart') )
     self.assertEqual( 'true', sections[2].find_by_key('is_good') )
     self.assertEqual( KVL([ ( 'annotation1', None ) ]),
                       sections[2].find_entry('is_good').annotations )
     
-    self.assertEqual( 'fruit', sections[3].header_.name )
+    self.assertEqual( 'fruit', sections[3].header.name )
     self.assertEqual( 'strawberry', sections[3].find_by_key('name') )
     self.assertEqual( 'false', sections[3].find_by_key('tart') )
     self.assertEqual( 'true', sections[3].find_by_key('is_good') )
@@ -347,17 +347,17 @@ fruit
     c2 = simple_config.from_text(text2)
 
     c1.update(c2)
-    
-    self.assertEqual( 'lemon', c1.fruit.name )
-    self.assertEqual( 'yellow', c1.fruit.color )
 
-    self.assertEqual( 'lemon', c2.fruit.name )
-    self.assertEqual( 'yellow', c2.fruit.color )
+    self.assertEqual( 'lemon', c1.section('fruit').get_value('name') )
+    self.assertEqual( 'yellow', c1.section('fruit').get_value('color') )
+
+    self.assertEqual( 'lemon', c2.section('fruit').get_value('name') )
+    self.assertEqual( 'yellow', c2.section('fruit').get_value('color') )
 
   def test_update_with_dict(self):
     c = simple_config()
-    c.fruit.name = 'kiwi'
-    c.fruit.color = 'green'
+    c.section('fruit').set_value('name', 'kiwi')
+    c.section('fruit').set_value('color', 'green')
 
     d = {
       'fruit': {
@@ -365,11 +365,11 @@ fruit
         'color': 'yellow',
       },
     }
-      
+
     c.update(d)
-    
-    self.assertEqual( 'lemon', c.fruit.name )
-    self.assertEqual( 'yellow', c.fruit.color )
+
+    self.assertEqual( 'lemon', c.section('fruit').get_value('name') )
+    self.assertEqual( 'yellow', c.section('fruit').get_value('color') )
 
   def test_attributes(self):
     text = '''\
@@ -383,15 +383,15 @@ wine
   name: barolo
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( 'lemon', s.fruit.name )
-    self.assertEqual( 'brie', s.cheese.name )
-    self.assertEqual( 'barolo', s.wine.name )
+    self.assertEqual( 'lemon', s.section('fruit').get_value('name') )
+    self.assertEqual( 'brie', s.section('cheese').get_value('name') )
+    self.assertEqual( 'barolo', s.section('wine').get_value('name') )
 
-    s.veggie.name = 'cauliflower'
-    s.veggie.color = 'white'
+    s.section('veggie').set_value('name', 'cauliflower')
+    s.section('veggie').set_value('color', 'white')
 
-    self.assertEqual( 'cauliflower', s.veggie.name )
-    self.assertEqual( 'white', s.veggie.color )
+    self.assertEqual( 'cauliflower', s.section('veggie').get_value('name') )
+    self.assertEqual( 'white', s.section('veggie').get_value('color') )
     
   def test_to_dict(self):
     text = '''\
@@ -481,7 +481,7 @@ fruit
 '''
     s = simple_config.from_text(text)
 
-    self.assertEqual( 'sweet', s.fruit.flavor )
+    self.assertEqual( 'sweet', s.section('fruit').get_value('flavor') )
 
   def test_duplicate_key_set(self):
     text = '''\
@@ -493,7 +493,7 @@ fruit
 '''
     s = simple_config.from_text(text)
 
-    s.fruit.flavor = 'rotten'
+    s.section('fruit').set_value('flavor', 'rotten')
     
     expected = '''\
 fruit
@@ -549,13 +549,13 @@ kiwi foo
   flavor: tart
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( 'green', s.kiwi.color )
-    self.assertEqual( 'tart', s.kiwi.flavor )
+    self.assertEqual( 'green', s.section('kiwi').get_value('color') )
+    self.assertEqual( 'tart', s.section('kiwi').get_value('flavor') )
 
     section = s.section('kiwi')
-    self.assertEqual( 'kiwi', section.header_.name )
-    self.assertEqual( 'foo', section.header_.extra_text )
-      
+    self.assertEqual( 'kiwi', section.header.name )
+    self.assertEqual( 'foo', section.header.extra_text )
+
   def test_section_extends_extra_text(self):
     text = '''\
 fruit
@@ -566,13 +566,13 @@ kiwi extends fruit foo
   flavor: tart
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( 'green', s.kiwi.color )
-    self.assertEqual( 'tart', s.kiwi.flavor )
+    self.assertEqual( 'green', s.section('kiwi').get_value('color') )
+    self.assertEqual( 'tart', s.section('kiwi').get_value('flavor') )
 
     section = s.section('kiwi')
-    self.assertEqual( 'kiwi', section.header_.name )
-    self.assertEqual( 'fruit', section.header_.extends )
-    self.assertEqual( 'foo', section.header_.extra_text )
+    self.assertEqual( 'kiwi', section.header.name )
+    self.assertEqual( 'fruit', section.header.extends )
+    self.assertEqual( 'foo', section.header.extra_text )
 
   @classmethod
   def _parse_ssh_config_entry(clazz, text, origin, options):
@@ -689,7 +689,7 @@ abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
 abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
 -----END RSA PRIVATE KEY-----'''
     
-    self.assert_string_equal( key_expected, c.kiwi.key, native_line_breaks = True )
+    self.assert_string_equal( key_expected, c.section('kiwi').get_value('key'), native_line_breaks = True )
 
   def test_clear_value(self):
     text = '''\
@@ -719,7 +719,7 @@ fruit
   flavor: sweet
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( [ 'tart', 'sweet' ], s.fruit.get_all_values('flavor') )
+    self.assertEqual( [ 'tart', 'sweet' ], s.section('fruit').get_all_values('flavor') )
     
   def test_get_all_values_with_dups(self):
     text = '''\
@@ -731,7 +731,7 @@ fruit
   flavor: tart
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( [ 'tart', 'sweet', 'tart' ], s.fruit.get_all_values('flavor') )
+    self.assertEqual( [ 'tart', 'sweet', 'tart' ], s.section('fruit').get_all_values('flavor') )
 
   def test_get_all_values_with_extends(self):
     text = '''\
@@ -746,8 +746,8 @@ kiwi extends fruit
   arg: where="new zealand"
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( [ 'yummy=1', 'tart=0' ], s.fruit.get_all_values('arg') )
-    self.assertEqual( [ 'yummy=1', 'tart=0', 'tart=1', 'color=green', 'where="new zealand"' ], s.kiwi.get_all_values('arg') )
+    self.assertEqual( [ 'yummy=1', 'tart=0' ], s.section('fruit').get_all_values('arg') )
+    self.assertEqual( [ 'yummy=1', 'tart=0', 'tart=1', 'color=green', 'where="new zealand"' ], s.section('kiwi').get_all_values('arg') )
 
   def test_sections_with_key_value(self):
     text = '''\
@@ -798,7 +798,7 @@ cheese
     self.assert_string_equal( text, str(s1), native_line_breaks = True )
     self.assertNotEqual( text, str(s2) )
 
-    s2.cheese.add_value('price', '100')
+    s2.section('cheese').add_value('price', '100')
     self.assert_string_equal( text, str(s1), native_line_breaks = True )
     self.assertNotEqual( text, str(s2) )
 
@@ -925,27 +925,27 @@ lemon
 '''
     tmp = self.make_temp_file(content = text, suffix = '.config')
     s = simple_config.from_file(tmp)
-    s.kiwi.set_variables({
+    s.section('kiwi').set_variables({
       'COLOR': 'green',
       'FLAVOR': 'tart',
     })
-    s.apple.set_variables({
+    s.section('apple').set_variables({
       'COLOR': 'red',
       'FLAVOR': 'sweet',
     })
-    self.assertEqual( 'small', s.kiwi.size )
-    self.assertEqual( 'green', s.kiwi.color )
-    self.assertEqual( 'tart', s.kiwi.flavor )
+    self.assertEqual( 'small', s.section('kiwi').get_value('size') )
+    self.assertEqual( 'green', s.section('kiwi').get_value('color') )
+    self.assertEqual( 'tart', s.section('kiwi').get_value('flavor') )
 
-    self.assertEqual( 'small', s.apple.size )
-    self.assertEqual( 'red', s.apple.color )
-    self.assertEqual( 'sweet', s.apple.flavor )
+    self.assertEqual( 'small', s.section('apple').get_value('size') )
+    self.assertEqual( 'red', s.section('apple').get_value('color') )
+    self.assertEqual( 'sweet', s.section('apple').get_value('flavor') )
 
-    self.assertEqual( 'small', s.lemon.size )
+    self.assertEqual( 'small', s.section('lemon').get_value('size') )
     with self.assertRaises(simple_config.error):
-      s.lemon.color
+      s.section('lemon').get_value('color')
     with self.assertRaises(simple_config.error):
-      s.lemon.flavor
+      s.section('lemon').get_value('flavor')
 
   def test_variables_global(self):
     text = '''\
@@ -970,17 +970,17 @@ lemon
       'COLOR': 'green',
       'FLAVOR': 'tart',
     })
-    self.assertEqual( 'small', s.kiwi.size )
-    self.assertEqual( 'green', s.kiwi.color )
-    self.assertEqual( 'tart', s.kiwi.flavor )
+    self.assertEqual( 'small', s.section('kiwi').get_value('size') )
+    self.assertEqual( 'green', s.section('kiwi').get_value('color') )
+    self.assertEqual( 'tart', s.section('kiwi').get_value('flavor') )
 
-    self.assertEqual( 'small', s.apple.size )
-    self.assertEqual( 'green', s.apple.color )
-    self.assertEqual( 'tart', s.apple.flavor )
+    self.assertEqual( 'small', s.section('apple').get_value('size') )
+    self.assertEqual( 'green', s.section('apple').get_value('color') )
+    self.assertEqual( 'tart', s.section('apple').get_value('flavor') )
 
-    self.assertEqual( 'small', s.lemon.size )
-    self.assertEqual( 'green', s.lemon.color )
-    self.assertEqual( 'tart', s.lemon.flavor )
+    self.assertEqual( 'small', s.section('lemon').get_value('size') )
+    self.assertEqual( 'green', s.section('lemon').get_value('color') )
+    self.assertEqual( 'tart', s.section('lemon').get_value('flavor') )
 
   def test_variables_global_and_section(self):
     text = '''\
@@ -1005,21 +1005,21 @@ lemon
       'COLOR': 'green',
       'FLAVOR': 'tart',
     })
-    s.apple.set_variables({
+    s.section('apple').set_variables({
       'COLOR': 'red',
       'FLAVOR': 'sweet',
     })
-    self.assertEqual( 'small', s.kiwi.size )
-    self.assertEqual( 'green', s.kiwi.color )
-    self.assertEqual( 'tart', s.kiwi.flavor )
+    self.assertEqual( 'small', s.section('kiwi').get_value('size') )
+    self.assertEqual( 'green', s.section('kiwi').get_value('color') )
+    self.assertEqual( 'tart', s.section('kiwi').get_value('flavor') )
 
-    self.assertEqual( 'small', s.apple.size )
-    self.assertEqual( 'red', s.apple.color )
-    self.assertEqual( 'sweet', s.apple.flavor )
+    self.assertEqual( 'small', s.section('apple').get_value('size') )
+    self.assertEqual( 'red', s.section('apple').get_value('color') )
+    self.assertEqual( 'sweet', s.section('apple').get_value('flavor') )
 
-    self.assertEqual( 'small', s.lemon.size )
-    self.assertEqual( 'green', s.lemon.color )
-    self.assertEqual( 'tart', s.lemon.flavor )
+    self.assertEqual( 'small', s.section('lemon').get_value('size') )
+    self.assertEqual( 'green', s.section('lemon').get_value('color') )
+    self.assertEqual( 'tart', s.section('lemon').get_value('flavor') )
     
 if __name__ == '__main__':
   unit_test.main()

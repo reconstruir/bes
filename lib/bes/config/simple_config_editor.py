@@ -2,7 +2,6 @@
 
 from os import path
 from ..system.check import check
-from bes.property.cached_property import cached_property
 from bes.files.bf_file_ops import bf_file_ops
 
 from .simple_config import simple_config
@@ -17,6 +16,7 @@ class simple_config_editor(object):
 
     self._options = options or simple_config_options()
     self._filename = path.abspath(filename)
+    self._config_cache = None
     if not path.isfile(self._filename):
       bf_file_ops.save(self._filename, content = '')
 
@@ -88,16 +88,21 @@ class simple_config_editor(object):
     for section in other_config:
       other_values = section.to_dict()
       for key, value in other_values.items():
-        self.set_value(section.header_.name, key, value)
-    
-  @cached_property
-  def _config(self):
+        self.set_value(section.header.name, key, value)
+
+  def _load_config(self):
     if self._filename:
       if not path.isfile(self._filename):
         raise IOError('config file not found: {}'.format(self._filename))
       return simple_config.from_file(self._filename, options = self._options)
     else:
       return simple_config(source = '<simple_config_editor>')
+
+  @property
+  def _config(self):
+    if self._config_cache is None:
+      self._config_cache = self._load_config()
+    return self._config_cache
 
   @property
   def filename(self):

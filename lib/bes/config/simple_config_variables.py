@@ -12,11 +12,19 @@ class simple_config_variables(object):
   def __iter__(self):
     return iter(self._variables)
 
+  def __contains__(self, key):
+    return key in self._variables
+
   def __getitem__(self, key):
     return self._variables.__getitem__(key)
-    
+
   def __setitem__(self, key, value):
     self._variables.__setitem__(key, value)
+
+  def __copy__(self):
+    result = simple_config_variables()
+    result._variables = copy.copy(self._variables)
+    return result
   
   def set_variable(self, key, value):
     check.check_string(key)

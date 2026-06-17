@@ -50,10 +50,10 @@ class simple_config_files(object):
       result = [ x for x in search_path ]
     else:
       raise TypeError('Unkown type for search_path: {} - {}'.format(search_path, type(search_path)))
-    return [ clazz._resolve_seach_path_part(part) for part in result ]
-    
+    return [ clazz._resolve_search_path_part(part) for part in result ]
+
   @classmethod
-  def _resolve_seach_path_part(clazz, part):
+  def _resolve_search_path_part(clazz, part):
     substituted_part = variable.substitute(part, dict(os.environ), variable.BRACKET)
     return path.expanduser(substituted_part)
   
@@ -85,17 +85,17 @@ class simple_config_files(object):
     section_map = {}
     for config in configs:
       for section in config.config._sections:
-        section_name = section.header_.name
-        extends = set([ section.header_.extends ] if section.header_.extends else [])
+        section_name = section.header.name
+        extends = set([ section.header.extends ] if section.header.extends else [])
         if section_name in extends:
           msg = 'Self dependency for {} in {}'.format(section_name,
-                                                      section.origin_.source)
-          raise simple_config_error(msg, section.origin_)
+                                                      section.origin.source)
+          raise simple_config_error(msg, section.origin)
         if section_name in section_map:
           existing_section = section_map[section_name]
           msg = 'Duplicate config section "{}"\n  {}\n  {}'.format(section_name,
-                                                                   section.origin_.source,
-                                                                   existing_section.origin_.source)
+                                                                   section.origin.source,
+                                                                   existing_section.origin.source)
           raise simple_config_error(msg, section.origin)
         section_map[section_name] = section
         dep_map[section_name] = extends
@@ -150,11 +150,11 @@ class simple_config_files(object):
       raise simple_config_error('Need to call load() first.', None)
     return sorted([ config.abs_path for config in self._configs ])
 
-  def has_unique_section(self, section_name):
+  def has_section(self, section_name):
     'Return True if section_name is in any of the loaded config files.'
     if not self.has_loaded:
       raise simple_config_error('Need to call load() first.', None)
-    return next((c for c in self._configs if c.config.has_unique_section(section_name)), None) is not None    
+    return next((c for c in self._configs if c.config.has_section(section_name)), None) is not None
 
   @classmethod
   def load_and_find_section(clazz, config_path, section_name, extension):
@@ -182,7 +182,7 @@ class simple_config_files(object):
     config.load()
     if not config.files:
       raise simple_config_error('No config files matching "{}" in "{}"'.format(glob_expression, config_path))
-    if not config.has_unique_section(section_name):
+    if not config.has_section(section_name):
       raise simple_config_error('No config "{}" found in "{}":\n  {}'.format(section_name, config_path, '  \n'.join(config.files)))
     section = config.section(section_name)
     return section

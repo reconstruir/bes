@@ -16,7 +16,6 @@ from collections import namedtuple
 
 from .simple_config_entry import simple_config_entry
 from .simple_config_error import simple_config_error
-from .simple_config_keys import simple_config_keys
 from .simple_config_options import simple_config_options
 from .simple_config_origin import simple_config_origin
 from .simple_config_section import simple_config_section
@@ -81,21 +80,15 @@ class simple_config(object):
       buf.write(section.to_string(entry_formatter = self._entry_formatter, sort = sort,
                                   fixed_key_column_width = fixed_key_column_width))
     return buf.getvalue()
-  
-  def __getattr__(self, section_name):
-    return self.find(section_name)
 
   def __iter__(self):
     return iter(self._sections)
-  
-  def __hasattr__(self, section_name):
-    return self.find(section_name) != None
 
   def add_section(self, section_name, extends = None, origin = None, extra_text = None):
     check.check_string(section_name)
 
     header = simple_config_section_header(section_name, extends = extends, extra_text = extra_text, origin = origin)
-    section = simple_config_section(header, None, origin, parent_variables_ = self._variables)
+    section = simple_config_section(header, None, origin, parent_variables = self._variables)
     self._sections.append(section)
     return section
 
@@ -104,7 +97,7 @@ class simple_config(object):
     check.check_simple_config_section(section)
     check.check_string(pattern)
 
-    return section.header_.name == pattern
+    return section.header.name == pattern
   
   def remove_section(self, section_name, matcher = None):
     check.check_string(section_name)
@@ -114,9 +107,9 @@ class simple_config(object):
     for i, section in enumerate(self._sections):
       if matcher(section, section_name):
         return self._sections.pop(i)
-    raise simple_config_error('no such section found: "{}"'.format(section_name, self._origin))
+    raise simple_config_error('no such section found: "{}" in "{}"'.format(section_name, self._origin))
 
-  def has_unique_section(self, section_name, matcher = None):
+  def has_section(self, section_name, matcher = None):
     check.check_string(section_name)
     check.check_callable(matcher, allow_none = True)
 
@@ -165,15 +158,15 @@ class simple_config(object):
     result = []
     for section in self._sections:
       if section.has_value(key) and section.get_value(key) == value:
-        result.append(section.header_.name)
+        result.append(section.header.name)
     return result
-  
+
   def section(self, section_name, matcher = None):
     check.check_string(section_name)
     check.check_callable(matcher, allow_none = True)
 
     check.check_string(section_name)
-    if not self.has_unique_section(section_name, matcher = matcher):
+    if not self.has_section(section_name, matcher = matcher):
       self.add_section(section_name)
     sections = self.find_all_sections(section_name, matcher = matcher)
     if len(sections) != 1:
@@ -300,7 +293,7 @@ class simple_config(object):
                                      result._variables,
                                      result._options)
       sections.append(section)
-      section_dict[section.header_.name] = section
+      section_dict[section.header.name] = section
     result._sections = sections
     return result
   
@@ -327,8 +320,8 @@ class simple_config(object):
     return simple_config_section(header,
                                  entries,
                                  origin,
-                                 extends_section_ = extends_section,
-                                 parent_variables_ = parent_variables)
+                                 extends_section = extends_section,
+                                 parent_variables = parent_variables)
 
   @classmethod
   def _parse_section_entries(clazz, node, source, entry_parser, options = None):
@@ -359,7 +352,7 @@ class simple_config(object):
 
     key, raw_annotations = clazz._entry_partition_key_and_annotation(raw_key)
 
-    simple_config_keys.validate_key(options.key_check_type, key, origin)
+    options.validate_key(key, origin)
     
     value = key_value(key, raw_value)
     annotations = clazz._parse_annotations(raw_annotations, origin)
@@ -403,10 +396,6 @@ class simple_config(object):
       value = None
     return key_value(key, value)
 
-  def has_section(self, section_name):
-    'Return True if config has section.'
-    return section_name in self.section_names()
-
   def has_value(self, section_name, key):
     'Return True if config has value with key in section_name.'
     section = self.section(section_name)
@@ -414,7 +403,7 @@ class simple_config(object):
   
   def section_names(self):
     'Return a list of all the section names.  Multiple sections with the same name get repeated.'
-    return [ section.header_.name for section in self._sections ]
+    return [ section.header.name for section in self._sections ]
     
   def sections_are_unique(self):
     'Return True if every section has a different name.'
@@ -442,7 +431,7 @@ class simple_config(object):
 
     result = {}
     for section in self._sections:
-      result[section.header_.name] = section.to_dict(resolve_env_vars = resolve_env_vars)
+      result[section.header.name] = section.to_dict(resolve_env_vars = resolve_env_vars)
     return result
     
   def _update_with_simple_config(self, config):
@@ -453,7 +442,7 @@ class simple_config(object):
       raise simple_config_error('update only works if sections have unique names.')
 
     for other_section in config._sections:
-      self_section = self.find(other_section.header_.name)
+      self_section = self.find(other_section.header.name)
       self_section.set_values(other_section.to_dict(resolve_env_vars = False))
   
   def _update_with_dict(self, config):
