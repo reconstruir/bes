@@ -69,6 +69,11 @@ create index idx_move_submitted_at on move_operations_v1(submitted_at)
     with self._lock:
       return self._db.get_table_version('move_operations_v1')
 
+  def delete_all_operations(self):
+    with self._lock:
+      self._db.execute('DELETE FROM move_operations_v1')
+      self._db.commit()
+
   def insert_operation(self, operation):
     with self._lock:
       self._db.execute(

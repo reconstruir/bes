@@ -129,6 +129,9 @@ class bf_file_mover:
 
     return self._database.get_operation(operation_id)
 
+  def delete_all_operations(self):
+    self._database.delete_all_operations()
+
   def list_operations(self, status=None, since=None):
     return self._database.list_operations(status=status, since=since)
 
