@@ -19,7 +19,11 @@
       "Bash(git -C /Users/test1/proj/bes status --short)",
       "Bash(git *)",
       "PowerShell(.\\\\t tests/lib/bes/files/media_finder/test_bf_media_file_entry.py tests/lib/bes/files/media_finder/test_bf_media_finder.py \"tests/lib/bes/files/mime/_detail/test__bf_mime_detector_attributes.py\" tests/lib/bes/files/move/test_bf_file_mover.py tests/lib/bes/files/rsync/test_bf_rsync_file_sync.py tests/lib/bes/files/test_bf_filename_simplify.py 2>&1 | Select-Object -Last 30)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "Bash(cp /Users/test1/proj/bes/lib/bes/config/*.py /Users/test1/proj/bat/lib/bat/config_file/bat_config_file/)",
+      "Bash(cp /Users/test1/proj/bes/tests/lib/bes/config/*.py /Users/test1/proj/bat/tests/lib/bat/config_file/)",
+      "Bash(sed -i '' 's/from \\\\.\\\\.system\\\\.check import check/from bes.system.check import check/' *.py)",
+      "Bash(sed -i '' 's/from \\\\.\\\\.files\\\\.bf_glob import bf_glob/from bes.files.bf_glob import bf_glob/' *.py)"
     ]
   }
 }

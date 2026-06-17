@@ -5,7 +5,6 @@ import pprint
 
 from collections import namedtuple
 
-from bes.config.simple_config import simple_config
 from bes.system.check import check
 from bes.system.log import logger
 
@@ -127,22 +126,6 @@ class bcli_options(object):
     dself = self.to_dict(hide_secrets = False)
     dother = other.to_dict(hide_secrets = False)
     return dself == dother
-
-  @classmethod
-  def from_config_file(clazz, config_filename):
-    check.check_string(config_filename)
-    tmp = clazz()
-    section_name = tmp._desc._config_file_section()
-    if not section_name:
-      raise RuntimeError(f'{clazz.__name__} does not define a config file section')
-    config = simple_config.from_file(config_filename)
-    if not config.has_section(section_name):
-      return clazz()
-    section = config.section(section_name)
-    values = section.to_dict()
-    known_keys = set(tmp._desc.keys())
-    filtered = {k: v for k, v in values.items() if k in known_keys}
-    return clazz(**filtered)
 
   @classmethod
   def clone_or_create(clazz, options, check_class_name = None):
