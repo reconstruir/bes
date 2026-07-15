@@ -32,7 +32,7 @@ class _file_attributes_xattr(file_attributes_base):
     'Return the attribute value with key for filename.'
     filename = bf_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_writable(filename)
+    clazz.check_file_is_readable(filename)
 
     encoded_key = clazz._encode_key(key)
     if not xattr.xattr(filename).has_key(encoded_key):

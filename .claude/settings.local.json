@@ -23,7 +23,22 @@
       "Bash(cp /Users/test1/proj/bes/lib/bes/config/*.py /Users/test1/proj/bat/lib/bat/config_file/bat_config_file/)",
       "Bash(cp /Users/test1/proj/bes/tests/lib/bes/config/*.py /Users/test1/proj/bat/tests/lib/bat/config_file/)",
       "Bash(sed -i '' 's/from \\\\.\\\\.system\\\\.check import check/from bes.system.check import check/' *.py)",
-      "Bash(sed -i '' 's/from \\\\.\\\\.files\\\\.bf_glob import bf_glob/from bes.files.bf_glob import bf_glob/' *.py)"
+      "Bash(sed -i '' 's/from \\\\.\\\\.files\\\\.bf_glob import bf_glob/from bes.files.bf_glob import bf_glob/' *.py)",
+      "Bash(PYTHONPATH=/Users/test1/proj/resazon/lib python3 *)",
+      "Bash(PYTHONPATH=/Users/test1/proj/resazon/lib:/Users/test1/proj/bes/lib python3 *)",
+      "Bash(cp /Users/test1/proj/resazon/web-src/assets/app.js /Users/test1/proj/resazon/site/assets/app.js)",
+      "Bash(cp /Users/test1/proj/resazon/web-src/assets/app.css /Users/test1/proj/resazon/site/assets/app.css)",
+      "Bash(cp -f /Users/test1/proj/resazon/web-src/assets/app.js /Users/test1/proj/resazon/site/assets/app.js)",
+      "Bash(cp -f /Users/test1/proj/resazon/web-src/assets/app.css /Users/test1/proj/resazon/site/assets/app.css)",
+      "Bash(yes)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat \"{}\"')",
+      "Bash(grep -E '^collection:|^$|processed:')",
+      "Bash(PYTHONPATH=lib:../bes/lib python3 *)",
+      "Bash(./r bin/resazon1.py nutrition update_all --dry-run /Users/test1/proj/cooking-recipes/recipes/)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -rl '^Nutrition$' /Users/test1/proj/cooking-recipes/recipes/ramiro/es/)",
+      "Bash(grep -rl '^Nutrition$' /Users/test1/proj/cooking-recipes/recipes/ramiro/en/)",
+      "Bash(chmod +x *)"
     ]
   }
 }

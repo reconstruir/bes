@@ -68,42 +68,32 @@ class bf_file_mover_worker:
     operation = self._database.get_operation(operation_id)
     if operation is None:
       return
-
-    dst_dir = path.dirname(operation.destination_path)
-    if not self._destination_reachable(dst_dir):
-      self._database.update_status(
-        operation_id,
-        bf_file_mover_status.paused,
-        paused_at=int(time.time())
-      )
-      if self._options.on_pause:
-        self._options.on_pause(operation)
+    if operation.status == bf_file_mover_status.paused:
       return
 
-    if path.exists(operation.destination_path):
-      if bf_file_ops.files_are_the_same(operation.staging_path, operation.destination_path):
-        os.remove(operation.staging_path)
-        staging_uuid_dir = path.dirname(operation.staging_path)
-        try:
-          os.rmdir(staging_uuid_dir)
-        except OSError:
-          pass
-        self._database.update_status(
-          operation_id,
-          bf_file_mover_status.done,
-          completed_at=int(time.time())
-        )
-        if self._options.on_complete:
-          self._options.on_complete(operation)
-        return
-
-    self._database.update_status(
-      operation_id,
-      bf_file_mover_status.copying,
-      copy_started_at=int(time.time())
-    )
-
     try:
+      if path.exists(operation.destination_path):
+        if bf_file_ops.files_are_the_same(operation.staging_path, operation.destination_path):
+          os.remove(operation.staging_path)
+          staging_uuid_dir = path.dirname(operation.staging_path)
+          try:
+            os.rmdir(staging_uuid_dir)
+          except OSError:
+            pass
+          self._database.update_status(
+            operation_id,
+            bf_file_mover_status.done,
+            completed_at=int(time.time())
+          )
+          if self._options.on_complete:
+            self._options.on_complete(operation)
+          return
+
+      self._database.update_status(
+        operation_id,
+        bf_file_mover_status.copying,
+        copy_started_at=int(time.time())
+      )
       self._execute_move(operation)
       self._database.update_status(
         operation_id,
@@ -112,14 +102,16 @@ class bf_file_mover_worker:
       )
       if self._options.on_complete:
         self._options.on_complete(operation)
-    except Exception as ex:
+
+    except OSError as ex:
       self._database.update_status(
         operation_id,
-        bf_file_mover_status.failed,
-        completed_at=int(time.time()),
+        bf_file_mover_status.paused,
+        paused_at=int(time.time()),
         error_message=str(ex)
       )
-      raise
+      if self._options.on_pause:
+        self._options.on_pause(operation)
 
   def _execute_move(self, operation):
     staging_path = operation.staging_path
@@ -189,12 +181,6 @@ class bf_file_mover_worker:
 
     os.rename(tmp_path, destination_path)
     os.remove(staging_path)
-
-  def _destination_reachable(self, directory):
-    try:
-      return path.isdir(directory)
-    except OSError:
-      return False
 
   def _same_device(self, source_path, destination_dir):
     return os.stat(source_path).st_dev == os.stat(destination_dir).st_dev

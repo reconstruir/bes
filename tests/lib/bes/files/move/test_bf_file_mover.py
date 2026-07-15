@@ -38,6 +38,7 @@ from bes.files.move.bf_file_mover_operation import bf_file_mover_operation
 from bes.files.move.bf_file_mover_options import bf_file_mover_options
 from bes.files.move.bf_file_mover_restore_status import bf_file_mover_restore_status
 from bes.files.move.bf_file_mover_status import bf_file_mover_status
+from bes.files.move.bf_file_mover_worker import bf_file_mover_worker
 
 class test_bf_file_mover(unit_test):
 
@@ -63,11 +64,22 @@ class test_bf_file_mover(unit_test):
       current = mover.status(operation_id)
       if current == expected_status:
         return True
-      if current in (bf_file_mover_status.failed, bf_file_mover_status.done):
+      if current in (bf_file_mover_status.failed, bf_file_mover_status.done,
+                     bf_file_mover_status.paused):
         if current != expected_status:
           return False
       time.sleep(0.05)
     return False
+
+  def _submit_and_pause(self, mover, content='hello', filename='foo.flac'):
+    'Submit a move, force it to pause via OSError, return (operation_id, src, dst).'
+    src = self._make_source_file(content=content, filename=filename)
+    dst = path.join(self.make_temp_dir(), filename)
+    mover._worker._execute_move = mock.Mock(side_effect=OSError('device unavailable'))
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    del mover._worker._execute_move
+    return operation_id, src, dst
 
   # constructor
 
@@ -222,7 +234,7 @@ class test_bf_file_mover(unit_test):
     src = self._make_source_file()
     dst_dir = self.make_temp_dir()
     dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
+    mover.move(src, dst)
     self.assertFalse(path.exists(src))
     mover.stop_worker()
 
@@ -315,6 +327,17 @@ class test_bf_file_mover(unit_test):
     operation_id = mover.move(src, dst).operation_id
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
     self.assertTrue(path.exists(dst))
+    mover.stop_worker()
+
+  def test_move_creates_missing_destination_subdir(self):
+    # makedirs in _execute_move creates the dir; no longer causes a pause
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='subdir content')
+    dst = path.join(self.make_temp_dir(), 'new_subdir', 'deeper', 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    self.assertEqual(b'subdir content', open(dst, 'rb').read())
     mover.stop_worker()
 
   # cross-device copy (forced via mock)
@@ -439,40 +462,104 @@ class test_bf_file_mover(unit_test):
     self.assertTrue(all(t == len(content) for t in total_bytes_seen))
     mover.stop_worker()
 
-  def test_on_pause_fires(self):
+  def test_on_pause_fires_on_oserror(self):
     paused = []
     options = bf_file_mover_options(on_pause=lambda op: paused.append(op))
     mover = self._make_mover(options=options)
     mover.start_worker()
-    src = self._make_source_file()
-    nonexistent_dst = path.join(self.make_temp_dir(), 'absent_dir', 'foo.flac')
-    operation_id = mover.move(src, nonexistent_dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover)
     self.assertEqual(1, len(paused))
     self.assertEqual(operation_id, paused[0].operation_id)
     mover.stop_worker()
 
-  # paused — destination unavailable
+  def test_on_pause_operation_has_source_and_destination(self):
+    paused_ops = []
+    options = bf_file_mover_options(on_pause=lambda op: paused_ops.append(op))
+    mover = self._make_mover(options=options)
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover, filename='track.flac')
+    op = paused_ops[0]
+    self.assertEqual(src, op.source_path)
+    self.assertEqual(dst, op.destination_path)
+    mover.stop_worker()
 
-  def test_pauses_when_destination_dir_missing(self):
+  # paused — OSError exception handling (new behaviour)
+
+  def test_oserror_during_execute_causes_paused_not_failed(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.paused))
+    operation_id, src, dst = self._submit_and_pause(mover)
+    self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
+    mover.stop_worker()
+
+  def test_paused_error_message_stored(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover)
+    operation = mover.operation(operation_id)
+    self.assertIsNotNone(operation.error_message)
+    self.assertIn('device unavailable', operation.error_message)
     mover.stop_worker()
 
   def test_staging_file_preserved_when_paused(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover)
     operation = mover.operation(operation_id)
     self.assertTrue(path.exists(operation.staging_path))
     mover.stop_worker()
+
+  def test_oserror_during_makedirs_causes_paused(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file()
+    dst = path.join(self.make_temp_dir(), 'subdir', 'foo.flac')
+    real_makedirs = os.makedirs
+    def failing_makedirs(p, **kwargs):
+      if 'subdir' in str(p):
+        raise OSError('permission denied')
+      real_makedirs(p, **kwargs)
+    with mock.patch('os.makedirs', side_effect=failing_makedirs):
+      operation_id = mover.move(src, dst).operation_id
+      self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.paused))
+    mover.stop_worker()
+
+  def test_paused_item_retried_completes_when_error_resolved(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover)
+    # destination is now accessible — unpause and let the real execute_move run
+    mover.unpause(operation_id)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    self.assertTrue(path.exists(dst))
+    mover.stop_worker()
+
+  def test_resume_paused_requeues_paused_item(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover)
+    mover.resume_paused()
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    mover.stop_worker()
+
+  def test_resume_paused_still_pauses_when_execute_still_errors(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover)
+    # keep the error in place
+    mover._worker._execute_move = mock.Mock(side_effect=OSError('still unavailable'))
+    mover.resume_paused()
+    time.sleep(0.3)
+    self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
+    del mover._worker._execute_move
+    mover.stop_worker()
+
+  def test_resume_paused_raises_if_worker_not_running(self):
+    mover = self._make_mover()
+    with self.assertRaises(RuntimeError):
+      mover.resume_paused()
+
+  # destination device id
 
   def test_destination_device_id_recorded_when_dir_exists(self):
     mover = self._make_mover()
@@ -494,37 +581,6 @@ class test_bf_file_mover(unit_test):
     operation = mover.operation(operation_id)
     self.assertIsNone(operation.destination_device_id)
     mover.stop_worker()
-
-  def test_resume_paused_requeues_when_destination_available(self):
-    mover = self._make_mover()
-    mover.start_worker()
-    src = self._make_source_file()
-    dst_base = self.make_temp_dir()
-    dst_dir = path.join(dst_base, 'soon')
-    dst = path.join(dst_dir, 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-    os.makedirs(dst_dir)
-    mover.resume_paused()
-    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
-    mover.stop_worker()
-
-  def test_resume_paused_leaves_paused_when_still_missing(self):
-    mover = self._make_mover()
-    mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'never_exists', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-    mover.resume_paused()
-    time.sleep(0.2)
-    self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
-    mover.stop_worker()
-
-  def test_resume_paused_raises_if_worker_not_running(self):
-    mover = self._make_mover()
-    with self.assertRaises(RuntimeError):
-      mover.resume_paused()
 
   # recovery scan at startup
 
@@ -583,6 +639,75 @@ class test_bf_file_mover(unit_test):
     self.assertEqual(bf_file_mover_status.failed, mover.status('missing-staging-op'))
     mover.stop_worker()
 
+  def test_startup_requeues_staging_done_items(self):
+    database_path = path.join(self.make_temp_dir(), 'move.sqlite')
+    src = self._make_source_file(content='queued content')
+    dst_dir = self.make_temp_dir()
+    dst = path.join(dst_dir, 'foo.flac')
+
+    db = bf_file_mover_database(database_path)
+    now = int(time.time())
+    staging_dir = self.make_temp_dir()
+    staging_uuid_dir = path.join(staging_dir, 'queued-uuid-001')
+    os.makedirs(staging_uuid_dir)
+    staging_path = path.join(staging_uuid_dir, 'foo.flac')
+    os.rename(src, staging_path)
+
+    op = bf_file_mover_operation(
+      operation_id='queued-uuid-001',
+      source_path=src,
+      staging_path=staging_path,
+      destination_path=dst,
+      destination_device_id=None,
+      status=bf_file_mover_status.staging_done,
+      submitted_at=now,
+      staged_at=now,
+    )
+    db.insert_operation(op)
+
+    mover = bf_file_mover(database_path)
+    mover.start_worker()
+    self.assertTrue(self._wait_for_status(mover, 'queued-uuid-001', bf_file_mover_status.done))
+    self.assertTrue(path.exists(dst))
+    mover.stop_worker()
+
+  def test_startup_requeues_all_paused_items_unconditionally(self):
+    # paused items are re-enqueued on startup regardless of destination reachability;
+    # this verifies the item was attempted (paused_at updated) when dest still errors
+    database_path = path.join(self.make_temp_dir(), 'move.sqlite')
+    staging_uuid_dir = path.join(self.make_temp_dir(), 'paused-startup-uuid')
+    os.makedirs(staging_uuid_dir)
+    staging_path = path.join(staging_uuid_dir, 'foo.flac')
+    with open(staging_path, 'wb') as f:
+      f.write(b'content')
+
+    original_paused_at = int(time.time()) - 100
+    now = int(time.time())
+    op = bf_file_mover_operation(
+      operation_id='paused-startup-uuid',
+      source_path='/original/src/foo.flac',
+      staging_path=staging_path,
+      destination_path=path.join(self.make_temp_dir(), 'foo.flac'),
+      destination_device_id=None,
+      status=bf_file_mover_status.paused,
+      submitted_at=now,
+      staged_at=now,
+      paused_at=original_paused_at,
+    )
+    db = bf_file_mover_database(database_path)
+    db.insert_operation(op)
+
+    with mock.patch.object(bf_file_mover_worker, '_execute_move',
+                           side_effect=OSError('still unavailable')):
+      mover = bf_file_mover(database_path)
+      mover.start_worker()
+      time.sleep(0.3)
+      operation = mover.operation('paused-startup-uuid')
+      self.assertEqual(bf_file_mover_status.paused, operation.status)
+      # paused_at was updated, proving the item was re-attempted
+      self.assertGreater(operation.paused_at, original_paused_at)
+      mover.stop_worker()
+
   def test_start_worker_resumes_paused_on_startup(self):
     database_path = path.join(self.make_temp_dir(), 'move.sqlite')
     dst_dir = self.make_temp_dir()
@@ -616,6 +741,81 @@ class test_bf_file_mover(unit_test):
     self.assertTrue(path.exists(dst))
     mover.stop_worker()
 
+  # manual pause API
+
+  def test_manual_pause_queued_item(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file()
+    dst = path.join(self.make_temp_dir(), 'foo.flac')
+    # block the worker so the item stays staging_done long enough to pause it
+    block = threading.Event()
+    original = mover._worker._execute_move
+    def blocking_execute(op):
+      block.wait(timeout=5)
+      original(op)
+    mover._worker._execute_move = blocking_execute
+    operation_id = mover.move(src, dst).operation_id
+    # item is staging_done (worker is blocked)
+    time.sleep(0.1)
+    if mover.status(operation_id) == bf_file_mover_status.staging_done:
+      mover.pause(operation_id)
+      self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
+    block.set()
+    mover.stop_worker()
+
+  def test_manual_pause_wrong_status_raises(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file()
+    dst = path.join(self.make_temp_dir(), 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    with self.assertRaises(RuntimeError):
+      mover.pause(operation_id)
+    mover.stop_worker()
+
+  def test_manual_pause_unknown_operation_raises(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    with self.assertRaises(KeyError):
+      mover.pause('no-such-operation')
+    mover.stop_worker()
+
+  # manual unpause API
+
+  def test_manual_unpause_completes(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover)
+    mover.unpause(operation_id)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    self.assertTrue(path.exists(dst))
+    mover.stop_worker()
+
+  def test_manual_unpause_wrong_status_raises(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file()
+    dst = path.join(self.make_temp_dir(), 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    with self.assertRaises(RuntimeError):
+      mover.unpause(operation_id)
+    mover.stop_worker()
+
+  def test_manual_unpause_raises_if_worker_not_running(self):
+    mover = self._make_mover()
+    with self.assertRaises(RuntimeError):
+      mover.unpause('some-id')
+
+  def test_manual_unpause_unknown_operation_raises(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    with self.assertRaises(KeyError):
+      mover.unpause('no-such-operation')
+    mover.stop_worker()
+
   # orphans
 
   def test_list_orphans_finds_untracked_file(self):
@@ -640,10 +840,7 @@ class test_bf_file_mover(unit_test):
   def test_list_orphans_empty_when_all_tracked(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    mover.move(src, dst)
-    time.sleep(0.2)
+    operation_id, src, dst = self._submit_and_pause(mover)
     orphans = mover.list_orphans()
     self.assertEqual([], orphans)
     mover.stop_worker()
@@ -651,9 +848,7 @@ class test_bf_file_mover(unit_test):
   def test_orphan_not_deleted_automatically(self):
     mover = self._make_mover()
     mover.start_worker()
-    src_for_known = self._make_source_file(filename='known.flac')
-    dst_for_known = path.join(self.make_temp_dir(), 'missing', 'known.flac')
-    operation_id = mover.move(src_for_known, dst_for_known).operation_id
+    operation_id, src, dst = self._submit_and_pause(mover)
     operation = mover.operation(operation_id)
 
     staging_root = path.dirname(path.dirname(operation.staging_path))
@@ -664,7 +859,8 @@ class test_bf_file_mover(unit_test):
       f.write(b'keep me')
 
     mover.stop_worker()
-    mover2 = bf_file_mover(mover._database_path)
+    mover2 = bf_file_mover(mover._database_path,
+                            bf_file_mover_options(staging_root=mover._options.staging_root))
     mover2.start_worker()
     time.sleep(0.3)
     self.assertTrue(path.exists(orphan_file))
@@ -685,24 +881,42 @@ class test_bf_file_mover(unit_test):
     self.assertTrue(path.exists(src))
     mover.stop_worker()
 
-  def test_mid_copy_failure_preserves_staging_file(self):
+  def test_mid_copy_oserror_causes_paused_not_failed(self):
     mover = self._make_mover()
     mover.start_worker()
     src = self._make_source_file(content='content')
     dst = path.join(self.make_temp_dir(), 'foo.flac')
 
-    call_count = [0]
     original_open = open
     def failing_open(filepath, mode='r', **kwargs):
       if 'w' in mode and str(filepath).endswith('.tmp'):
-        call_count[0] += 1
         raise OSError('simulated write failure')
       return original_open(filepath, mode, **kwargs)
 
     with mock.patch('builtins.open', side_effect=failing_open):
       with mock.patch.object(mover._worker, '_same_device', return_value=False):
         operation_id = mover.move(src, dst).operation_id
-        self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
+        self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.paused))
+
+    self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
+    mover.stop_worker()
+
+  def test_mid_copy_failure_preserves_staging_file(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file(content='content')
+    dst = path.join(self.make_temp_dir(), 'foo.flac')
+
+    original_open = open
+    def failing_open(filepath, mode='r', **kwargs):
+      if 'w' in mode and str(filepath).endswith('.tmp'):
+        raise OSError('simulated write failure')
+      return original_open(filepath, mode, **kwargs)
+
+    with mock.patch('builtins.open', side_effect=failing_open):
+      with mock.patch.object(mover._worker, '_same_device', return_value=False):
+        operation_id = mover.move(src, dst).operation_id
+        self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
 
     operation = mover.operation(operation_id)
     self.assertTrue(path.exists(operation.staging_path))
@@ -738,33 +952,37 @@ class test_bf_file_mover(unit_test):
     with mock.patch('builtins.open', side_effect=partially_writing_open):
       with mock.patch.object(mover._worker, '_same_device', return_value=False):
         operation_id = mover.move(src, dst).operation_id
-        self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
+        self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
 
     tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
     self.assertFalse(path.exists(tmp_path))
     self.assertFalse(path.exists(dst))
     mover.stop_worker()
 
-  def test_retry_requeues_with_staging_file(self):
+  # retry
+
+  def test_retry_failed_item_completes(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file(content='retry me')
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-
+    operation_id, src, dst = self._submit_and_pause(mover)
     mover._database.update_status(operation_id, bf_file_mover_status.failed)
-
-    dst_dir = path.dirname(dst)
-    os.makedirs(dst_dir)
     mover.retry(operation_id)
     self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    mover.stop_worker()
+
+  def test_retry_paused_item_completes(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    operation_id, src, dst = self._submit_and_pause(mover)
+    self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
+    mover.retry(operation_id)
+    self.assertTrue(self._wait_for_status(mover, operation_id, bf_file_mover_status.done))
+    self.assertTrue(path.exists(dst))
     mover.stop_worker()
 
   def test_retry_raises_without_staging_file(self):
     mover = self._make_mover()
     mover.start_worker()
-    database_path = mover._database_path
     now = int(time.time())
     op = bf_file_mover_operation(
       operation_id='no-staging',
@@ -800,22 +1018,28 @@ class test_bf_file_mover(unit_test):
       mover.retry('expired-op')
     mover.stop_worker()
 
+  def test_retry_raises_on_non_retriable_status(self):
+    mover = self._make_mover()
+    mover.start_worker()
+    src = self._make_source_file()
+    dst = path.join(self.make_temp_dir(), 'foo.flac')
+    operation_id = mover.move(src, dst).operation_id
+    self._wait_for_status(mover, operation_id, bf_file_mover_status.done)
+    with self.assertRaises(RuntimeError):
+      mover.retry(operation_id)
+    mover.stop_worker()
+
   # vacuum_staging
 
   def test_vacuum_removes_old_failed_staging_file(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-
+    operation_id, src, dst = self._submit_and_pause(mover)
     mover._database.update_status(
       operation_id,
       bf_file_mover_status.failed,
       completed_at=int(time.time()) - 100
     )
-
     operation = mover.operation(operation_id)
     staging_path = operation.staging_path
     staging_uuid_dir = path.dirname(staging_path)
@@ -830,14 +1054,13 @@ class test_bf_file_mover(unit_test):
   def test_vacuum_preserves_recent_failed(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-    mover._database.update_status(operation_id, bf_file_mover_status.failed, completed_at=int(time.time()))
-
+    operation_id, src, dst = self._submit_and_pause(mover)
+    mover._database.update_status(
+      operation_id,
+      bf_file_mover_status.failed,
+      completed_at=int(time.time())
+    )
     mover.vacuum_staging(minimum_age_days=30)
-
     operation = mover.operation(operation_id)
     self.assertTrue(path.exists(operation.staging_path))
     self.assertEqual(bf_file_mover_status.failed, mover.status(operation_id))
@@ -846,13 +1069,8 @@ class test_bf_file_mover(unit_test):
   def test_vacuum_preserves_paused_with_intact_staging(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-
+    operation_id, src, dst = self._submit_and_pause(mover)
     mover.vacuum_staging(minimum_age_days=0)
-
     operation = mover.operation(operation_id)
     self.assertTrue(path.exists(operation.staging_path))
     self.assertEqual(bf_file_mover_status.paused, mover.status(operation_id))
@@ -875,27 +1093,20 @@ class test_bf_file_mover(unit_test):
       paused_at=now,
     )
     mover._database.insert_operation(op)
-
     mover.vacuum_staging(minimum_age_days=0)
-
     self.assertEqual(bf_file_mover_status.expired, mover.status('ghost-uuid'))
     mover.stop_worker()
 
   def test_vacuum_expired_records_remain_in_database(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file()
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover)
     mover._database.update_status(
       operation_id,
       bf_file_mover_status.failed,
       completed_at=int(time.time()) - 100
     )
-
     mover.vacuum_staging(minimum_age_days=0)
-
     operation = mover.operation(operation_id)
     self.assertIsNotNone(operation)
     self.assertEqual(bf_file_mover_status.expired, operation.status)
@@ -952,7 +1163,7 @@ class test_bf_file_mover(unit_test):
     with mock.patch('builtins.open', side_effect=failing_open):
       with mock.patch.object(mover._worker, '_same_device', return_value=False):
         operation_id = mover.move(src, dst).operation_id
-        self._wait_for_status(mover, operation_id, bf_file_mover_status.failed)
+        self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
 
     tmp_path = path.join(dst_dir, f'{operation_id}.tmp')
     self.assertFalse(path.exists(tmp_path))
@@ -1063,21 +1274,6 @@ class test_bf_file_mover(unit_test):
     op = completed_ops[0]
     self.assertEqual(src, op.source_path)
     self.assertEqual(dst, op.destination_path)
-    self.assertEqual(bf_file_mover_status.staging_done, op.status)
-    mover.stop_worker()
-
-  def test_on_pause_operation_has_source_and_destination(self):
-    paused_ops = []
-    options = bf_file_mover_options(on_pause=lambda op: paused_ops.append(op))
-    mover = self._make_mover(options=options)
-    mover.start_worker()
-    src = self._make_source_file(filename='track.flac')
-    dst = path.join(self.make_temp_dir(), 'missing_vol', 'track.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
-    op = paused_ops[0]
-    self.assertEqual(src, op.source_path)
-    self.assertEqual(dst, op.destination_path)
     mover.stop_worker()
 
   def test_on_complete_fires_for_recovered_operation(self):
@@ -1154,10 +1350,7 @@ class test_bf_file_mover(unit_test):
   def test_restore_paused_returns_file_to_source(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file(content='restore me')
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover, content='restore me')
     result = mover.restore(operation_id)
     self.assertEqual(bf_file_mover_restore_status.success, result.status)
     self.assertTrue(path.exists(src))
@@ -1167,10 +1360,7 @@ class test_bf_file_mover(unit_test):
   def test_restore_failed_returns_file_to_source(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file(content='restore failed')
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover, content='restore failed')
     mover._database.update_status(operation_id, bf_file_mover_status.failed)
     result = mover.restore(operation_id)
     self.assertEqual(bf_file_mover_restore_status.success, result.status)
@@ -1180,10 +1370,7 @@ class test_bf_file_mover(unit_test):
   def test_restore_sets_status_to_restored(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file(content='restore status')
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover, content='restore status')
     mover.restore(operation_id)
     self.assertEqual(bf_file_mover_status.restored, mover.status(operation_id))
     mover.stop_worker()
@@ -1191,12 +1378,9 @@ class test_bf_file_mover(unit_test):
   def test_restore_removes_staging_uuid_dir(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file(content='restore dir')
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
+    operation_id, src, dst = self._submit_and_pause(mover, content='restore dir')
     operation = mover.operation(operation_id)
     staging_uuid_dir = path.dirname(operation.staging_path)
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
     mover.restore(operation_id)
     self.assertFalse(path.exists(staging_uuid_dir))
     mover.stop_worker()
@@ -1262,10 +1446,7 @@ class test_bf_file_mover(unit_test):
   def test_restore_source_path_occupied(self):
     mover = self._make_mover()
     mover.start_worker()
-    src = self._make_source_file(content='restore me')
-    dst = path.join(self.make_temp_dir(), 'missing_dir', 'foo.flac')
-    operation_id = mover.move(src, dst).operation_id
-    self._wait_for_status(mover, operation_id, bf_file_mover_status.paused)
+    operation_id, src, dst = self._submit_and_pause(mover, content='restore me')
     with open(src, 'wb') as f:
       f.write(b'occupying')
     result = mover.restore(operation_id)

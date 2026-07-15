@@ -355,6 +355,9 @@ class execute(object):
       t_stdout.join()
       if t_stderr:
         t_stderr.join()
+      process.stdout.close()
+      if process.stderr:
+        process.stderr.close()
       exit_code = process.wait()
     except BaseException:
       try:
@@ -362,6 +365,11 @@ class execute(object):
         process.wait()
       except OSError:
         pass
+      finally:
+        if process.stdout and not process.stdout.closed:
+          process.stdout.close()
+        if process.stderr and not process.stderr.closed:
+          process.stderr.close()
       raise
 
     parsed_args = command_line.parse_args(args)

@@ -162,6 +162,35 @@ class bf_file_mover:
 
     return orphans
 
+  def pause(self, operation_id):
+    check.check_string(operation_id)
+
+    operation = self._database.get_operation(operation_id)
+    if operation is None:
+      raise KeyError(f'Unknown operation: {operation_id}')
+    if operation.status != bf_file_mover_status.staging_done:
+      raise RuntimeError(
+        f'Operation {operation_id} cannot be paused (status: {operation.status.value})'
+      )
+    self._database.update_status(operation_id, bf_file_mover_status.paused, paused_at=int(time.time()))
+    return self._database.get_operation(operation_id)
+
+  def unpause(self, operation_id):
+    check.check_string(operation_id)
+
+    if self._worker is None or not self._worker.is_running():
+      raise RuntimeError('Worker is not running; call start_worker() first')
+    operation = self._database.get_operation(operation_id)
+    if operation is None:
+      raise KeyError(f'Unknown operation: {operation_id}')
+    if operation.status != bf_file_mover_status.paused:
+      raise RuntimeError(
+        f'Operation {operation_id} is not paused (status: {operation.status.value})'
+      )
+    self._database.update_status(operation_id, bf_file_mover_status.staging_done)
+    self._worker.enqueue(operation_id)
+    return self._database.get_operation(operation_id)
+
   def retry(self, operation_id):
     check.check_string(operation_id)
 
@@ -173,9 +202,9 @@ class bf_file_mover:
       raise KeyError(f'Unknown operation: {operation_id}')
     if operation.status == bf_file_mover_status.expired:
       raise RuntimeError(f'Operation {operation_id} is expired and cannot be retried')
-    if operation.status != bf_file_mover_status.failed:
+    if operation.status not in (bf_file_mover_status.failed, bf_file_mover_status.paused):
       raise RuntimeError(
-        f'Operation {operation_id} is not in failed state (status: {operation.status.value})'
+        f'Operation {operation_id} cannot be retried (status: {operation.status.value})'
       )
     if not path.exists(operation.staging_path):
       raise RuntimeError(
@@ -273,7 +302,7 @@ class bf_file_mover:
     for operation in self._database.list_operations(status=bf_file_mover_status.copying):
       if path.exists(operation.staging_path):
         self._database.update_status(operation.operation_id, bf_file_mover_status.staging_done)
-        self._worker.enqueue(operation.operation_id)
+        # enqueue handled below in the staging_done pass
       else:
         self._database.update_status(
           operation.operation_id,
@@ -288,15 +317,16 @@ class bf_file_mover:
           except OSError:
             pass
 
+    for operation in self._database.list_operations(status=bf_file_mover_status.staging_done):
+      self._worker.enqueue(operation.operation_id)
+
     self._requeue_reachable_paused()
     self._warn_orphans()
 
   def _requeue_reachable_paused(self):
     for operation in self._database.list_operations(status=bf_file_mover_status.paused):
-      destination_dir = path.dirname(operation.destination_path)
-      if path.isdir(destination_dir):
-        self._database.update_status(operation.operation_id, bf_file_mover_status.staging_done)
-        self._worker.enqueue(operation.operation_id)
+      self._database.update_status(operation.operation_id, bf_file_mover_status.staging_done)
+      self._worker.enqueue(operation.operation_id)
 
   def _warn_orphans(self):
     for orphan_path in self.list_orphans():
