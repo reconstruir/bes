@@ -22,15 +22,17 @@ class file_metadata_db(object):
 
   log = logger('file_metadata_db')
   
+  # "if not exists" because concurrent threads or processes race between
+  # the has_table check and the create
   _METADATA_SCHEMA = '''
-create table {table_name}(
+create table if not exists {table_name}(
   key   text primary key not null,
   value text
 );
 '''
 
   _HASH_TO_FILENAME_SCHEMA = '''
-create table hash_to_filename(
+create table if not exists hash_to_filename(
   hash     text primary key not null,
   filename text
 );

@@ -41,7 +41,10 @@ class bf_mime(object):
 
   @classmethod
   def mime_type_is_text(clazz, filename):
-    return clazz.mime_type(filename).startswith(clazz.TEXT)
+    mime_type = clazz.mime_type(filename)
+    if mime_type is None:
+      return False
+    return mime_type.startswith(clazz.TEXT)
 
   @classmethod
   def is_binary(clazz, filename):

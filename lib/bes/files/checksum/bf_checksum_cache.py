@@ -7,6 +7,7 @@ from os import path
 
 from bes.property.cached_class_property import cached_class_property
 from bes.system.check import check
+from bes.system.log import logger
 
 from ..attr.bf_attr import bf_attr
 
@@ -17,6 +18,8 @@ from .bf_checksum_fingerprint import bf_checksum_fingerprint
 
 class bf_checksum_cache:
 
+  _log = logger('bf_checksum')
+  
   _XATTR_KEY_PREFIX = 'bes__checksum__'
   _XATTR_KEY_SUFFIX = '__0.0'
 
@@ -158,4 +161,6 @@ class bf_checksum_cache:
     with clazz._shared_databases_lock:
       if database_path not in clazz._shared_databases:
         clazz._shared_databases[database_path] = bf_checksum_database(database_path)
-      return clazz._shared_databases[database_path]
+      result = clazz._shared_databases[database_path]
+      clazz._log.lod_i(f'_get_database({filename}) => {result}')
+      return result

@@ -37,6 +37,22 @@ class checksum_set(object):
       result[checksum.algorithm] = ( checksum.algorithm, checksum.checksum )
     return result
 
+  @classmethod
+  def from_dict(clazz, d):
+    check.check_dict(d)
+    result = checksum_set()
+    for _, value in sorted(d.items()):
+      # values are ( algorithm, checksum ) tuples but arrive as lists after
+      # a json round trip
+      algorithm, checksum_value = value
+      result.add(checksum(algorithm, checksum_value))
+    return result
+
+  def __eq__(self, other):
+    if not isinstance(other, checksum_set):
+      return NotImplemented
+    return self._checksums == other._checksums
+
   def preferred(self):
     for p in self._PREFERRED:
       n = self._checksums.get(p)
