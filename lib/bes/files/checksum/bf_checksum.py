@@ -20,7 +20,6 @@ class bf_checksum(object):
     check.check_int(num_chunks, allow_none = True)
     
     clazz._log.log_method_d()
-    assert False
     chunk_size = chunk_size or (1024 * 1024)
     hasher = hashlib.new(function_name)
     with open(filename, 'rb') as fin: 

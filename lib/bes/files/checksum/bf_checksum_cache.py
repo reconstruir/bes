@@ -162,5 +162,5 @@ class bf_checksum_cache:
       if database_path not in clazz._shared_databases:
         clazz._shared_databases[database_path] = bf_checksum_database(database_path)
       result = clazz._shared_databases[database_path]
-      clazz._log.lod_i(f'_get_database({filename}) => {result}')
+      clazz._log.log_i(f'_get_database({filename}) => {result}')
       return result
