@@ -51,7 +51,7 @@ class archive_command_handler(bcli_command_handler):
     return 0
 
   def _command_cat(self, archive_filename, filename, options):
-    s = archiver.extract_member_to_string(archive_filename, filename, codec='utf-8')
+    s = archiver.extract_member_to_string(archive_filename, filename, encoding='utf-8')
     print(s)
     return 0
 

@@ -8,11 +8,14 @@ from bes.compat.cmp import cmp
 from bes.compat.zip import zip
 from bes.common.algorithm import algorithm
 from ..system.check import check
+from ..system.log import logger
 
 from ..property.cached_class_property import cached_class_property
 
 class type_checked_list(object):
 
+  _log = logger('type_checked_list')
+  
   def __init__(self, values = None):
     self._assign(values)
 
@@ -34,14 +37,19 @@ class type_checked_list(object):
   @cached_class_property
   def _check_value_method(clazz):
     value_type_name = getattr(clazz.value_type, '__name__', None)
+    clazz._log.log_d(f'_check_value_method: value_type_name={value_type_name}')
     if not value_type_name:
       return None
     check_method_name = f'check_{value_type_name}'
-    return getattr(check, check_method_name, None)
+    clazz._log.log_d(f'_check_value_method: check_method_name={check_method_name}')
+    result = getattr(check, check_method_name, None)
+    clazz._log.log_d(f'_check_value_method: result={result}')
+    return result
 
   @classmethod
   def _check_value(clazz, v):
     check_method = clazz._check_value_method
+    clazz._log.log_d(f'_check_value: check_method={check_method}')
     if check_method:
       v = check_method(v)
     else:

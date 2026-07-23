@@ -57,40 +57,40 @@ class json_util(object):
     return json_util.to_json(o, indent = 2, sort_keys = sort_keys)
 
   @classmethod
-  def read_file(clazz, filename, codec = None):
+  def read_file(clazz, filename, encoding = None):
     check.check_string(filename)
-    check.check_string(codec, allow_none = True)
-    
-    codec = codec or 'utf-8'
-    with open(filename, 'r', encoding = codec) as f:
+    check.check_string(encoding, allow_none = True)
+
+    encoding = encoding or 'utf-8'
+    with open(filename, 'r', encoding = encoding) as f:
       content = f.read()
       return json.loads(content)
     return None
-    
+
   @classmethod
-  def save_file(clazz, filename, o, indent = None, sort_keys = False, codec = None, ensure_last_line_sep = False):
+  def save_file(clazz, filename, o, indent = None, sort_keys = False, encoding = None, ensure_last_line_sep = False):
     check.check_string(filename)
     check.check_int(indent, allow_none = True)
     check.check_bool(sort_keys)
-    check.check_string(codec, allow_none = True)
+    check.check_string(encoding, allow_none = True)
     check.check_bool(ensure_last_line_sep)
 
     content = clazz.to_json(o,
                             indent = indent,
                             sort_keys = sort_keys,
                             ensure_last_line_sep = ensure_last_line_sep)
-    codec = codec or 'utf-8'
-    with open(filename, 'w', encoding = codec) as f:
+    encoding = encoding or 'utf-8'
+    with open(filename, 'w', encoding = encoding) as f:
       f.write(content)
 
   @classmethod
-  def normalize_file(clazz, filename, codec = None, backup = False):
+  def normalize_file(clazz, filename, encoding = None, backup = False):
     check.check_string(filename)
 #    check.check_int(indent, allow_none = True)
 #    check.check_bool(sort_keys)
-    check.check_string(codec, allow_none = True)
+    check.check_string(encoding, allow_none = True)
 
-    o = clazz.read_file(filename, codec = codec)
+    o = clazz.read_file(filename, encoding = encoding)
     if backup:
       shutil.copy(filename, f'{filename.bak}')
-    clazz.save_file(filename, o, indent = 2, sort_keys = True, codec = codec)
+    clazz.save_file(filename, o, indent = 2, sort_keys = True, encoding = encoding)

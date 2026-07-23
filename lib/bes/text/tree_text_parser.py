@@ -49,6 +49,10 @@ class tree_text_parser(object):
     return result
 
   @classmethod
+  def make_node(clazz, text, line_number):
+    return _text_node(_text_node_data(text, line_number))
+  
+  @classmethod
   def _resolve_literal(clazz, literals, text):
     if text in literals:
       return literals[text].text
@@ -210,12 +214,12 @@ class _text_node(node):
       child._visit_node_text(depth + 1, False, indent, result)
     return result
 
-  def replace_text(self, replacements):
+  def replace_text(self, replacements, word_boundary = True):
     'Travese the tree and replace text in each node.'
-    new_text = text_replace.replace(self.data.text, replacements, word_boundary = True)
+    new_text = text_replace.replace(self.data.text, replacements, word_boundary = word_boundary)
     self.data = self.data.__class__(new_text, self.data.line_number)
     for child in self.children:
-      child.replace_text(replacements)
+      child.replace_text(replacements, word_boundary = word_boundary)
 
 class _text_stack(object):
 

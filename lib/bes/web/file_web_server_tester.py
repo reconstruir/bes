@@ -6,6 +6,7 @@ from bes.archive.temp_archive import temp_archive
 from bes.compat import url_compat
 from bes.files.bf_file_ops import bf_file_ops
 from bes.files.bf_entry import bf_entry
+from bes.files.bf_filename import bf_filename
 
 from bes.files.checksum.bf_checksum import bf_checksum
 from bes.fs.file_find import file_find
@@ -54,7 +55,7 @@ class file_web_server_tester(object):
     p = self.file_path(filename)
     if path.exists(p):
       raise IOError('already existsL {}'.format(filename))
-    bf_file_ops.save(p, content = content, encoding = encoding, perm = mode)
+    bf_file_ops.save(p, content = content, encoding = encoding, perm = perm)
 
   def read_file(self, filename, encoding = 'utf-8'):
     return bf_file_ops.read(self.file_path(filename), encoding = encoding)

@@ -89,8 +89,11 @@ class console(object):
   def terminal_size(clazz):
     'Return a 2-tuple ( width, height ) size of the current terminal or None if not a terminal.'
     if compat.IS_PYTHON3:
-      ts = os.get_terminal_size()
-      return ( ts.columns, ts.lines )
+      try:
+        ts = os.get_terminal_size()
+        return ( ts.columns, ts.lines )
+      except OSError:
+        return None
     if not host.is_unix():
       host.raise_unsupported_system()
     dev = clazz.terminal_device()

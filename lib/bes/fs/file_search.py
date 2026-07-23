@@ -29,7 +29,7 @@ class file_search(object):
   @classmethod
   def search(clazz, root_dir, text, relative = True, min_depth = None, max_depth = None):
     check.check_string(root_dir)
-    check.check_string(text)
+    check.check(text, ( str, list, tuple ))
     check.check_bool(relative)
     check.check_int(min_depth, allow_none = True)
     check.check_int(max_depth, allow_none = True)

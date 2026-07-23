@@ -39,8 +39,8 @@ class unit_test(unittest.TestCase):
     assert filename
     return path.join(self.data_dir(platform_specific = platform_specific), filename)
 
-  def platform_data_path(self, filename): 
-    return self.data_path(filename, platform_specific = True)
+  def platform_data_path(self, filename):
+    return self.xdata_path(filename, platform_specific = True)
   
   def data_dir(self, platform_specific = False, where = None): 
     parts = [ self._get_data_dir() ]

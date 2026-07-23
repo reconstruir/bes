@@ -252,15 +252,19 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
     if check.is_string(version):
       if version.lower() == 'none':
         version = None
+      elif version.lower() == 'any':
+        version = '*'
     elif version is None:
       version = None
     return version
-  
+
   @classmethod
   def resolve_distro(clazz, distro):
     if check.is_string(distro):
       if distro.lower() == 'none':
         distro = ''
+      elif distro.lower() == 'any':
+        distro = '*'
     elif distro is None:
       distro = ''
     return distro
@@ -274,9 +278,9 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
       return False
     if not fnmatch.fnmatch(self.distro, other.distro):
       return False
-    if not fnmatch.fnmatch(self.distro_version, other.distro_version):
+    if not fnmatch.fnmatch(self.distro_version or '', other.distro_version or ''):
       return False
-    if not fnmatch.fnmatch(self.distro_version_minor, other.distro_version_minor):
+    if not fnmatch.fnmatch(self.distro_version_minor or '', other.distro_version_minor or ''):
       return False
     if not fnmatch.fnmatch(self.level, other.level):
       return False

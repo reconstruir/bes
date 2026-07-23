@@ -146,9 +146,9 @@ class file_find(object):
     entries = result.entries
     unreadable = entries.unreadable_files()
     if relative:
-      return entries.relative_filenames(False)
+      return unreadable.relative_filenames(False)
     else:
-      return entries.absolute_filenames(False)
+      return unreadable.absolute_filenames(False)
 
   @classmethod
   def find_empty_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):

@@ -34,23 +34,38 @@ class environment_unix(environment_base):
     '/sbin',
   ]
   _DECLARE_PATTERN = re.compile(r'^declare\s+--\s+PATH="(.+)"$')
+  _PATH_HELPER_PATTERN = re.compile(r'^PATH="(.+)";\s*export PATH;$')
+
   @classmethod
-  #@abstractmethod
-  def default_path(clazz):
-    'The default system PATH.'
+  def _system_path(clazz):
+    'Return the system configured PATH (via path_helper on macOS, else the shell default), or None if it cannot be determined.'
     if host.SYSTEM == host.LINUX and host.DISTRO == 'alpine':
       return [ '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin:/bin' ]
+    path_helper = '/usr/libexec/path_helper'
+    if path.exists(path_helper):
+      try:
+        rv = subprocess.run([ 'env', '-i', path_helper ], capture_output = True, shell = False, check = True)
+        f = clazz._PATH_HELPER_PATTERN.findall(rv.stdout.decode().strip())
+        if f:
+          return f[0].split(path.pathsep)
+      except Exception as ex:
+        pass
     cmd = [ 'env', '-i', 'bash', '--norc', '-c', 'declare -p PATH' ]
     try:
       rv = subprocess.run(cmd, capture_output = True, shell = False, check = True)
       f = clazz._DECLARE_PATTERN.findall(rv.stdout.decode())
-      if not f:
-        return clazz._CLEAN_PATH
-      return f[0].split(path.pathsep)
+      if f:
+        return f[0].split(path.pathsep)
     except Exception as ex:
       pass
-    return clazz._CLEAN_PATH
-  
+    return None
+
+  @classmethod
+  #@abstractmethod
+  def default_path(clazz):
+    'The default system PATH.'
+    return clazz._system_path() or clazz._CLEAN_PATH
+
   @classmethod
   #@abstractmethod
   def home_dir_env(clazz, home_dir):
@@ -60,36 +75,11 @@ class environment_unix(environment_base):
       'HOME': home_dir,
     }
 
-  _CLEAN_PATH = [
-    '/usr/local/bin',
-    '/usr/bin',
-    '/bin',
-    '/usr/sbin',
-    '/sbin',
-  ]
-  _DECLARE_PATTERN = re.compile(r'^declare\s+--\s+PATH="(.+)"$')
-  @classmethod
-  #@abstractmethod
-  def default_path(clazz):
-    'The default system PATH.'
-    if host.SYSTEM == host.LINUX and host.DISTRO == 'alpine':
-      return [ '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin:/bin' ]
-    cmd = [ 'env', '-i', 'bash', '--norc', '-c', 'declare -p PATH' ]
-    try:
-      rv = subprocess.run(cmd, capture_output = True, shell = False, check = True)
-      f = clazz._DECLARE_PATTERN.findall(rv.stdout.decode())
-      if not f:
-        return clazz._CLEAN_PATH
-      return f[0].split(path.pathsep)
-    except Exception as ex:
-      pass
-    return clazz._CLEAN_PATH
-
   @classmethod
   #@abstractmethod
   def clean_path(clazz):
     'A clean system PATH with only the bare minimum needed to run shell commands.'
-    return clazz._CLEAN_PATH
+    return clazz._system_path() or clazz._CLEAN_PATH
 
   @classmethod
   #@abstractmethod

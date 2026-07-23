@@ -26,8 +26,6 @@ class tar_util(object):
       raise RuntimeError('src_dir is not a directory: %s' % (src_dir))
     bf_file_ops.mkdir(dst_dir)
     unreadable = file_find.find_unreadable(src_dir)
-    print(f'CACA: unreadable={unreadable}')
-    unreadable = []
     excludes = excludes + unreadable
     exclude_flags = []
     for filename in excludes:
