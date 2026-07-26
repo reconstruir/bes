@@ -18,12 +18,31 @@ class comments(object):
 
   @classmethod
   def _strip_line_allow_quoted(clazz, text, strip_head = False, strip_tail = False):
-    'Strip comments from one line allowing for # to appear in quoted strings .'
-    buf = StringIO()
-    for token in string_lexer.tokenize(text, 'comments_strip_line', options = string_lexer_options.KEEP_QUOTES):
-      if token.token_type not in [ string_lexer.TOKEN_DONE, string_lexer.TOKEN_COMMENT ]:
-        buf.write(token.value)
-    return string_util.strip_ends(buf.getvalue(), strip_head = strip_head, strip_tail = strip_tail)
+    '''
+    Strip comments from one line allowing for # to appear in quoted strings.
+
+    string_lexer raises RuntimeError for a quote character with no matching
+    close on the same line -- correct behavior for an actual key=value/
+    string-list token stream (key_value_parser, string_list_parser, ...),
+    where an unterminated quote is a real syntax error. But this method is
+    also what runs on every line of free-form text (recipe/ini "comment"
+    stripping is applied line-by-line to descriptions and prose, not just
+    to structured data), where a bare apostrophe was never meant to open a
+    quote at all -- "it's" would otherwise take down parsing of an entire
+    file over one word. A line that hits this falls back to the simpler,
+    quote-naive stripper: there is no quote-aware answer for a line whose
+    quote never closes anyway, so naive # splitting is the only sane
+    degraded behavior, scoped to comment-stripping only -- the stricter
+    lexer/parsers above are untouched.
+    '''
+    try:
+      buf = StringIO()
+      for token in string_lexer.tokenize(text, 'comments_strip_line', options = string_lexer_options.KEEP_QUOTES):
+        if token.token_type not in [ string_lexer.TOKEN_DONE, string_lexer.TOKEN_COMMENT ]:
+          buf.write(token.value)
+      return string_util.strip_ends(buf.getvalue(), strip_head = strip_head, strip_tail = strip_tail)
+    except RuntimeError:
+      return clazz._strip_line_disallow_quoted(text, strip_head = strip_head, strip_tail = strip_tail)
 
   @classmethod
   def _strip_line_disallow_quoted(clazz, text, strip_head = False, strip_tail = False):

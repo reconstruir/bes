@@ -19,6 +19,26 @@ class test_comments(unit_test):
     self.assertEqual( '', comments.strip_line('#ab "cd # ef"', allow_quoted = True) )
     self.assertEqual( '"#"', comments.strip_line('"#"', allow_quoted = True) )
     
+  def test_strip_line_allow_quoted_unterminated_single_quote_falls_back(self):
+    '''
+    An apostrophe is not always a quote -- string_lexer treats a lone "'"
+    as opening a quoted string and raises RuntimeError if it never closes
+    on the same line. comments.strip_line must not propagate that for
+    ordinary prose; it falls back to quote-naive stripping for that line
+    instead of crashing the caller (e.g. a recipe description containing
+    "it's").
+    '''
+    self.assertEqual( "it's fine", comments.strip_line("it's fine # comment", strip_tail = True) )
+    self.assertEqual( "'tis nice", comments.strip_line("'tis nice # comment", strip_tail = True) )
+    self.assertEqual( "nice's", comments.strip_line("nice's") )
+    self.assertEqual( "don't stop", comments.strip_line("don't stop # believing", strip_tail = True) )
+
+  def test_strip_line_allow_quoted_balanced_quotes_unaffected(self):
+    'Balanced quotes (the common case, e.g. url="...") keep their existing quote-aware behavior.'
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"', allow_quoted = True) )
+    self.assertEqual( "ab 'cd # ef'", comments.strip_line("ab 'cd # ef'", allow_quoted = True) )
+    self.assertEqual( '"#"', comments.strip_line('"#"', allow_quoted = True) )
+
   def test_strip_line_disallow_quoted(self):
     self.assertEqual( 'ab "cd ', comments.strip_line('ab "cd # ef"', allow_quoted = False) )
     self.assertEqual( 'ab "cd ', comments.strip_line('ab "cd # ef"#comment', allow_quoted = False) )
