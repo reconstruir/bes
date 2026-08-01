@@ -149,9 +149,36 @@ class btask_process(object):
                                      start_time,
                                      end_time)
     result = btask_result(task.task_id, state, result_data, metadata, error, task.args)
-        
-    result_queue.put(result)
-    
+
+    try:
+      result_queue.put(result)
+    except Exception as put_ex:
+      # result/error can hold objects from third-party libraries that pickle can't
+      # serialize (e.g. a class hidden behind a lazy-import shim).  Letting that
+      # exception escape here kills this worker process entirely, so fall back
+      # to a sanitized, guaranteed-picklable result instead.
+      clazz._log.log_e(f'{name}: _task_handle: failed to put result for task_id={task.task_id}: "{put_ex}"; substituting a safe result')
+      clazz._log.log_exception(put_ex)
+      clazz._put_safe_result(name, result_queue, task, metadata, error, put_ex)
+
+  @classmethod
+  def _make_safe_result(clazz, task, metadata, error, put_ex):
+    'Build a guaranteed-picklable btask_result to use when result_queue.put() fails.'
+    if error is not None:
+      safe_error = Exception(f'{type(error).__name__}: {error}')
+    else:
+      safe_error = Exception(f'unpicklable result for task_id={task.task_id}: {put_ex}')
+    return btask_result(task.task_id, btask_result_state.FAILED, None, metadata, safe_error, task.args)
+
+  @classmethod
+  def _put_safe_result(clazz, name, result_queue, task, metadata, error, put_ex):
+    safe_result = clazz._make_safe_result(task, metadata, error, put_ex)
+    try:
+      result_queue.put(safe_result)
+    except Exception as put_ex2:
+      clazz._log.log_e(f'{name}: _task_handle: failed to put fallback result for task_id={task.task_id}: "{put_ex2}"')
+      clazz._log.log_exception(put_ex2)
+
   def start(self):
     if self._process:
       self._log.log_d(f'start: process already started')
