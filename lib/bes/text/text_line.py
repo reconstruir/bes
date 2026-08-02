@@ -19,7 +19,6 @@ class text_line(namedtuple('text_line', 'line_number, text')):
   def __new__(clazz, line_number, text):
     check.check_int(line_number)
     check.check_string(text)
-    
     return clazz.__bases__[0].__new__(clazz, line_number, text)
 
   def __str__(self):

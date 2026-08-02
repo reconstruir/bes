@@ -4,29 +4,25 @@ set -e
 
 function main()
 {
-  source $(_bes_build_best_exe_this_dir)/../bes_bash/bes_bash.bash
+  local _this_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-  local _this_dir="$(_bes_build_best_exe_this_dir)"
+  source ${_this_dir}/../bes_bash/bes_bash.bash
+
   local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
-  local _best="${_root_dir}/bin/best.py"
-  local _best_script="${_root_dir}/bin/best.py"
-  local _best_exe="${_root_dir}/best.exe"
+  local _bat_sh="${_root_dir}/../bat/bin/bat.sh"
+  local _bes_script="${_root_dir}/bin/bes_app.py"
+  local _best_output_exe="${_root_dir}/best.exe"
   local _python_version=$(cat "${_root_dir}/env/python.version")
 
-  ${_best} pyinstaller build \
+  ${_bat_sh} pyinstaller build \
            --build-dir _BES_TEST_BUILD \
            --clean \
            --log-level info \
+           --hidden-import _cffi_backend \
            --python-version ${_python_version} \
-           "${_best_script}" \
-           "${_best_exe}"
+           "${_bes_script}" \
+           "${_best_output_exe}"
   
-  return 0
-}
-
-function _bes_build_best_exe_this_dir()
-{
-  echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
   return 0
 }
 

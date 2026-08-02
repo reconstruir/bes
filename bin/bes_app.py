@@ -8,4 +8,6 @@ def best_main():
   raise SystemExit(bes_application.main())
 
 if __name__ == '__main__':
+  import multiprocessing
+  multiprocessing.freeze_support()
   best_main()
