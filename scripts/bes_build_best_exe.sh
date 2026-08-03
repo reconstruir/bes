@@ -19,6 +19,7 @@ function main()
            --clean \
            --log-level info \
            --hidden-import _cffi_backend \
+           --onefile \
            --python-version ${_python_version} \
            "${_bes_script}" \
            "${_best_output_exe}"
