@@ -31,6 +31,25 @@ class test_system_command_generic(unit_test):
   def test_windows(self):
     pass
 
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
+  def test_popen_command_is_non_blocking(self):
+    import time
+    cmd = system_command_generic('sleep')
+    start = time.monotonic()
+    process = cmd.popen_command([ '2' ])
+    elapsed = time.monotonic() - start
+    self.assertLess(elapsed, 1.0)
+    self.assertIsNotNone(process.pid)
+    self.assertIsNone(process.poll())
+    exit_code = process.wait()
+    self.assertEqual(0, exit_code)
+
+  def test_popen_command_missing_exe_raises_immediately(self):
+    from bes.system.system_error import system_error
+    cmd = system_command_generic('this-command-definitely-does-not-exist-xyz')
+    with self.assertRaises(system_error):
+      cmd.popen_command([])
+
   def _make_test_dir(self):
     tmp_dir = self.make_temp_dir()
     bf_file_ops.save(path.join(tmp_dir, 'a.txt'), content = 'this is a')

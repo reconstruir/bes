@@ -132,6 +132,58 @@ class system_command(object, metaclass = ABCMeta):
                            quote = quote)
 
   @classmethod
+  def popen_command(clazz,
+                    args,
+                    env = None,
+                    use_sudo = False,
+                    stderr_to_stdout = False,
+                    check_python_script = True,
+                    quote = False):
+    '''
+    Like call_command() but launches non-blocking: returns a live
+    subprocess.Popen immediately instead of waiting for the command to
+    exit. For commands that attach and run indefinitely (e.g. a VM
+    runner) rather than complete and return -- call_command() would hang
+    for as long as the command runs.
+    '''
+    check.check_string_seq(args)
+    check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    check.check_bool(use_sudo)
+    check.check_bool(stderr_to_stdout)
+    check.check_bool(check_python_script)
+    check.check_bool(quote)
+
+    clazz.check_supported()
+
+    clazz._log.log_d('popen_command: args={}'.format(' '.join(args)))
+
+    if isinstance(args, ( list, tuple )):
+      parsed_args = list(args)
+    elif isinstance(args, compat.STRING_TYPES):
+      parsed_args = command_line.parse_args(args)
+    else:
+      raise TypeError('Invalid args type.  Should be tuple, list or string: {} - {}'.format(args,
+                                                                                            type(args)))
+
+    exe = clazz._find_exe()
+    static_args = clazz.static_args() or []
+    if not isinstance(static_args, ( list, tuple )):
+      raise TypeError('Return value of static_args() should be list or tuple: {} - {}'.format(static_args,
+                                                                                              type(static_args)))
+    cmd = []
+    if use_sudo:
+      cmd.append('sudo')
+    cmd.append(exe)
+    cmd.extend(list(static_args))
+    cmd.extend(parsed_args)
+    clazz._log.log_d('popen_command: cmd="{}" env="{}"'.format(' '.join(cmd), env))
+    return execute.popen(cmd,
+                         stderr_to_stdout = stderr_to_stdout,
+                         env = env,
+                         check_python_script = check_python_script,
+                         quote = quote)
+
+  @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
     'Call a command that returns a list of lines'
     rv = clazz.call_command(args, raise_error = True)
