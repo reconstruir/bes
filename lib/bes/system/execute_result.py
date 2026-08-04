@@ -54,7 +54,14 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
       self.log_error(tag = tag)
     if print_error:
       self.print_error()
-    ex = RuntimeError(self.stdout)
+    # stdout alone can be empty even on a real failure -- a command that
+    # dies early (e.g. "set -e" tripped on its first line) may have
+    # written nothing to stdout and everything to stderr, which used to
+    # be silently dropped here, raising an uninformative RuntimeError('').
+    parts = [ p.strip() for p in (self.stdout, self.stderr) if p.strip() ]
+    message = ' - '.join(parts) if parts else \
+      f'command exited with code {self.exit_code}: {self._command_to_string()}'
+    ex = RuntimeError(message)
     setattr(ex, 'execute_result', self)
     raise ex
 
