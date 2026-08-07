@@ -1,7 +1,0 @@
-# pytest
-pytest
-pytest-xdist
-
-# pyinstaller
-pyinstaller
-

@@ -1,6 +1,0 @@
-# Requests
-requests                                   # https://github.com/kennethreitz/requests
-xattr >= 1.1.0; sys_platform != "win32"    # https://github.com/xattr/xattr
-puremagic >= 1.23                          # https://github.com/cdgriffith/puremagic
-python-magic-bin; sys_platform == "win32"  # https://github.com/julian-r/python-magic
-python-magic; sys_platform == "linux"      # https://github.com/julian-r/python-magic
