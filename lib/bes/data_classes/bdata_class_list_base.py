@@ -80,7 +80,11 @@ class bdata_class_list_base(type_checked_list):
 
   def to_pickle(self):
     l = self.to_dict_list()
-    return pickle.dumps(l)
+    # Pin the protocol explicitly -- pickle.DEFAULT_PROTOCOL varies by
+    # Python version (4 through 3.13, 5 starting in 3.14), which would
+    # otherwise make this output depend on whichever interpreter happens
+    # to run it.
+    return pickle.dumps(l, protocol = 5)
 
   def to_base64_pickle(self):
     p = self.to_pickle()
