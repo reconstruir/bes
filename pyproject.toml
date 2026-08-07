@@ -7,7 +7,7 @@ name = "bes"
 dynamic = ["version"]
 description = "An experimental collection of modules related to automation and CICD"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 license = { text = "Apache-2.0" }
 authors = [
     { name = "Ramiro Estrugo", email = "bes@fateware.com" },
