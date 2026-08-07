@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import hashlib
+import os
 import os.path as path
+import subprocess
+import sys
+import bes
 from bes.testing.unit_test import unit_test
 from bes.fs._detail.file_metadata_db import file_metadata_db
 from bes.fs.file_metadata import file_metadata
@@ -144,6 +149,55 @@ class test_file_metadata(unit_test):
     self.assertEqual( [], db.get_values('something', tmp_file) )
     self.assertEqual( False, db._db._db.has_table(db._table_name('something', tmp_file)) )
     
+  def test_unsigned_hash_matches_sha256_not_builtin_hash(self):
+    '''
+    Ties _unsigned_hash() to a specific, verifiable algorithm (sha256 of
+    the utf-8 filename, first 16 bytes as an int) rather than just
+    asserting "it returns something" -- a regression back to Python's
+    builtin hash() would still return *some* int and could slip past a
+    weaker test.
+    '''
+    filename = 'some/file/path.txt'
+    expected = int(hashlib.sha256(filename.encode('utf-8')).hexdigest()[:32], 16)
+    self.assertEqual( expected, file_metadata_db._unsigned_hash(filename) )
+
+  def test_unsigned_hash_is_stable_across_separate_processes(self):
+    '''
+    The actual bug this class used to have, reproduced directly: Python's
+    builtin hash() on a str is randomized per-process by default
+    (PYTHONHASHSEED), so a value written by one process was silently
+    unreadable by another (bat's ingest_provenance marker going missing
+    between separate "bat ingest run" / "bat ingest prune_store"
+    invocations against a vfs_local store is what surfaced this -- see
+    bat/claude-docs/build-arch-normalization.md). Spawn two real, separate
+    Python processes with different PYTHONHASHSEED values and confirm
+    _unsigned_hash() -- and therefore _table_name() -- computes the exact
+    same value in both; this is the one thing a same-process test can
+    never actually prove, since a single process only ever has one seed.
+    '''
+    filename = 'some/file/path.txt'
+    code = (
+      'from bes.fs._detail.file_metadata_db import file_metadata_db\n'
+      'print(file_metadata_db._unsigned_hash({!r}))\n'
+    ).format(filename)
+
+    def _run_with_hashseed(seed):
+      env = dict(os.environ)
+      env['PYTHONHASHSEED'] = seed
+      # bes's own lib dir -- wherever this repo actually happens to be
+      # checked out, not an assumption about relative test-file depth
+      env['PYTHONPATH'] = path.dirname(path.dirname(path.abspath(bes.__file__)))
+      result = subprocess.run([ sys.executable, '-c', code ], env = env,
+                              capture_output = True, text = True, check = True)
+      return result.stdout.strip()
+
+    hash_seed_0 = _run_with_hashseed('0')
+    hash_seed_42 = _run_with_hashseed('42')
+    self.assertEqual( hash_seed_0, hash_seed_42 )
+    # and it must match the same deterministic value computed in *this*
+    # (a third, independent) process
+    self.assertEqual( str(file_metadata_db._unsigned_hash(filename)), hash_seed_0 )
+
 if __name__ == '__main__':
   unit_test.main()
     

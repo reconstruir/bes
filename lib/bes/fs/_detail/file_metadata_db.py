@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import sys
+import hashlib
 from bes.system.check import check
 from bes.common.string_util import string_util
 from bes.key_value.key_value import key_value
@@ -44,9 +44,35 @@ create table if not exists hash_to_filename(
 
   @classmethod
   def _unsigned_hash(clazz, filename):
+    '''
+    A stable, deterministic hash of filename -- used to name this file's
+    per-"what" attribute table (_table_name(), below) and as the
+    reverse-lookup key in hash_to_filename. This *must* produce the same
+    value for the same filename across separate process invocations
+    touching the same on-disk db: file_metadata is meant to persist
+    (that is the entire point of writing it to a sqlite file rather than
+    keeping it in memory), and separate bat/bes-based CLI invocations
+    routinely read a db a previous, separate process wrote.
+
+    Previously this used Python's builtin hash(filename) -- silently
+    wrong for exactly that reason: CPython randomizes str hash() per
+    process by default (hash randomization, on since 3.3, reseeded every
+    interpreter start unless PYTHONHASHSEED is fixed), so the *same*
+    filename produced a *different* table name in every new process. A
+    value written by one process was therefore invisible to
+    get_values()/get_value() called from any other process -- not an
+    error, just a silent, empty read (has_table() on the wrong,
+    never-created table name), discovered via bat's ingest_provenance
+    upload marker (see bat/claude-docs/build-arch-normalization.md)
+    going missing across separate "bat ingest run" / "bat ingest
+    prune_store" invocations against a vfs_local store. sha256 is used
+    instead purely for its determinism -- no cryptographic property is
+    actually needed here, it is not exposed or security-sensitive, just
+    a stable table-name suffix.
+    '''
     check.check_string(filename)
-    return hash(filename) + sys.maxsize
-    
+    return int(hashlib.sha256(filename.encode('utf-8')).hexdigest()[:32], 16)
+
   @classmethod
   def _table_name(clazz, what, filename):
     return '{}_{}'.format(what, clazz._unsigned_hash(filename))
