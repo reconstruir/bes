@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 dist/
 lib/bes.egg-info/
+lib/bes/_version.py
 
 # dotenv
 .env

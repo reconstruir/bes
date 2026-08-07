@@ -43,6 +43,20 @@ The `./r` script sets up `PYTHONPATH` to include sibling project `lib/` director
 
 ## Git Commits
 
-- `cc.txt` in the repo root is never tracked in git (it should be in `.gitignore`).
+- `cc.txt` in the repo root must NEVER be `git add`ed or committed, under
+  any circumstances — not even as part of a broader `git add` of everything
+  staged, not even via `git add -A`/`git add .`. Name files explicitly when
+  staging (`git add file1.py file2.py`, never a blanket add), and always
+  double check `git status` before committing to make sure `cc.txt` isn't
+  in the staged list. This repo's own history already shows the cost of
+  getting this wrong — `cc.txt` has been committed and then removed again
+  8 separate times.
+- **Do NOT put `cc.txt` in `.gitignore`.** It must stay visible as an
+  untracked file (`?? cc.txt` in `git status`) on purpose — that visibility
+  is the point, not a bug. Gitignoring it only hides the problem instead of
+  fixing the actual habit of never `git add`ing it explicitly; the rule is
+  behavioral (never stage it), not structural (don't rely on `.gitignore`,
+  a build tool, or anything else to enforce it for you).
 - After completing a coding task, write the git commit message to `cc.txt`, overwriting any previous content. It is not a changelog — just a convenient cut-and-paste staging area for the commit message covering the current staged changes.
-- Stage modified and new files with `git add` and removed files with `git rm` as appropriate before writing `cc.txt`.
+- Stage modified and new files with `git add` and removed files with `git rm` as appropriate before writing `cc.txt` — but never `cc.txt` itself.
+- Never put a `Co-Authored-By: Claude ...` line (or any AI-attribution trailer) in a commit message or in `cc.txt`.
